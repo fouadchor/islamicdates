@@ -38,6 +38,13 @@ const altHref = lang === 'ar' ? '/en/' : '/';
   <meta name="twitter:description" content={description} />
   <meta name="twitter:image" content="https://islamicdates.org/og-image.png" />
   {jsonLd && <script type="application/ld+json" set:html={jsonLd} />}
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-T61RBS62N7"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-T61RBS62N7');
+  </script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1722763564281190" crossorigin="anonymous"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
