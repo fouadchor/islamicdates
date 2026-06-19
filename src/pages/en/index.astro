@@ -1,0 +1,109 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import TodayIsland from '../../components/TodayIsland';
+import CalendarIsland from '../../components/CalendarIsland';
+import ConverterIsland from '../../components/ConverterIsland';
+import UpcomingIsland from '../../components/UpcomingIsland';
+import { H_MON_EN, MONTHS_NOTES_EN } from '../../lib/data';
+import { getL } from '../../lib/data';
+
+const L = getL(false);
+
+const jsonLd = JSON.stringify([
+  {
+    "@context":"https://schema.org","@type":"WebApplication",
+    "name":"Hijri Calendar","alternateName":"التقويم الهجري",
+    "url":"https://islamicdates.org/en/",
+    "description":"Hijri calendar today with Gregorian date comparison, browse Hijri months, quick date converter between Hijri and Gregorian, and upcoming Islamic occasions based on the Umm al-Qura calendar.",
+    "applicationCategory":"UtilitiesApplication","operatingSystem":"Web",
+    "inLanguage":["ar","en"],"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}
+  },
+  {
+    "@context":"https://schema.org","@type":"FAQPage",
+    "mainEntity": L.faqItems.map(f => ({ "@type":"Question","name":f.q,"acceptedAnswer":{"@type":"Answer","text":f.a} }))
+  }
+]);
+---
+
+<Layout
+  title="Hijri Calendar Today · Islamic Date & Gregorian Converter | Umm al-Qura"
+  description="Today's Hijri (Islamic) date next to the Gregorian date, browse Hijri months, quick Hijri–Gregorian date converter, and upcoming Islamic occasions based on the Umm al-Qura calendar."
+  canonical="https://islamicdates.org/en/"
+  lang="en"
+  jsonLd={jsonLd}
+>
+  <header class="site-header">
+    <div class="logo">
+      <div class="logo-icon">☾</div>
+      <div>
+        <div class="brand">{L.brand}</div>
+        <div class="tagline">{L.tagline}</div>
+      </div>
+    </div>
+    <a href="/" class="lang-btn">ع</a>
+  </header>
+
+  <div class="layout">
+    <main>
+      <TodayIsland lang="en" client:load />
+      <CalendarIsland lang="en" client:load />
+      <ConverterIsland lang="en" client:visible />
+      <UpcomingIsland lang="en" client:visible />
+
+      <section class="card section-card" style="order:6">
+        <h2 class="section-h2">{L.whatIsTitle}</h2>
+        <p class="section-p">{L.whatIsBody}</p>
+        <h2 class="section-h2" style="margin-top:22px">{L.diffTitle}</h2>
+        <p class="section-p">{L.diffBody}</p>
+        <h2 class="section-h2" style="margin-top:22px">{L.howTitle}</h2>
+        <p class="section-p">{L.howBody}</p>
+      </section>
+
+      <section class="card section-card" style="order:7">
+        <h2 class="section-h2">{L.monthsTitle}</h2>
+        <div class="months-grid">
+          {H_MON_EN.map((name, i) => (
+            <div class="month-item">
+              <span class="month-num">{i + 1}</span>
+              <div>
+                <div class="month-name">{name}</div>
+                <div class="month-note">{MONTHS_NOTES_EN[i]}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section class="card section-card" style="order:8">
+        <h2 class="section-h2">{L.aboutTitle}</h2>
+        <p class="section-p">{L.aboutBody}</p>
+        <h2 class="section-h2" style="margin-top:24px">{L.faqTitle}</h2>
+        {L.faqItems.map(f => (
+          <div class="faq-item">
+            <h3 class="faq-q">{f.q}</h3>
+            <p class="faq-a">{f.a}</p>
+          </div>
+        ))}
+      </section>
+    </main>
+
+    <aside>
+      <div class="ad-slot">
+        <span class="ad-label">{L.ad}</span>
+        <span style="font-size:13px;opacity:.7">300 × 250</span>
+      </div>
+
+      <div class="card" style="padding:18px 20px">
+        <h3 style="margin:0 0 12px;font-size:15.5px;font-weight:700">{L.legend}</h3>
+        <div style="display:flex;flex-direction:column;gap:11px;font-size:14px">
+          <div style="display:flex;gap:11px;align-items:center"><span style="width:12px;height:12px;border-radius:50%;background:var(--accent);flex:0 0 auto"></span>{L.legendToday}</div>
+          <div style="display:flex;gap:11px;align-items:center"><span style="width:12px;height:12px;border-radius:50%;background:var(--gold);flex:0 0 auto"></span>{L.legendEid}</div>
+          <div style="display:flex;gap:11px;align-items:center"><span style="width:12px;height:12px;border-radius:50%;background:var(--holy);flex:0 0 auto"></span>{L.legendHoly}</div>
+          <div style="display:flex;gap:11px;align-items:center"><span style="width:12px;height:12px;border-radius:4px;background:var(--accent-soft);border:1px solid var(--accent);flex:0 0 auto"></span>{L.legendRam}</div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="site-footer">{L.footer}</footer>
+</Layout>
