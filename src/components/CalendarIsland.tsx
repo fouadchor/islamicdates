@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { g2h, h2g, daysInHMonth, getOcc, dotColor, todayUTC } from '../lib/hijri';
 import type { HDate } from '../lib/hijri';
 import { H_MON_AR, H_MON_EN, G_MON_AR, G_MON_EN, G_SHORT_AR, G_SHORT_EN, WD_AR, WD_EN, WD_HEAD_AR, WD_HEAD_EN } from '../lib/data';
@@ -7,6 +7,17 @@ interface Props { lang: 'ar' | 'en' }
 
 export default function CalendarIsland({ lang }: Props) {
   const ar = lang === 'ar';
+
+  // Force re-render on mount (to correct stale SSR date) and at midnight (so "today" stays accurate)
+  const [, forceUpdate] = useState(0);
+  useEffect(() => {
+    forceUpdate(n => n + 1); // immediate correction after hydration
+    const now = new Date();
+    const msToMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).getTime() - now.getTime();
+    const t = setTimeout(() => forceUpdate(n => n + 1), msToMidnight);
+    return () => clearTimeout(t);
+  }, []);
+
   const today = todayUTC();
   const todayH = g2h(today);
   const todayKey = today.getUTCFullYear() * 10000 + (today.getUTCMonth() + 1) * 100 + today.getUTCDate();
