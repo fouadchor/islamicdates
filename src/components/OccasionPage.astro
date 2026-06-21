@@ -1,0 +1,193 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { OCCASIONS, occurrencesInGYear, gYears, fmtG, fmtGShort, fmtH, isoUTC, occBasePath } from '../lib/occasions';
+
+interface Props { lang: 'ar' | 'en'; slug: string; gYear: number; }
+const { lang, slug, gYear } = Astro.props;
+const ar = lang === 'ar';
+const occ = OCCASIONS.find(o => o.slug === slug)!;
+const loc = ar ? occ.ar : occ.en;
+
+const occs = occurrencesInGYear(occ.hm, occ.hd, gYear);
+const first = occs[0];
+
+// Same occasion across all years (for internal-link table)
+const yearRows = gYears().map(y => {
+  const list = occurrencesInGYear(occ.hm, occ.hd, y);
+  return list.length ? { year: y, date: list[0].date, href: occBasePath(slug, y, ar), current: y === gYear } : null;
+}).filter(Boolean) as { year: number; date: Date; href: string; current: boolean }[];
+
+// Other occasions in the same Gregorian year (cross-links)
+const otherOcc = OCCASIONS.filter(o => o.slug !== slug)
+  .map(o => {
+    const list = occurrencesInGYear(o.hm, o.hd, gYear);
+    return list.length ? { name: (ar ? o.ar : o.en).name, href: occBasePath(o.slug, gYear, ar), date: list[0].date } : null;
+  }).filter(Boolean)
+  .sort((a, b) => a!.date.getTime() - b!.date.getTime()) as { name: string; href: string; date: Date }[];
+
+const canonical = `https://islamicdates.org${occBasePath(slug, gYear, ar)}`;
+const altHref = occBasePath(slug, gYear, !ar);
+
+const title = ar
+  ? `متى ${loc.name} ${gYear}؟ التاريخ بالهجري والميلادي | تقويم أم القرى`
+  : `When is ${loc.name} ${gYear}? Date in Hijri & Gregorian | Umm al-Qura`;
+const description = ar
+  ? `${loc.name} ${gYear}: ${first ? fmtG(first.date, true) + ' الموافق ' + fmtH(first.hy, occ.hm, occ.hd, true) : ''}. التاريخ الدقيق وفق تقويم أم القرى مع العد التنازلي.`
+  : `${loc.name} ${gYear}: ${first ? fmtG(first.date, false) + ', corresponding to ' + fmtH(first.hy, occ.hm, occ.hd, false) : ''}. The exact date per the Umm al-Qura calendar with a countdown.`;
+
+const breadcrumb = {
+  "@context": "https://schema.org", "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": ar ? "الرئيسية" : "Home", "item": ar ? "https://islamicdates.org/" : "https://islamicdates.org/en/" },
+    { "@type": "ListItem", "position": 2, "name": `${loc.name} ${gYear}`, "item": canonical },
+  ],
+};
+const events = occs.map(o => ({
+  "@context": "https://schema.org", "@type": "Event",
+  "name": `${loc.name} ${gYear}`,
+  "startDate": isoUTC(o.date),
+  "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+  "eventStatus": "https://schema.org/EventScheduled",
+  "description": loc.what,
+  "location": { "@type": "VirtualLocation", "url": canonical },
+}));
+const jsonLd = JSON.stringify([breadcrumb, ...events]);
+
+const t = {
+  h1: ar ? `متى ${loc.name} ${gYear}؟` : `When is ${loc.name} ${gYear}?`,
+  answer: ar ? 'الإجابة' : 'The answer',
+  corresponds: ar ? 'الموافق' : 'corresponding to',
+  twiceNote: ar ? `يقع ${loc.name} مرتين في عام ${gYear} الميلادي بسبب قِصَر السنة الهجرية عن الميلادية.`
+                : `${loc.name} occurs twice in ${gYear} because the Hijri year is shorter than the Gregorian year.`,
+  whatTitle: ar ? `ما هو ${loc.name}؟` : `What is ${loc.name}?`,
+  howTitle: ar ? 'كيف يُحدَّد التاريخ؟' : 'How is the date determined?',
+  howBody: ar ? 'تُحسب التواريخ هنا فلكياً وفق معايير تقويم أم القرى المعتمد في السعودية. وقد تعتمد بعض الدول على رؤية الهلال المباشرة، فيختلف التاريخ الفعلي بيوم واحد تقريباً بين دولة وأخرى.'
+              : 'Dates here are calculated astronomically per the Umm al-Qura standard used in Saudi Arabia. Some countries rely on direct moon sighting instead, so the actual date can differ by about one day between regions.',
+  yearsTitle: ar ? `تواريخ ${loc.name} عبر السنوات` : `${loc.name} dates by year`,
+  otherTitle: ar ? `مناسبات أخرى في ${gYear}` : `Other occasions in ${gYear}`,
+  toolsTitle: ar ? 'أدوات ذات صلة' : 'Related tools',
+  fullCal: ar ? 'التقويم الهجري الكامل وتاريخ اليوم' : 'Full Hijri calendar & today\'s date',
+  converter: ar ? 'محوّل التاريخ الهجري والميلادي' : 'Hijri–Gregorian date converter',
+  countdownLabel: ar ? 'العد التنازلي' : 'Countdown',
+  th_year: ar ? 'السنة' : 'Year',
+  th_greg: ar ? 'التاريخ الميلادي' : 'Gregorian date',
+  th_hijri: ar ? 'التاريخ الهجري' : 'Hijri date',
+};
+---
+<Layout title={title} description={description} canonical={canonical} lang={lang} jsonLd={jsonLd} altPath={altHref} xDefaultPath={occBasePath(slug, gYear, true)}>
+  <header class="site-header">
+    <div class="logo">
+      <div class="logo-icon">☾</div>
+      <div>
+        <div class="brand">{ar ? 'التقويم الهجري' : 'Hijri Calendar'}</div>
+        <div class="tagline">{ar ? loc.name + ' ' + gYear : loc.name + ' ' + gYear}</div>
+      </div>
+    </div>
+    <a href={altHref} class="lang-btn">{ar ? 'EN' : 'ع'}</a>
+  </header>
+
+  <div class="layout">
+    <main>
+      <section class="card section-card" style="order:1">
+        <h1 class="section-h2" style="font-size:25px">{t.h1}</h1>
+        {first ? (
+          <>
+            <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:18px;align-items:baseline">
+              <div>
+                <div style="font-size:13px;color:var(--muted);font-weight:600;letter-spacing:.04em;text-transform:uppercase">{t.answer}</div>
+                <div style="font-size:26px;font-weight:800;color:var(--accent);margin-top:4px;line-height:1.25">{fmtG(first.date, ar)}</div>
+                <div style="font-size:16px;color:var(--muted);margin-top:4px">{t.corresponds} {fmtH(first.hy, occ.hm, occ.hd, ar)}</div>
+              </div>
+              <div style="margin-inline-start:auto;text-align:center;background:var(--accent-soft);border-radius:14px;padding:14px 20px;min-width:120px">
+                <div style="font-size:12px;color:var(--accent);font-weight:700;letter-spacing:.04em;text-transform:uppercase">{t.countdownLabel}</div>
+                <div id="occ-countdown" style="font-size:20px;font-weight:800;color:var(--accent);margin-top:4px">—</div>
+              </div>
+            </div>
+            {occs.length > 1 && (
+              <p class="section-p" style="margin-top:16px">{t.twiceNote} {occs.map(o => fmtG(o.date, ar)).join(ar ? ' و ' : ' and ')}.</p>
+            )}
+          </>
+        ) : null}
+      </section>
+
+      <section class="card section-card" style="order:2">
+        <h2 class="section-h2">{t.whatTitle}</h2>
+        <p class="section-p">{loc.what}</p>
+        <h2 class="section-h2" style="margin-top:22px">{t.howTitle}</h2>
+        <p class="section-p">{t.howBody}</p>
+      </section>
+
+      <section class="card section-card" style="order:3">
+        <h2 class="section-h2">{t.yearsTitle}</h2>
+        <div style="overflow-x:auto;margin-top:12px">
+          <table style="width:100%;border-collapse:collapse;font-size:14.5px">
+            <thead>
+              <tr style="text-align:start;color:var(--muted)">
+                <th style="text-align:start;padding:8px 10px;border-bottom:1px solid var(--border);font-weight:600">{t.th_year}</th>
+                <th style="text-align:start;padding:8px 10px;border-bottom:1px solid var(--border);font-weight:600">{t.th_greg}</th>
+                <th style="text-align:start;padding:8px 10px;border-bottom:1px solid var(--border);font-weight:600">{t.th_hijri}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {yearRows.map(r => (
+                <tr style={r.current ? 'background:var(--accent-soft)' : ''}>
+                  <td style="padding:8px 10px;border-bottom:1px solid var(--border);font-weight:700">
+                    {r.current ? <span>{r.year}</span> : <a href={r.href} style="color:var(--accent);text-decoration:none">{r.year}</a>}
+                  </td>
+                  <td style="padding:8px 10px;border-bottom:1px solid var(--border)">{fmtGShort(r.date, ar)}</td>
+                  <td style="padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted)">{fmtH(occurrencesInGYear(occ.hm, occ.hd, r.year)[0].hy, occ.hm, occ.hd, ar)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <aside>
+      <div class="ad-slot">
+        <span class="ad-label">{ar ? 'مساحة إعلانية' : 'Advertisement'}</span>
+        <span style="font-size:13px;opacity:.7">300 × 250</span>
+      </div>
+
+      <div class="card" style="padding:18px 20px">
+        <h3 style="margin:0 0 12px;font-size:15.5px;font-weight:700">{t.toolsTitle}</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:14.5px">
+          <a href={ar ? '/' : '/en/'} style="color:var(--accent);text-decoration:none">{t.fullCal}</a>
+          <a href={ar ? '/' : '/en/'} style="color:var(--accent);text-decoration:none">{t.converter}</a>
+        </div>
+      </div>
+
+      {otherOcc.length > 0 && (
+        <div class="card" style="padding:18px 20px">
+          <h3 style="margin:0 0 12px;font-size:15.5px;font-weight:700">{t.otherTitle}</h3>
+          <div style="display:flex;flex-direction:column;gap:10px;font-size:14.5px">
+            {otherOcc.map(o => (
+              <a href={o.href} style="color:var(--accent);text-decoration:none">{o.name} {gYear}</a>
+            ))}
+          </div>
+        </div>
+      )}
+    </aside>
+  </div>
+
+  <footer class="site-footer">
+    {ar ? 'الحساب وفق تقويم أم القرى · للأغراض التقريبية' : 'Dates based on the Umm al-Qura calendar · for reference'}
+    <span style="margin:0 8px;opacity:.4">·</span>
+    <a href={ar ? '/privacy/' : '/en/privacy/'} style="color:var(--muted);text-decoration:none;font-size:13px">{ar ? 'سياسة الخصوصية' : 'Privacy Policy'}</a>
+  </footer>
+
+  <script define:vars={{ targetIso: first ? isoUTC(first.date) : null, ar }}>
+    (function () {
+      var el = document.getElementById('occ-countdown');
+      if (!el || !targetIso) return;
+      var target = new Date(targetIso + 'T00:00:00Z');
+      var now = new Date();
+      var today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+      var diff = Math.round((target - today) / 86400000);
+      if (diff > 0) el.textContent = ar ? ('باقٍ ' + diff + ' يوم') : (diff + (diff === 1 ? ' day left' : ' days left'));
+      else if (diff === 0) el.textContent = ar ? 'اليوم' : 'Today';
+      else el.textContent = ar ? 'انقضى' : 'Passed';
+    })();
+  </script>
+</Layout>
