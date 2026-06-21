@@ -5,11 +5,14 @@ interface Props {
   canonical: string;
   lang: 'ar' | 'en';
   jsonLd?: string;
+  altPath?: string;
+  xDefaultPath?: string;
 }
-const { title, description, canonical, lang, jsonLd } = Astro.props;
+const { title, description, canonical, lang, jsonLd, altPath, xDefaultPath } = Astro.props;
 const dir = lang === 'ar' ? 'rtl' : 'ltr';
 const altLang = lang === 'ar' ? 'en' : 'ar';
-const altHref = lang === 'ar' ? '/en/' : '/';
+const altHref = altPath ?? (lang === 'ar' ? '/en/' : '/');
+const xDefHref = xDefaultPath ?? '/';
 ---
 <!DOCTYPE html>
 <html lang={lang} dir={dir}>
@@ -23,7 +26,7 @@ const altHref = lang === 'ar' ? '/en/' : '/';
   <link rel="canonical" href={canonical} />
   <link rel="alternate" hreflang={lang} href={canonical} />
   <link rel="alternate" hreflang={altLang} href={`https://islamicdates.org${altHref}`} />
-  <link rel="alternate" hreflang="x-default" href="https://islamicdates.org/" />
+  <link rel="alternate" hreflang="x-default" href={`https://islamicdates.org${xDefHref}`} />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content={title} />
