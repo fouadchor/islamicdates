@@ -6,8 +6,21 @@ import ConverterIsland from '../../components/ConverterIsland';
 import UpcomingIsland from '../../components/UpcomingIsland';
 import { H_MON_EN, MONTHS_NOTES_EN } from '../../lib/data';
 import { getL } from '../../lib/data';
+import { OCCASIONS, occurrencesInGYear, occBasePath, fmtGShort } from '../../lib/occasions';
 
 const L = getL(false);
+
+const _featured = ['ramadan', 'eid-al-fitr', 'eid-al-adha', 'ashura', 'mawlid-al-nabi', 'islamic-new-year'];
+const _homeYears = (() => { const y = new Date().getUTCFullYear(); return [y, y+1]; })();
+const occLinks = [];
+for (const _y of _homeYears) {
+  for (const _slug of _featured) {
+    const _o = OCCASIONS.find(x => x.slug === _slug);
+    if (!_o) continue;
+    const _occ = occurrencesInGYear(_o.hm, _o.hd, _y)[0];
+    if (_occ) occLinks.push({ name: _o.en.name, year: _y, href: occBasePath(_slug, _y, false), date: _occ.date });
+  }
+}
 
 const jsonLd = JSON.stringify([
   {
@@ -49,6 +62,21 @@ const jsonLd = JSON.stringify([
       <CalendarIsland lang="en" client:load />
       <ConverterIsland lang="en" client:visible />
       <UpcomingIsland lang="en" client:visible />
+
+      <section class="card section-card" style="order:5">
+        <h2 class="section-h2">Islamic occasion dates</h2>
+        <p class="section-p" style="margin-bottom:14px">See each occasion's Hijri & Gregorian date with a countdown</p>
+        <div class="months-grid">
+          {occLinks.map(o => (
+            <a href={o.href} class="month-item" style="text-decoration:none;color:inherit">
+              <div>
+                <div class="month-name">{o.name} {o.year}</div>
+                <div class="month-note">{fmtGShort(o.date, false)}</div>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
 
       <section class="card section-card" style="order:6">
         <h2 class="section-h2">{L.whatIsTitle}</h2>

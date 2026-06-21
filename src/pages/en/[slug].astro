@@ -1,0 +1,18 @@
+---
+import OccasionPage from '../../components/OccasionPage.astro';
+import { OCCASIONS, gYears, occurrencesInGYear } from '../../lib/occasions';
+
+export function getStaticPaths() {
+  const paths = [];
+  for (const occ of OCCASIONS) {
+    for (const y of gYears()) {
+      if (occurrencesInGYear(occ.hm, occ.hd, y).length) {
+        paths.push({ params: { slug: `${occ.slug}-${y}` }, props: { occSlug: occ.slug, gYear: y } });
+      }
+    }
+  }
+  return paths;
+}
+const { occSlug, gYear } = Astro.props;
+---
+<OccasionPage lang="en" slug={occSlug} gYear={gYear} />
