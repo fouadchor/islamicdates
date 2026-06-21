@@ -8,25 +8,32 @@ interface Props { lang: 'ar' | 'en' }
 export default function CalendarIsland({ lang }: Props) {
   const ar = lang === 'ar';
 
-  // Force re-render on mount (to correct stale SSR date) and at midnight (so "today" stays accurate)
-  const [, forceUpdate] = useState(0);
-  useEffect(() => {
-    forceUpdate(n => n + 1); // immediate correction after hydration
-    const now = new Date();
-    const msToMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).getTime() - now.getTime();
-    const t = setTimeout(() => forceUpdate(n => n + 1), msToMidnight);
-    return () => clearTimeout(t);
-  }, []);
-
-  const today = todayUTC();
-  const todayH = g2h(today);
-  const todayKey = today.getUTCFullYear() * 10000 + (today.getUTCMonth() + 1) * 100 + today.getUTCDate();
-
-  const [viewY, setViewY] = useState(todayH.y);
-  const [viewM, setViewM] = useState(todayH.m);
+  // "Today" must come from the visitor's own clock, never the build server — a static
+  // build would otherwise bake a stale date (and a stray highlight in other months).
+  const buildTH = g2h(todayUTC()); // build-time month, used only as the initial view
+  const [todayKey, setTodayKey] = useState<number | null>(null);
+  const [viewY, setViewY] = useState(buildTH.y);
+  const [viewM, setViewM] = useState(buildTH.m);
   const [fading, setFading] = useState(false);
   const [selDate, setSelDate] = useState<Date | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const navedRef = useRef(false);
+
+  // On mount: set today's highlight from the local clock and jump the view to today's
+  // month; refresh again at the next local midnight so the highlight moves on its own.
+  useEffect(() => {
+    const apply = () => {
+      const t = todayUTC();
+      const th = g2h(t);
+      setTodayKey(t.getUTCFullYear() * 10000 + (t.getUTCMonth() + 1) * 100 + t.getUTCDate());
+      if (!navedRef.current) { setViewY(th.y); setViewM(th.m); }
+    };
+    apply();
+    const now = new Date();
+    const msToMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).getTime() - now.getTime();
+    const t = setTimeout(apply, msToMidnight + 1000);
+    return () => clearTimeout(t);
+  }, []);
 
   const hMon  = ar ? H_MON_AR  : H_MON_EN;
   const gMon  = ar ? G_MON_AR  : G_MON_EN;
@@ -45,6 +52,7 @@ export default function CalendarIsland({ lang }: Props) {
   };
 
   const nav = (delta: number) => {
+    navedRef.current = true;
     setFading(true);
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => {
@@ -58,7 +66,8 @@ export default function CalendarIsland({ lang }: Props) {
   const goToday = () => {
     setFading(true);
     if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => { setViewY(todayH.y); setViewM(todayH.m); setFading(false); }, 150);
+    const th = g2h(todayUTC());
+    timerRef.current = setTimeout(() => { setViewY(th.y); setViewM(th.m); setFading(false); }, 150);
   };
 
   const total = daysInHMonth(viewY, viewM);
@@ -73,7 +82,7 @@ export default function CalendarIsland({ lang }: Props) {
     const key  = date.getUTCFullYear() * 10000 + (date.getUTCMonth() + 1) * 100 + date.getUTCDate();
     const gd   = date.getUTCDate();
     const showMon = d === 1 || gd === 1;
-    cells.push({ show:true, d, date, key, isToday: key===todayKey, isSel: selDate ? key === (selDate.getUTCFullYear()*10000+(selDate.getUTCMonth()+1)*100+selDate.getUTCDate()) : false, isRam: viewM===9, occ: getOcc(viewM,d), showMon, gmShort: gShort[date.getUTCMonth()], gd });
+    cells.push({ show:true, d, date, key, isToday: todayKey !== null && key === todayKey, isSel: selDate ? key === (selDate.getUTCFullYear()*10000+(selDate.getUTCMonth()+1)*100+selDate.getUTCDate()) : false, isRam: viewM===9, occ: getOcc(viewM,d), showMon, gmShort: gShort[date.getUTCMonth()], gd });
   }
 
   // month title
