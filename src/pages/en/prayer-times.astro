@@ -1,0 +1,89 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import PrayerTimesIsland from '../../components/PrayerTimesIsland';
+
+const canonical = 'https://islamicdates.org/en/prayer-times/';
+const title = 'Prayer Times Today by Your Location · Fajr, Dhuhr, Asr, Maghrib, Isha';
+const description = 'Today\'s Islamic prayer times (Fajr, Sunrise, Dhuhr, Asr, Maghrib, Isha) calculated astronomically for your location, with a live countdown to the next prayer and multiple calculation methods including Umm al-Qura.';
+
+const faq = [
+  { q: 'How are the prayer times on this site calculated?', a: 'Times are computed astronomically from your coordinates (latitude and longitude) and the sun\'s angle, using the calculation method you select such as Umm al-Qura or Muslim World League. You can allow location access or pick your city manually.' },
+  { q: 'What is the difference between the calculation methods?', a: 'Methods differ mainly in the sun-depression angle used for Fajr and Isha. For example, Umm al-Qura uses 18.5° for Fajr and Isha 90 minutes after Maghrib, while the Muslim World League uses 18° for Fajr and 17° for Isha. Choose the method used in your country.' },
+  { q: 'What is the difference between Standard and Hanafi Asr?', a: 'Asr begins when an object\'s shadow equals its length (Standard: Shafiʿi/Maliki/Hanbali) or twice its length (Hanafi), so Asr is slightly later in the Hanafi method. You can switch this in the settings.' },
+  { q: 'Are the times exact?', a: 'Times are calculated with high astronomical precision, but may differ by a few minutes from official timetables due to elevation, atmospheric refraction and rounding. For precision, check your local official announcement.' },
+];
+
+const jsonLd = JSON.stringify([
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [
+    { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': 'https://islamicdates.org/en/' },
+    { '@type': 'ListItem', 'position': 2, 'name': 'Prayer Times', 'item': canonical },
+  ] },
+  { '@context': 'https://schema.org', '@type': 'WebApplication', 'name': 'Prayer Times', 'url': canonical,
+    'applicationCategory': 'UtilitiesApplication', 'operatingSystem': 'Web', 'inLanguage': ['ar', 'en'],
+    'offers': { '@type': 'Offer', 'price': '0', 'priceCurrency': 'USD' } },
+  { '@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': faq.map(f => ({ '@type': 'Question', 'name': f.q, 'acceptedAnswer': { '@type': 'Answer', 'text': f.a } })) },
+]);
+---
+<Layout title={title} description={description} canonical={canonical} lang="en" jsonLd={jsonLd} altPath="/prayer-times/" xDefaultPath="/prayer-times/">
+  <header class="site-header">
+    <div class="header-start">
+    <a href="/en/" class="logo" aria-label="Go to homepage">
+      <div class="logo-icon">☾</div>
+      <div>
+        <div class="brand">Hijri Calendar</div>
+        <div class="tagline">Prayer Times</div>
+      </div>
+    </a>
+      <a href="/en/" class="home-btn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+        <span>Home</span>
+      </a>
+    </div>
+    <a href="/prayer-times/" class="lang-btn">ع</a>
+  </header>
+
+  <div class="layout">
+    <main>
+      <section class="card section-card" style="order:1">
+        <h1 class="section-h2" style="font-size:25px">Prayer Times Today</h1>
+        <p class="section-p" style="margin-top:8px">See the five daily prayer times (Fajr, Dhuhr, Asr, Maghrib, Isha) plus sunrise for your location, with a live countdown to the next prayer and your choice of calculation method.</p>
+      </section>
+
+      <PrayerTimesIsland lang="en" client:load />
+
+      <section class="card section-card" style="order:3">
+        <h2 class="section-h2">About prayer times</h2>
+        <p class="section-p">The five obligatory prayers are Fajr, Dhuhr, Asr, Maghrib and Isha, and their times are defined by the sun\'s movement: Fajr begins at true dawn, Dhuhr just after the sun passes its zenith, Asr when an object\'s shadow equals its length, Maghrib at sunset, and Isha when the red twilight disappears. Because these moments depend on the sun\'s position, they vary by place and date.</p>
+        <h2 class="section-h2" style="margin-top:22px">Calculation methods</h2>
+        <p class="section-p">Islamic authorities use different sun-depression angles to define Fajr and Isha. Well-known methods include Umm al-Qura (Saudi Arabia), the Muslim World League, the Egyptian General Authority, the University of Karachi, and ISNA (North America). Choose the method adopted in your country for the most accurate results.</p>
+      </section>
+
+      <section class="card section-card" style="order:4">
+        <h2 class="section-h2">Frequently asked questions</h2>
+        {faq.map((f, i) => (
+          <div class="faq-item" style={i === faq.length - 1 ? 'border-bottom:none' : ''}>
+            <p class="faq-q">{f.q}</p>
+            <p class="faq-a">{f.a}</p>
+          </div>
+        ))}
+      </section>
+    </main>
+
+    <aside>
+      <div class="ad-slot"><span class="ad-label">Advertisement</span><span style="font-size:13px;opacity:.7">300 × 250</span></div>
+      <div class="card" style="padding:18px 20px">
+        <h3 style="margin:0 0 12px;font-size:15.5px;font-weight:700">Related tools</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:14.5px">
+          <a href="/en/" style="color:var(--accent);text-decoration:none">Full Hijri calendar & today\'s date</a>
+          <a href="/en/" style="color:var(--accent);text-decoration:none">Hijri–Gregorian date converter</a>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="site-footer">
+    Times calculated astronomically · for reference
+    <span style="margin:0 8px;opacity:.4">·</span>
+    <a href="/en/privacy/" style="color:var(--muted);text-decoration:none;font-size:13px">Privacy Policy</a>
+  </footer>
+</Layout>
