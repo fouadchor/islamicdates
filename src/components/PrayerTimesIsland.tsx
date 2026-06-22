@@ -16,6 +16,7 @@ const CITIES: City[] = [
   { key: 'kuwait',    ar: 'الكويت',          en: 'Kuwait City', lat: 29.3759, lng: 47.9774, zone: 'Asia/Kuwait',  method: 'Kuwait' },
   { key: 'cairo',     ar: 'القاهرة',         en: 'Cairo',     lat: 30.0444, lng: 31.2357, zone: 'Africa/Cairo',    method: 'Egypt' },
   { key: 'amman',     ar: 'عمّان',           en: 'Amman',     lat: 31.9539, lng: 35.9106, zone: 'Asia/Amman',      method: 'MWL' },
+  { key: 'damascus',  ar: 'دمشق',            en: 'Damascus',  lat: 33.5138, lng: 36.2765, zone: 'Asia/Damascus',   method: 'MWL' },
   { key: 'istanbul',  ar: 'إسطنبول',         en: 'Istanbul',  lat: 41.0082, lng: 28.9784, zone: 'Europe/Istanbul', method: 'Turkey' },
   { key: 'london',    ar: 'لندن',            en: 'London',    lat: 51.5074, lng: -0.1278, zone: 'Europe/London',   method: 'MWL' },
   { key: 'paris',     ar: 'باريس',           en: 'Paris',     lat: 48.8566, lng:  2.3522, zone: 'Europe/Paris',    method: 'MWL' },
