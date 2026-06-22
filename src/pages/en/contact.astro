@@ -1,0 +1,85 @@
+---
+import Layout from '../../layouts/Layout.astro';
+const EMAIL = 'islamicdates.contact@gmail.com';
+const ACCESS_KEY = 'e6937a8b-d88c-4fbe-8270-fae8e10940c1';
+---
+<Layout
+  title="Contact Us | Hijri Calendar"
+  description="Get in touch with the islamicdates.org team via our contact form or email — for suggestions, feedback, and questions about the Hijri calendar and date converter."
+  canonical="https://islamicdates.org/en/contact/"
+  lang="en"
+  altPath="/contact/"
+  xDefaultPath="/contact/"
+>
+  <header class="site-header">
+    <div class="logo">
+      <div class="logo-icon">☾</div>
+      <div>
+        <div class="brand">Hijri Calendar</div>
+        <div class="tagline">Contact Us</div>
+      </div>
+    </div>
+    <a href="/contact/" class="lang-btn">ع</a>
+  </header>
+
+  <div style="max-width:640px;margin:40px auto;padding:0 20px;font-family:inherit;line-height:1.8;color:var(--text)">
+    <h1 style="font-size:28px;font-weight:800;margin-bottom:8px">Contact Us</h1>
+    <p style="color:var(--muted);margin-bottom:28px">We'd love to hear from you. For any suggestion, feedback, or question about the Hijri calendar and date conversion, send us a message and we'll get back to you as soon as we can.</p>
+
+    <form id="cform" class="card" style="padding:24px;display:flex;flex-direction:column;gap:16px">
+      <input type="hidden" name="access_key" value={ACCESS_KEY} />
+      <input type="hidden" name="subject" value="New message from the contact form — islamicdates.org" />
+      <input type="hidden" name="from_name" value="islamicdates.org" />
+      <input type="checkbox" name="botcheck" style="display:none" tabindex="-1" autocomplete="off" />
+
+      <label style="display:flex;flex-direction:column;gap:6px;font-weight:600;font-size:14px">Name
+        <input type="text" name="name" required placeholder="Your name"
+          style="padding:11px 13px;border:1px solid var(--border);border-radius:11px;background:var(--surface2);font-size:15px;font-weight:400" />
+      </label>
+      <label style="display:flex;flex-direction:column;gap:6px;font-weight:600;font-size:14px">Email
+        <input type="email" name="email" required placeholder="you@example.com"
+          style="padding:11px 13px;border:1px solid var(--border);border-radius:11px;background:var(--surface2);font-size:15px;font-weight:400" />
+      </label>
+      <label style="display:flex;flex-direction:column;gap:6px;font-weight:600;font-size:14px">Message
+        <textarea name="message" required rows="5" placeholder="Write your message here..."
+          style="padding:11px 13px;border:1px solid var(--border);border-radius:11px;background:var(--surface2);font-size:15px;font-weight:400;resize:vertical"></textarea>
+      </label>
+      <button type="submit"
+        style="padding:13px 18px;border:none;border-radius:11px;background:var(--accent);color:var(--accent-contrast);font-weight:700;font-size:15px;cursor:pointer">
+        Send message
+      </button>
+      <div id="cmsg" style="font-size:14.5px;font-weight:600"></div>
+    </form>
+
+    <p style="margin-top:22px;color:var(--muted);font-size:14.5px">Or email us directly at:
+      <a href="mailto:islamicdates.contact@gmail.com" style="color:var(--accent)">islamicdates.contact@gmail.com</a>
+    </p>
+
+    <p style="margin-top:36px"><a href="/en/" style="color:var(--accent)">← Back to home</a></p>
+  </div>
+
+  <script is:inline define:vars={{ okMsg: 'Your message has been sent — thank you for reaching out!', errMsg: 'Could not send your message. Please try again later or email us directly.' }}>
+    (function () {
+      var f = document.getElementById('cform');
+      if (!f) return;
+      f.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        var btn = f.querySelector('button[type=submit]');
+        var msg = document.getElementById('cmsg');
+        btn.disabled = true; btn.style.opacity = '0.7';
+        try {
+          var data = Object.fromEntries(new FormData(f));
+          var res = await fetch('https://api.web3forms.com/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify(data),
+          });
+          var j = await res.json();
+          if (j.success) { msg.textContent = okMsg; msg.style.color = 'var(--accent)'; f.reset(); }
+          else { msg.textContent = errMsg; msg.style.color = '#c0392b'; }
+        } catch (err) { msg.textContent = errMsg; msg.style.color = '#c0392b'; }
+        btn.disabled = false; btn.style.opacity = '1';
+      });
+    })();
+  </script>
+</Layout>
