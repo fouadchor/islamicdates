@@ -122,6 +122,24 @@ const xDefHref = xDefaultPath ?? '/';
     }
     .lang-btn:hover { border-color: var(--accent); color: var(--accent); }
 
+    .header-actions { display: flex; align-items: center; gap: 10px; }
+    a.logo { text-decoration: none; color: inherit; border-radius: 12px; transition: opacity .2s; }
+    a.logo:hover { opacity: .88; }
+    a.logo:hover .logo-icon { transform: scale(1.06); }
+    .site-header .logo-icon { transition: transform .2s ease; }
+    .home-btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 9px 14px; border-radius: 11px;
+      background: var(--accent); color: var(--accent-contrast);
+      font-weight: 700; font-size: 14px; text-decoration: none;
+      border: 1px solid var(--accent);
+      box-shadow: 0 1px 2px rgba(13,40,48,.08);
+      transition: background .2s, transform .2s, box-shadow .2s;
+    }
+    .home-btn:hover { background: #0b7d73; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(13,148,136,.25); }
+    .home-btn:active { transform: translateY(0); }
+    .home-btn svg { display: block; }
+
     .layout {
       max-width: 1180px; margin: 0 auto;
       padding: 22px 20px 50px;
