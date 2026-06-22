@@ -69,13 +69,13 @@ const t = {
 ---
 <Layout title={title} description={description} canonical={canonical} lang={lang} jsonLd={jsonLd} altPath={altHref} xDefaultPath={occBasePath(slug, gYear, true)}>
   <header class="site-header">
-    <div class="logo">
+    <a href={ar ? '/' : '/en/'} class="logo" style="text-decoration:none;color:inherit" aria-label={ar ? 'الصفحة الرئيسية' : 'Home'}>
       <div class="logo-icon">☾</div>
       <div>
         <div class="brand">{ar ? 'التقويم الهجري' : 'Hijri Calendar'}</div>
         <div class="tagline">{ar ? loc.name + ' ' + gYear : loc.name + ' ' + gYear}</div>
       </div>
-    </div>
+    </a>
     <a href={altHref} class="lang-btn">{ar ? 'EN' : 'ع'}</a>
   </header>
 
