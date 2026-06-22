@@ -89,6 +89,7 @@ const yearMonths = Array.from({ length: 12 }, (_, i) => ({
 ---
 <Layout title={title} description={description} canonical={canonical} lang={lang} jsonLd={jsonLd} altPath={altHref} xDefaultPath={xDefault}>
   <header class="site-header">
+    <div class="header-start">
     <a href={ar ? '/' : '/en/'} class="logo" aria-label={ar ? 'الانتقال إلى الصفحة الرئيسية' : 'Go to homepage'}>
       <div class="logo-icon">☾</div>
       <div>
@@ -96,13 +97,12 @@ const yearMonths = Array.from({ length: 12 }, (_, i) => ({
         <div class="tagline">{name} {hy} {ar ? 'هـ' : 'AH'}</div>
       </div>
     </a>
-    <div class="header-actions">
       <a href={ar ? '/' : '/en/'} class="home-btn">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
         <span>{ar ? 'الرئيسية' : 'Home'}</span>
       </a>
-      <a href={altHref} class="lang-btn">{ar ? 'EN' : 'ع'}</a>
     </div>
+    <a href={altHref} class="lang-btn">{ar ? 'EN' : 'ع'}</a>
   </header>
 
   <div class="layout">
