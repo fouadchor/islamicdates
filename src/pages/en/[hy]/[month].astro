@@ -1,0 +1,16 @@
+---
+import MonthPage from '../../../components/MonthPage.astro';
+import { hYears, H_MON_SLUG, slugToMonth } from '../../../lib/months';
+
+export function getStaticPaths() {
+  const paths = [];
+  for (const hy of hYears()) {
+    for (const slug of H_MON_SLUG) {
+      paths.push({ params: { hy: String(hy), month: slug }, props: { hy, hm: slugToMonth(slug)! } });
+    }
+  }
+  return paths;
+}
+const { hy, hm } = Astro.props;
+---
+<MonthPage lang="en" hy={hy} hm={hm} />
