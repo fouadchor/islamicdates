@@ -79,7 +79,7 @@ export function getL(ar: boolean) {
     legendRam:    ar ? 'أيام رمضان'                            : 'Ramadan days',
     selectedDay:  ar ? 'اليوم المختار'                         : 'Selected day',
     ad:           ar ? 'مساحة إعلانية'                         : 'Advertisement',
-    footer:       ar ? 'الحساب وفق تقويم أم القرى · للأغراض التقريبية' : 'Dates based on the Umm al-Qura calendar · for reference',
+    footer:       ar ? 'الحساب وفق تقويم أم القرى' : 'Dates based on the Umm al-Qura calendar · for reference',
     aboutTitle:   ar ? 'عن التقويم الهجري'                    : 'About the Hijri Calendar',
     aboutBody:    ar ? 'موقع التقويم الهجري يعرض التاريخ الهجري اليوم بجانب التاريخ الميلادي للمقارنة، ويتيح تصفّح الأشهر الهجرية شهراً بشهر، وتحويل التواريخ بين الهجري والميلادي بسهولة، مع إبراز المناسبات الإسلامية مثل رمضان وعيد الفطر وعيد الأضحى وعاشوراء، وكل ذلك وفق تقويم أم القرى.'
                       : 'This Hijri calendar shows today\'s Islamic date next to the Gregorian date for easy comparison, lets you browse the Hijri months one by one, convert dates between Hijri and Gregorian, and highlights Islamic occasions such as Ramadan, Eid al-Fitr, Eid al-Adha and Ashura — all based on the Umm al-Qura calendar.',
