@@ -7,6 +7,10 @@ import UpcomingIsland from '../components/UpcomingIsland';
 import { H_MON_AR, MONTHS_NOTES_AR } from '../lib/data';
 import { getL } from '../lib/data';
 import { OCCASIONS, occurrencesInGYear, occBasePath, fmtGShort } from '../lib/occasions';
+import { g2h, todayUTC } from '../lib/hijri';
+import { monthBasePath, monthName, H_YEAR_START, H_YEAR_END } from '../lib/months';
+const _curHy = Math.min(Math.max(g2h(todayUTC()).y, H_YEAR_START), H_YEAR_END);
+const _monthLinks = Array.from({ length: 12 }, (_, i) => ({ name: monthName(i + 1, true), href: monthBasePath(_curHy, i + 1, true) }));
 
 const lang = 'ar';
 const L = getL(true);
@@ -82,6 +86,20 @@ const jsonLd = JSON.stringify([
                 <div class="month-name">{o.name} {o.year}</div>
                 <div class="month-note">{fmtGShort(o.date, true)}</div>
               </div>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      <!-- Hijri month browse (SEO internal links) -->
+      <section class="card section-card" style="order:5">
+        <h2 class="section-h2">تصفّح الأشهر الهجرية {_curHy} هـ</h2>
+        <p class="section-p" style="margin-bottom:14px">اعرض كل شهر هجري كاملاً بالتاريخ الميلادي ومناسباته</p>
+        <div class="months-grid" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))">
+          {_monthLinks.map((m, i) => (
+            <a href={m.href} class="month-item" style="text-decoration:none;color:inherit">
+              <span class="month-num">{i + 1}</span>
+              <div><div class="month-name">{m.name}</div></div>
             </a>
           ))}
         </div>
