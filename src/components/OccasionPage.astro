@@ -42,16 +42,7 @@ const breadcrumb = {
     { "@type": "ListItem", "position": 2, "name": `${loc.name} ${gYear}`, "item": canonical },
   ],
 };
-const events = occs.map(o => ({
-  "@context": "https://schema.org", "@type": "Event",
-  "name": `${loc.name} ${gYear}`,
-  "startDate": isoUTC(o.date),
-  "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
-  "eventStatus": "https://schema.org/EventScheduled",
-  "description": loc.what,
-  "location": { "@type": "VirtualLocation", "url": canonical },
-}));
-const jsonLd = JSON.stringify([breadcrumb, ...events]);
+const jsonLd = JSON.stringify([breadcrumb]);
 
 const t = {
   h1: ar ? `متى ${loc.name} ${gYear}؟` : `When is ${loc.name} ${gYear}?`,
