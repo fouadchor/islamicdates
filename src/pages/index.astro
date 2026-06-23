@@ -6,6 +6,7 @@ import ConverterIsland from '../components/ConverterIsland';
 import UpcomingIsland from '../components/UpcomingIsland';
 import { H_MON_AR, MONTHS_NOTES_AR } from '../lib/data';
 import { getL } from '../lib/data';
+import { HADITHS, hadithOfDay } from '../lib/hadiths';
 import { OCCASIONS, occurrencesInGYear, occBasePath, fmtGShort } from '../lib/occasions';
 import { g2h, todayUTC } from '../lib/hijri';
 import { monthBasePath, monthName, H_YEAR_START, H_YEAR_END } from '../lib/months';
@@ -14,6 +15,7 @@ const _monthLinks = Array.from({ length: 12 }, (_, i) => ({ name: monthName(i + 
 
 const lang = 'ar';
 const L = getL(true);
+const _h = hadithOfDay(new Date());
 
 const _featured = ['ramadan', 'eid-al-fitr', 'eid-al-adha', 'ashura', 'mawlid-al-nabi', 'islamic-new-year'];
 const _homeYears = (() => { const y = new Date().getUTCFullYear(); return [y, y+1]; })();
@@ -115,17 +117,25 @@ const jsonLd = JSON.stringify([
         <p class="section-p">{L.howBody}</p>
       </section>
 
-      <!-- Four Sacred Months -->
+      <!-- Hadith of the day -->
       <section class="card section-card" style="order:7">
-        <h2 class="section-h2">الأشهر الحُرم الأربعة</h2>
-        <p class="section-p" style="margin-bottom:16px">من الأشهر الاثني عشر في التقويم الهجري، خصّ الله أربعةً بمزيد من التعظيم وسمّاها «الأشهر الحُرم»؛ يُضاعَف فيها أجر العمل الصالح ويَعظُم فيها الإثم، وكان يُحرَّم فيها القتال. ثلاثة منها متتالية: ذو القعدة وذو الحجة والمحرّم، وواحدٌ منفرد: رجب.</p>
-        <div class="months-grid">
-          <div class="month-item"><span class="month-num">11</span><div><div class="month-name">ذو القعدة</div><div class="month-note">يسبق موسم الحج، وفيه يبدأ توجّه الحجاج إلى الأراضي المقدسة.</div></div></div>
-          <div class="month-item"><span class="month-num">12</span><div><div class="month-name">ذو الحجة</div><div class="month-note">شهر الحج وعيد الأضحى ويوم عرفة، وعشره الأوائل من أفضل أيام العام.</div></div></div>
-          <div class="month-item"><span class="month-num">1</span><div><div class="month-name">المحرّم</div><div class="month-note">يُفتتح به العام الهجري، وفيه يوم عاشوراء في العاشر منه.</div></div></div>
-          <div class="month-item"><span class="month-num">7</span><div><div class="month-name">رجب</div><div class="month-note">الشهر الحرام المنفرد بين الأشهر، وتُذكر فيه ليلة الإسراء والمعراج.</div></div></div>
-        </div>
+        <h2 class="section-h2">حديث اليوم</h2>
+        <blockquote id="hadith-text" style="margin:6px 0 0;border:0;padding:0;font-size:clamp(18px,2.6vw,23px);line-height:2.05;font-weight:600;color:var(--text);text-wrap:pretty">«{_h.ar}»</blockquote>
+        <div id="hadith-src" style="margin-top:14px;color:var(--accent);font-weight:700;font-size:14.5px">{_h.arSrc}</div>
+        <div style="margin-top:8px;color:var(--muted);font-size:12.5px">يتغيّر يوميًا · من صحيح البخاري ومسلم</div>
       </section>
+      <script define:vars={{ hList: HADITHS.map(h => ({ t: h.ar, s: h.arSrc })) }}>
+        (function () {
+          var d = new Date();
+          var start = Date.UTC(d.getFullYear(), 0, 0);
+          var day = Math.floor((Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - start) / 86400000);
+          var h = hList[((day % hList.length) + hList.length) % hList.length];
+          var t = document.getElementById('hadith-text');
+          var s = document.getElementById('hadith-src');
+          if (t) t.textContent = '«' + h.t + '»';
+          if (s) s.textContent = h.s;
+        })();
+      </script>
 
       <!-- About + FAQ -->
       <section class="card section-card" style="order:8">
