@@ -12,7 +12,7 @@ import { g2h, todayUTC } from '../lib/hijri';
 import { monthBasePath, monthName, H_YEAR_START, H_YEAR_END } from '../lib/months';
 const _curHy = Math.min(Math.max(g2h(todayUTC()).y, H_YEAR_START), H_YEAR_END);
 const _monthLinks = Array.from({ length: 12 }, (_, i) => ({ name: monthName(i + 1, true), href: monthBasePath(_curHy, i + 1, true) }));
-const _monthNotesShort = ['أول العام الهجري وفيه عاشوراء','ثاني شهور العام الهجري','وفيه المولد النبوي الشريف','رابع شهور العام الهجري','خامس شهور العام الهجري','سادس شهور العام الهجري','من الأشهر الحُرم وفيه الإسراء والمعراج','يسبق شهر رمضان','شهر الصيام ونزول القرآن','وفيه عيد الفطر','من الأشهر الحُرم','موسم الحج وعيد الأضحى'];
+const _monthNotesShort = ['مفتتح العام الهجري وأحد الأشهر الحُرم، يزيّنه صيام عاشوراء','سُمِّي بالصَّفَر لخلوّ ديار العرب وقت الأسفار والغزو','شهر مولد النبي ﷺ، تتعطّر فيه القلوب بذكر سيرته','رابع الشهور، تمام فصل الربيع في تسمية العرب','سُمِّيت جُمادى لتجمُّد الماء فيها زمن البرد','خاتمة الجُمادَيَيْن، تسبق دخول الأشهر الحُرم','من الأشهر الحُرم، وفيه ذكرى الإسراء والمعراج','تُرفع فيه الأعمال، ويكثر فيه الصيام استعدادًا لرمضان','شهر الصيام ونزول القرآن، وفيه ليلة القدر','يُستهلّ بعيد الفطر، ويُستحبّ صيام ستٍّ من أيامه','من الأشهر الحُرم، وفيه يتجهّز الحجيج لموسم الحج','موسم الحج وعيد الأضحى، وعشره الأوائل أفضل الأيام'];
 
 const lang = 'ar';
 const L = getL(true);
@@ -97,7 +97,7 @@ const jsonLd = JSON.stringify([
       <!-- Hijri month browse (SEO internal links) -->
       <section class="card section-card" style="order:5">
         <h2 class="section-h2">تصفّح الأشهر الهجرية {_curHy} هـ</h2>
-        <p class="section-p" style="margin-bottom:14px">اعرض كل شهر هجري كاملاً بالتاريخ الميلادي ومناسباته</p>
+        <p class="section-p" style="margin-bottom:14px">استكشف أشهر العام الهجري شهرًا شهرًا، بمعانيها ومناسباتها وتواريخها الميلادية</p>
         <div class="months-grid" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))">
           {_monthLinks.map((m, i) => (
             <a href={m.href} class="month-item" style="text-decoration:none;color:inherit">
