@@ -12,6 +12,7 @@ import { g2h, todayUTC } from '../../lib/hijri';
 import { monthBasePath, monthName, H_YEAR_START, H_YEAR_END } from '../../lib/months';
 const _curHy = Math.min(Math.max(g2h(todayUTC()).y, H_YEAR_START), H_YEAR_END);
 const _monthLinks = Array.from({ length: 12 }, (_, i) => ({ name: monthName(i + 1, false), href: monthBasePath(_curHy, i + 1, false) }));
+const _monthNotesShort = ['Opens the Hijri year; includes Ashura','The second Hijri month','Includes Mawlid al-Nabi','The fourth Hijri month','The fifth Hijri month','The sixth Hijri month','A sacred month; Israʾ & Miʿraj','Precedes Ramadan','The month of fasting and the Quran','Includes Eid al-Fitr','A sacred month','Hajj season and Eid al-Adha'];
 
 const L = getL(false);
 const _h = hadithOfDay(new Date());
@@ -92,7 +93,7 @@ const jsonLd = JSON.stringify([
           {_monthLinks.map((m, i) => (
             <a href={m.href} class="month-item" style="text-decoration:none;color:inherit">
               <span class="month-num">{i + 1}</span>
-              <div><div class="month-name">{m.name}</div></div>
+              <div><div class="month-name">{m.name}</div><div class="month-note">{_monthNotesShort[i]}</div></div>
             </a>
           ))}
         </div>
@@ -107,11 +108,19 @@ const jsonLd = JSON.stringify([
         <p class="section-p">{L.howBody}</p>
       </section>
 
-      <section class="card section-card" style="order:7">
-        <h2 class="section-h2">Hadith of the Day</h2>
-        <blockquote id="hadith-text" style="margin:6px 0 0;border:0;padding:0;font-size:clamp(18px,2.6vw,22px);line-height:1.9;font-weight:600;color:var(--text);text-wrap:pretty">“{_h.en}”</blockquote>
-        <div id="hadith-src" style="margin-top:14px;color:var(--accent);font-weight:700;font-size:14.5px">{_h.enSrc}</div>
-        <div style="margin-top:8px;color:var(--muted);font-size:12.5px">Changes daily · from Sahih al-Bukhari &amp; Muslim</div>
+      <section class="card section-card" style="order:7;background:var(--accent-soft);border-color:var(--accent-soft)">
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:10px">
+          <span aria-hidden="true" style="font-size:22px;line-height:1">☾</span>
+          <h2 class="section-h2" style="margin:0;color:var(--accent)">Hadith of the Day</h2>
+        </div>
+        <div style="position:relative;padding:4px 2px 0">
+          <span aria-hidden="true" style="position:absolute;top:-22px;inset-inline-start:-2px;font-size:60px;line-height:1;color:var(--accent);opacity:.16;font-family:Georgia,serif">“</span>
+          <blockquote id="hadith-text" style="margin:0;border:0;padding:0;font-size:clamp(18px,2.7vw,24px);line-height:1.95;font-weight:700;color:var(--text);text-wrap:pretty">“{_h.en}”</blockquote>
+        </div>
+        <div style="margin-top:18px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span id="hadith-src" style="display:inline-block;padding:5px 14px;border-radius:999px;background:var(--accent);color:var(--accent-contrast);font-weight:700;font-size:13px">{_h.enSrc}</span>
+          <span style="color:var(--muted);font-size:12.5px">from Sahih al-Bukhari &amp; Muslim</span>
+        </div>
       </section>
       <script define:vars={{ hList: HADITHS.map(h => ({ t: h.en, s: h.enSrc })) }}>
         (function () {
