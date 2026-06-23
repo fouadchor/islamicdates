@@ -46,6 +46,15 @@ const breadcrumb = {
 // entities, so Event schema is intentionally omitted to avoid invalid structured data.
 const jsonLd = JSON.stringify([breadcrumb]);
 
+// Add-to-calendar (all-day event for the occasion's first/next occurrence)
+const _calStart = first ? isoUTC(first.date).replace(/-/g, '') : '';
+const _calEnd = first ? isoUTC(new Date(first.date.getTime() + 86400000)).replace(/-/g, '') : '';
+const _calTitle = `${loc.name} ${gYear}`;
+const _calDesc = (loc.what || '').replace(/\s+/g, ' ').trim();
+const gcalUrl = first
+  ? `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(_calTitle)}&dates=${_calStart}/${_calEnd}&details=${encodeURIComponent(_calDesc + ' — islamicdates.org')}`
+  : '';
+
 const t = {
   h1: ar ? `متى ${loc.name} ${gYear}؟` : `When is ${loc.name} ${gYear}?`,
   answer: ar ? 'الإجابة' : 'The answer',
@@ -62,6 +71,9 @@ const t = {
   fullCal: ar ? 'التقويم الهجري الكامل وتاريخ اليوم' : 'Full Hijri calendar & today\'s date',
   converter: ar ? 'محوّل التاريخ الهجري والميلادي' : 'Hijri–Gregorian date converter',
   countdownLabel: ar ? 'العد التنازلي' : 'Countdown',
+  addToCal: ar ? 'أضِفه إلى تقويمك' : 'Add to your calendar',
+  gcal: ar ? 'تقويم Google' : 'Google Calendar',
+  ics: ar ? 'تنزيل (‎.ics)' : 'Download .ics',
   th_year: ar ? 'السنة' : 'Year',
   th_greg: ar ? 'التاريخ الميلادي' : 'Gregorian date',
   th_hijri: ar ? 'التاريخ الهجري' : 'Hijri date',
@@ -95,6 +107,11 @@ const t = {
                 <div style="font-size:12px;color:var(--accent);font-weight:700;letter-spacing:.04em;text-transform:uppercase">{t.countdownLabel}</div>
                 <div id="occ-countdown" style="font-size:20px;font-weight:800;color:var(--accent);margin-top:4px">—</div>
               </div>
+            </div>
+            <div style="margin-top:18px;display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+              <span style="font-size:13.5px;color:var(--muted);font-weight:600">{t.addToCal}:</span>
+              <a href={gcalUrl} target="_blank" rel="noopener" style="padding:9px 16px;border-radius:11px;background:var(--accent);color:var(--accent-contrast);font-weight:700;font-size:13.5px;text-decoration:none">{t.gcal}</a>
+              <button type="button" id="ics-btn" style="padding:9px 16px;border-radius:11px;background:var(--surface2);border:1px solid var(--border);color:var(--accent);font-weight:700;font-size:13.5px;cursor:pointer">{t.ics}</button>
             </div>
             {occs.length > 1 && (
               <p class="section-p" style="margin-top:16px">{t.twiceNote} {occs.map(o => fmtG(o.date, ar)).join(ar ? ' و ' : ' and ')}.</p>
@@ -182,6 +199,25 @@ const t = {
       if (diff > 0) el.textContent = ar ? ('باقٍ ' + diff + ' يوم') : (diff + (diff === 1 ? ' day left' : ' days left'));
       else if (diff === 0) el.textContent = ar ? 'اليوم' : 'Today';
       else el.textContent = ar ? 'انقضى' : 'Passed';
+    })();
+  </script>
+
+  <script define:vars={{ icsDate: _calStart || null, icsEnd: _calEnd || null, icsTitle: _calTitle, icsDesc: _calDesc, icsUid: `${slug}-${gYear}` }}>
+    (function () {
+      var btn = document.getElementById('ics-btn');
+      if (!btn || !icsDate) return;
+      btn.addEventListener('click', function () {
+        var p = function (n) { return ('0' + n).slice(-2); };
+        var d = new Date();
+        var stamp = d.getUTCFullYear() + p(d.getUTCMonth() + 1) + p(d.getUTCDate()) + 'T' + p(d.getUTCHours()) + p(d.getUTCMinutes()) + p(d.getUTCSeconds()) + 'Z';
+        var lines = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//islamicdates.org//Hijri Calendar//EN','CALSCALE:GREGORIAN','BEGIN:VEVENT','UID:' + icsUid + '@islamicdates.org','DTSTAMP:' + stamp,'DTSTART;VALUE=DATE:' + icsDate,'DTEND;VALUE=DATE:' + icsEnd,'SUMMARY:' + icsTitle,'DESCRIPTION:' + icsDesc,'TRANSP:TRANSPARENT','END:VEVENT','END:VCALENDAR'];
+        var blob = new Blob([lines.join('\r\n')], { type: 'text/calendar;charset=utf-8' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url; a.download = icsUid + '.ics';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+      });
     })();
   </script>
 </Layout>
