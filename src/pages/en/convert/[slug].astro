@@ -1,0 +1,21 @@
+---
+import ConvertPage from '../../../components/ConvertPage.astro';
+import { convYears, validDaysInMonth, convSlug } from '../../../lib/convert';
+
+export function getStaticPaths() {
+  const paths = [];
+  for (const hy of convYears()) {
+    for (let hm = 1; hm <= 12; hm++) {
+      for (const hd of validDaysInMonth(hy, hm)) {
+        paths.push({
+          params: { slug: convSlug(hy, hm, hd) },
+          props: { hy, hm, hd },
+        });
+      }
+    }
+  }
+  return paths;
+}
+const { hy, hm, hd } = Astro.props;
+---
+<ConvertPage lang="en" hy={hy} hm={hm} hd={hd} />
