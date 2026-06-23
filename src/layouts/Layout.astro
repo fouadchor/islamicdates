@@ -13,6 +13,11 @@ const dir = lang === 'ar' ? 'rtl' : 'ltr';
 const altLang = lang === 'ar' ? 'en' : 'ar';
 const altHref = altPath ?? (lang === 'ar' ? '/en/' : '/');
 const xDefHref = xDefaultPath ?? '/';
+const _navHome = lang === 'ar' ? '/' : '/en/';
+const _navPrayer = lang === 'ar' ? '/prayer-times/' : '/en/prayer-times/';
+const navItems = lang === 'ar'
+  ? [{ h: _navHome, t: 'الرئيسية' }, { h: _navHome + '#converter', t: 'المحوّل' }, { h: _navPrayer, t: 'مواقيت الصلاة' }, { h: _navHome + '#occasions', t: 'المناسبات' }]
+  : [{ h: _navHome, t: 'Home' }, { h: _navHome + '#converter', t: 'Converter' }, { h: _navPrayer, t: 'Prayer Times' }, { h: _navHome + '#occasions', t: 'Occasions' }];
 ---
 <!DOCTYPE html>
 <html lang={lang} dir={dir}>
@@ -94,8 +99,27 @@ const xDefHref = xDefaultPath ?? '/';
       color: var(--text);
     }
 
+    .site-nav {
+      position: sticky; top: 0; z-index: 40;
+      background: var(--accent);
+      box-shadow: var(--shadow);
+    }
+    .site-nav-inner {
+      max-width: 1180px; margin: 0 auto;
+      display: flex; flex-wrap: wrap; gap: 2px;
+      padding: 0 12px;
+    }
+    .site-nav a {
+      color: var(--accent-contrast); text-decoration: none;
+      font-weight: 600; font-size: 14px; white-space: nowrap;
+      padding: 12px 15px; opacity: .9;
+      border-bottom: 3px solid transparent;
+      transition: opacity .2s, background .2s;
+    }
+    .site-nav a:hover { opacity: 1; background: rgba(255,255,255,.14); }
+
     .site-header {
-      position: sticky; top: 0; z-index: 30;
+      position: relative; z-index: 1;
       display: flex; align-items: center; justify-content: space-between; gap: 12px;
       padding: 14px 22px;
       background: var(--surface);
@@ -177,6 +201,11 @@ const xDefHref = xDefaultPath ?? '/';
   </style>
 </head>
 <body>
+  <nav class="site-nav" aria-label={lang === 'ar' ? 'التنقل الرئيسي' : 'Main navigation'}>
+    <div class="site-nav-inner">
+      {navItems.map(it => <a href={it.h}>{it.t}</a>)}
+    </div>
+  </nav>
   <slot />
 </body>
 </html>
