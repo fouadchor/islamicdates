@@ -16,6 +16,7 @@ export default function CalendarIsland({ lang }: Props) {
   const [viewM, setViewM] = useState(buildTH.m);
   const [fading, setFading] = useState(false);
   const [selDate, setSelDate] = useState<Date | null>(null);
+  const [selCopied, setSelCopied] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navedRef = useRef(false);
 
@@ -95,14 +96,26 @@ export default function CalendarIsland({ lang }: Props) {
   else monthTitleG = `${gm1} ${gy1} – ${gm2} ${gy2}`;
 
   // selected day info
-  let selHijri='', selGreg='', selOcc: string|null=null;
+  const isoC = (d: Date) => `${d.getUTCFullYear()}${String(d.getUTCMonth()+1).padStart(2,'0')}${String(d.getUTCDate()).padStart(2,'0')}`;
+  let selHijri='', selGreg='', selOcc: string|null=null, selRelLabel='', selGcal='';
   if (selDate) {
     selHijri = fmtH(selDate, true);
     selGreg  = fmtG(selDate, false);
     const sh = g2h(selDate);
     const so = getOcc(sh.m, sh.d);
     selOcc = so ? (ar ? so[1] : so[2]) : (sh.m===9 ? (ar?'شهر رمضان':'Ramadan') : null);
+    const diff = Math.round((selDate.getTime() - todayUTC().getTime()) / 86400000);
+    selRelLabel = ar
+      ? (diff === 0 ? 'اليوم' : diff > 0 ? `بعد ${diff} يوم` : `قبل ${-diff} يوم`)
+      : (diff === 0 ? 'Today' : diff > 0 ? `in ${diff} day${diff===1?'':'s'}` : `${-diff} day${-diff===1?'':'s'} ago`);
+    const title = selOcc || selHijri;
+    selGcal = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${isoC(selDate)}/${isoC(new Date(selDate.getTime()+86400000))}&details=${encodeURIComponent(selHijri + ' — islamicdates.org')}`;
   }
+  const copySel = () => {
+    if (!selDate) return;
+    try { navigator.clipboard?.writeText(fmtH(selDate, true) + ' — ' + fmtG(selDate, false)); } catch {}
+    setSelCopied(true); setTimeout(() => setSelCopied(false), 1600);
+  };
 
   const btnBase: React.CSSProperties = { width:42, height:42, borderRadius:12, border:'1px solid var(--border)', background:'var(--surface2)', color:'var(--accent)', fontSize:22, display:'flex', alignItems:'center', justifyContent:'center', lineHeight:'1', transition:'all .2s' };
 
@@ -175,16 +188,32 @@ export default function CalendarIsland({ lang }: Props) {
 
       {/* Selected day card */}
       {selDate && (
-        <section className="card" style={{ padding:'20px 24px', borderInlineStart:'4px solid var(--accent)', animation:'pop .25s ease' }}>
-          <div style={{ fontSize:12, color:'var(--accent)', fontWeight:700, letterSpacing:'.06em', textTransform:'uppercase' }}>{ar?'اليوم المختار':'Selected day'}</div>
-          <div style={{ fontWeight:700, fontSize:21, marginTop:7 }}>{selHijri}</div>
-          <div style={{ color:'var(--muted)', marginTop:3, fontSize:15 }}>{selGreg}</div>
+        <section className="card" style={{ padding:'22px 26px', borderInlineStart:'4px solid var(--accent)', background:'var(--accent-soft)', animation:'pop .25s ease' }}>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:10, flexWrap:'wrap', marginBottom:10 }}>
+            <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+              <span aria-hidden="true" style={{ fontSize:18, lineHeight:1 }}>☾</span>
+              <span style={{ fontSize:'12.5px', color:'var(--accent)', fontWeight:800, letterSpacing:'.04em' }}>{ar?'اليوم المختار':'Selected day'}</span>
+            </div>
+            {selRelLabel && (
+              <span style={{ padding:'4px 12px', borderRadius:999, background:'var(--surface)', color:'var(--accent)', fontWeight:700, fontSize:'12.5px', border:'1px solid var(--border)' }}>{selRelLabel}</span>
+            )}
+          </div>
+          <div style={{ fontWeight:800, fontSize:'clamp(20px,3vw,25px)', lineHeight:1.3, color:'var(--text)' }}>{selHijri}</div>
+          <div style={{ color:'var(--muted)', marginTop:5, fontSize:'15.5px' }}>{selGreg}</div>
           {selOcc && (
-            <div style={{ marginTop:13, display:'inline-flex', alignItems:'center', gap:9, padding:'8px 15px', borderRadius:999, background:'var(--accent-soft)', color:'var(--accent)', fontWeight:700, fontSize:14 }}>
-              <span style={{ width:8, height:8, borderRadius:'50%', background:'var(--accent)', display:'inline-block' }} />
-              {selOcc}
+            <div style={{ marginTop:14 }}>
+              <span style={{ display:'inline-flex', alignItems:'center', gap:8, padding:'7px 15px', borderRadius:999, background:'var(--accent)', color:'var(--accent-contrast)', fontWeight:700, fontSize:'13.5px' }}>
+                <span style={{ width:7, height:7, borderRadius:'50%', background:'var(--accent-contrast)', display:'inline-block', opacity:0.85 }} />
+                {selOcc}
+              </span>
             </div>
           )}
+          <div style={{ marginTop:16, display:'flex', flexWrap:'wrap', gap:9 }}>
+            <a href={selGcal} target="_blank" rel="noopener" style={{ padding:'9px 16px', borderRadius:11, background:'var(--accent)', color:'var(--accent-contrast)', fontWeight:700, fontSize:13, textDecoration:'none' }}>{ar?'أضِفه إلى تقويم Google':'Add to Google Calendar'}</a>
+            <button type="button" onClick={copySel} style={{ padding:'9px 16px', borderRadius:11, background:'var(--surface)', border:'1px solid var(--border)', color:'var(--accent)', fontWeight:700, fontSize:13, cursor:'pointer' }}>
+              {selCopied ? (ar?'تم النسخ ✓':'Copied ✓') : (ar?'نسخ التاريخ':'Copy date')}
+            </button>
+          </div>
         </section>
       )}
     </div>
