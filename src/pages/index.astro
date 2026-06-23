@@ -115,19 +115,15 @@ const jsonLd = JSON.stringify([
         <p class="section-p">{L.howBody}</p>
       </section>
 
-      <!-- Months grid -->
+      <!-- Four Sacred Months -->
       <section class="card section-card" style="order:7">
-        <h2 class="section-h2">{L.monthsTitle}</h2>
+        <h2 class="section-h2">الأشهر الحُرم الأربعة</h2>
+        <p class="section-p" style="margin-bottom:16px">من الأشهر الاثني عشر في التقويم الهجري، خصّ الله أربعةً بمزيد من التعظيم وسمّاها «الأشهر الحُرم»؛ يُضاعَف فيها أجر العمل الصالح ويَعظُم فيها الإثم، وكان يُحرَّم فيها القتال. ثلاثة منها متتالية: ذو القعدة وذو الحجة والمحرّم، وواحدٌ منفرد: رجب.</p>
         <div class="months-grid">
-          {H_MON_AR.map((name, i) => (
-            <div class="month-item">
-              <span class="month-num">{i + 1}</span>
-              <div>
-                <div class="month-name">{name}</div>
-                <div class="month-note">{MONTHS_NOTES_AR[i]}</div>
-              </div>
-            </div>
-          ))}
+          <div class="month-item"><span class="month-num">11</span><div><div class="month-name">ذو القعدة</div><div class="month-note">يسبق موسم الحج، وفيه يبدأ توجّه الحجاج إلى الأراضي المقدسة.</div></div></div>
+          <div class="month-item"><span class="month-num">12</span><div><div class="month-name">ذو الحجة</div><div class="month-note">شهر الحج وعيد الأضحى ويوم عرفة، وعشره الأوائل من أفضل أيام العام.</div></div></div>
+          <div class="month-item"><span class="month-num">1</span><div><div class="month-name">المحرّم</div><div class="month-note">يُفتتح به العام الهجري، وفيه يوم عاشوراء في العاشر منه.</div></div></div>
+          <div class="month-item"><span class="month-num">7</span><div><div class="month-name">رجب</div><div class="month-note">الشهر الحرام المنفرد بين الأشهر، وتُذكر فيه ليلة الإسراء والمعراج.</div></div></div>
         </div>
       </section>
 
