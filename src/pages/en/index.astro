@@ -12,7 +12,7 @@ import { g2h, todayUTC } from '../../lib/hijri';
 import { monthBasePath, monthName, H_YEAR_START, H_YEAR_END } from '../../lib/months';
 const _curHy = Math.min(Math.max(g2h(todayUTC()).y, H_YEAR_START), H_YEAR_END);
 const _monthLinks = Array.from({ length: 12 }, (_, i) => ({ name: monthName(i + 1, false), href: monthBasePath(_curHy, i + 1, false) }));
-const _monthNotesShort = ['Opens the Hijri year; includes Ashura','The second Hijri month','Includes Mawlid al-Nabi','The fourth Hijri month','The fifth Hijri month','The sixth Hijri month','A sacred month; Israʾ & Miʿraj','Precedes Ramadan','The month of fasting and the Quran','Includes Eid al-Fitr','A sacred month','Hajj season and Eid al-Adha'];
+const _monthNotesShort = ['Opens the Hijri year — a sacred month graced by the fast of Ashura','Named for the empty homes of the Arabs in their season of travel','The month of the Prophet ﷺ birth — hearts recall his noble life','The fourth month, completing the season of spring for the Arabs','Named jumada — for water that froze in the deep cold','The last of the two Jumadas, leading into the sacred months','A sacred month, marking the Night Journey — Israʾ & Miʿraj','When deeds are raised; abundant fasting prepares for Ramadan','The month of fasting and the Quran, holding the Night of Decree','Begins with Eid al-Fitr; six recommended days of fasting follow','A sacred month as pilgrims prepare for the Hajj season','Hajj and Eid al-Adha — its first ten are the best of days'];
 
 const L = getL(false);
 const _h = hadithOfDay(new Date());
@@ -88,7 +88,7 @@ const jsonLd = JSON.stringify([
       <!-- Hijri month browse (SEO internal links) -->
       <section class="card section-card" style="order:5">
         <h2 class="section-h2">Browse the Hijri months of {_curHy} AH</h2>
-        <p class="section-p" style="margin-bottom:14px">View each Hijri month in full with Gregorian dates and its occasions</p>
+        <p class="section-p" style="margin-bottom:14px">Explore the Hijri year month by month — meanings, occasions, and Gregorian dates</p>
         <div class="months-grid" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))">
           {_monthLinks.map((m, i) => (
             <a href={m.href} class="month-item" style="text-decoration:none;color:inherit">
