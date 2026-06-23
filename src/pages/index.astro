@@ -12,6 +12,7 @@ import { g2h, todayUTC } from '../lib/hijri';
 import { monthBasePath, monthName, H_YEAR_START, H_YEAR_END } from '../lib/months';
 const _curHy = Math.min(Math.max(g2h(todayUTC()).y, H_YEAR_START), H_YEAR_END);
 const _monthLinks = Array.from({ length: 12 }, (_, i) => ({ name: monthName(i + 1, true), href: monthBasePath(_curHy, i + 1, true) }));
+const _monthNotesShort = ['أول العام الهجري وفيه عاشوراء','ثاني شهور العام الهجري','وفيه المولد النبوي الشريف','رابع شهور العام الهجري','خامس شهور العام الهجري','سادس شهور العام الهجري','من الأشهر الحُرم وفيه الإسراء والمعراج','يسبق شهر رمضان','شهر الصيام ونزول القرآن','وفيه عيد الفطر','من الأشهر الحُرم','موسم الحج وعيد الأضحى'];
 
 const lang = 'ar';
 const L = getL(true);
@@ -101,7 +102,7 @@ const jsonLd = JSON.stringify([
           {_monthLinks.map((m, i) => (
             <a href={m.href} class="month-item" style="text-decoration:none;color:inherit">
               <span class="month-num">{i + 1}</span>
-              <div><div class="month-name">{m.name}</div></div>
+              <div><div class="month-name">{m.name}</div><div class="month-note">{_monthNotesShort[i]}</div></div>
             </a>
           ))}
         </div>
@@ -118,11 +119,19 @@ const jsonLd = JSON.stringify([
       </section>
 
       <!-- Hadith of the day -->
-      <section class="card section-card" style="order:7">
-        <h2 class="section-h2">حديث اليوم</h2>
-        <blockquote id="hadith-text" style="margin:6px 0 0;border:0;padding:0;font-size:clamp(18px,2.6vw,23px);line-height:2.05;font-weight:600;color:var(--text);text-wrap:pretty">«{_h.ar}»</blockquote>
-        <div id="hadith-src" style="margin-top:14px;color:var(--accent);font-weight:700;font-size:14.5px">{_h.arSrc}</div>
-        <div style="margin-top:8px;color:var(--muted);font-size:12.5px">يتغيّر يوميًا · من صحيح البخاري ومسلم</div>
+      <section class="card section-card" style="order:7;background:var(--accent-soft);border-color:var(--accent-soft)">
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:10px">
+          <span aria-hidden="true" style="font-size:22px;line-height:1">☾</span>
+          <h2 class="section-h2" style="margin:0;color:var(--accent)">حديث اليوم</h2>
+        </div>
+        <div style="position:relative;padding:4px 2px 0">
+          <span aria-hidden="true" style="position:absolute;top:-22px;inset-inline-start:-2px;font-size:60px;line-height:1;color:var(--accent);opacity:.16;font-family:Georgia,serif">”</span>
+          <blockquote id="hadith-text" style="margin:0;border:0;padding:0;font-size:clamp(19px,2.9vw,26px);line-height:2.1;font-weight:700;color:var(--text);text-wrap:pretty">«{_h.ar}»</blockquote>
+        </div>
+        <div style="margin-top:18px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span id="hadith-src" style="display:inline-block;padding:5px 14px;border-radius:999px;background:var(--accent);color:var(--accent-contrast);font-weight:700;font-size:13px">{_h.arSrc}</span>
+          <span style="color:var(--muted);font-size:12.5px">من صحيح البخاري ومسلم</span>
+        </div>
       </section>
       <script define:vars={{ hList: HADITHS.map(h => ({ t: h.ar, s: h.arSrc })) }}>
         (function () {
