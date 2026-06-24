@@ -153,7 +153,7 @@ export default function PrayerTimesIsland({ lang }: Props) {
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: ar ? 'flex-start' : 'flex-end' }}>
           <button onClick={useMyLocation}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '9px 14px', borderRadius: 11, border: '1px solid var(--cta)', background: 'var(--cta)', color: 'var(--cta-contrast)', fontWeight: 700, fontSize: 13.5 }}>
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '9px 14px', borderRadius: 11, border: '1px solid var(--accent)', background: 'var(--accent)', color: 'var(--accent-contrast)', fontWeight: 700, fontSize: 13.5 }}>
             <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="10" r="3" /><path d="M12 21s-7-6.3-7-11a7 7 0 0 1 14 0c0 4.7-7 11-7 11Z" /></svg>
             {geo === 'loading' ? (ar ? 'جارٍ التحديد…' : 'Locating…') : (ar ? 'موقعي' : 'My location')}
           </button>

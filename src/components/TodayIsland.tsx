@@ -125,7 +125,7 @@ export default function TodayIsland({ lang }: Props) {
 
       <div style={{ marginTop:18, display:'flex', flexWrap:'wrap', gap:10 }}>
         <button onClick={copyToday}
-          style={{ padding:'11px 18px', borderRadius:11, border:'none', background:'var(--cta)', color:'var(--cta-contrast)', fontWeight:700, fontSize:14, transition:'filter .2s' }}
+          style={{ padding:'11px 18px', borderRadius:11, border:'none', background:'var(--accent)', color:'var(--accent-contrast)', fontWeight:700, fontSize:14, transition:'filter .2s' }}
           onMouseEnter={e => (e.currentTarget.style.filter='brightness(1.06)')}
           onMouseLeave={e => (e.currentTarget.style.filter='')}>
           {copied ? (ar ? 'تم النسخ ✓' : 'Copied ✓') : (ar ? 'انسخ تاريخ اليوم' : "Copy today's date")}

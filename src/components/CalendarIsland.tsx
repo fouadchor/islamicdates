@@ -209,7 +209,7 @@ export default function CalendarIsland({ lang }: Props) {
             </div>
           )}
           <div style={{ marginTop:16, display:'flex', flexWrap:'wrap', gap:9 }}>
-            <a href={selGcal} target="_blank" rel="noopener" style={{ padding:'9px 16px', borderRadius:11, background:'var(--cta)', color:'var(--cta-contrast)', fontWeight:700, fontSize:13, textDecoration:'none' }}>{ar?'أضِفه إلى تقويم Google':'Add to Google Calendar'}</a>
+            <a href={selGcal} target="_blank" rel="noopener" style={{ padding:'9px 16px', borderRadius:11, background:'var(--accent)', color:'var(--accent-contrast)', fontWeight:700, fontSize:13, textDecoration:'none' }}>{ar?'أضِفه إلى تقويم Google':'Add to Google Calendar'}</a>
             <button type="button" onClick={copySel} style={{ padding:'9px 16px', borderRadius:11, background:'var(--surface)', border:'1px solid var(--border)', color:'var(--accent)', fontWeight:700, fontSize:13, cursor:'pointer' }}>
               {selCopied ? (ar?'تم النسخ ✓':'Copied ✓') : (ar?'نسخ التاريخ':'Copy date')}
             </button>

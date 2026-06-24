@@ -272,7 +272,7 @@ export default function ZakatIsland({ lang }: Props) {
             const text = `${t.netW}: ${money(net)} · ${t.nisab}: ${money(nisab)} · ${t.due}: ${money(zakat)}`;
             try { navigator.clipboard?.writeText(text); } catch {}
             setCopied(true); setTimeout(() => setCopied(false), 1800);
-          }} style={{ padding: '10px 18px', borderRadius: 11, border: 'none', background: 'var(--cta)', color: 'var(--cta-contrast)', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>
+          }} style={{ padding: '10px 18px', borderRadius: 11, border: 'none', background: 'var(--accent)', color: 'var(--accent-contrast)', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>
             {copied ? t.copied : t.copy}
           </button>
           <button onClick={() => { setCash(''); setGoldGrams(''); setSilverGrams(''); setBusiness(''); setInvestments(''); setReceivables(''); setDebts(''); }}
