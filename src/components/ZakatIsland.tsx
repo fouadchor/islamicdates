@@ -143,7 +143,9 @@ export default function ZakatIsland({ lang }: Props) {
   const silverVal = num(silverGrams) * sp;
   const totalAssets = num(cash) + goldVal + silverVal + num(business) + num(investments) + num(receivables);
   const net = Math.max(0, totalAssets - num(debts));
-  const nisab = basis === 'gold' ? NISAB_GOLD_G * gp : NISAB_SILVER_G * sp;
+  const goldNisab = NISAB_GOLD_G * gp;
+  const silverNisab = NISAB_SILVER_G * sp;
+  const nisab = basis === 'gold' ? goldNisab : silverNisab;
   const due = net >= nisab && nisab > 0;
   const zakat = due ? net * RATE : 0;
   const shortfall = Math.max(0, nisab - net);
@@ -168,6 +170,16 @@ export default function ZakatIsland({ lang }: Props) {
     less: ar ? 'يُطرح: الخصوم' : 'Less: liabilities',
     netW: ar ? 'صافي المال الزكوي' : 'Net zakatable wealth',
     nisab: ar ? 'النصاب' : 'Nisab threshold',
+    nisabToday: ar ? 'نصاب الزكاة اليوم' : "Today's Zakat nisab",
+    nisabDesc: ar
+      ? 'النصاب هو أقل مقدار من المال تجب فيه الزكاة، ويتغيّر يومياً بتغيّر سعر الذهب والفضة. هذه القيمة محسوبة بسعر السوق الحالي بعملتك. إذا بلغ صافي مالك أحد النصابين ومرّ عليه حول هجري كامل وجبت الزكاة (2.5%).'
+      : 'The nisab is the minimum wealth on which Zakat is due, and it changes daily with gold and silver prices. These values use the current market price in your currency. If your net wealth reaches either nisab and a full Hijri year passes, Zakat (2.5%) is due.',
+    nisabGold: ar ? 'نصاب الذهب · 85 جم' : 'Gold nisab · 85g',
+    nisabSilver: ar ? 'نصاب الفضة · 595 جم' : 'Silver nisab · 595g',
+    nisabNote: ar
+      ? 'الأحوط لمن أكثر ماله نقد أو مختلط الأخذ بنصاب الفضة لأنه أقل. اضغط على أحد النصابين لاعتماده في الحساب.'
+      : 'For mostly-cash or mixed wealth, the lower silver nisab is the more cautious choice. Tap a nisab to use it in the calculation.',
+    active: ar ? 'مُعتمَد' : 'in use',
     due: ar ? 'الزكاة المستحقة (2.5%)' : 'Zakat due (2.5%)',
     dueYes: ar ? 'مالك بلغ النصاب، وتجب الزكاة إن مرّ عليه حول هجري كامل.' : 'Your wealth has reached the nisab — zakat is due if a full lunar year has passed.',
     dueNo: ar ? 'مالك دون النصاب، فلا تجب الزكاة حالياً.' : 'Your wealth is below the nisab, so no zakat is due now.',
@@ -183,22 +195,27 @@ export default function ZakatIsland({ lang }: Props) {
 
   return (
     <section style={{ display: 'grid', gap: 18 }}>
-      <div style={cardStyle}>
-        <h2 style={{ margin: '0 0 4px', fontSize: 17, fontWeight: 700 }}>{t.settings}</h2>
-        {priceNote && <p style={{ margin: '0 0 16px', fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.6 }}>{priceNote}</p>}
-
-        <label style={labelStyle}>{t.basis}</label>
-        <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
-          {(['gold', 'silver'] as const).map(b => (
-            <button key={b} onClick={() => setBasis(b)}
-              style={{ flex: '1 1 140px', padding: '11px 14px', borderRadius: 11, cursor: 'pointer', fontWeight: 700, fontSize: 14,
-                border: '1px solid ' + (basis === b ? 'var(--accent)' : 'var(--border)'),
-                background: basis === b ? 'var(--accent)' : 'var(--surface2)',
-                color: basis === b ? 'var(--accent-contrast)' : 'var(--text)' }}>
-              {b === 'gold' ? `${t.gold} · ${NISAB_GOLD_G}g` : `${t.silver} · ${NISAB_SILVER_G}g`}
+      {/* Nisab today — prominent, answers "how much is the nisab in <currency>" */}
+      <div style={{ ...cardStyle, background: 'var(--accent-soft)', borderColor: 'var(--accent)' }}>
+        <h2 style={{ margin: '0 0 4px', fontSize: 18, fontWeight: 800 }}>{t.nisabToday}</h2>
+        <p style={{ margin: '0 0 14px', fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.6 }}>{t.nisabDesc}</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
+          {([['gold', t.nisabGold, goldNisab], ['silver', t.nisabSilver, silverNisab]] as const).map(([b, lbl, val]) => (
+            <button key={b} onClick={() => setBasis(b as 'gold' | 'silver')}
+              style={{ textAlign: ar ? 'right' : 'left', padding: '14px 16px', borderRadius: 12, cursor: 'pointer',
+                border: '2px solid ' + (basis === b ? 'var(--accent)' : 'var(--border)'),
+                background: 'var(--surface)' }}>
+              <span style={{ display: 'block', fontSize: 13, color: 'var(--muted)', fontWeight: 600 }}>{lbl}{basis === b ? ` · ${t.active}` : ''}</span>
+              <span style={{ display: 'block', fontSize: 'clamp(21px,3.6vw,28px)', fontWeight: 800, color: 'var(--accent)', marginTop: 4 }}>{money(val as number)}</span>
             </button>
           ))}
         </div>
+        <p style={{ margin: '12px 0 0', fontSize: 12, color: 'var(--muted)', lineHeight: 1.6 }}>{t.nisabNote}</p>
+      </div>
+
+      <div style={cardStyle}>
+        <h2 style={{ margin: '0 0 4px', fontSize: 17, fontWeight: 700 }}>{t.settings}</h2>
+        {priceNote && <p style={{ margin: '0 0 16px', fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.6 }}>{priceNote}</p>}
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12 }}>
           <div style={{ marginBottom: 14 }}>
