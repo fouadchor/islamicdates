@@ -77,6 +77,8 @@ const navItems = lang === 'ar'
       --accent-soft: #d4f4ee;
       --border: #e3eaef;
       --gold: #c98a16;
+      --gold-soft: #f6ecd6;
+      --gold-deep: #8a5f12;
       --holy: #0ea5e9;
       --radius: 18px;
       --shadow: 0 1px 2px rgba(13,40,48,.06), 0 10px 30px rgba(13,40,48,.05);
@@ -176,11 +178,12 @@ const navItems = lang === 'ar'
 
     .section-card { padding: 24px 28px; }
     .section-h2 { margin: 0 0 8px; font-size: 19px; font-weight: 700; line-height: 1.3; }
+    .section-h2::after { content: ''; display: block; width: 30px; height: 3px; margin-top: 7px; border-radius: 2px; background: var(--gold); opacity: .9; }
     .section-p  { margin: 0; color: var(--muted); line-height: 1.85; font-size: 15px; text-wrap: pretty; }
 
     .months-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; margin-top: 14px; }
     .month-item  { display: flex; gap: 11px; align-items: flex-start; padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface2); }
-    .month-num   { flex: 0 0 auto; width: 27px; height: 27px; border-radius: 8px; background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; }
+    .month-num   { flex: 0 0 auto; width: 27px; height: 27px; border-radius: 8px; background: var(--gold-soft); color: var(--gold-deep); font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; }
     .month-name  { font-weight: 700; font-size: 14.5px; }
     .month-note  { font-size: 12.5px; color: var(--muted); margin-top: 2px; line-height: 1.5; }
 
