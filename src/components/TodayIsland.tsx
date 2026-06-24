@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { g2h, getOcc, dotColor, todayUTC, h2g } from '../lib/hijri';
-import { H_MON_AR, H_MON_EN, G_MON_AR, G_MON_EN, WD_AR, WD_EN, COUNTRIES, MAJOR_OCC_KEYS } from '../lib/data';
+import { H_MON_AR, H_MON_EN, G_MON_AR, G_MON_EN, WD_AR, WD_EN, MAJOR_OCC_KEYS } from '../lib/data';
+import { COUNTRIES, TZ_TO_COUNTRY } from '../lib/countries';
 
 interface Props { lang: 'ar' | 'en' }
 
@@ -17,17 +18,8 @@ export default function TodayIsland({ lang }: Props) {
     // available as an override for anyone who wants a different region.
     try {
       const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      const tzToCountry: Record<string, string> = {
-        'Asia/Riyadh': 'sa',
-        'Asia/Dubai': 'ae',
-        'Asia/Qatar': 'qa',
-        'Asia/Amman': 'jo',
-        'Asia/Hebron': 'jo',
-        'Asia/Gaza': 'jo',
-        'Asia/Damascus': 'sy',
-      };
-      const match = tzToCountry[tz];
-      if (match) setCountry(match);
+      const match = TZ_TO_COUNTRY[tz];
+      if (match && COUNTRIES.some(c => c.v === match)) setCountry(match);
     } catch {}
   }, []);
 
@@ -108,7 +100,7 @@ export default function TodayIsland({ lang }: Props) {
           <select value={country} onChange={e => setCountry(e.target.value)}
             aria-label={ar ? 'المنطقة' : 'Region'}
             style={{ padding:'3px 4px', borderRadius:8, border:'none', background:'transparent', color:'var(--muted)', fontSize:'12.5px', fontWeight:600, cursor:'pointer' }}>
-            {COUNTRIES.map(c => <option key={c.v} value={c.v}>{ar ? c.ar : c.en}</option>)}
+            {[...COUNTRIES].sort((a, b) => (ar ? a.ar : a.en).localeCompare(ar ? b.ar : b.en, ar ? 'ar' : 'en')).map(c => <option key={c.v} value={c.v}>{ar ? c.ar : c.en}</option>)}
           </select>
         </label>
       </div>
