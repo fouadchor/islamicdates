@@ -10,7 +10,26 @@ export default function TodayIsland({ lang }: Props) {
   const [copied, setCopied] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    setMounted(true);
+    // Quietly default the region to the visitor's location using their
+    // browser timezone — no permission prompt, no IP lookup. Selector stays
+    // available as an override for anyone who wants a different region.
+    try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const tzToCountry: Record<string, string> = {
+        'Asia/Riyadh': 'sa',
+        'Asia/Dubai': 'ae',
+        'Asia/Qatar': 'qa',
+        'Asia/Amman': 'jo',
+        'Asia/Hebron': 'jo',
+        'Asia/Gaza': 'jo',
+        'Asia/Damascus': 'sy',
+      };
+      const match = tzToCountry[tz];
+      if (match) setCountry(match);
+    } catch {}
+  }, []);
 
   const today = todayUTC();
   const th = g2h(today);
@@ -81,10 +100,14 @@ export default function TodayIsland({ lang }: Props) {
         <div style={{ fontSize:'12.5px', letterSpacing:'.12em', textTransform:'uppercase', color:'var(--accent)', fontWeight:700 }}>
           {ar ? 'تاريخ اليوم' : "Today's Date"}
         </div>
-        <label style={{ display:'flex', alignItems:'center', gap:8, fontSize:'12.5px', color:'var(--muted)' }}>
-          {ar ? 'الدولة' : 'Region'}
+        <label style={{ display:'inline-flex', alignItems:'center', gap:6, fontSize:'12px', color:'var(--muted)', opacity:.85 }}
+          title={ar ? 'اختياري: غيّر المنطقة لتعديل ملاحظة رؤية الهلال' : 'Optional: change region to adjust the moon-sighting note'}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity:.7 }} aria-hidden="true">
+            <circle cx="12" cy="10" r="3" /><path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 7 8 11.7z" />
+          </svg>
           <select value={country} onChange={e => setCountry(e.target.value)}
-            style={{ padding:'7px 11px', borderRadius:10, border:'1px solid var(--border)', background:'var(--surface2)', color:'var(--text)', fontSize:'13.5px' }}>
+            aria-label={ar ? 'المنطقة' : 'Region'}
+            style={{ padding:'3px 4px', borderRadius:8, border:'none', background:'transparent', color:'var(--muted)', fontSize:'12.5px', fontWeight:600, cursor:'pointer' }}>
             {COUNTRIES.map(c => <option key={c.v} value={c.v}>{ar ? c.ar : c.en}</option>)}
           </select>
         </label>
