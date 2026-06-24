@@ -137,15 +137,15 @@ export default function CalendarIsland({ lang }: Props) {
               onMouseLeave={e => { e.currentTarget.style.background='var(--surface2)'; e.currentTarget.style.color='var(--accent)'; e.currentTarget.style.borderColor='var(--border)'; }}>
               {ar ? 'اليوم' : 'Today'}
             </button>
-            <button onClick={() => nav(-1)} style={btnBase}
+            <button onClick={() => nav(-1)} style={btnBase} aria-label={ar ? 'الشهر السابق' : 'Previous month'}
               onMouseEnter={e => { e.currentTarget.style.background='var(--accent)'; e.currentTarget.style.color='var(--accent-contrast)'; }}
               onMouseLeave={e => { e.currentTarget.style.background='var(--surface2)'; e.currentTarget.style.color='var(--accent)'; }}>
-              {ar ? '›' : '‹'}
+              <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{ar ? <path d="M9 6l6 6-6 6"/> : <path d="M15 6l-6 6 6 6"/>}</svg>
             </button>
-            <button onClick={() => nav(1)} style={btnBase}
+            <button onClick={() => nav(1)} style={btnBase} aria-label={ar ? 'الشهر التالي' : 'Next month'}
               onMouseEnter={e => { e.currentTarget.style.background='var(--accent)'; e.currentTarget.style.color='var(--accent-contrast)'; }}
               onMouseLeave={e => { e.currentTarget.style.background='var(--surface2)'; e.currentTarget.style.color='var(--accent)'; }}>
-              {ar ? '‹' : '›'}
+              <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{ar ? <path d="M15 6l-6 6 6 6"/> : <path d="M9 6l6 6-6 6"/>}</svg>
             </button>
           </div>
         </div>
