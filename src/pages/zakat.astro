@@ -1,0 +1,90 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ZakatIsland from '../components/ZakatIsland';
+
+const canonical = 'https://islamicdates.org/zakat/';
+const title = 'حاسبة الزكاة · احسب زكاة المال والذهب والفضة (2.5%) مع النصاب';
+const description = 'حاسبة الزكاة لحساب زكاة المال والنقد والذهب والفضة وعروض التجارة والأسهم، مع تحديد النصاب بسعر الذهب (85غ) أو الفضة (595غ) ونسبة 2.5%، وفق التقويم الهجري.';
+
+const faq = [
+  { q: 'ما هو نصاب الزكاة؟', a: 'النصاب هو الحد الأدنى من المال الذي تجب فيه الزكاة. ويُقدّر بقيمة 85 جراماً من الذهب أو 595 جراماً من الفضة. فإذا بلغ مالك هذا الحد ومرّ عليه حول هجري كامل وأنت مالك له وجبت فيه الزكاة.' },
+  { q: 'كم نسبة زكاة المال؟', a: 'نسبة زكاة المال (النقد والذهب والفضة وعروض التجارة) هي ربع العشر، أي 2.5% من صافي المال الزكوي بعد بلوغه النصاب ومرور الحول.' },
+  { q: 'هل أحسب النصاب بالذهب أم بالفضة؟', a: 'كلاهما معتبر شرعاً. ونصاب الفضة أقل قيمة في الغالب، فالأخذ به يجعل الزكاة تجب على عدد أكبر من الناس وهو أحوط وأنفع للفقراء، بينما يأخذ كثيرون بنصاب الذهب. تتيح لك الحاسبة اختيار الأساس الذي تريده.' },
+  { q: 'هل تجب الزكاة في الذهب المُعدّ للزينة؟', a: 'المسألة محل خلاف بين الفقهاء؛ فذهب جمهورهم إلى عدم وجوب الزكاة في حلي المرأة المُعدّ للُّبس، وذهب آخرون إلى وجوبها مطلقاً احتياطاً. والأحوط إخراجها، ويُرجع في الترجيح إلى أهل العلم.' },
+  { q: 'متى يبدأ حساب الحول؟', a: 'يبدأ حساب الحول من يوم بلوغ المال النصاب، ويُحسب بالسنة الهجرية القمرية (نحو 354 يوماً). فإذا تمّ الحول والمال ما زال نصاباً فأكثر وجبت الزكاة.' },
+];
+
+const jsonLd = JSON.stringify([
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [
+    { '@type': 'ListItem', 'position': 1, 'name': 'الرئيسية', 'item': 'https://islamicdates.org/' },
+    { '@type': 'ListItem', 'position': 2, 'name': 'حاسبة الزكاة', 'item': canonical },
+  ] },
+  { '@context': 'https://schema.org', '@type': 'WebApplication', 'name': 'حاسبة الزكاة', 'url': canonical,
+    'applicationCategory': 'FinanceApplication', 'operatingSystem': 'Web', 'inLanguage': ['ar', 'en'],
+    'offers': { '@type': 'Offer', 'price': '0', 'priceCurrency': 'USD' } },
+  { '@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': faq.map(f => ({ '@type': 'Question', 'name': f.q, 'acceptedAnswer': { '@type': 'Answer', 'text': f.a } })) },
+]);
+---
+<Layout title={title} description={description} canonical={canonical} lang="ar" jsonLd={jsonLd} altPath="/en/zakat/" xDefaultPath="/zakat/">
+  <header class="site-header">
+    <div class="header-start">
+      <a href="/" class="logo" aria-label="الانتقال إلى الصفحة الرئيسية">
+        <div class="logo-icon">☾</div>
+        <div>
+          <div class="brand">التقويم الهجري</div>
+          <div class="tagline">حاسبة الزكاة</div>
+        </div>
+      </a>
+      <a href="/" class="home-btn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+        <span>الرئيسية</span>
+      </a>
+    </div>
+    <a href="/en/zakat/" class="lang-btn">EN</a>
+  </header>
+
+  <div class="layout">
+    <main>
+      <section class="card section-card" style="order:1">
+        <h1 class="section-h2" style="font-size:25px">حاسبة الزكاة</h1>
+        <p class="section-p" style="margin-top:8px">احسب زكاة مالك بسهولة: النقد والأرصدة البنكية، والذهب والفضة، وعروض التجارة، والأسهم والاستثمارات، والديون المرجوّة لك، بعد خصم ديونك المستحقة. اختر أساس النصاب (الذهب أو الفضة)، وتُحسب الزكاة بنسبة 2.5% إذا بلغ مالك النصاب.</p>
+      </section>
+
+      <ZakatIsland lang="ar" client:load />
+
+      <section class="card section-card">
+        <h2 class="section-h2">كيف تُحسب الزكاة؟</h2>
+        <p class="section-p">تُجمع كل الأموال الزكوية (النقد، وقيمة الذهب والفضة، وعروض التجارة، والاستثمارات، والديون المرجوّة)، ثم تُطرح منها الديون المستحقة عليك حالاً، فينتج صافي المال الزكوي. فإذا بلغ هذا الصافي النصاب — وهو قيمة 85 جراماً من الذهب أو 595 جراماً من الفضة — ومرّ عليه حول هجري كامل، وجب إخراج 2.5% منه زكاةً.</p>
+        <h2 class="section-h2" style="margin-top:22px">النصاب وسعر المعدن</h2>
+        <p class="section-p">لأن قيمة النصاب مرتبطة بسعر الذهب والفضة المتغيّر يومياً، تجلب الحاسبة سعراً تقريبياً تلقائياً، ويمكنك تعديله ليطابق سعر السوق بعملتك. أدخِل جميع المبالغ بالعملة نفسها التي أدخلت بها سعر الجرام.</p>
+      </section>
+
+      <section class="card section-card">
+        <h2 class="section-h2">أسئلة شائعة</h2>
+        {faq.map((f, i) => (
+          <div class="faq-item" style={i === faq.length - 1 ? 'border-bottom:none' : ''}>
+            <p class="faq-q">{f.q}</p>
+            <p class="faq-a">{f.a}</p>
+          </div>
+        ))}
+      </section>
+    </main>
+
+    <aside>
+      <div class="ad-slot"><span class="ad-label">مساحة إعلانية</span><span style="font-size:13px;opacity:.7">300 × 250</span></div>
+      <div class="card" style="padding:18px 20px">
+        <h3 style="margin:0 0 12px;font-size:15.5px;font-weight:700">أدوات ذات صلة</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:14.5px">
+          <a href="/" style="color:var(--accent);text-decoration:none">التقويم الهجري وتاريخ اليوم</a>
+          <a href="/prayer-times/" style="color:var(--accent);text-decoration:none">مواقيت الصلاة حسب موقعك</a>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="site-footer">
+    حاسبة استرشادية · استشر أهل العلم لحالتك الخاصة
+    <span style="margin:0 8px;opacity:.4">·</span>
+    <a href="/privacy/" style="color:var(--muted);text-decoration:none;font-size:13px">سياسة الخصوصية</a>
+  </footer>
+</Layout>
