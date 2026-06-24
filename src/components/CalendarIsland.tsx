@@ -188,14 +188,14 @@ export default function CalendarIsland({ lang }: Props) {
 
       {/* Selected day card */}
       {selDate && (
-        <section className="card" style={{ padding:'22px 26px', borderInlineStart:'4px solid var(--accent)', background:'var(--accent-soft)', animation:'pop .25s ease' }}>
+        <section className="card" style={{ padding:'22px 26px', borderInlineStart:'4px solid var(--gold)', background:'var(--gold-soft)', animation:'pop .25s ease' }}>
           <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:10, flexWrap:'wrap', marginBottom:10 }}>
             <div style={{ display:'flex', alignItems:'center', gap:8 }}>
               <span aria-hidden="true" style={{ fontSize:18, lineHeight:1 }}>☾</span>
-              <span style={{ fontSize:'12.5px', color:'var(--accent)', fontWeight:800, letterSpacing:'.04em' }}>{ar?'اليوم المختار':'Selected day'}</span>
+              <span style={{ fontSize:'12.5px', color:'var(--gold-deep)', fontWeight:800, letterSpacing:'.04em' }}>{ar?'اليوم المختار':'Selected day'}</span>
             </div>
             {selRelLabel && (
-              <span style={{ padding:'4px 12px', borderRadius:999, background:'var(--surface)', color:'var(--accent)', fontWeight:700, fontSize:'12.5px', border:'1px solid var(--border)' }}>{selRelLabel}</span>
+              <span style={{ padding:'4px 12px', borderRadius:999, background:'var(--surface)', color:'var(--gold-deep)', fontWeight:700, fontSize:'12.5px', border:'1px solid var(--border)' }}>{selRelLabel}</span>
             )}
           </div>
           <div style={{ fontWeight:800, fontSize:'clamp(20px,3vw,25px)', lineHeight:1.3, color:'var(--text)' }}>{selHijri}</div>

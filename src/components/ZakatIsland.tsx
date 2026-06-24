@@ -196,17 +196,17 @@ export default function ZakatIsland({ lang }: Props) {
   return (
     <section style={{ display: 'grid', gap: 18 }}>
       {/* Nisab today — prominent, answers "how much is the nisab in <currency>" */}
-      <div style={{ ...cardStyle, background: 'var(--accent-soft)', borderColor: 'var(--accent)' }}>
+      <div style={{ ...cardStyle, background: 'var(--gold-soft)', borderColor: 'var(--gold)' }}>
         <h2 style={{ margin: '0 0 4px', fontSize: 18, fontWeight: 800 }}>{t.nisabToday}</h2>
         <p style={{ margin: '0 0 14px', fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.6 }}>{t.nisabDesc}</p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
           {([['gold', t.nisabGold, goldNisab], ['silver', t.nisabSilver, silverNisab]] as const).map(([b, lbl, val]) => (
             <button key={b} onClick={() => setBasis(b as 'gold' | 'silver')}
               style={{ textAlign: ar ? 'right' : 'left', padding: '14px 16px', borderRadius: 12, cursor: 'pointer',
-                border: '2px solid ' + (basis === b ? 'var(--accent)' : 'var(--border)'),
+                border: '2px solid ' + (basis === b ? 'var(--gold)' : 'var(--border)'),
                 background: 'var(--surface)' }}>
               <span style={{ display: 'block', fontSize: 13, color: 'var(--muted)', fontWeight: 600 }}>{lbl}{basis === b ? ` · ${t.active}` : ''}</span>
-              <span style={{ display: 'block', fontSize: 'clamp(21px,3.6vw,28px)', fontWeight: 800, color: 'var(--accent)', marginTop: 4 }}>{money(val as number)}</span>
+              <span style={{ display: 'block', fontSize: 'clamp(21px,3.6vw,28px)', fontWeight: 800, color: 'var(--gold-deep)', marginTop: 4 }}>{money(val as number)}</span>
             </button>
           ))}
         </div>
