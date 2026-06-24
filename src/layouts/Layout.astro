@@ -16,9 +16,10 @@ const altHref = altPath ?? (lang === 'ar' ? '/en/' : '/');
 const xDefHref = xDefaultPath ?? '/';
 const _navHome = lang === 'ar' ? '/' : '/en/';
 const _navPrayer = lang === 'ar' ? '/prayer-times/' : '/en/prayer-times/';
+const _navZakat = lang === 'ar' ? '/zakat/' : '/en/zakat/';
 const navItems = lang === 'ar'
-  ? [{ h: _navHome, t: 'الرئيسية' }, { h: _navHome + '#converter', t: 'المحوّل' }, { h: _navPrayer, t: 'مواقيت الصلاة' }, { h: _navHome + '#occasions', t: 'المناسبات' }]
-  : [{ h: _navHome, t: 'Home' }, { h: _navHome + '#converter', t: 'Converter' }, { h: _navPrayer, t: 'Prayer Times' }, { h: _navHome + '#occasions', t: 'Occasions' }];
+  ? [{ h: _navHome, t: 'الرئيسية' }, { h: _navHome + '#converter', t: 'المحوّل' }, { h: _navPrayer, t: 'مواقيت الصلاة' }, { h: _navZakat, t: 'حاسبة الزكاة' }, { h: _navHome + '#occasions', t: 'المناسبات' }]
+  : [{ h: _navHome, t: 'Home' }, { h: _navHome + '#converter', t: 'Converter' }, { h: _navPrayer, t: 'Prayer Times' }, { h: _navZakat, t: 'Zakat Calculator' }, { h: _navHome + '#occasions', t: 'Occasions' }];
 ---
 <!DOCTYPE html>
 <html lang={lang} dir={dir}>
