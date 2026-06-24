@@ -176,7 +176,7 @@ export default function CalendarIsland({ lang }: Props) {
               onMouseLeave={e => { if (c.show) { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow=c.isSel?'0 0 0 3px var(--accent)':'none'; } }}>
               {c.show && (<>
                 <span style={{ fontSize:10, fontWeight:600, lineHeight:1, opacity:c.isToday?0.92:0.62, color:c.isToday?'var(--accent-contrast)':'var(--muted)' }}>
-                  {c.showMon ? `${c.gmShort} ${c.gd}` : c.gd}
+                  {`${c.gmShort} ${c.gd}`}
                 </span>
                 <span style={{ fontWeight:700, fontSize:'clamp(15px,2.6vw,20px)', lineHeight:1 }}>{c.d}</span>
                 {c.occ && <span style={{ position:'absolute', bottom:6, width:5, height:5, borderRadius:'50%', background:dotColor(c.occ[0]) }} />}
