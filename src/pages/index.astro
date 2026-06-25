@@ -38,10 +38,6 @@ const jsonLd = JSON.stringify([
     "description":"التقويم الهجري اليوم بالتاريخ الميلادي للمقارنة، مع تصفّح الأشهر الهجرية ومحوّل سريع بين الهجري والميلادي والمناسبات الإسلامية وفق تقويم أم القرى.",
     "applicationCategory":"UtilitiesApplication","operatingSystem":"Web",
     "inLanguage":["ar","en"],"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}
-  },
-  {
-    "@context":"https://schema.org","@type":"FAQPage",
-    "mainEntity": L.faqItems.map(f => ({ "@type":"Question","name":f.q,"acceptedAnswer":{"@type":"Answer","text":f.a} }))
   }
 ]);
 ---
@@ -66,6 +62,15 @@ const jsonLd = JSON.stringify([
 
   <div class="layout">
     <main>
+      <!-- Quick access -->
+      <nav class="quicklinks" style="order:-1" aria-label="روابط سريعة">
+        <a href="#converter">المحوّل</a>
+        <a href="/prayer-times/">مواقيت الصلاة</a>
+        <a href="/zakat/">حاسبة الزكاة</a>
+        <a href="#occasions">المناسبات</a>
+        <a href="/about/">الدليل</a>
+      </nav>
+
       <!-- Today (live, client island) -->
       <TodayIsland lang="ar" client:load />
 
@@ -108,16 +113,6 @@ const jsonLd = JSON.stringify([
         </div>
       </section>
 
-      <!-- Content: What is / Diff / How -->
-      <section class="card section-card" style="order:6">
-        <h2 class="section-h2">{L.whatIsTitle}</h2>
-        <p class="section-p">{L.whatIsBody}</p>
-        <h2 class="section-h2" style="margin-top:22px">{L.diffTitle}</h2>
-        <p class="section-p">{L.diffBody}</p>
-        <h2 class="section-h2" style="margin-top:22px">{L.howTitle}</h2>
-        <p class="section-p">{L.howBody}</p>
-      </section>
-
       <!-- Hadith of the day -->
       <section class="card section-card" style="order:7;background:var(--gold-soft);border-color:var(--gold-soft)">
         <div style="display:flex;align-items:center;gap:9px;margin-bottom:10px">
@@ -146,18 +141,16 @@ const jsonLd = JSON.stringify([
         })();
       </script>
 
-      <!-- About + FAQ -->
-      <section class="card section-card" style="order:8">
-        <h2 class="section-h2">{L.aboutTitle}</h2>
-        <p class="section-p">{L.aboutBody}</p>
-        <h2 class="section-h2" style="margin-top:24px">{L.faqTitle}</h2>
-        {L.faqItems.map(f => (
-          <div class="faq-item">
-            <h3 class="faq-q">{f.q}</h3>
-            <p class="faq-a">{f.a}</p>
-          </div>
-        ))}
-      </section>
+      <!-- Guide teaser (full educational content lives on /about/) -->
+      <a href="/about/" class="card section-card" style="order:8;text-decoration:none;color:inherit;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;border-color:var(--accent)">
+        <div style="flex:1 1 260px">
+          <h2 class="section-h2" style="margin:0">ما هو التقويم الهجري؟ الدليل الكامل</h2>
+          <p class="section-p" style="margin-top:6px">تعرّف على نشأة التقويم الهجري، وكيف يُحسب فلكياً، والفرق بين تقويم أم القرى ورؤية الهلال، مع أسئلة شائعة.</p>
+        </div>
+        <span style="flex:0 0 auto;display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:11px;background:var(--accent);color:var(--accent-contrast);font-weight:700;font-size:14px">اقرأ الدليل
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+        </span>
+      </a>
     </main>
 
     <aside>
