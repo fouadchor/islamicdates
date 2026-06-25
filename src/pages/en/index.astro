@@ -37,10 +37,6 @@ const jsonLd = JSON.stringify([
     "description":"Hijri calendar today with Gregorian date comparison, browse Hijri months, quick date converter between Hijri and Gregorian, and upcoming Islamic occasions based on the Umm al-Qura calendar.",
     "applicationCategory":"UtilitiesApplication","operatingSystem":"Web",
     "inLanguage":["ar","en"],"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}
-  },
-  {
-    "@context":"https://schema.org","@type":"FAQPage",
-    "mainEntity": L.faqItems.map(f => ({ "@type":"Question","name":f.q,"acceptedAnswer":{"@type":"Answer","text":f.a} }))
   }
 ]);
 ---
@@ -65,6 +61,15 @@ const jsonLd = JSON.stringify([
 
   <div class="layout">
     <main>
+      <!-- Quick access -->
+      <nav class="quicklinks" style="order:-1" aria-label="Quick links">
+        <a href="#converter">Converter</a>
+        <a href="/en/prayer-times/">Prayer Times</a>
+        <a href="/en/zakat/">Zakat</a>
+        <a href="#occasions">Occasions</a>
+        <a href="/en/about/">Guide</a>
+      </nav>
+
       <TodayIsland lang="en" client:load />
       <CalendarIsland lang="en" client:load />
       <div id="converter" style="scroll-margin-top:64px"><ConverterIsland lang="en" client:visible /></div>
@@ -99,15 +104,6 @@ const jsonLd = JSON.stringify([
         </div>
       </section>
 
-      <section class="card section-card" style="order:6">
-        <h2 class="section-h2">{L.whatIsTitle}</h2>
-        <p class="section-p">{L.whatIsBody}</p>
-        <h2 class="section-h2" style="margin-top:22px">{L.diffTitle}</h2>
-        <p class="section-p">{L.diffBody}</p>
-        <h2 class="section-h2" style="margin-top:22px">{L.howTitle}</h2>
-        <p class="section-p">{L.howBody}</p>
-      </section>
-
       <section class="card section-card" style="order:7;background:var(--gold-soft);border-color:var(--gold-soft)">
         <div style="display:flex;align-items:center;gap:9px;margin-bottom:10px">
           <span aria-hidden="true" style="font-size:22px;line-height:1;color:var(--gold-deep)">☾</span>
@@ -135,17 +131,15 @@ const jsonLd = JSON.stringify([
         })();
       </script>
 
-      <section class="card section-card" style="order:8">
-        <h2 class="section-h2">{L.aboutTitle}</h2>
-        <p class="section-p">{L.aboutBody}</p>
-        <h2 class="section-h2" style="margin-top:24px">{L.faqTitle}</h2>
-        {L.faqItems.map(f => (
-          <div class="faq-item">
-            <h3 class="faq-q">{f.q}</h3>
-            <p class="faq-a">{f.a}</p>
-          </div>
-        ))}
-      </section>
+      <a href="/en/about/" class="card section-card" style="order:8;text-decoration:none;color:inherit;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;border-color:var(--accent)">
+        <div style="flex:1 1 260px">
+          <h2 class="section-h2" style="margin:0">What is the Hijri calendar? Full guide</h2>
+          <p class="section-p" style="margin-top:6px">Learn how the Hijri calendar works, how it's calculated, the difference between Umm al-Qura and moon sighting, plus FAQs.</p>
+        </div>
+        <span style="flex:0 0 auto;display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:11px;background:var(--accent);color:var(--accent-contrast);font-weight:700;font-size:14px">Read the guide
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </span>
+      </a>
     </main>
 
     <aside>
