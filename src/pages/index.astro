@@ -18,7 +18,7 @@ const lang = 'ar';
 const L = getL(true);
 const _h = hadithOfDay(new Date());
 
-const _featured = ['ramadan', 'eid-al-fitr', 'eid-al-adha', 'ashura', 'mawlid-al-nabi', 'islamic-new-year'];
+const _featured = ['ramadan', 'eid-al-fitr', 'eid-al-adha', 'ashura', 'mawlid-al-nabi', 'islamic-new-year', 'isra-and-miraj', 'laylat-al-qadr', 'day-of-arafah'];
 const _homeYears = (() => { const y = new Date().getUTCFullYear(); return [y, y+1]; })();
 const occLinks = [];
 for (const _y of _homeYears) {
@@ -141,16 +141,14 @@ const jsonLd = JSON.stringify([
         })();
       </script>
 
-      <!-- Guide teaser (full educational content lives on /about/) -->
-      <a href="/about/" class="card section-card" style="order:8;text-decoration:none;color:inherit;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;border-color:var(--accent)">
-        <div style="flex:1 1 260px">
-          <h2 class="section-h2" style="margin:0">ما هو التقويم الهجري؟ الدليل الكامل</h2>
-          <p class="section-p" style="margin-top:6px">تعرّف على نشأة التقويم الهجري، وكيف يُحسب فلكياً، والفرق بين تقويم أم القرى ورؤية الهلال، مع أسئلة شائعة.</p>
-        </div>
-        <span style="flex:0 0 auto;display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:11px;background:var(--accent);color:var(--accent-contrast);font-weight:700;font-size:14px">اقرأ الدليل
+      <!-- Condensed intro + guide link (full educational content lives on /about/) -->
+      <section class="card section-card" style="order:8">
+        <h2 class="section-h2">ما هو التقويم الهجري؟</h2>
+        <p class="section-p">التقويم الهجري تقويم قمري تتكوّن سنته من اثني عشر شهراً قمرياً (نحو 354 يوماً)، ويبدأ تأريخه من هجرة النبي محمد ﷺ سنة 622 ميلادية. يعرض هذا الموقع التاريخ الهجري اليوم بجانب التاريخ الميلادي وفق تقويم أم القرى، مع محوّل سريع بين الهجري والميلادي، وأبرز المناسبات الإسلامية ومواقيت الصلاة.</p>
+        <a href="/about/" style="margin-top:14px;display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:11px;background:var(--accent);color:var(--accent-contrast);font-weight:700;font-size:14px;text-decoration:none">اقرأ الدليل الكامل
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
-        </span>
-      </a>
+        </a>
+      </section>
     </main>
 
     <aside>
