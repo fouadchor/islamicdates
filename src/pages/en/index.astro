@@ -61,15 +61,6 @@ const jsonLd = JSON.stringify([
 
   <div class="layout">
     <main>
-      <!-- Quick access -->
-      <nav class="quicklinks" style="order:-1" aria-label="Quick links">
-        <a href="#converter">Converter</a>
-        <a href="/en/prayer-times/">Prayer Times</a>
-        <a href="/en/zakat/">Zakat</a>
-        <a href="#occasions">Occasions</a>
-        <a href="/en/about/">Guide</a>
-      </nav>
-
       <TodayIsland lang="en" client:load />
       <CalendarIsland lang="en" client:load />
       <div id="converter" style="scroll-margin-top:64px"><ConverterIsland lang="en" client:visible /></div>
