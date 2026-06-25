@@ -151,14 +151,14 @@ export default function CalendarIsland({ lang }: Props) {
         </div>
 
         {/* Weekday headers */}
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(7,1fr)', gap:6, marginBottom:8 }}>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(7,minmax(0,1fr))', gap:6, marginBottom:8 }}>
           {wdHead.map((w, i) => (
             <div key={w} style={{ textAlign:'center', fontSize:12, fontWeight:700, padding:'6px 0', color: i===6 ? 'var(--accent)' : 'var(--muted)' }}>{w}</div>
           ))}
         </div>
 
         {/* Day grid */}
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(7,1fr)', gap:6, opacity:fading?0:1, transform:fading?'translateY(6px)':'none', transition:'opacity .16s ease, transform .16s ease' }}>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(7,minmax(0,1fr))', gap:6, opacity:fading?0:1, transform:fading?'translateY(6px)':'none', transition:'opacity .16s ease, transform .16s ease' }}>
           {cells.map((c, i) => (
             <div key={i}
               onClick={() => c.show && c.date && setSelDate(c.date)}
