@@ -17,7 +17,7 @@ const _monthNotesShort = ['Opens the Hijri year — a sacred month graced by the
 const L = getL(false);
 const _h = hadithOfDay(new Date());
 
-const _featured = ['ramadan', 'eid-al-fitr', 'eid-al-adha', 'ashura', 'mawlid-al-nabi', 'islamic-new-year'];
+const _featured = ['ramadan', 'eid-al-fitr', 'eid-al-adha', 'ashura', 'mawlid-al-nabi', 'islamic-new-year', 'isra-and-miraj', 'laylat-al-qadr', 'day-of-arafah'];
 const _homeYears = (() => { const y = new Date().getUTCFullYear(); return [y, y+1]; })();
 const occLinks = [];
 for (const _y of _homeYears) {
@@ -131,15 +131,14 @@ const jsonLd = JSON.stringify([
         })();
       </script>
 
-      <a href="/en/about/" class="card section-card" style="order:8;text-decoration:none;color:inherit;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;border-color:var(--accent)">
-        <div style="flex:1 1 260px">
-          <h2 class="section-h2" style="margin:0">What is the Hijri calendar? Full guide</h2>
-          <p class="section-p" style="margin-top:6px">Learn how the Hijri calendar works, how it's calculated, the difference between Umm al-Qura and moon sighting, plus FAQs.</p>
-        </div>
-        <span style="flex:0 0 auto;display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:11px;background:var(--accent);color:var(--accent-contrast);font-weight:700;font-size:14px">Read the guide
+      <!-- Condensed intro + guide link (full educational content lives on /en/about/) -->
+      <section class="card section-card" style="order:8">
+        <h2 class="section-h2">What is the Hijri calendar?</h2>
+        <p class="section-p">The Hijri calendar is a lunar calendar whose year is made up of twelve lunar months (about 354 days), dated from the migration (Hijra) of Prophet Muhammad ﷺ in 622 CE. This site shows today's Hijri date next to the Gregorian date using the Umm al-Qura calendar, with a quick Hijri ⇄ Gregorian converter, the main Islamic occasions, and prayer times.</p>
+        <a href="/en/about/" style="margin-top:14px;display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:11px;background:var(--accent);color:var(--accent-contrast);font-weight:700;font-size:14px;text-decoration:none">Read the full guide
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
-        </span>
-      </a>
+        </a>
+      </section>
     </main>
 
     <aside>
