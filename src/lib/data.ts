@@ -47,7 +47,7 @@ export const COUNTRIES = [
   { v: 'sy', ar: 'سوريا',           en: 'Syria',               umm: false },
 ];
 
-export const MAJOR_OCC_KEYS = [[9,1],[10,1],[12,10],[1,1],[1,10],[3,12]] as const;
+export const MAJOR_OCC_KEYS = [[9,1],[9,27],[10,1],[12,9],[12,10],[1,1],[1,10],[3,12],[7,27],[8,15]] as const;
 
 export function getL(ar: boolean) {
   return {
