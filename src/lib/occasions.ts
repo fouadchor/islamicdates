@@ -110,6 +110,17 @@ export const OCCASIONS: OccDef[] = [
       what: 'Laylat al-Qadr is a blessed night in the last ten days of Ramadan, described as better than a thousand months. It is most often sought on the 27th night, and Muslims devote themselves to worship and supplication across the odd nights seeking it.',
     },
   },
+  {
+    slug: 'mid-shaban', hm: 8, hd: 15,
+    ar: {
+      name: 'ليلة النصف من شعبان',
+      what: 'ليلة النصف من شعبان هي ليلة الخامس عشر من شهر شعبان، يحييها كثير من المسلمين بالدعاء والذكر والصلاة. وقد وردت في فضلها بعض الأحاديث، واختلف أهل العلم في تخصيصها بعبادة معيّنة، والأصل أنها ليلة مباركة يُستحب فيها الإكثار من الطاعات والاستغفار.',
+    },
+    en: {
+      name: 'Mid-Shaʿban',
+      what: 'Mid-Shaʿban (Laylat al-Baraʾah) is the 15th night of the month of Shaʿban, observed by many Muslims with supplication, remembrance and prayer. Scholars have differed over singling it out for specific acts of worship, but it is widely regarded as a blessed night for increasing in good deeds and seeking forgiveness.',
+    },
+  },
 ];
 
 export interface Occurrence { hy: number; date: Date; }
