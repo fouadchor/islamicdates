@@ -1,0 +1,21 @@
+---
+import EmbedIsland from '../components/EmbedIsland';
+// Minimal standalone page meant to be embedded via <iframe> on other sites.
+---
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, follow" />
+  <meta name="color-scheme" content="light dark" />
+  <title>Hijri Date Widget · islamicdates.org</title>
+  <style>
+    html, body { margin: 0; padding: 4px; background: transparent; }
+    @media (prefers-reduced-motion: no-preference) { body { } }
+  </style>
+</head>
+<body>
+  <EmbedIsland client:load />
+</body>
+</html>
