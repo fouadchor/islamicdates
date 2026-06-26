@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { OCCASIONS, occurrencesInGYear, gYears, fmtG, fmtGShort, fmtH, isoUTC, occBasePath } from '../lib/occasions';
+import { H_MON_AR, H_MON_EN } from '../lib/data';
 
 interface Props { lang: 'ar' | 'en'; slug: string; gYear: number; }
 const { lang, slug, gYear } = Astro.props;
@@ -10,6 +11,18 @@ const loc = ar ? occ.ar : occ.en;
 
 const occs = occurrencesInGYear(occ.hm, occ.hd, gYear);
 const first = occs[0];
+
+// Hijri-day alias (e.g. "10 محرم" / "10 Muharram") — many people search by this.
+const hijriDay = `${occ.hd} ${(ar ? H_MON_AR : H_MON_EN)[occ.hm - 1]}`;
+
+// Country-context FAQ (captures "...in saudi arabia / pakistan / egypt" queries) + FAQ rich result.
+const faqItems = first ? (ar ? [
+  { q: `متى ${loc.name} ${gYear}؟`, a: `${loc.name} ${gYear} يوافق ${fmtG(first.date, true)}، أي ${fmtH(first.hy, occ.hm, occ.hd, true)} (${hijriDay}) وفق تقويم أم القرى.` },
+  { q: `هل يختلف تاريخ ${loc.name} ${gYear} بين الدول مثل السعودية ومصر وباكستان؟`, a: `التاريخ المعروض محسوب وفق تقويم أم القرى المعتمد في السعودية. وتعتمد بعض الدول مثل مصر وباكستان والمغرب على رؤية الهلال المباشرة، لذا قد يتقدّم اليوم الفعلي أو يتأخّر بمقدار يوم واحد تقريباً.` },
+] : [
+  { q: `When is ${loc.name} ${gYear}?`, a: `${loc.name} ${gYear} falls on ${fmtG(first.date, false)}, i.e. ${fmtH(first.hy, occ.hm, occ.hd, false)} (${hijriDay}) per the Umm al-Qura calendar.` },
+  { q: `Does the date of ${loc.name} ${gYear} differ between countries like Saudi Arabia, Pakistan and Egypt?`, a: `The date shown is calculated using the Umm al-Qura calendar used in Saudi Arabia. Some countries such as Pakistan, Egypt and Morocco rely on direct moon sighting, so the actual day may shift by about one day.` },
+]) : [];
 
 // Same occasion across all years (for internal-link table)
 const yearRows = gYears().map(y => {
@@ -29,11 +42,11 @@ const canonical = `https://islamicdates.org${occBasePath(slug, gYear, ar)}`;
 const altHref = occBasePath(slug, gYear, !ar);
 
 const title = ar
-  ? `متى ${loc.name} ${gYear}؟ التاريخ بالهجري والميلادي | تقويم أم القرى`
-  : `When is ${loc.name} ${gYear}? Date in Hijri & Gregorian | Umm al-Qura`;
+  ? `متى ${loc.name} ${gYear}؟ (${hijriDay}) التاريخ الهجري والميلادي`
+  : `When is ${loc.name} ${gYear}? (${hijriDay}) Hijri & Gregorian date`;
 const description = ar
-  ? `${loc.name} ${gYear}: ${first ? fmtG(first.date, true) + ' الموافق ' + fmtH(first.hy, occ.hm, occ.hd, true) : ''}. التاريخ الدقيق وفق تقويم أم القرى مع العد التنازلي.`
-  : `${loc.name} ${gYear}: ${first ? fmtG(first.date, false) + ', corresponding to ' + fmtH(first.hy, occ.hm, occ.hd, false) : ''}. The exact date per the Umm al-Qura calendar with a countdown.`;
+  ? `${loc.name} ${gYear} (${hijriDay}): ${first ? fmtG(first.date, true) + ' الموافق ' + fmtH(first.hy, occ.hm, occ.hd, true) : ''} وفق تقويم أم القرى. التاريخ في السعودية ومصر وباكستان وبقية الدول مع العدّ التنازلي.`
+  : `${loc.name} ${gYear} (${hijriDay}): ${first ? fmtG(first.date, false) + ', corresponding to ' + fmtH(first.hy, occ.hm, occ.hd, false) : ''} per the Umm al-Qura calendar. Date in Saudi Arabia, Pakistan, Egypt and worldwide, with a countdown.`;
 
 const breadcrumb = {
   "@context": "https://schema.org", "@type": "BreadcrumbList",
@@ -44,7 +57,9 @@ const breadcrumb = {
 };
 // Only BreadcrumbList markup — these are informational date pages, not Event-rich-result
 // entities, so Event schema is intentionally omitted to avoid invalid structured data.
-const jsonLd = JSON.stringify([breadcrumb]);
+const jsonLd = JSON.stringify(faqItems.length
+  ? [breadcrumb, { "@context": "https://schema.org", "@type": "FAQPage", "mainEntity": faqItems.map(f => ({ "@type": "Question", "name": f.q, "acceptedAnswer": { "@type": "Answer", "text": f.a } })) }]
+  : [breadcrumb]);
 
 // Add-to-calendar (all-day event for the occasion's first/next occurrence)
 const _calStart = first ? isoUTC(first.date).replace(/-/g, '') : '';
@@ -127,7 +142,19 @@ const t = {
         <p class="section-p">{t.howBody}</p>
       </section>
 
-      <section class="card section-card" style="order:3">
+      {faqItems.length > 0 && (
+        <section class="card section-card" style="order:3">
+          <h2 class="section-h2">{ar ? 'أسئلة شائعة' : 'Frequently asked questions'}</h2>
+          {faqItems.map((f, i) => (
+            <div class="faq-item" style={i === faqItems.length - 1 ? 'border-bottom:none' : ''}>
+              <h3 class="faq-q">{f.q}</h3>
+              <p class="faq-a">{f.a}</p>
+            </div>
+          ))}
+        </section>
+      )}
+
+      <section class="card section-card" style="order:4">
         <h2 class="section-h2">{t.yearsTitle}</h2>
         <div style="overflow-x:auto;margin-top:12px">
           <table style="width:100%;border-collapse:collapse;font-size:14.5px">
