@@ -47,6 +47,13 @@ const TZ_CCY: Record<string, string> = {
   'Africa/Algiers': 'DZD', 'Africa/Tunis': 'TND', 'Africa/Tripoli': 'LYD', 'Africa/Khartoum': 'SDG',
   'Asia/Karachi': 'PKR', 'Asia/Kolkata': 'INR', 'Asia/Calcutta': 'INR', 'Asia/Jakarta': 'IDR',
   'Asia/Kuala_Lumpur': 'MYR', 'Asia/Dhaka': 'BDT', 'Africa/Lagos': 'NGN', 'Europe/London': 'GBP',
+  // Eurozone -> EUR
+  'Europe/Paris': 'EUR', 'Europe/Berlin': 'EUR', 'Europe/Madrid': 'EUR', 'Europe/Rome': 'EUR',
+  'Europe/Amsterdam': 'EUR', 'Europe/Brussels': 'EUR', 'Europe/Vienna': 'EUR', 'Europe/Dublin': 'EUR',
+  'Europe/Lisbon': 'EUR', 'Europe/Athens': 'EUR', 'Europe/Helsinki': 'EUR', 'Europe/Bratislava': 'EUR',
+  'Europe/Ljubljana': 'EUR', 'Europe/Vilnius': 'EUR', 'Europe/Riga': 'EUR', 'Europe/Tallinn': 'EUR',
+  'Europe/Luxembourg': 'EUR', 'Europe/Malta': 'EUR', 'Europe/Zagreb': 'EUR', 'Europe/Nicosia': 'EUR',
+  'Atlantic/Canary': 'EUR',
 };
 
 // ---- module-scope styles + stable Field component (so inputs keep focus) ----
@@ -221,7 +228,17 @@ export default function ZakatIsland({ lang }: Props) {
           <div style={{ marginBottom: 14 }}>
             <label style={labelStyle}>{t.currency}</label>
             <select value={currency} onChange={e => onCurrency(e.target.value)} style={inputStyle}>
-              {CURRENCIES.map(c => <option key={c.code} value={c.code}>{(ar ? c.ar : c.en) + ' · ' + c.code}</option>)}
+              {(() => {
+                const MAIN = ['USD', 'EUR', 'GBP', 'SAR', 'AED', 'QAR', 'KWD', 'BHD', 'OMR'];
+                const byCode: Record<string, typeof CURRENCIES[number]> = Object.fromEntries(CURRENCIES.map(c => [c.code, c]));
+                const main = MAIN.map(code => byCode[code]).filter(Boolean);
+                const rest = CURRENCIES.filter(c => !MAIN.includes(c.code)).sort((a, b) => (ar ? a.ar : a.en).localeCompare(ar ? b.ar : b.en, ar ? 'ar' : 'en'));
+                const opt = (c: typeof CURRENCIES[number]) => <option key={c.code} value={c.code}>{(ar ? c.ar : c.en) + ' · ' + c.code}</option>;
+                return (<>
+                  <optgroup label={ar ? 'العملات الرئيسية' : 'Main currencies'}>{main.map(opt)}</optgroup>
+                  <optgroup label={ar ? 'بقية العملات (أبجدي)' : 'Other currencies (A–Z)'}>{rest.map(opt)}</optgroup>
+                </>);
+              })()}
             </select>
           </div>
           <Field lbl={t.goldG} val={goldPrice} set={setGoldPrice} suffix={currency} />
