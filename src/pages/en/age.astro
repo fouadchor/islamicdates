@@ -1,0 +1,90 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import AgeIsland from '../../components/AgeIsland';
+
+const canonical = 'https://islamicdates.org/en/age/';
+const title = 'Hijri Age Calculator · Your Age in the Islamic & Gregorian Calendar';
+const description = 'Free Hijri age calculator: find your age in years, months and days in both the Islamic (Hijri) and Gregorian calendars, see your Hijri birth date, the day you were born, and a countdown to your next birthday.';
+
+const faq = [
+  { q: 'How do I calculate my age in the Hijri calendar?', a: 'Use the calculator above: enter your birth date (Hijri or Gregorian) and it instantly shows your age in years, months and days in both the Hijri and Gregorian calendars, along with your birth date in each calendar.' },
+  { q: 'Why is my Hijri age different from my Gregorian age?', a: 'The lunar Hijri year is about 11 days shorter than the Gregorian year, so your Hijri age is slightly higher than your Gregorian age, and the gap grows by a full year roughly every 33 years.' },
+  { q: 'How do I find my Hijri birth date and the day I was born?', a: 'Enter your Gregorian birth date and the calculator shows the matching Hijri birth date, the weekday you were born on, and the total number of days you have lived.' },
+  { q: 'Is the age calculation accurate?', a: 'Age is computed astronomically using the Umm al-Qura calendar used in Saudi Arabia. The date may differ by about one day from countries that rely on direct moon sighting.' },
+];
+
+const jsonLd = JSON.stringify([
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [
+    { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': 'https://islamicdates.org/en/' },
+    { '@type': 'ListItem', 'position': 2, 'name': 'Hijri Age Calculator', 'item': canonical },
+  ] },
+  { '@context': 'https://schema.org', '@type': 'WebApplication', 'name': 'Hijri Age Calculator', 'url': canonical,
+    'applicationCategory': 'UtilitiesApplication', 'operatingSystem': 'Web', 'inLanguage': ['ar', 'en', 'ur'],
+    'offers': { '@type': 'Offer', 'price': '0', 'priceCurrency': 'USD' } },
+  { '@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': faq.map(f => ({ '@type': 'Question', 'name': f.q, 'acceptedAnswer': { '@type': 'Answer', 'text': f.a } })) },
+]);
+---
+<Layout title={title} description={description} canonical={canonical} lang="en" jsonLd={jsonLd} arPath="/age/" enPath="/en/age/" urPath="/ur/age/">
+  <header class="site-header">
+    <div class="header-start">
+      <a href="/en/" class="logo" aria-label="Go to homepage">
+        <div class="logo-icon">☾</div>
+        <div>
+          <div class="brand">Hijri Calendar</div>
+          <div class="tagline">Age Calculator</div>
+        </div>
+      </a>
+      <a href="/en/" class="home-btn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+        <span>Home</span>
+      </a>
+    </div>
+  </header>
+
+  <div class="layout">
+    <main>
+      <section class="card section-card" style="order:1">
+        <h1 class="section-h2" style="font-size:25px">Hijri Age Calculator</h1>
+        <p class="section-p" style="margin-top:8px">Calculate your exact age in both the Hijri and Gregorian calendars. Enter your birth date — Hijri or Gregorian — to see your age in years, months and days, your birth date in each calendar, the weekday you were born on, and a countdown to your next birthday.</p>
+      </section>
+
+      <AgeIsland lang="en" client:load />
+
+      <section class="card section-card">
+        <h2 class="section-h2">How is Hijri age calculated?</h2>
+        <p class="section-p">Your birth date is converted to the Hijri calendar and compared with today to find the difference in years, months and days. Because the lunar Hijri year is about 11 days shorter than the Gregorian year, your Hijri age comes out slightly higher than your Gregorian age.</p>
+        <h2 class="section-h2" style="margin-top:22px">Hijri vs. Gregorian age</h2>
+        <p class="section-p">The 11-day yearly difference accumulates into a full year roughly every 33 Gregorian years. So someone born 33 Gregorian years ago is about 34 Hijri years old. The calculator shows both numbers side by side so the difference is clear.</p>
+      </section>
+
+      <section class="card section-card">
+        <h2 class="section-h2">Frequently asked questions</h2>
+        {faq.map((f, i) => (
+          <div class="faq-item" style={i === faq.length - 1 ? 'border-bottom:none' : ''}>
+            <p class="faq-q">{f.q}</p>
+            <p class="faq-a">{f.a}</p>
+          </div>
+        ))}
+      </section>
+    </main>
+
+    <aside>
+      <div class="ad-slot"><span class="ad-label">Advertisement</span><span style="font-size:13px;opacity:.7">300 × 250</span></div>
+      <div class="card" style="padding:18px 20px">
+        <h3 style="margin:0 0 12px;font-size:15.5px;font-weight:700">Related tools</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:14.5px">
+          <a href="/en/" style="color:var(--accent);text-decoration:none">Hijri calendar &amp; today's date</a>
+          <a href="/en/#converter" style="color:var(--accent);text-decoration:none">Hijri ⇄ Gregorian converter</a>
+          <a href="/en/zakat/" style="color:var(--accent);text-decoration:none">Zakat calculator</a>
+          <a href="/en/prayer-times/" style="color:var(--accent);text-decoration:none">Prayer times</a>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="site-footer">
+    Dates based on the Umm al-Qura calendar · for reference
+    <span style="margin:0 8px;opacity:.4">·</span>
+    <a href="/en/privacy/" style="color:var(--muted);text-decoration:none;font-size:13px">Privacy Policy</a>
+  </footer>
+</Layout>
