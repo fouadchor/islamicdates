@@ -216,7 +216,7 @@ export default function PrintCalendarIsland({ lang }: Props) {
           itself carries NO transform, so html2canvas exports at full resolution. */}
       <div ref={wrapRef} style={{ width: '100%' }}>
         <div className="sheet-spacer" style={{ height: scaledH, overflow: 'hidden' }}>
-          <div className="sheet-scaler" ref={scalerRef} style={{ width: sheetW, transform: `scale(${scale})`, transformOrigin: 'top left' }}>
+          <div className="sheet-scaler" ref={scalerRef} style={{ width: sheetW, transform: `scale(${scale})`, transformOrigin: lang === 'en' ? 'top left' : 'top right' }}>
             <div id="print-sheet" ref={sheetRef} style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: 12, padding: view === 'year' ? '22px 22px 16px' : '22px', width: sheetW, margin: '0 auto' }}>
               <div style={{ textAlign: 'center', marginBottom: 16 }}>
                 <div style={{ fontSize: view === 'year' ? 24 : 22, fontWeight: 800, color: 'var(--text)' }}>
