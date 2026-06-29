@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { g2h, h2g, daysInHMonth, todayUTC, toInputVal } from '../lib/hijri';
+import { g2h, h2g, daysInHMonth, todayUTC } from '../lib/hijri';
 import { type Lang, toLang, pick, hMonArr, gMonArr, wdArr, hijriEra, gregEra } from '../lib/data';
 
 interface Props { lang: Lang }
@@ -17,7 +17,10 @@ export default function AgeIsland({ lang }: Props) {
 
   const [mounted, setMounted] = useState(false);
   const [mode, setMode] = useState<'g' | 'h'>('g');
-  const [bg, setBg] = useState('');            // gregorian birth (yyyy-mm-dd)
+  // Gregorian birth via separate day/month/year selects (mobile-friendly; avoids native date picker)
+  const [gd, setGd] = useState(0);
+  const [gm, setGm] = useState(0);
+  const [gy, setGy] = useState(0);
   const todayH0 = g2h(todayUTC());
   const [bhy, setBhy] = useState(todayH0.y - 25);
   const [bhm, setBhm] = useState(1);
@@ -31,6 +34,7 @@ export default function AgeIsland({ lang }: Props) {
     modeG: pick(lang, 'ميلاد ميلادي', 'Gregorian birth', 'عیسوی پیدائش'),
     modeH: pick(lang, 'ميلاد هجري', 'Hijri birth', 'ہجری پیدائش'),
     pickG: pick(lang, 'اختر تاريخ ميلادك (ميلادي)', 'Pick your birth date (Gregorian)', 'اپنی تاریخِ پیدائش منتخب کریں (عیسوی)'),
+    pickH: pick(lang, 'اختر تاريخ ميلادك (هجري)', 'Pick your birth date (Hijri)', 'اپنی تاریخِ پیدائش منتخب کریں (ہجری)'),
     day: pick(lang, 'اليوم', 'Day', 'دن'),
     month: pick(lang, 'الشهر', 'Month', 'مہینہ'),
     year: pick(lang, 'السنة', 'Year', 'سال'),
@@ -59,16 +63,22 @@ export default function AgeIsland({ lang }: Props) {
 
   if (!mounted) return <section style={{ ...card, padding: '24px 26px', minHeight: 300 }} />;
 
+  const today = todayUTC();
+  // Gregorian picker option ranges (computed client-side so "current year" is correct)
+  const curGY = today.getUTCFullYear();
+  const gDaysInSel = (gy && gm) ? new Date(Date.UTC(gy, gm, 0)).getUTCDate() : 31;
+  const gdSafe = gd > gDaysInSel ? gDaysInSel : gd;
+  const gYears: number[] = [];
+  for (let y = curGY; y >= 1900; y--) gYears.push(y);
+
   // --- resolve birth date (UTC) ---
   let birth: Date | null = null;
   if (mode === 'g') {
-    const p = (bg || '').split('-').map(Number);
-    if (p.length === 3 && p.every(x => x)) birth = new Date(Date.UTC(p[0], p[1] - 1, p[2]));
+    if (gy && gm && gdSafe) birth = new Date(Date.UTC(gy, gm - 1, gdSafe));
   } else {
     if (bhy && bhm && bhd) birth = h2g(bhy, bhm, bhd);
   }
 
-  const today = todayUTC();
   const valid = birth && !isNaN(birth.getTime()) && birth.getTime() <= today.getTime();
 
   // diff in a calendar (y/m/d), borrowing days from the month before "to"
@@ -129,28 +139,53 @@ export default function AgeIsland({ lang }: Props) {
       </div>
 
       {mode === 'g' ? (
-        <label style={{ display: 'flex', flexDirection: 'column', gap: 7, fontSize: 13, color: 'var(--muted)', maxWidth: 280 }}>
-          {t.pickG}
-          <input type="date" value={bg} max={toInputVal(today)} onChange={e => setBg(e.target.value)} style={inputStyle} />
-        </label>
+        <div>
+          <div style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 8 }}>{t.pickG}</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+            <label style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12.5, color: 'var(--muted)', flex: '1 1 80px', minWidth: 78 }}>
+              {t.day}
+              <select value={gdSafe} onChange={e => setGd(+e.target.value)} style={{ ...inputStyle, width: '100%' }}>
+                <option value={0}>—</option>
+                {Array.from({ length: gDaysInSel }, (_, i) => <option key={i + 1} value={i + 1}>{i + 1}</option>)}
+              </select>
+            </label>
+            <label style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12.5, color: 'var(--muted)', flex: '2 1 130px', minWidth: 120 }}>
+              {t.month}
+              <select value={gm} onChange={e => setGm(+e.target.value)} style={{ ...inputStyle, width: '100%' }}>
+                <option value={0}>—</option>
+                {gMon.map((n, i) => <option key={i + 1} value={i + 1}>{n}</option>)}
+              </select>
+            </label>
+            <label style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12.5, color: 'var(--muted)', flex: '1 1 90px', minWidth: 88 }}>
+              {t.year}
+              <select value={gy} onChange={e => setGy(+e.target.value)} style={{ ...inputStyle, width: '100%' }}>
+                <option value={0}>—</option>
+                {gYears.map(y => <option key={y} value={y}>{y}</option>)}
+              </select>
+            </label>
+          </div>
+        </div>
       ) : (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'flex-end' }}>
-          <label style={{ display: 'flex', flexDirection: 'column', gap: 7, fontSize: 13, color: 'var(--muted)' }}>
-            {t.day}
-            <select value={bhd} onChange={e => setBhd(+e.target.value)} style={{ ...inputStyle, minWidth: 80 }}>
-              {Array.from({ length: 30 }, (_, i) => <option key={i + 1} value={i + 1}>{i + 1}</option>)}
-            </select>
-          </label>
-          <label style={{ display: 'flex', flexDirection: 'column', gap: 7, fontSize: 13, color: 'var(--muted)' }}>
-            {t.month}
-            <select value={bhm} onChange={e => setBhm(+e.target.value)} style={{ ...inputStyle, minWidth: 150 }}>
-              {hMon.map((n, i) => <option key={i + 1} value={i + 1}>{n}</option>)}
-            </select>
-          </label>
-          <label style={{ display: 'flex', flexDirection: 'column', gap: 7, fontSize: 13, color: 'var(--muted)' }}>
-            {t.year}
-            <input type="number" value={bhy} onChange={e => setBhy(parseInt(e.target.value) || bhy)} style={{ ...inputStyle, width: 110 }} />
-          </label>
+        <div>
+          <div style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 8 }}>{t.pickH}</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+            <label style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12.5, color: 'var(--muted)', flex: '1 1 80px', minWidth: 78 }}>
+              {t.day}
+              <select value={bhd} onChange={e => setBhd(+e.target.value)} style={{ ...inputStyle, width: '100%' }}>
+                {Array.from({ length: 30 }, (_, i) => <option key={i + 1} value={i + 1}>{i + 1}</option>)}
+              </select>
+            </label>
+            <label style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12.5, color: 'var(--muted)', flex: '2 1 130px', minWidth: 120 }}>
+              {t.month}
+              <select value={bhm} onChange={e => setBhm(+e.target.value)} style={{ ...inputStyle, width: '100%' }}>
+                {hMon.map((n, i) => <option key={i + 1} value={i + 1}>{n}</option>)}
+              </select>
+            </label>
+            <label style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12.5, color: 'var(--muted)', flex: '1 1 90px', minWidth: 88 }}>
+              {t.year}
+              <input type="number" inputMode="numeric" value={bhy} onChange={e => setBhy(parseInt(e.target.value) || bhy)} style={{ ...inputStyle, width: '100%' }} />
+            </label>
+          </div>
         </div>
       )}
 
