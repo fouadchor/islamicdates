@@ -68,16 +68,21 @@ const jsonLd = JSON.stringify([
       <section id="occasions" class="card section-card" style="order:5;scroll-margin-top:64px">
         <h2 class="section-h2">Islamic occasion dates</h2>
         <p class="section-p" style="margin-bottom:14px">See each occasion's Hijri & Gregorian date with a countdown</p>
-        <div class="months-grid">
-          {occLinks.map(o => (
-            <a href={o.href} class="month-item" style="text-decoration:none;color:inherit">
-              <div>
-                <div class="month-name">{o.name} {o.year}</div>
-                <div class="month-note">{fmtGShort(o.date, false)}</div>
-              </div>
-            </a>
-          ))}
-        </div>
+        {_homeYears.map((_yr, _i) => (
+          <div style={`margin-top:${_i === 0 ? 4 : 26}px`}>
+            <h3 style="margin:0 0 12px;font-size:16px;font-weight:700;color:var(--accent)">{_yr} occasions</h3>
+            <div class="months-grid">
+              {occLinks.filter(o => o.year === _yr).map(o => (
+                <a href={o.href} class="month-item" style="text-decoration:none;color:inherit">
+                  <div>
+                    <div class="month-name">{o.name} {o.year}</div>
+                    <div class="month-note">{fmtGShort(o.date, false)}</div>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+        ))}
       </section>
 
       <!-- Hijri month browse (SEO internal links) -->
@@ -116,7 +121,7 @@ const jsonLd = JSON.stringify([
           var h = hList[((day % hList.length) + hList.length) % hList.length];
           var t = document.getElementById('hadith-text');
           var s = document.getElementById('hadith-src');
-          if (t) t.textContent = '\u201C' + h.t + '\u201D';
+          if (t) t.textContent = '“' + h.t + '”';
           if (s) s.textContent = h.s;
         })();
       </script>
