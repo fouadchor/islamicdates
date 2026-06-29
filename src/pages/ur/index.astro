@@ -1,0 +1,181 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import TodayIsland from '../../components/TodayIsland';
+import CalendarIsland from '../../components/CalendarIsland';
+import ConverterIsland from '../../components/ConverterIsland';
+import UpcomingIsland from '../../components/UpcomingIsland';
+import { getL } from '../../lib/data';
+import { HADITHS, hadithOfDay } from '../../lib/hadiths';
+import { OCCASIONS, occLoc, occurrencesInGYear, occBasePath, fmtGShort } from '../../lib/occasions';
+import { g2h, todayUTC } from '../../lib/hijri';
+import { monthBasePath, monthName, H_YEAR_START, H_YEAR_END } from '../../lib/months';
+const _curHy = Math.min(Math.max(g2h(todayUTC()).y, H_YEAR_START), H_YEAR_END);
+const _monthLinks = Array.from({ length: 12 }, (_, i) => ({ name: monthName(i + 1, 'ur'), href: monthBasePath(_curHy, i + 1, 'ur') }));
+const _monthNotesShort = ['ہجری سال کا آغاز اور ایک حرمت والا مہینہ، جسے عاشورہ کا روزہ زینت بخشتا ہے','عربوں کے سفر کے موسم میں خالی گھروں کی نسبت سے موسوم','نبی کریم ﷺ کی ولادت کا مہینہ — دل سیرت کو یاد کرتے ہیں','چوتھا مہینہ، عربوں کے ہاں موسمِ بہار کی تکمیل','جمادی — سخت سردی میں پانی جم جانے کی نسبت سے','دونوں جمادیوں کا آخری، حرمت والے مہینوں کی طرف لے جاتا ہے','حرمت والا مہینہ، اسی میں شبِ معراج (اسراء و معراج) ہے','اعمال اٹھائے جاتے ہیں؛ رمضان کی تیاری میں کثرتِ صیام','روزوں اور قرآن کا مہینہ، اسی میں شبِ قدر ہے','عید الفطر سے آغاز؛ چھ مستحب روزے اس کے بعد','حرمت والا مہینہ، حجاج حج کی تیاری کرتے ہیں','حج اور عید الاضحیٰ — اس کے پہلے دس دن سال کے بہترین دن'];
+
+const lang = 'ur';
+const L = getL('ur');
+const _h = hadithOfDay(new Date());
+
+const _featured = ['ramadan', 'eid-al-fitr', 'eid-al-adha', 'ashura', 'mawlid-al-nabi', 'islamic-new-year', 'isra-and-miraj', 'laylat-al-qadr', 'day-of-arafah'];
+const _homeYears = (() => { const y = new Date().getUTCFullYear(); return [y, y+1]; })();
+const occLinks = [];
+for (const _y of _homeYears) {
+  for (const _slug of _featured) {
+    const _o = OCCASIONS.find(x => x.slug === _slug);
+    if (!_o) continue;
+    const _occ = occurrencesInGYear(_o.hm, _o.hd, _y)[0];
+    if (_occ) occLinks.push({ name: occLoc(_o, 'ur').name, year: _y, href: occBasePath(_slug, _y, 'ur'), date: _occ.date });
+  }
+}
+
+const jsonLd = JSON.stringify([
+  {
+    "@context":"https://schema.org","@type":"WebApplication",
+    "name":"ہجری کیلنڈر","alternateName":"Hijri Calendar",
+    "url":"https://islamicdates.org/ur/",
+    "description":"اُمّ القریٰ تقویم کے مطابق آج کی ہجری تاریخ عیسوی کے ساتھ، ہجری مہینوں کی فہرست، ہجری ⇄ عیسوی فوری کنورٹر اور آنے والی اسلامی مناسبتیں۔",
+    "applicationCategory":"UtilitiesApplication","operatingSystem":"Web",
+    "inLanguage":["ar","en","ur"],"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}
+  }
+]);
+---
+
+<Layout
+  title="آج کی ہجری تاریخ · ہجری اور عیسوی تاریخ کنورٹر | اُمّ القریٰ تقویم"
+  description="اُمّ القریٰ تقویم کے مطابق آج کی ہجری (اسلامی) تاریخ عیسوی تاریخ کے ساتھ، ہجری مہینوں کی فہرست، ہجری ⇄ عیسوی فوری کنورٹر اور آنے والی اسلامی مناسبتیں۔"
+  canonical="https://islamicdates.org/ur/"
+  lang="ur"
+  jsonLd={jsonLd}
+>
+  <header class="site-header">
+    <a href="/ur/" class="logo" style="text-decoration:none;color:inherit" aria-label="ہوم">
+      <div class="logo-icon">☾</div>
+      <div>
+        <div class="brand">{L.brand}</div>
+        <div class="tagline">{L.tagline}</div>
+      </div>
+    </a>
+  </header>
+
+  <div class="layout">
+    <main>
+      <TodayIsland lang="ur" client:load />
+
+      <CalendarIsland lang="ur" client:load />
+
+      <div id="converter" style="scroll-margin-top:64px"><ConverterIsland lang="ur" client:visible /></div>
+
+      <UpcomingIsland lang="ur" client:visible />
+
+      <section id="occasions" class="card section-card" style="order:5;scroll-margin-top:64px">
+        <h2 class="section-h2">اسلامی مناسبتوں کی تاریخیں</h2>
+        <p class="section-p" style="margin-bottom:14px">ہر مناسبت کی ہجری اور عیسوی تاریخ عددِ معکوس کے ساتھ جانیں</p>
+        <div class="months-grid">
+          {occLinks.map(o => (
+            <a href={o.href} class="month-item" style="text-decoration:none;color:inherit">
+              <div>
+                <div class="month-name">{o.name} {o.year}</div>
+                <div class="month-note">{fmtGShort(o.date, 'ur')}</div>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      <section class="card section-card" style="order:5">
+        <h2 class="section-h2">{_curHy} ھ کے ہجری مہینے دیکھیں</h2>
+        <p class="section-p" style="margin-bottom:14px">ہجری سال کو مہینہ بہ مہینہ دیکھیں — معانی، مناسبتیں اور عیسوی تاریخیں</p>
+        <div class="months-grid" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))">
+          {_monthLinks.map((m, i) => (
+            <a href={m.href} class="month-item" style="text-decoration:none;color:inherit">
+              <span class="month-num">{i + 1}</span>
+              <div><div class="month-name">{m.name}</div><div class="month-note">{_monthNotesShort[i]}</div></div>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      <section class="card section-card" style="order:7;background:var(--gold-soft);border-color:var(--gold-soft)">
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:10px">
+          <span aria-hidden="true" style="font-size:22px;line-height:1;color:var(--gold-deep)">☾</span>
+          <h2 class="section-h2" style="margin:0;color:var(--gold-deep)">آج کی حدیث</h2>
+        </div>
+        <div style="position:relative;padding:4px 2px 0">
+          <span aria-hidden="true" style="position:absolute;top:-22px;inset-inline-start:-2px;font-size:60px;line-height:1;color:var(--gold);opacity:.22;font-family:Georgia,serif">”</span>
+          <blockquote id="hadith-text" style="margin:0;border:0;padding:0;font-size:clamp(18px,2.7vw,24px);line-height:2.05;font-weight:700;color:var(--text);text-wrap:pretty">«{_h.ur}»</blockquote>
+        </div>
+        <div style="margin-top:18px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span id="hadith-src" style="display:inline-block;padding:5px 14px;border-radius:999px;background:var(--gold-deep);color:#fff;font-weight:700;font-size:13px">{_h.urSrc}</span>
+          <span style="color:var(--muted);font-size:12.5px">صحیح بخاری و مسلم سے</span>
+        </div>
+      </section>
+      <script define:vars={{ hList: HADITHS.map(h => ({ t: h.ur, s: h.urSrc })) }}>
+        (function () {
+          var d = new Date();
+          var start = Date.UTC(d.getFullYear(), 0, 0);
+          var day = Math.floor((Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - start) / 86400000);
+          var h = hList[((day % hList.length) + hList.length) % hList.length];
+          var t = document.getElementById('hadith-text');
+          var s = document.getElementById('hadith-src');
+          if (t) t.textContent = '«' + h.t + '»';
+          if (s) s.textContent = h.s;
+        })();
+      </script>
+
+      <section class="card section-card" style="order:8">
+        <h2 class="section-h2">ہجری تقویم کیا ہے؟</h2>
+        <p class="section-p">ہجری تقویم ایک قمری تقویم ہے جس کا سال بارہ قمری مہینوں (تقریباً 354 دن) پر مشتمل ہے، اور اس کا آغاز نبی کریم ﷺ کی ہجرت (622 عیسوی) سے ہوتا ہے۔ یہ سائٹ اُمّ القریٰ تقویم کے مطابق آج کی ہجری تاریخ عیسوی کے ساتھ دکھاتی ہے، نیز ہجری ⇄ عیسوی کا فوری کنورٹر، اہم اسلامی مناسبتیں اور مواقیتِ نماز فراہم کرتی ہے۔</p>
+        <a href="/ur/about/" style="margin-top:14px;display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:11px;background:var(--accent);color:var(--accent-contrast);font-weight:700;font-size:14px;text-decoration:none">مکمل گائیڈ پڑھیں
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+        </a>
+      </section>
+    </main>
+
+    <aside>
+      <a href="/ur/prayer-times/" class="card" style="padding:16px 18px;text-decoration:none;color:inherit;display:flex;align-items:center;gap:13px;border-color:var(--accent)">
+        <span style="width:40px;height:40px;flex:0 0 auto;border-radius:11px;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        </span>
+        <span><span style="display:block;font-weight:700;font-size:15.5px;color:var(--accent)">مواقیتِ نماز</span><span style="display:block;font-size:13px;color:var(--muted);margin-top:2px">آپ کے مقام کے مطابق آج کے اوقات</span></span>
+      </a>
+
+      <a href="/ur/zakat/" class="card" style="padding:16px 18px;text-decoration:none;color:inherit;display:flex;align-items:center;gap:13px;border-color:var(--accent)">
+        <span style="width:40px;height:40px;flex:0 0 auto;border-radius:11px;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </span>
+        <span><span style="display:block;font-weight:700;font-size:15.5px;color:var(--accent)">زکوٰۃ کیلکولیٹر</span><span style="display:block;font-size:13px;color:var(--muted);margin-top:2px">اپنے مال اور سونے کی زکوٰۃ نکالیں (2.5%)</span></span>
+      </a>
+
+      <a href="/ur/widget/" class="card" style="padding:16px 18px;text-decoration:none;color:inherit;display:flex;align-items:center;gap:13px;border-color:var(--accent)">
+        <span style="width:40px;height:40px;flex:0 0 auto;border-radius:11px;background:var(--gold-soft);color:var(--gold-deep);display:flex;align-items:center;justify-content:center">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 6-6 6 6 6"/><path d="m16 6 6 6-6 6"/></svg>
+        </span>
+        <span><span style="display:block;font-weight:700;font-size:15.5px;color:var(--gold-deep)">آپ کی سائٹ کے لیے ویجٹ</span><span style="display:block;font-size:13px;color:var(--muted);margin-top:2px">آج کی ہجری تاریخ مفت اپنی سائٹ پر شامل کریں</span></span>
+      </a>
+
+      <div class="ad-slot">
+        <span class="ad-label">{L.ad}</span>
+        <span style="font-size:13px;opacity:.7">300 × 250</span>
+      </div>
+
+      <div class="card" style="padding:18px 20px">
+        <h3 style="margin:0 0 12px;font-size:15.5px;font-weight:700">{L.legend}</h3>
+        <div style="display:flex;flex-direction:column;gap:11px;font-size:14px">
+          <div style="display:flex;gap:11px;align-items:center"><span style="width:12px;height:12px;border-radius:50%;background:var(--accent);flex:0 0 auto"></span>{L.legendToday}</div>
+          <div style="display:flex;gap:11px;align-items:center"><span style="width:12px;height:12px;border-radius:50%;background:var(--gold);flex:0 0 auto"></span>{L.legendEid}</div>
+          <div style="display:flex;gap:11px;align-items:center"><span style="width:12px;height:12px;border-radius:50%;background:var(--holy);flex:0 0 auto"></span>{L.legendHoly}</div>
+          <div style="display:flex;gap:11px;align-items:center"><span style="width:12px;height:12px;border-radius:4px;background:var(--accent-soft);border:1px solid var(--accent);flex:0 0 auto"></span>{L.legendRam}</div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="site-footer">
+    {L.footer}
+    <span style="margin:0 8px;opacity:.4">·</span>
+    <a href="/ur/privacy/" style="color:var(--muted);text-decoration:none;font-size:13px">رازداری پالیسی</a>
+    <span style="margin:0 8px;opacity:.4">·</span>
+    <a href="/ur/contact/" style="color:var(--muted);text-decoration:none;font-size:13px">رابطہ</a>
+  </footer>
+</Layout>

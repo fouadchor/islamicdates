@@ -1,0 +1,90 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ZakatIsland from '../../components/ZakatIsland';
+
+const canonical = 'https://islamicdates.org/ur/zakat/';
+const title = 'زکوٰۃ کیلکولیٹر · مال، سونے اور چاندی کی زکوٰۃ (2.5%) نصاب کے ساتھ';
+const description = 'مال، نقد، سونا، چاندی، مالِ تجارت اور حصص کی زکوٰۃ نکالنے کا کیلکولیٹر، سونے (85 گرام) یا چاندی (595 گرام) کی قیمت سے نصاب اور 2.5% شرح کے ساتھ، ہجری تقویم کے مطابق۔';
+
+const faq = [
+  { q: 'زکوٰۃ کا نصاب کیا ہے؟', a: 'نصاب وہ کم سے کم مال ہے جس پر زکوٰۃ واجب ہوتی ہے۔ اس کا اندازہ 85 گرام سونے یا 595 گرام چاندی کی قیمت سے لگایا جاتا ہے۔ اگر آپ کا مال اس حد کو پہنچ جائے اور آپ کی ملکیت میں اس پر پورا ہجری سال گزر جائے تو اس پر زکوٰۃ واجب ہو جاتی ہے۔' },
+  { q: 'قطر، سعودی عرب، امارات اور خلیجی ممالک میں زکوٰۃ کا نصاب کتنا ہے؟', a: 'زکوٰۃ کا نصاب کوئی مقررہ عدد نہیں، بلکہ یہ سونے چاندی کی قیمت کے ساتھ روزانہ بدلتا ہے اور کرنسی کے فرق سے مختلف ہوتا ہے۔ یہ موجودہ بازاری قیمت پر 85 گرام سونے یا 595 گرام چاندی کے برابر ہوتا ہے۔ اس صفحے کے اوپر «آج زکوٰۃ کا نصاب» کا خانہ یہ قیمت خودکار طور پر آپ کی کرنسی — قطری ریال، سعودی ریال، اماراتی درہم یا کوئی اور — میں لمحہ بہ لمحہ دکھاتا ہے۔' },
+  { q: 'مال کی زکوٰۃ کی شرح کتنی ہے؟', a: 'مال (نقد، سونا، چاندی اور مالِ تجارت) کی زکوٰۃ کی شرح چالیسواں حصہ یعنی ڈھائی فیصد (2.5%) ہے، جو نصاب کو پہنچنے اور سال گزرنے کے بعد خالص قابلِ زکوٰۃ مال پر لاگو ہوتی ہے۔' },
+  { q: 'نصاب سونے سے نکالوں یا چاندی سے؟', a: 'دونوں شرعاً معتبر ہیں۔ چاندی کا نصاب عموماً کم قیمت ہوتا ہے، اس لیے اسے لینے سے زیادہ لوگوں پر زکوٰۃ واجب ہوتی ہے جو زیادہ محتاط اور غرباء کے لیے زیادہ نفع بخش ہے، جبکہ بہت سے لوگ سونے کا نصاب لیتے ہیں۔ حاسبہ آپ کو اپنی پسند کی بنیاد منتخب کرنے دیتا ہے۔' },
+  { q: 'کیا زیور کے سونے پر زکوٰۃ واجب ہے؟', a: 'یہ مسئلہ فقہاء کے درمیان مختلف فیہ ہے؛ جمہور کے نزدیک پہننے کے زیور پر زکوٰۃ واجب نہیں، جبکہ بعض احتیاطاً مطلقاً واجب کہتے ہیں۔ احتیاط اسے ادا کرنے میں ہے، اور ترجیح کے لیے اہلِ علم سے رجوع کیا جائے۔' },
+  { q: 'سال (حول) کا حساب کب سے شروع ہوتا ہے؟', a: 'حول کا حساب اس دن سے شروع ہوتا ہے جب مال نصاب کو پہنچتا ہے، اور یہ ہجری قمری سال (تقریباً 354 دن) سے شمار کیا جاتا ہے۔ جب سال پورا ہو اور مال اب بھی نصاب کے برابر یا زیادہ ہو تو زکوٰۃ واجب ہو جاتی ہے۔' },
+];
+
+const jsonLd = JSON.stringify([
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [
+    { '@type': 'ListItem', 'position': 1, 'name': 'ہوم', 'item': 'https://islamicdates.org/ur/' },
+    { '@type': 'ListItem', 'position': 2, 'name': 'زکوٰۃ کیلکولیٹر', 'item': canonical },
+  ] },
+  { '@context': 'https://schema.org', '@type': 'WebApplication', 'name': 'زکوٰۃ کیلکولیٹر', 'url': canonical,
+    'applicationCategory': 'FinanceApplication', 'operatingSystem': 'Web', 'inLanguage': ['ur', 'ar', 'en'],
+    'offers': { '@type': 'Offer', 'price': '0', 'priceCurrency': 'USD' } },
+  { '@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': faq.map(f => ({ '@type': 'Question', 'name': f.q, 'acceptedAnswer': { '@type': 'Answer', 'text': f.a } })) },
+]);
+---
+<Layout title={title} description={description} canonical={canonical} lang="ur" jsonLd={jsonLd} arPath="/zakat/" enPath="/en/zakat/" urPath="/ur/zakat/">
+  <header class="site-header">
+    <div class="header-start">
+      <a href="/ur/" class="logo" aria-label="ہوم پیج پر جائیں">
+        <div class="logo-icon">☾</div>
+        <div>
+          <div class="brand">ہجری کیلنڈر</div>
+          <div class="tagline">زکوٰۃ کیلکولیٹر</div>
+        </div>
+      </a>
+      <a href="/ur/" class="home-btn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+        <span>ہوم</span>
+      </a>
+    </div>
+  </header>
+
+  <div class="layout">
+    <main>
+      <section class="card section-card" style="order:1">
+        <h1 class="section-h2" style="font-size:25px">زکوٰۃ کیلکولیٹر</h1>
+        <p class="section-p" style="margin-top:8px">اپنے مال کی زکوٰۃ آسانی سے نکالیں: نقد اور بینک بیلنس، سونا چاندی، مالِ تجارت، حصص و سرمایہ کاری، اور آپ کے وصول طلب قرضے — اپنے واجب الادا قرضے منہا کرنے کے بعد۔ نصاب کی بنیاد (سونا یا چاندی) منتخب کریں، اور اگر آپ کا مال نصاب کو پہنچ جائے تو 2.5% کے حساب سے زکوٰۃ نکالی جاتی ہے۔</p>
+      </section>
+
+      <ZakatIsland lang="ur" client:load />
+
+      <section class="card section-card">
+        <h2 class="section-h2">زکوٰۃ کا حساب کیسے ہوتا ہے؟</h2>
+        <p class="section-p">تمام قابلِ زکوٰۃ اموال (نقد، سونے چاندی کی قیمت، مالِ تجارت، سرمایہ کاری اور وصول طلب قرضے) جمع کیے جاتے ہیں، پھر ان میں سے آپ کے فوری واجب الادا قرضے منہا کیے جاتے ہیں، تو خالص قابلِ زکوٰۃ مال نکلتا ہے۔ اگر یہ خالص مال نصاب — یعنی 85 گرام سونے یا 595 گرام چاندی کی قیمت — کو پہنچ جائے اور اس پر پورا ہجری سال گزر جائے تو اس کا 2.5% بطورِ زکوٰۃ نکالنا واجب ہے۔</p>
+        <h2 class="section-h2" style="margin-top:22px">نصاب اور دھات کی قیمت</h2>
+        <p class="section-p">چونکہ نصاب کی قیمت سونے چاندی کی روزانہ بدلتی قیمت سے جڑی ہے، حاسبہ ایک تقریبی قیمت خودکار طور پر حاصل کرتا ہے، جسے آپ اپنی کرنسی میں بازاری قیمت کے مطابق درست کر سکتے ہیں۔ تمام رقمیں اسی کرنسی میں درج کریں جس میں آپ نے فی گرام قیمت درج کی ہے۔</p>
+      </section>
+
+      <section class="card section-card">
+        <h2 class="section-h2">اکثر پوچھے جانے والے سوالات</h2>
+        {faq.map((f, i) => (
+          <div class="faq-item" style={i === faq.length - 1 ? 'border-bottom:none' : ''}>
+            <p class="faq-q">{f.q}</p>
+            <p class="faq-a">{f.a}</p>
+          </div>
+        ))}
+      </section>
+    </main>
+
+    <aside>
+      <div class="ad-slot"><span class="ad-label">اشتہار</span><span style="font-size:13px;opacity:.7">300 × 250</span></div>
+      <div class="card" style="padding:18px 20px">
+        <h3 style="margin:0 0 12px;font-size:15.5px;font-weight:700">متعلقہ اوزار</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:14.5px">
+          <a href="/ur/" style="color:var(--accent);text-decoration:none">ہجری کیلنڈر اور آج کی تاریخ</a>
+          <a href="/ur/prayer-times/" style="color:var(--accent);text-decoration:none">مقام کے مطابق مواقیتِ نماز</a>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="site-footer">
+    رہنمائی کے لیے حاسبہ · اپنی خاص صورت کے لیے اہلِ علم سے رجوع کریں
+    <span style="margin:0 8px;opacity:.4">·</span>
+    <a href="/ur/privacy/" style="color:var(--muted);text-decoration:none;font-size:13px">رازداری پالیسی</a>
+  </footer>
+</Layout>

@@ -1,0 +1,88 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import PrayerTimesIsland from '../../components/PrayerTimesIsland';
+
+const canonical = 'https://islamicdates.org/ur/prayer-times/';
+const title = 'آج کے مواقیتِ نماز آپ کے مقام کے مطابق · فجر، ظہر، عصر، مغرب، عشاء';
+const description = 'آج کے مواقیتِ نماز (فجر، طلوعِ آفتاب، ظہر، عصر، مغرب، عشاء) آپ کے مقام کے مطابق فلکی حساب سے، اگلی نماز کے عددِ معکوس اور اُمّ القریٰ سمیت کئی حسابی طریقوں کے ساتھ۔';
+
+const faq = [
+  { q: 'اس سائٹ پر مواقیتِ نماز کا حساب کیسے ہوتا ہے؟', a: 'اوقات آپ کے مقام کے نقاط (طول و عرضِ بلد) اور سورج کے زاویے کی بنیاد پر فلکی طور پر نکالے جاتے ہیں، اس حسابی طریقے کے مطابق جو آپ منتخب کرتے ہیں جیسے اُمّ القریٰ یا مسلم ورلڈ لیگ۔ آپ اپنے مقام تک رسائی کی اجازت دے سکتے ہیں یا دستی طور پر اپنا شہر منتخب کر سکتے ہیں۔' },
+  { q: 'مختلف حسابی طریقوں میں کیا فرق ہے؟', a: 'یہ طریقے فجر اور عشاء کے لیے سورج کے زاویے میں مختلف ہوتے ہیں۔ مثلاً اُمّ القریٰ فجر کے لیے 18.5° اور مغرب کے 90 منٹ بعد عشاء لیتا ہے، جبکہ مسلم ورلڈ لیگ فجر کے لیے 18° اور عشاء کے لیے 17° لیتی ہے۔ اپنے ملک میں رائج طریقہ منتخب کریں۔' },
+  { q: 'جمہور اور احناف کے نزدیک عصر میں کیا فرق ہے؟', a: 'جمہور فقہاء کے نزدیک عصر کا وقت اس وقت شروع ہوتا ہے جب کسی چیز کا سایہ اس کے برابر ہو جائے، اور احناف کے نزدیک جب سایہ اس کے دُگنا ہو جائے، اس لیے حنفی مذہب میں عصر کا وقت کچھ دیر سے ہوتا ہے۔ آپ ترتیبات سے مذہب منتخب کر سکتے ہیں۔' },
+  { q: 'کیا اوقات مکمل طور پر درست ہیں؟', a: 'اوقات اعلیٰ فلکی درستگی سے نکالے گئے ہیں، تاہم بلندی، ہوائی انعطاف اور تقریب کے فرق کی وجہ سے سرکاری نظام الاوقات سے چند منٹ مختلف ہو سکتے ہیں۔ احتیاطاً اپنے ملک کے سرکاری اعلان سے رجوع کریں۔' },
+];
+
+const jsonLd = JSON.stringify([
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [
+    { '@type': 'ListItem', 'position': 1, 'name': 'ہوم', 'item': 'https://islamicdates.org/ur/' },
+    { '@type': 'ListItem', 'position': 2, 'name': 'مواقیتِ نماز', 'item': canonical },
+  ] },
+  { '@context': 'https://schema.org', '@type': 'WebApplication', 'name': 'مواقیتِ نماز', 'url': canonical,
+    'applicationCategory': 'UtilitiesApplication', 'operatingSystem': 'Web', 'inLanguage': ['ur', 'ar', 'en'],
+    'offers': { '@type': 'Offer', 'price': '0', 'priceCurrency': 'USD' } },
+  { '@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': faq.map(f => ({ '@type': 'Question', 'name': f.q, 'acceptedAnswer': { '@type': 'Answer', 'text': f.a } })) },
+]);
+---
+<Layout title={title} description={description} canonical={canonical} lang="ur" jsonLd={jsonLd} arPath="/prayer-times/" enPath="/en/prayer-times/" urPath="/ur/prayer-times/">
+  <header class="site-header">
+    <div class="header-start">
+    <a href="/ur/" class="logo" aria-label="ہوم پیج پر جائیں">
+      <div class="logo-icon">☾</div>
+      <div>
+        <div class="brand">ہجری کیلنڈر</div>
+        <div class="tagline">مواقیتِ نماز</div>
+      </div>
+    </a>
+      <a href="/ur/" class="home-btn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+        <span>ہوم</span>
+      </a>
+    </div>
+  </header>
+
+  <div class="layout">
+    <main>
+      <section class="card section-card" style="order:1">
+        <h1 class="section-h2" style="font-size:25px">آج کے مواقیتِ نماز</h1>
+        <p class="section-p" style="margin-top:8px">اپنے مقام کے مطابق پانچوں نمازوں (فجر، ظہر، عصر، مغرب، عشاء) اور طلوعِ آفتاب کے اوقات جانیں، اگلی نماز کے عددِ معکوس اور حسابی طریقہ منتخب کرنے کی سہولت کے ساتھ۔</p>
+      </section>
+
+      <PrayerTimesIsland lang="ur" client:load />
+
+      <section class="card section-card" style="order:3">
+        <h2 class="section-h2">مواقیتِ نماز کے بارے میں</h2>
+        <p class="section-p">پانچ فرض نمازیں فجر، ظہر، عصر، مغرب اور عشاء ہیں، اور ان کے اوقات سورج کی حرکت سے متعین ہوتے ہیں: فجر صبحِ صادق سے شروع ہوتی ہے، ظہر سورج کے ڈھلنے کے بعد، عصر جب کسی چیز کا سایہ اس کے برابر ہو جائے، مغرب غروبِ آفتاب پر، اور عشاء سرخ شفق کے غائب ہونے پر۔ چونکہ یہ لمحات آسمان میں سورج کے مقام پر منحصر ہیں، اس لیے یہ جگہ اور تاریخ کے فرق سے بدلتے رہتے ہیں۔</p>
+        <h2 class="section-h2" style="margin-top:22px">حسابی طریقے</h2>
+        <p class="section-p">اسلامی ادارے فجر اور عشاء کے تعین کے لیے سورج کے مختلف زاویے استعمال کرتے ہیں، جن میں سب سے معروف سعودی عرب کا اُمّ القریٰ، مسلم ورلڈ لیگ، مصری ادارہ، جامعہ کراچی، اور شمالی امریکہ (ISNA) کا طریقہ ہیں۔ بہترین نتیجے کے لیے اپنے ملک میں رائج طریقہ منتخب کریں۔</p>
+      </section>
+
+      <section class="card section-card" style="order:4">
+        <h2 class="section-h2">اکثر پوچھے جانے والے سوالات</h2>
+        {faq.map((f, i) => (
+          <div class="faq-item" style={i === faq.length - 1 ? 'border-bottom:none' : ''}>
+            <p class="faq-q">{f.q}</p>
+            <p class="faq-a">{f.a}</p>
+          </div>
+        ))}
+      </section>
+    </main>
+
+    <aside>
+      <div class="ad-slot"><span class="ad-label">اشتہار</span><span style="font-size:13px;opacity:.7">300 × 250</span></div>
+      <div class="card" style="padding:18px 20px">
+        <h3 style="margin:0 0 12px;font-size:15.5px;font-weight:700">متعلقہ اوزار</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:14.5px">
+          <a href="/ur/" style="color:var(--accent);text-decoration:none">مکمل ہجری کیلنڈر اور آج کی تاریخ</a>
+          <a href="/ur/" style="color:var(--accent);text-decoration:none">ہجری–عیسوی تاریخ کنورٹر</a>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="site-footer">
+    اوقات فلکی طور پر نکالے گئے ہیں · تقریبی مقصد کے لیے
+    <span style="margin:0 8px;opacity:.4">·</span>
+    <a href="/ur/privacy/" style="color:var(--muted);text-decoration:none;font-size:13px">رازداری پالیسی</a>
+  </footer>
+</Layout>
