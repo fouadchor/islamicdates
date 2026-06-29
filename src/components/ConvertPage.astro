@@ -6,52 +6,55 @@ import {
 } from '../lib/convert';
 import { monthBasePath } from '../lib/months';
 import { h2g } from '../lib/hijri';
+import { type Lang, pick, hijriEra } from '../lib/data';
 
-interface Props { lang: 'ar' | 'en'; hy: number; hm: number; hd: number; }
+interface Props { lang: Lang; hy: number; hm: number; hd: number; }
 const { lang, hy, hm, hd } = Astro.props;
-const ar = lang === 'ar';
 
 const gDate       = h2g(hy, hm, hd);
-const hijriLabel  = fmtHijri(hy, hm, hd, ar);
-const gregFmt     = fmtGregorian(gDate, ar);
-const gregShort   = fmtGregorianShort(gDate, ar);
-const monName     = monthName(hm, ar);
-const monthHref   = monthBasePath(hy, hm, ar);
+const hijriLabel  = fmtHijri(hy, hm, hd, lang);
+const gregFmt     = fmtGregorian(gDate, lang);
+const gregShort   = fmtGregorianShort(gDate, lang);
+const monName     = monthName(hm, lang);
+const monthHref   = monthBasePath(hy, hm, lang);
+const era         = hijriEra(lang);
 
-const canonical = `https://islamicdates.org${convBasePath(hy, hm, hd, ar)}`;
-const altHref   = convBasePath(hy, hm, hd, !ar);
-const xDefault  = convBasePath(hy, hm, hd, true);
+const canonical = `https://islamicdates.org${convBasePath(hy, hm, hd, lang)}`;
 
+// Cross-year comparison: same Hijri day across all generated years
 const crossYears = convYears()
   .map(y => {
     try {
       const days = validDaysInMonth(y, hm);
       if (!days.includes(hd)) return null;
       const gd = h2g(y, hm, hd);
-      return { hy: y, gDate: gd, href: convBasePath(y, hm, hd, ar), current: y === hy };
+      return { hy: y, gDate: gd, href: convBasePath(y, hm, hd, lang), current: y === hy };
     } catch { return null; }
   })
   .filter(Boolean) as { hy: number; gDate: Date; href: string; current: boolean }[];
 
+// Adjacent days in the same month
 const allDays = validDaysInMonth(hy, hm);
 const idx     = allDays.indexOf(hd);
 const prevDay = idx > 0                  ? allDays[idx - 1] : null;
 const nextDay = idx < allDays.length - 1 ? allDays[idx + 1] : null;
 
-const title = ar
-  ? `تحويل ${hd} ${monName} ${hy} هـ إلى الميلادي — ${gregShort} | التقويم الهجري`
-  : `Convert ${hd} ${monName} ${hy} AH to Gregorian — ${gregShort} | Hijri Calendar`;
+const title = pick(lang,
+  `تحويل ${hd} ${monName} ${hy} هـ إلى الميلادي — ${gregShort} | التقويم الهجري`,
+  `Convert ${hd} ${monName} ${hy} AH to Gregorian — ${gregShort} | Hijri Calendar`,
+  `${hd} ${monName} ${hy} ھ کو عیسوی میں بدلیں — ${gregShort} | ہجری کیلنڈر`);
 
-const description = ar
-  ? `${hd} ${monName} ${hy} هـ يوافق ${gregFmt} ميلادياً. تحويل فوري بين التقويم الهجري والميلادي وفق تقويم أم القرى.`
-  : `${hd} ${monName} ${hy} AH corresponds to ${gregFmt}. Instant conversion between the Hijri and Gregorian calendars per the Umm al-Qura standard.`;
+const description = pick(lang,
+  `${hd} ${monName} ${hy} هـ يوافق ${gregFmt} ميلادياً. تحويل فوري بين التقويم الهجري والميلادي وفق تقويم أم القرى.`,
+  `${hd} ${monName} ${hy} AH corresponds to ${gregFmt}. Instant conversion between the Hijri and Gregorian calendars per the Umm al-Qura standard.`,
+  `${hd} ${monName} ${hy} ھ عیسوی ${gregFmt} کے مطابق ہے۔ اُمّ القریٰ معیار کے مطابق ہجری اور عیسوی کے درمیان فوری تبدیلی۔`);
 
 const breadcrumb = {
   "@context": "https://schema.org", "@type": "BreadcrumbList",
   "itemListElement": [
     { "@type": "ListItem", "position": 1,
-      "name": ar ? "الرئيسية" : "Home",
-      "item": ar ? "https://islamicdates.org/" : "https://islamicdates.org/en/" },
+      "name": pick(lang, "الرئيسية", "Home", "ہوم"),
+      "item": pick(lang, "https://islamicdates.org/", "https://islamicdates.org/en/", "https://islamicdates.org/ur/") },
     { "@type": "ListItem", "position": 2,
       "name": hijriLabel,
       "item": canonical },
@@ -62,61 +65,72 @@ const faqSchema = {
   "@context": "https://schema.org", "@type": "FAQPage",
   "mainEntity": [{
     "@type": "Question",
-    "name": ar
-      ? `ما هو ${hijriLabel} بالميلادي؟`
-      : `What is ${hijriLabel} in Gregorian?`,
+    "name": pick(lang, `ما هو ${hijriLabel} بالميلادي؟`, `What is ${hijriLabel} in Gregorian?`, `${hijriLabel} عیسوی میں کیا ہے؟`),
     "acceptedAnswer": {
       "@type": "Answer",
-      "text": ar
-        ? `${hijriLabel} يوافق ${gregFmt} في التقويم الميلادي وفق تقويم أم القرى.`
-        : `${hijriLabel} corresponds to ${gregFmt} in the Gregorian calendar, per the Umm al-Qura standard.`
+      "text": pick(lang,
+        `${hijriLabel} يوافق ${gregFmt} في التقويم الميلادي وفق تقويم أم القرى.`,
+        `${hijriLabel} corresponds to ${gregFmt} in the Gregorian calendar, per the Umm al-Qura standard.`,
+        `${hijriLabel} اُمّ القریٰ معیار کے مطابق عیسوی تقویم میں ${gregFmt} کے مطابق ہے۔`)
     }
   }]
 };
 
 const jsonLd = JSON.stringify([breadcrumb, faqSchema]);
 
+const homeHref = pick(lang, '/', '/en/', '/ur/');
+const privacyHref = pick(lang, '/privacy/', '/en/privacy/', '/ur/privacy/');
+
 const t = {
-  h1:          ar ? `تحويل ${hd} ${monName} ${hy} هـ إلى الميلادي` : `Convert ${hd} ${monName} ${hy} AH to Gregorian`,
-  answerLabel: ar ? 'التاريخ الميلادي الموافق' : 'Gregorian equivalent',
-  hijriLbl:    ar ? 'التاريخ الهجري' : 'Hijri date',
-  monthLink:   ar ? `عرض تقويم ${monName} ${hy} هـ كاملاً` : `View full ${monName} ${hy} AH calendar`,
-  crossTitle:  ar ? `${hd} ${monName} عبر السنوات` : `${hd} ${monName} across years`,
-  th_hy:       ar ? 'السنة الهجرية' : 'Hijri year',
-  th_greg:     ar ? 'التاريخ الميلادي' : 'Gregorian date',
-  prevLbl:     ar ? 'اليوم السابق' : 'Previous day',
-  nextLbl:     ar ? 'اليوم التالي' : 'Next day',
-  toolsTitle:  ar ? 'أدوات ذات صلة' : 'Related tools',
-  fullCal:     ar ? 'التقويم الهجري الكامل وتاريخ اليوم' : "Full Hijri calendar & today's date",
-  converter:   ar ? 'محوّل التاريخ الهجري والميلادي' : 'Hijri–Gregorian date converter',
-  howTitle:    ar ? 'كيف تُحسب هذه التواريخ؟' : 'How are these dates calculated?',
-  howBody:     ar
-    ? 'تُحسب التواريخ هنا فلكياً وفق معايير تقويم أم القرى المعتمد في المملكة العربية السعودية. قد تختلف بعض الدول التي تعتمد رؤية الهلال المباشرة بيوم واحد.'
-    : 'Dates are calculated astronomically per the Umm al-Qura standard used in Saudi Arabia. Countries relying on direct moon sighting may differ by about one day.',
+  h1:          pick(lang, `تحويل ${hd} ${monName} ${hy} هـ إلى الميلادي`, `Convert ${hd} ${monName} ${hy} AH to Gregorian`, `${hd} ${monName} ${hy} ھ کو عیسوی میں بدلیں`),
+  answerLabel: pick(lang, 'التاريخ الميلادي الموافق', 'Gregorian equivalent', 'عیسوی مطابقت'),
+  hijriLbl:    pick(lang, 'التاريخ الهجري', 'Hijri date', 'ہجری تاریخ'),
+  monthLink:   pick(lang, `عرض تقويم ${monName} ${hy} هـ كاملاً`, `View full ${monName} ${hy} AH calendar`, `${monName} ${hy} ھ کا مکمل کیلنڈر دیکھیں`),
+  crossTitle:  pick(lang, `${hd} ${monName} عبر السنوات`, `${hd} ${monName} across years`, `${hd} ${monName} مختلف سالوں میں`),
+  th_hy:       pick(lang, 'السنة الهجرية', 'Hijri year', 'ہجری سال'),
+  th_greg:     pick(lang, 'التاريخ الميلادي', 'Gregorian date', 'عیسوی تاریخ'),
+  prevLbl:     pick(lang, 'اليوم السابق', 'Previous day', 'پچھلا دن'),
+  nextLbl:     pick(lang, 'اليوم التالي', 'Next day', 'اگلا دن'),
+  toolsTitle:  pick(lang, 'أدوات ذات صلة', 'Related tools', 'متعلقہ اوزار'),
+  fullCal:     pick(lang, 'التقويم الهجري الكامل وتاريخ اليوم', "Full Hijri calendar & today's date", 'مکمل ہجری کیلنڈر اور آج کی تاریخ'),
+  converter:   pick(lang, 'محوّل التاريخ الهجري والميلادي', 'Hijri–Gregorian date converter', 'ہجری–عیسوی تاریخ کنورٹر'),
+  howTitle:    pick(lang, 'كيف تُحسب هذه التواريخ؟', 'How are these dates calculated?', 'یہ تاریخیں کیسے نکالی جاتی ہیں؟'),
+  howBody:     pick(lang,
+    'تُحسب التواريخ هنا فلكياً وفق معايير تقويم أم القرى المعتمد في المملكة العربية السعودية. قد تختلف بعض الدول التي تعتمد رؤية الهلال المباشرة بيوم واحد.',
+    'Dates are calculated astronomically per the Umm al-Qura standard used in Saudi Arabia. Countries relying on direct moon sighting may differ by about one day.',
+    'یہاں تاریخوں کا حساب سعودی عرب میں رائج اُمّ القریٰ معیار کے مطابق فلکی طور پر کیا جاتا ہے۔ براہِ راست رؤیتِ ہلال پر انحصار کرنے والے بعض ممالک میں تقریباً ایک دن کا فرق ہو سکتا ہے۔'),
+  brand:       pick(lang, 'التقويم الهجري', 'Hijri Calendar', 'ہجری کیلنڈر'),
+  convTag:     pick(lang, 'تحويل التاريخ', 'Date Converter', 'تاریخ کنورٹر'),
+  home:        pick(lang, 'الرئيسية', 'Home', 'ہوم'),
+  homeAria:    pick(lang, 'الانتقال إلى الصفحة الرئيسية', 'Go to homepage', 'ہوم پیج پر جائیں'),
+  ad:          pick(lang, 'مساحة إعلانية', 'Advertisement', 'اشتہار'),
+  footer:      pick(lang, 'الحساب وفق تقويم أم القرى', 'Dates based on the Umm al-Qura calendar · for reference', 'حساب اُمّ القریٰ تقویم کے مطابق'),
+  privacy:     pick(lang, 'سياسة الخصوصية', 'Privacy Policy', 'رازداری پالیسی'),
 };
 ---
-<Layout title={title} description={description} canonical={canonical} lang={lang} jsonLd={jsonLd} altPath={altHref} xDefaultPath={xDefault}>
+<Layout title={title} description={description} canonical={canonical} lang={lang} jsonLd={jsonLd}
+  arPath={convBasePath(hy, hm, hd, 'ar')} enPath={convBasePath(hy, hm, hd, 'en')} urPath={convBasePath(hy, hm, hd, 'ur')}>
   <header class="site-header">
     <div class="header-start">
-      <a href={ar ? '/' : '/en/'} class="logo" aria-label={ar ? 'الانتقال إلى الصفحة الرئيسية' : 'Go to homepage'}>
+      <a href={homeHref} class="logo" aria-label={t.homeAria}>
         <div class="logo-icon">☾</div>
         <div>
-          <div class="brand">{ar ? 'التقويم الهجري' : 'Hijri Calendar'}</div>
-          <div class="tagline">{ar ? 'تحويل التاريخ' : 'Date Converter'}</div>
+          <div class="brand">{t.brand}</div>
+          <div class="tagline">{t.convTag}</div>
         </div>
       </a>
-      <a href={ar ? '/' : '/en/'} class="home-btn">
+      <a href={homeHref} class="home-btn">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
-        <span>{ar ? 'الرئيسية' : 'Home'}</span>
+        <span>{t.home}</span>
       </a>
     </div>
-    <a href={altHref} class="lang-btn">{ar ? 'EN' : 'ع'}</a>
   </header>
 
   <div class="layout">
     <main>
       <section class="card section-card" style="order:1">
         <h1 class="section-h2" style="font-size:22px">{t.h1}</h1>
+
         <div style="margin-top:18px;display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start">
           <div>
             <div style="font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:5px">{t.answerLabel}</div>
@@ -130,6 +144,7 @@ const t = {
             <div style="font-size:20px;font-weight:700;color:var(--text);line-height:1.3">{hijriLabel}</div>
           </div>
         </div>
+
         <div style="margin-top:18px">
           <a href={monthHref} style="color:var(--accent);text-decoration:none;font-size:14.5px;font-weight:600">
             ↗ {t.monthLink}
@@ -153,11 +168,11 @@ const t = {
                   <tr style={row.current ? 'background:var(--accent-soft)' : ''}>
                     <td style="padding:9px 10px;border-bottom:1px solid var(--border)">
                       <a href={row.href} style={`text-decoration:none;font-weight:${row.current ? '800' : '500'};color:${row.current ? 'var(--accent)' : 'var(--text)'}`}>
-                        {row.hy} {ar ? 'هـ' : 'AH'}
+                        {row.hy} {era}
                       </a>
                     </td>
                     <td style="padding:9px 10px;border-bottom:1px solid var(--border);color:var(--muted)">
-                      {fmtGregorianShort(row.gDate, ar)}
+                      {fmtGregorianShort(row.gDate, lang)}
                     </td>
                   </tr>
                 ))}
@@ -170,12 +185,12 @@ const t = {
       <section class="card section-card" style="order:3">
         <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:20px">
           {prevDay ? (
-            <a href={convBasePath(hy, hm, prevDay, ar)} style="color:var(--accent);text-decoration:none;font-weight:700;font-size:14px">
+            <a href={convBasePath(hy, hm, prevDay, lang)} style="color:var(--accent);text-decoration:none;font-weight:700;font-size:14px">
               ‹ {t.prevLbl}: {prevDay} {monName}
             </a>
           ) : <span></span>}
           {nextDay ? (
-            <a href={convBasePath(hy, hm, nextDay, ar)} style="color:var(--accent);text-decoration:none;font-weight:700;font-size:14px">
+            <a href={convBasePath(hy, hm, nextDay, lang)} style="color:var(--accent);text-decoration:none;font-weight:700;font-size:14px">
               {t.nextLbl}: {nextDay} {monName} ›
             </a>
           ) : <span></span>}
@@ -187,23 +202,23 @@ const t = {
 
     <aside>
       <div class="ad-slot">
-        <span class="ad-label">{ar ? 'مساحة إعلانية' : 'Advertisement'}</span>
+        <span class="ad-label">{t.ad}</span>
         <span style="font-size:13px;opacity:.7">300 × 250</span>
       </div>
       <div class="card" style="padding:18px 20px">
         <h3 style="margin:0 0 12px;font-size:15.5px;font-weight:700">{t.toolsTitle}</h3>
         <div style="display:flex;flex-direction:column;gap:10px;font-size:14.5px">
-          <a href={ar ? '/' : '/en/'} style="color:var(--accent);text-decoration:none">{t.fullCal}</a>
-          <a href={ar ? '/' : '/en/'} style="color:var(--accent);text-decoration:none">{t.converter}</a>
-          <a href={monthHref} style="color:var(--accent);text-decoration:none">{monName} {hy} {ar ? 'هـ' : 'AH'}</a>
+          <a href={homeHref} style="color:var(--accent);text-decoration:none">{t.fullCal}</a>
+          <a href={homeHref} style="color:var(--accent);text-decoration:none">{t.converter}</a>
+          <a href={monthHref} style="color:var(--accent);text-decoration:none">{monName} {hy} {era}</a>
         </div>
       </div>
     </aside>
   </div>
 
   <footer class="site-footer">
-    {ar ? 'الحساب وفق تقويم أم القرى' : 'Dates based on the Umm al-Qura calendar · for reference'}
+    {t.footer}
     <span style="margin:0 8px;opacity:.4">·</span>
-    <a href={ar ? '/privacy/' : '/en/privacy/'} style="color:var(--muted);text-decoration:none;font-size:13px">{ar ? 'سياسة الخصوصية' : 'Privacy Policy'}</a>
+    <a href={privacyHref} style="color:var(--muted);text-decoration:none;font-size:13px">{t.privacy}</a>
   </footer>
 </Layout>

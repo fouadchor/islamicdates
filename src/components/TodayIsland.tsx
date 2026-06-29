@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
-import { g2h, getOcc, dotColor, todayUTC, h2g } from '../lib/hijri';
-import { H_MON_AR, H_MON_EN, G_MON_AR, G_MON_EN, WD_AR, WD_EN, MAJOR_OCC_KEYS } from '../lib/data';
+import { g2h, getOcc, occName, dotColor, todayUTC, h2g } from '../lib/hijri';
+import { MAJOR_OCC_KEYS, type Lang, toLang, pick, hMonArr, gMonArr, wdArr, hijriEra, gregEra } from '../lib/data';
 import { COUNTRIES, TZ_TO_COUNTRY } from '../lib/countries';
 
-interface Props { lang: 'ar' | 'en' }
+interface Props { lang: Lang }
 
 export default function TodayIsland({ lang }: Props) {
-  const ar = lang === 'ar';
+  const ll = toLang(lang);
   const [country, setCountry] = useState('sa');
   const [copied, setCopied] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -26,18 +26,20 @@ export default function TodayIsland({ lang }: Props) {
   const today = todayUTC();
   const th = g2h(today);
 
-  const hMon = ar ? H_MON_AR : H_MON_EN;
-  const gMon = ar ? G_MON_AR : G_MON_EN;
-  const wd   = ar ? WD_AR : WD_EN;
+  const hMon = hMonArr(lang);
+  const gMon = gMonArr(lang);
+  const wd   = wdArr(lang);
+  const sep  = ll === 'en' ? ', ' : '، ';
+  const cName = (c: typeof COUNTRIES[number]) => pick(lang, c.ar, c.en, c.ur);
 
   const fmtH = (d: Date, withDay: boolean) => {
     const h = g2h(d);
-    const w = withDay ? wd[d.getUTCDay()] + '، ' : '';
-    return `${w}${h.d} ${hMon[h.m-1]} ${h.y} ${ar ? 'هـ' : 'AH'}`;
+    const w = withDay ? wd[d.getUTCDay()] + sep : '';
+    return `${w}${h.d} ${hMon[h.m-1]} ${h.y} ${hijriEra(lang)}`;
   };
   const fmtG = (d: Date, withDay: boolean) => {
-    const w = withDay ? wd[d.getUTCDay()] + '، ' : '';
-    return `${w}${d.getUTCDate()} ${gMon[d.getUTCMonth()]} ${d.getUTCFullYear()} ${ar ? 'م' : 'CE'}`;
+    const w = withDay ? wd[d.getUTCDay()] + sep : '';
+    return `${w}${d.getUTCDate()} ${gMon[d.getUTCMonth()]} ${d.getUTCFullYear()} ${gregEra(lang)}`;
   };
 
   const todayHijri = fmtH(today, true);
@@ -45,7 +47,7 @@ export default function TodayIsland({ lang }: Props) {
   const todayFull  = fmtH(today, true) + ' — ' + fmtG(today, false);
 
   const tocc = getOcc(th.m, th.d);
-  const todayOcc = tocc ? (ar ? tocc[1] : tocc[2]) : (th.m === 9 ? (ar ? 'شهر رمضان المبارك' : 'The blessed month of Ramadan') : null);
+  const todayOcc = tocc ? occName(tocc, lang) : (th.m === 9 ? pick(lang, 'شهر رمضان المبارك', 'The blessed month of Ramadan', 'رمضان المبارک کا مہینہ') : null);
 
   // next upcoming occasion for countdown
   const upcoming = MAJOR_OCC_KEYS.map(([hm, hd]) => {
@@ -53,23 +55,25 @@ export default function TodayIsland({ lang }: Props) {
     let d = h2g(th.y, hm, hd);
     if (d.getTime() < today.getTime()) d = h2g(th.y + 1, hm, hd);
     const days = Math.round((d.getTime() - today.getTime()) / 86400000);
-    return { name: ar ? occ[1] : occ[2], days };
+    return { name: occName(occ, lang), days };
   }).sort((a, b) => a.days - b.days);
   const nearest = upcoming[0];
   const countdown = nearest
-    ? (ar
-        ? (nearest.days === 0 ? `${nearest.name} اليوم` : `باقٍ ${nearest.days} يوم على ${nearest.name}`)
-        : (nearest.days === 0 ? `${nearest.name} today` : `${nearest.days} days to ${nearest.name}`))
+    ? (nearest.days === 0
+        ? pick(lang, `${nearest.name} اليوم`, `${nearest.name} today`, `${nearest.name} آج`)
+        : pick(lang, `باقٍ ${nearest.days} يوم على ${nearest.name}`, `${nearest.days} days to ${nearest.name}`, `${nearest.name} میں ${nearest.days} دن باقی`))
     : '';
 
   const cur = COUNTRIES.find(c => c.v === country) ?? COUNTRIES[0];
-  const hilalNote = ar
-    ? (cur.umm
-        ? 'يعتمد العرض على تقويم أم القرى المعتمد رسمياً، وقد تختلف بدايات الأشهر الدينية حسب إعلان رؤية الهلال في كل دولة.'
-        : `العرض وفق تقويم أم القرى؛ وقد يختلف التاريخ الرسمي في ${cur.ar} بمقدار يوم واحد حسب رؤية الهلال محلياً.`)
-    : (cur.umm
-        ? 'Based on the official Umm al-Qura calendar; religious month starts may vary with local moon sighting.'
-        : `Based on the Umm al-Qura calendar; the official date in ${cur.en} may differ by one day depending on local moon sighting.`);
+  const hilalNote = cur.umm
+    ? pick(lang,
+        'يعتمد العرض على تقويم أم القرى المعتمد رسمياً، وقد تختلف بدايات الأشهر الدينية حسب إعلان رؤية الهلال في كل دولة.',
+        'Based on the official Umm al-Qura calendar; religious month starts may vary with local moon sighting.',
+        'یہ نمائش سرکاری طور پر معتمد اُمّ القریٰ تقویم پر مبنی ہے، اور دینی مہینوں کا آغاز ہر ملک میں رؤیتِ ہلال کے اعلان کے مطابق مختلف ہو سکتا ہے۔')
+    : pick(lang,
+        `العرض وفق تقويم أم القرى؛ وقد يختلف التاريخ الرسمي في ${cur.ar} بمقدار يوم واحد حسب رؤية الهلال محلياً.`,
+        `Based on the Umm al-Qura calendar; the official date in ${cur.en} may differ by one day depending on local moon sighting.`,
+        `یہ نمائش اُمّ القریٰ تقویم کے مطابق ہے؛ ${cur.ur} میں سرکاری تاریخ مقامی رؤیتِ ہلال کے مطابق ایک دن مختلف ہو سکتی ہے۔`);
 
   const copyToday = () => {
     try { navigator.clipboard?.writeText(todayFull); } catch {}
@@ -90,17 +94,17 @@ export default function TodayIsland({ lang }: Props) {
     <section style={{ background:'var(--surface)', border:'1px solid var(--border)', borderRadius:'var(--radius)', boxShadow:'var(--shadow)', padding:'28px 30px', animation:'fadeUp .5s ease' }}>
       <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:12, flexWrap:'wrap', marginBottom:14 }}>
         <div style={{ fontSize:'12.5px', letterSpacing:'.12em', textTransform:'uppercase', color:'var(--accent)', fontWeight:700 }}>
-          {ar ? 'تاريخ اليوم' : "Today's Date"}
+          {pick(lang, 'تاريخ اليوم', "Today's Date", 'آج کی تاریخ')}
         </div>
         <label style={{ display:'inline-flex', alignItems:'center', gap:6, fontSize:'12px', color:'var(--muted)', opacity:.85 }}
-          title={ar ? 'اختياري: غيّر المنطقة لتعديل ملاحظة رؤية الهلال' : 'Optional: change region to adjust the moon-sighting note'}>
+          title={pick(lang, 'اختياري: غيّر المنطقة لتعديل ملاحظة رؤية الهلال', 'Optional: change region to adjust the moon-sighting note', 'اختیاری: رؤیتِ ہلال کا نوٹ تبدیل کرنے کے لیے ملک منتخب کریں')}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity:.7 }} aria-hidden="true">
             <circle cx="12" cy="10" r="3" /><path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 7 8 11.7z" />
           </svg>
           <select value={country} onChange={e => setCountry(e.target.value)}
-            aria-label={ar ? 'المنطقة' : 'Region'}
+            aria-label={pick(lang, 'المنطقة', 'Region', 'ملک')}
             style={{ padding:'3px 4px', borderRadius:8, border:'none', background:'transparent', color:'var(--muted)', fontSize:'12.5px', fontWeight:600, cursor:'pointer' }}>
-            {[...COUNTRIES].sort((a, b) => (ar ? a.ar : a.en).localeCompare(ar ? b.ar : b.en, ar ? 'ar' : 'en')).map(c => <option key={c.v} value={c.v}>{ar ? c.ar : c.en}</option>)}
+            {[...COUNTRIES].sort((a, b) => cName(a).localeCompare(cName(b), ll)).map(c => <option key={c.v} value={c.v}>{cName(c)}</option>)}
           </select>
         </label>
       </div>
@@ -128,13 +132,13 @@ export default function TodayIsland({ lang }: Props) {
           style={{ padding:'11px 18px', borderRadius:11, border:'none', background:'var(--accent)', color:'var(--accent-contrast)', fontWeight:700, fontSize:14, transition:'filter .2s' }}
           onMouseEnter={e => (e.currentTarget.style.filter='brightness(1.06)')}
           onMouseLeave={e => (e.currentTarget.style.filter='')}>
-          {copied ? (ar ? 'تم النسخ ✓' : 'Copied ✓') : (ar ? 'انسخ تاريخ اليوم' : "Copy today's date")}
+          {copied ? pick(lang, 'تم النسخ ✓', 'Copied ✓', 'کاپی ہو گیا ✓') : pick(lang, 'انسخ تاريخ اليوم', "Copy today's date", 'آج کی تاریخ کاپی کریں')}
         </button>
         <button onClick={shareWa}
           style={{ padding:'11px 18px', borderRadius:11, border:'1px solid var(--border)', background:'var(--surface2)', color:'var(--accent)', fontWeight:700, fontSize:14, transition:'border-color .2s' }}
           onMouseEnter={e => (e.currentTarget.style.borderColor='var(--accent)')}
           onMouseLeave={e => (e.currentTarget.style.borderColor='var(--border)')}>
-          {ar ? 'شارك عبر واتساب' : 'Share on WhatsApp'}
+          {pick(lang, 'شارك عبر واتساب', 'Share on WhatsApp', 'واٹس ایپ پر شیئر کریں')}
         </button>
       </div>
 

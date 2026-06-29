@@ -1,12 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
-import { g2h, h2g, daysInHMonth, getOcc, dotColor, todayUTC } from '../lib/hijri';
+import { g2h, h2g, daysInHMonth, getOcc, occName, dotColor, todayUTC } from '../lib/hijri';
 import type { HDate } from '../lib/hijri';
-import { H_MON_AR, H_MON_EN, G_MON_AR, G_MON_EN, G_SHORT_AR, G_SHORT_EN, WD_AR, WD_EN, WD_HEAD_AR, WD_HEAD_EN } from '../lib/data';
+import { type Lang, toLang, pick, isRTL, hMonArr, gMonArr, gShortArr, wdArr, wdHeadArr, hijriEra, gregEra } from '../lib/data';
 
-interface Props { lang: 'ar' | 'en' }
+interface Props { lang: Lang }
 
 export default function CalendarIsland({ lang }: Props) {
-  const ar = lang === 'ar';
+  const ll = toLang(lang);
+  const rtl = isRTL(lang);
 
   // "Today" must come from the visitor's own clock, never the build server — a static
   // build would otherwise bake a stale date (and a stray highlight in other months).
@@ -36,20 +37,21 @@ export default function CalendarIsland({ lang }: Props) {
     return () => clearTimeout(t);
   }, []);
 
-  const hMon  = ar ? H_MON_AR  : H_MON_EN;
-  const gMon  = ar ? G_MON_AR  : G_MON_EN;
-  const gShort= ar ? G_SHORT_AR : G_SHORT_EN;
-  const wdHead= ar ? WD_HEAD_AR : WD_HEAD_EN;
-  const wdFull= ar ? WD_AR     : WD_EN;
+  const hMon  = hMonArr(lang);
+  const gMon  = gMonArr(lang);
+  const gShort= gShortArr(lang);
+  const wdHead= wdHeadArr(lang);
+  const wdFull= wdArr(lang);
+  const sep   = ll === 'en' ? ', ' : '، ';
 
   const fmtH = (d: Date, wd: boolean) => {
     const h = g2h(d);
-    const w = wd ? wdFull[d.getUTCDay()] + '، ' : '';
-    return `${w}${h.d} ${hMon[h.m-1]} ${h.y} ${ar ? 'هـ' : 'AH'}`;
+    const w = wd ? wdFull[d.getUTCDay()] + sep : '';
+    return `${w}${h.d} ${hMon[h.m-1]} ${h.y} ${hijriEra(lang)}`;
   };
   const fmtG = (d: Date, wd: boolean) => {
-    const w = wd ? wdFull[d.getUTCDay()] + '، ' : '';
-    return `${w}${d.getUTCDate()} ${gMon[d.getUTCMonth()]} ${d.getUTCFullYear()} ${ar ? 'م' : 'CE'}`;
+    const w = wd ? wdFull[d.getUTCDay()] + sep : '';
+    return `${w}${d.getUTCDate()} ${gMon[d.getUTCMonth()]} ${d.getUTCFullYear()} ${gregEra(lang)}`;
   };
 
   const nav = (delta: number) => {
@@ -103,11 +105,13 @@ export default function CalendarIsland({ lang }: Props) {
     selGreg  = fmtG(selDate, false);
     const sh = g2h(selDate);
     const so = getOcc(sh.m, sh.d);
-    selOcc = so ? (ar ? so[1] : so[2]) : (sh.m===9 ? (ar?'شهر رمضان':'Ramadan') : null);
+    selOcc = so ? occName(so, lang) : (sh.m===9 ? pick(lang, 'شهر رمضان', 'Ramadan', 'رمضان') : null);
     const diff = Math.round((selDate.getTime() - todayUTC().getTime()) / 86400000);
-    selRelLabel = ar
-      ? (diff === 0 ? 'اليوم' : diff > 0 ? `بعد ${diff} يوم` : `قبل ${-diff} يوم`)
-      : (diff === 0 ? 'Today' : diff > 0 ? `in ${diff} day${diff===1?'':'s'}` : `${-diff} day${-diff===1?'':'s'} ago`);
+    selRelLabel = diff === 0
+      ? pick(lang, 'اليوم', 'Today', 'آج')
+      : diff > 0
+        ? pick(lang, `بعد ${diff} يوم`, `in ${diff} day${diff===1?'':'s'}`, `${diff} دن بعد`)
+        : pick(lang, `قبل ${-diff} يوم`, `${-diff} day${-diff===1?'':'s'} ago`, `${-diff} دن پہلے`);
     const title = selOcc || selHijri;
     selGcal = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${isoC(selDate)}/${isoC(new Date(selDate.getTime()+86400000))}&details=${encodeURIComponent(selHijri + ' — islamicdates.org')}`;
   }
@@ -126,7 +130,7 @@ export default function CalendarIsland({ lang }: Props) {
         <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:12, marginBottom:18, flexWrap:'wrap' }}>
           <div>
             <h2 style={{ margin:0, fontWeight:700, fontSize:'clamp(21px,3.6vw,29px)', lineHeight:1.1 }}>
-              {hMon[viewM-1]} {viewY} {ar?'هـ':'AH'}
+              {hMon[viewM-1]} {viewY} {hijriEra(lang)}
             </h2>
             <div style={{ color:'var(--muted)', fontSize:'14.5px', marginTop:3 }}>{monthTitleG}</div>
           </div>
@@ -135,17 +139,17 @@ export default function CalendarIsland({ lang }: Props) {
               style={{ padding:'9px 15px', borderRadius:11, border:'1px solid var(--border)', background:'var(--surface2)', color:'var(--accent)', fontWeight:700, fontSize:'13.5px', transition:'all .2s' }}
               onMouseEnter={e => { e.currentTarget.style.background='var(--accent)'; e.currentTarget.style.color='var(--accent-contrast)'; e.currentTarget.style.borderColor='var(--accent)'; }}
               onMouseLeave={e => { e.currentTarget.style.background='var(--surface2)'; e.currentTarget.style.color='var(--accent)'; e.currentTarget.style.borderColor='var(--border)'; }}>
-              {ar ? 'اليوم' : 'Today'}
+              {pick(lang, 'اليوم', 'Today', 'آج')}
             </button>
-            <button onClick={() => nav(-1)} style={btnBase} aria-label={ar ? 'الشهر السابق' : 'Previous month'}
+            <button onClick={() => nav(-1)} style={btnBase} aria-label={pick(lang, 'الشهر السابق', 'Previous month', 'پچھلا مہینہ')}
               onMouseEnter={e => { e.currentTarget.style.background='var(--accent)'; e.currentTarget.style.color='var(--accent-contrast)'; }}
               onMouseLeave={e => { e.currentTarget.style.background='var(--surface2)'; e.currentTarget.style.color='var(--accent)'; }}>
-              <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{ar ? <path d="M9 6l6 6-6 6"/> : <path d="M15 6l-6 6 6 6"/>}</svg>
+              <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{rtl ? <path d="M9 6l6 6-6 6"/> : <path d="M15 6l-6 6 6 6"/>}</svg>
             </button>
-            <button onClick={() => nav(1)} style={btnBase} aria-label={ar ? 'الشهر التالي' : 'Next month'}
+            <button onClick={() => nav(1)} style={btnBase} aria-label={pick(lang, 'الشهر التالي', 'Next month', 'اگلا مہینہ')}
               onMouseEnter={e => { e.currentTarget.style.background='var(--accent)'; e.currentTarget.style.color='var(--accent-contrast)'; }}
               onMouseLeave={e => { e.currentTarget.style.background='var(--surface2)'; e.currentTarget.style.color='var(--accent)'; }}>
-              <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{ar ? <path d="M15 6l-6 6 6 6"/> : <path d="M9 6l6 6-6 6"/>}</svg>
+              <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{rtl ? <path d="M15 6l-6 6 6 6"/> : <path d="M9 6l6 6-6 6"/>}</svg>
             </button>
           </div>
         </div>
@@ -192,7 +196,7 @@ export default function CalendarIsland({ lang }: Props) {
           <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:10, flexWrap:'wrap', marginBottom:10 }}>
             <div style={{ display:'flex', alignItems:'center', gap:8 }}>
               <span aria-hidden="true" style={{ fontSize:18, lineHeight:1 }}>☾</span>
-              <span style={{ fontSize:'12.5px', color:'var(--gold-deep)', fontWeight:800, letterSpacing:'.04em' }}>{ar?'اليوم المختار':'Selected day'}</span>
+              <span style={{ fontSize:'12.5px', color:'var(--gold-deep)', fontWeight:800, letterSpacing:'.04em' }}>{pick(lang, 'اليوم المختار', 'Selected day', 'منتخب دن')}</span>
             </div>
             {selRelLabel && (
               <span style={{ padding:'4px 12px', borderRadius:999, background:'var(--surface)', color:'var(--gold-deep)', fontWeight:700, fontSize:'12.5px', border:'1px solid var(--border)' }}>{selRelLabel}</span>
@@ -209,9 +213,9 @@ export default function CalendarIsland({ lang }: Props) {
             </div>
           )}
           <div style={{ marginTop:16, display:'flex', flexWrap:'wrap', gap:9 }}>
-            <a href={selGcal} target="_blank" rel="noopener" style={{ padding:'9px 16px', borderRadius:11, background:'var(--accent)', color:'var(--accent-contrast)', fontWeight:700, fontSize:13, textDecoration:'none' }}>{ar?'أضِفه إلى تقويم Google':'Add to Google Calendar'}</a>
+            <a href={selGcal} target="_blank" rel="noopener" style={{ padding:'9px 16px', borderRadius:11, background:'var(--accent)', color:'var(--accent-contrast)', fontWeight:700, fontSize:13, textDecoration:'none' }}>{pick(lang, 'أضِفه إلى تقويم Google', 'Add to Google Calendar', 'گوگل کیلنڈر میں شامل کریں')}</a>
             <button type="button" onClick={copySel} style={{ padding:'9px 16px', borderRadius:11, background:'var(--surface)', border:'1px solid var(--border)', color:'var(--accent)', fontWeight:700, fontSize:13, cursor:'pointer' }}>
-              {selCopied ? (ar?'تم النسخ ✓':'Copied ✓') : (ar?'نسخ التاريخ':'Copy date')}
+              {selCopied ? pick(lang, 'تم النسخ ✓', 'Copied ✓', 'کاپی ہو گیا ✓') : pick(lang, 'نسخ التاريخ', 'Copy date', 'تاریخ کاپی کریں')}
             </button>
           </div>
         </section>

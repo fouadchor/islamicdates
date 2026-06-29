@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
+import { type Lang, toLang, pick, isRTL } from '../lib/data';
 
-interface Props { lang: 'ar' | 'en' }
+interface Props { lang: Lang }
 
 const GRAMS_PER_OZ = 31.1034768;
 const NISAB_GOLD_G = 85;
@@ -8,34 +9,34 @@ const NISAB_SILVER_G = 595;
 const RATE = 0.025;
 
 // Main currencies for the dropdown
-const CURRENCIES: { code: string; ar: string; en: string }[] = [
-  { code: 'USD', ar: 'دولار أمريكي', en: 'US Dollar' },
-  { code: 'SAR', ar: 'ريال سعودي', en: 'Saudi Riyal' },
-  { code: 'AED', ar: 'درهم إماراتي', en: 'UAE Dirham' },
-  { code: 'QAR', ar: 'ريال قطري', en: 'Qatari Riyal' },
-  { code: 'KWD', ar: 'دينار كويتي', en: 'Kuwaiti Dinar' },
-  { code: 'BHD', ar: 'دينار بحريني', en: 'Bahraini Dinar' },
-  { code: 'OMR', ar: 'ريال عماني', en: 'Omani Rial' },
-  { code: 'EGP', ar: 'جنيه مصري', en: 'Egyptian Pound' },
-  { code: 'JOD', ar: 'دينار أردني', en: 'Jordanian Dinar' },
-  { code: 'IQD', ar: 'دينار عراقي', en: 'Iraqi Dinar' },
-  { code: 'LBP', ar: 'ليرة لبنانية', en: 'Lebanese Pound' },
-  { code: 'SYP', ar: 'ليرة سورية', en: 'Syrian Pound' },
-  { code: 'YER', ar: 'ريال يمني', en: 'Yemeni Rial' },
-  { code: 'TRY', ar: 'ليرة تركية', en: 'Turkish Lira' },
-  { code: 'MAD', ar: 'درهم مغربي', en: 'Moroccan Dirham' },
-  { code: 'DZD', ar: 'دينار جزائري', en: 'Algerian Dinar' },
-  { code: 'TND', ar: 'دينار تونسي', en: 'Tunisian Dinar' },
-  { code: 'LYD', ar: 'دينار ليبي', en: 'Libyan Dinar' },
-  { code: 'SDG', ar: 'جنيه سوداني', en: 'Sudanese Pound' },
-  { code: 'PKR', ar: 'روبية باكستانية', en: 'Pakistani Rupee' },
-  { code: 'INR', ar: 'روبية هندية', en: 'Indian Rupee' },
-  { code: 'IDR', ar: 'روبية إندونيسية', en: 'Indonesian Rupiah' },
-  { code: 'MYR', ar: 'رينغيت ماليزي', en: 'Malaysian Ringgit' },
-  { code: 'BDT', ar: 'تاكا بنغلاديشي', en: 'Bangladeshi Taka' },
-  { code: 'NGN', ar: 'نايرا نيجيري', en: 'Nigerian Naira' },
-  { code: 'GBP', ar: 'جنيه إسترليني', en: 'British Pound' },
-  { code: 'EUR', ar: 'يورو', en: 'Euro' },
+const CURRENCIES: { code: string; ar: string; en: string; ur: string }[] = [
+  { code: 'USD', ar: 'دولار أمريكي', en: 'US Dollar', ur: 'امریکی ڈالر' },
+  { code: 'SAR', ar: 'ريال سعودي', en: 'Saudi Riyal', ur: 'سعودی ریال' },
+  { code: 'AED', ar: 'درهم إماراتي', en: 'UAE Dirham', ur: 'اماراتی درہم' },
+  { code: 'QAR', ar: 'ريال قطري', en: 'Qatari Riyal', ur: 'قطری ریال' },
+  { code: 'KWD', ar: 'دينار كويتي', en: 'Kuwaiti Dinar', ur: 'کویتی دینار' },
+  { code: 'BHD', ar: 'دينار بحريني', en: 'Bahraini Dinar', ur: 'بحرینی دینار' },
+  { code: 'OMR', ar: 'ريال عماني', en: 'Omani Rial', ur: 'عمانی ریال' },
+  { code: 'EGP', ar: 'جنيه مصري', en: 'Egyptian Pound', ur: 'مصری پاؤنڈ' },
+  { code: 'JOD', ar: 'دينار أردني', en: 'Jordanian Dinar', ur: 'اردنی دینار' },
+  { code: 'IQD', ar: 'دينار عراقي', en: 'Iraqi Dinar', ur: 'عراقی دینار' },
+  { code: 'LBP', ar: 'ليرة لبنانية', en: 'Lebanese Pound', ur: 'لبنانی پاؤنڈ' },
+  { code: 'SYP', ar: 'ليرة سورية', en: 'Syrian Pound', ur: 'شامی پاؤنڈ' },
+  { code: 'YER', ar: 'ريال يمني', en: 'Yemeni Rial', ur: 'یمنی ریال' },
+  { code: 'TRY', ar: 'ليرة تركية', en: 'Turkish Lira', ur: 'ترکی لیرا' },
+  { code: 'MAD', ar: 'درهم مغربي', en: 'Moroccan Dirham', ur: 'مراکشی درہم' },
+  { code: 'DZD', ar: 'دينار جزائري', en: 'Algerian Dinar', ur: 'الجزائری دینار' },
+  { code: 'TND', ar: 'دينار تونسي', en: 'Tunisian Dinar', ur: 'تیونسی دینار' },
+  { code: 'LYD', ar: 'دينار ليبي', en: 'Libyan Dinar', ur: 'لیبیائی دینار' },
+  { code: 'SDG', ar: 'جنيه سوداني', en: 'Sudanese Pound', ur: 'سوڈانی پاؤنڈ' },
+  { code: 'PKR', ar: 'روبية باكستانية', en: 'Pakistani Rupee', ur: 'پاکستانی روپیہ' },
+  { code: 'INR', ar: 'روبية هندية', en: 'Indian Rupee', ur: 'بھارتی روپیہ' },
+  { code: 'IDR', ar: 'روبية إندونيسية', en: 'Indonesian Rupiah', ur: 'انڈونیشی روپیہ' },
+  { code: 'MYR', ar: 'رينغيت ماليزي', en: 'Malaysian Ringgit', ur: 'ملائیشین رنگٹ' },
+  { code: 'BDT', ar: 'تاكا بنغلاديشي', en: 'Bangladeshi Taka', ur: 'بنگلہ دیشی ٹکا' },
+  { code: 'NGN', ar: 'نايرا نيجيري', en: 'Nigerian Naira', ur: 'نائجیرین نائرا' },
+  { code: 'GBP', ar: 'جنيه إسترليني', en: 'British Pound', ur: 'برطانوی پاؤنڈ' },
+  { code: 'EUR', ar: 'يورو', en: 'Euro', ur: 'یورو' },
 ];
 
 // Guess a default currency from the browser timezone
@@ -72,7 +73,8 @@ function Field({ lbl, val, set, suffix, ph }: { lbl: string; val: string; set: (
 }
 
 export default function ZakatIsland({ lang }: Props) {
-  const ar = lang === 'ar';
+  const ll = toLang(lang);
+  const rtl = isRTL(lang);
   const [mounted, setMounted] = useState(false);
 
   const [basis, setBasis] = useState<'gold' | 'silver'>('gold');
@@ -82,7 +84,7 @@ export default function ZakatIsland({ lang }: Props) {
   const [rates, setRates] = useState<Record<string, number>>({ USD: 1 });
   const [goldPrice, setGoldPrice] = useState('');   // per gram, in selected currency (editable)
   const [silverPrice, setSilverPrice] = useState('');
-  const [priceNote, setPriceNote] = useState(ar ? 'يتم جلب أسعار الذهب والفضة وسعر الصرف تلقائياً…' : 'Fetching live gold, silver and exchange rates…');
+  const [priceNote, setPriceNote] = useState(pick(lang, 'يتم جلب أسعار الذهب والفضة وسعر الصرف تلقائياً…', 'Fetching live gold, silver and exchange rates…', 'سونے، چاندی اور شرحِ تبادلہ کی تازہ قیمتیں حاصل کی جا رہی ہیں…'));
 
   const [cash, setCash] = useState('');
   const [goldGrams, setGoldGrams] = useState('');
@@ -120,13 +122,15 @@ export default function ZakatIsland({ lang }: Props) {
         setGoldUSD(gUSD); setSilverUSD(sUSD); setRates(rt);
         const rate = rt[ccy] ?? 1;
         applyPrices(gUSD, sUSD, rate);
-        setPriceNote(ar
-          ? 'الأسعار محدّثة تلقائياً من السوق وتُحوَّل لعملتك. يمكنك تعديل سعر الجرام يدوياً عند الحاجة.'
-          : 'Prices are fetched live and converted to your currency. You can edit the gram price manually if needed.');
+        setPriceNote(pick(lang,
+          'الأسعار محدّثة تلقائياً من السوق وتُحوَّل لعملتك. يمكنك تعديل سعر الجرام يدوياً عند الحاجة.',
+          'Prices are fetched live and converted to your currency. You can edit the gram price manually if needed.',
+          'قیمتیں خودکار طور پر بازار سے حاصل ہو کر آپ کی کرنسی میں تبدیل کی جاتی ہیں۔ ضرورت ہو تو فی گرام قیمت دستی طور پر تبدیل کر سکتے ہیں۔'));
       } catch {
-        setPriceNote(ar
-          ? 'تعذّر جلب الأسعار تلقائياً — اختر عملتك وأدخل سعر جرام الذهب والفضة يدوياً.'
-          : 'Could not fetch live prices — pick your currency and enter the gold/silver gram price manually.');
+        setPriceNote(pick(lang,
+          'تعذّر جلب الأسعار تلقائياً — اختر عملتك وأدخل سعر جرام الذهب والفضة يدوياً.',
+          'Could not fetch live prices — pick your currency and enter the gold/silver gram price manually.',
+          'قیمتیں خودکار طور پر حاصل نہ ہو سکیں — اپنی کرنسی منتخب کریں اور سونے/چاندی کی فی گرام قیمت دستی طور پر درج کریں۔'));
       }
     })();
   }, []);
@@ -158,44 +162,47 @@ export default function ZakatIsland({ lang }: Props) {
   const shortfall = Math.max(0, nisab - net);
 
   const t = {
-    settings: ar ? 'الإعدادات والأسعار' : 'Settings & prices',
-    basis: ar ? 'أساس النصاب' : 'Nisab basis',
-    gold: ar ? 'الذهب' : 'Gold', silver: ar ? 'الفضة' : 'Silver',
-    goldG: ar ? 'سعر جرام الذهب' : 'Gold price / gram',
-    silverG: ar ? 'سعر جرام الفضة' : 'Silver price / gram',
-    currency: ar ? 'العملة' : 'Currency',
-    assets: ar ? 'الأصول الزكوية' : 'Zakatable assets',
-    cash: ar ? 'النقد والأرصدة البنكية' : 'Cash & bank balances',
-    goldGrams: ar ? 'الذهب المملوك (جرام)' : 'Gold owned (grams)',
-    silverGrams: ar ? 'الفضة المملوكة (جرام)' : 'Silver owned (grams)',
-    business: ar ? 'عروض التجارة والبضائع للبيع' : 'Business goods / inventory',
-    investments: ar ? 'الأسهم والاستثمارات' : 'Stocks & investments',
-    receivables: ar ? 'ديون مرجوّة لك' : 'Money owed to you (recoverable)',
-    liabilities: ar ? 'الخصوم' : 'Liabilities',
-    debts: ar ? 'ديون مستحقة عليك الآن' : 'Debts due now',
-    totalAssets: ar ? 'إجمالي الأصول' : 'Total assets',
-    less: ar ? 'يُطرح: الخصوم' : 'Less: liabilities',
-    netW: ar ? 'صافي المال الزكوي' : 'Net zakatable wealth',
-    nisab: ar ? 'النصاب' : 'Nisab threshold',
-    nisabToday: ar ? 'نصاب الزكاة اليوم' : "Today's Zakat nisab",
-    nisabDesc: ar
-      ? 'النصاب هو أقل مقدار من المال تجب فيه الزكاة، ويتغيّر يومياً بتغيّر سعر الذهب والفضة. هذه القيمة محسوبة بسعر السوق الحالي بعملتك. إذا بلغ صافي مالك أحد النصابين ومرّ عليه حول هجري كامل وجبت الزكاة (2.5%).'
-      : 'The nisab is the minimum wealth on which Zakat is due, and it changes daily with gold and silver prices. These values use the current market price in your currency. If your net wealth reaches either nisab and a full Hijri year passes, Zakat (2.5%) is due.',
-    nisabGold: ar ? 'نصاب الذهب · 85 جم' : 'Gold nisab · 85g',
-    nisabSilver: ar ? 'نصاب الفضة · 595 جم' : 'Silver nisab · 595g',
-    nisabNote: ar
-      ? 'الأحوط لمن أكثر ماله نقد أو مختلط الأخذ بنصاب الفضة لأنه أقل. اضغط على أحد النصابين لاعتماده في الحساب.'
-      : 'For mostly-cash or mixed wealth, the lower silver nisab is the more cautious choice. Tap a nisab to use it in the calculation.',
-    active: ar ? 'مُعتمَد' : 'in use',
-    due: ar ? 'الزكاة المستحقة (2.5%)' : 'Zakat due (2.5%)',
-    dueYes: ar ? 'مالك بلغ النصاب، وتجب الزكاة إن مرّ عليه حول هجري كامل.' : 'Your wealth has reached the nisab — zakat is due if a full lunar year has passed.',
-    dueNo: ar ? 'مالك دون النصاب، فلا تجب الزكاة حالياً.' : 'Your wealth is below the nisab, so no zakat is due now.',
-    short: ar ? 'الفارق حتى بلوغ النصاب' : 'Amount below nisab',
-    reset: ar ? 'تفريغ الحقول' : 'Reset', copy: ar ? 'نسخ النتيجة' : 'Copy result', copied: ar ? 'تم النسخ ✓' : 'Copied ✓',
-    grams: ar ? 'جرام' : 'grams',
-    hawl: ar
-      ? 'تذكير: تجب الزكاة في المال إذا بلغ النصاب ومرّ عليه حول (سنة هجرية كاملة) وأنت مالك له. وهذه الحاسبة للاسترشاد فقط؛ ولأي حالة خاصة استشر أهل العلم.'
-      : 'Reminder: zakat is due when wealth reaches the nisab and a full lunar (Hijri) year passes while you own it. This tool is for guidance only — consult a scholar for specific cases.',
+    settings: pick(lang, 'الإعدادات والأسعار', 'Settings & prices', 'ترتیبات اور قیمتیں'),
+    basis: pick(lang, 'أساس النصاب', 'Nisab basis', 'نصاب کی بنیاد'),
+    gold: pick(lang, 'الذهب', 'Gold', 'سونا'), silver: pick(lang, 'الفضة', 'Silver', 'چاندی'),
+    goldG: pick(lang, 'سعر جرام الذهب', 'Gold price / gram', 'سونے کی فی گرام قیمت'),
+    silverG: pick(lang, 'سعر جرام الفضة', 'Silver price / gram', 'چاندی کی فی گرام قیمت'),
+    currency: pick(lang, 'العملة', 'Currency', 'کرنسی'),
+    assets: pick(lang, 'الأصول الزكوية', 'Zakatable assets', 'زکوٰۃ کے قابل اثاثے'),
+    cash: pick(lang, 'النقد والأرصدة البنكية', 'Cash & bank balances', 'نقد اور بینک بیلنس'),
+    goldGrams: pick(lang, 'الذهب المملوك (جرام)', 'Gold owned (grams)', 'ملکیتی سونا (گرام)'),
+    silverGrams: pick(lang, 'الفضة المملوكة (جرام)', 'Silver owned (grams)', 'ملکیتی چاندی (گرام)'),
+    business: pick(lang, 'عروض التجارة والبضائع للبيع', 'Business goods / inventory', 'مالِ تجارت / بیچنے کا سامان'),
+    investments: pick(lang, 'الأسهم والاستثمارات', 'Stocks & investments', 'حصص اور سرمایہ کاری'),
+    receivables: pick(lang, 'ديون مرجوّة لك', 'Money owed to you (recoverable)', 'وصول طلب قرضے (آپ کے)'),
+    liabilities: pick(lang, 'الخصوم', 'Liabilities', 'واجبات'),
+    debts: pick(lang, 'ديون مستحقة عليك الآن', 'Debts due now', 'ابھی واجب الادا قرضے'),
+    totalAssets: pick(lang, 'إجمالي الأصول', 'Total assets', 'کل اثاثے'),
+    less: pick(lang, 'يُطرح: الخصوم', 'Less: liabilities', 'منہا: واجبات'),
+    netW: pick(lang, 'صافي المال الزكوي', 'Net zakatable wealth', 'خالص قابلِ زکوٰۃ مال'),
+    nisab: pick(lang, 'النصاب', 'Nisab threshold', 'نصاب کی حد'),
+    nisabToday: pick(lang, 'نصاب الزكاة اليوم', "Today's Zakat nisab", 'آج زکوٰۃ کا نصاب'),
+    nisabDesc: pick(lang,
+      'النصاب هو أقل مقدار من المال تجب فيه الزكاة، ويتغيّر يومياً بتغيّر سعر الذهب والفضة. هذه القيمة محسوبة بسعر السوق الحالي بعملتك. إذا بلغ صافي مالك أحد النصابين ومرّ عليه حول هجري كامل وجبت الزكاة (2.5%).',
+      'The nisab is the minimum wealth on which Zakat is due, and it changes daily with gold and silver prices. These values use the current market price in your currency. If your net wealth reaches either nisab and a full Hijri year passes, Zakat (2.5%) is due.',
+      'نصاب وہ کم سے کم مال ہے جس پر زکوٰۃ واجب ہوتی ہے، اور یہ سونے چاندی کی قیمت کے ساتھ روزانہ بدلتا ہے۔ یہ قدریں آپ کی کرنسی میں موجودہ بازاری قیمت کے مطابق ہیں۔ اگر آپ کا خالص مال کسی ایک نصاب کو پہنچ جائے اور اس پر پورا ہجری سال گزر جائے تو زکوٰۃ (2.5%) واجب ہوتی ہے۔'),
+    nisabGold: pick(lang, 'نصاب الذهب · 85 جم', 'Gold nisab · 85g', 'سونے کا نصاب · 85 گرام'),
+    nisabSilver: pick(lang, 'نصاب الفضة · 595 جم', 'Silver nisab · 595g', 'چاندی کا نصاب · 595 گرام'),
+    nisabNote: pick(lang,
+      'الأحوط لمن أكثر ماله نقد أو مختلط الأخذ بنصاب الفضة لأنه أقل. اضغط على أحد النصابين لاعتماده في الحساب.',
+      'For mostly-cash or mixed wealth, the lower silver nisab is the more cautious choice. Tap a nisab to use it in the calculation.',
+      'جس کا اکثر مال نقد یا مخلوط ہو، اس کے لیے چاندی کا کم نصاب لینا زیادہ محتاط ہے۔ حساب میں استعمال کے لیے کسی ایک نصاب پر کلک کریں۔'),
+    active: pick(lang, 'مُعتمَد', 'in use', 'منتخب'),
+    due: pick(lang, 'الزكاة المستحقة (2.5%)', 'Zakat due (2.5%)', 'واجب الادا زکوٰۃ (2.5%)'),
+    dueYes: pick(lang, 'مالك بلغ النصاب، وتجب الزكاة إن مرّ عليه حول هجري كامل.', 'Your wealth has reached the nisab — zakat is due if a full lunar year has passed.', 'آپ کا مال نصاب کو پہنچ گیا ہے — اگر اس پر پورا قمری سال گزر چکا ہو تو زکوٰۃ واجب ہے۔'),
+    dueNo: pick(lang, 'مالك دون النصاب، فلا تجب الزكاة حالياً.', 'Your wealth is below the nisab, so no zakat is due now.', 'آپ کا مال نصاب سے کم ہے، اس لیے فی الحال زکوٰۃ واجب نہیں۔'),
+    short: pick(lang, 'الفارق حتى بلوغ النصاب', 'Amount below nisab', 'نصاب تک پہنچنے کا فرق'),
+    reset: pick(lang, 'تفريغ الحقول', 'Reset', 'خانے خالی کریں'), copy: pick(lang, 'نسخ النتيجة', 'Copy result', 'نتیجہ کاپی کریں'), copied: pick(lang, 'تم النسخ ✓', 'Copied ✓', 'کاپی ہو گیا ✓'),
+    grams: pick(lang, 'جرام', 'grams', 'گرام'),
+    hawl: pick(lang,
+      'تذكير: تجب الزكاة في المال إذا بلغ النصاب ومرّ عليه حول (سنة هجرية كاملة) وأنت مالك له. وهذه الحاسبة للاسترشاد فقط؛ ولأي حالة خاصة استشر أهل العلم.',
+      'Reminder: zakat is due when wealth reaches the nisab and a full lunar (Hijri) year passes while you own it. This tool is for guidance only — consult a scholar for specific cases.',
+      'یاد دہانی: زکوٰۃ اس وقت واجب ہوتی ہے جب مال نصاب کو پہنچے اور آپ کی ملکیت میں اس پر پورا قمری (ہجری) سال گزر جائے۔ یہ حاسبہ صرف رہنمائی کے لیے ہے؛ کسی خاص صورت میں اہلِ علم سے رجوع کریں۔'),
   };
 
   if (!mounted) return <section style={{ ...cardStyle, minHeight: 360 }} />;
@@ -209,7 +216,7 @@ export default function ZakatIsland({ lang }: Props) {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
           {([['gold', t.nisabGold, goldNisab], ['silver', t.nisabSilver, silverNisab]] as const).map(([b, lbl, val]) => (
             <button key={b} onClick={() => setBasis(b as 'gold' | 'silver')}
-              style={{ textAlign: ar ? 'right' : 'left', padding: '14px 16px', borderRadius: 12, cursor: 'pointer',
+              style={{ textAlign: rtl ? 'right' : 'left', padding: '14px 16px', borderRadius: 12, cursor: 'pointer',
                 border: '2px solid ' + (basis === b ? 'var(--gold)' : 'var(--border)'),
                 background: 'var(--surface)' }}>
               <span style={{ display: 'block', fontSize: 13, color: 'var(--muted)', fontWeight: 600 }}>{lbl}{basis === b ? ` · ${t.active}` : ''}</span>
@@ -232,11 +239,11 @@ export default function ZakatIsland({ lang }: Props) {
                 const MAIN = ['USD', 'EUR', 'GBP', 'SAR', 'AED', 'QAR', 'KWD', 'BHD', 'OMR'];
                 const byCode: Record<string, typeof CURRENCIES[number]> = Object.fromEntries(CURRENCIES.map(c => [c.code, c]));
                 const main = MAIN.map(code => byCode[code]).filter(Boolean);
-                const rest = CURRENCIES.filter(c => !MAIN.includes(c.code)).sort((a, b) => (ar ? a.ar : a.en).localeCompare(ar ? b.ar : b.en, ar ? 'ar' : 'en'));
-                const opt = (c: typeof CURRENCIES[number]) => <option key={c.code} value={c.code}>{(ar ? c.ar : c.en) + ' · ' + c.code}</option>;
+                const rest = CURRENCIES.filter(c => !MAIN.includes(c.code)).sort((a, b) => pick(lang, a.ar, a.en, a.ur).localeCompare(pick(lang, b.ar, b.en, b.ur), ll));
+                const opt = (c: typeof CURRENCIES[number]) => <option key={c.code} value={c.code}>{pick(lang, c.ar, c.en, c.ur) + ' · ' + c.code}</option>;
                 return (<>
-                  <optgroup label={ar ? 'العملات الرئيسية' : 'Main currencies'}>{main.map(opt)}</optgroup>
-                  <optgroup label={ar ? 'بقية العملات (أبجدي)' : 'Other currencies (A–Z)'}>{rest.map(opt)}</optgroup>
+                  <optgroup label={pick(lang, 'العملات الرئيسية', 'Main currencies', 'اہم کرنسیاں')}>{main.map(opt)}</optgroup>
+                  <optgroup label={pick(lang, 'بقية العملات (أبجدي)', 'Other currencies (A–Z)', 'دیگر کرنسیاں (حروفِ تہجی)')}>{rest.map(opt)}</optgroup>
                 </>);
               })()}
             </select>

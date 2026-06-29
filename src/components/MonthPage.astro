@@ -1,50 +1,49 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { fmtG, fmtGShort, fmtH, isoUTC } from '../lib/occasions';
+import { fmtG, fmtGShort, fmtH } from '../lib/occasions';
 import {
-  monthGrid, monthBasePath, monthName, prevMonth, nextMonth, hYears, H_YEAR_END,
+  monthGrid, monthBasePath, monthName, prevMonth, nextMonth,
 } from '../lib/months';
 import {
-  WD_HEAD_AR, WD_HEAD_EN, G_SHORT_AR, G_SHORT_EN, MONTHS_NOTES_AR, MONTHS_NOTES_EN,
+  type Lang, pick, hijriEra, wdHeadArr, gShortArr,
+  MONTHS_NOTES_AR, MONTHS_NOTES_EN, MONTHS_NOTES_UR,
 } from '../lib/data';
 
-interface Props { lang: 'ar' | 'en'; hy: number; hm: number; }
+interface Props { lang: Lang; hy: number; hm: number; }
 const { lang, hy, hm } = Astro.props;
-const ar = lang === 'ar';
 
-const name = monthName(hm, ar);
-const grid = monthGrid(hy, hm, ar);
+const name = monthName(hm, lang);
+const grid = monthGrid(hy, hm, lang);
 const firstDate = grid[0].date;
 const lastDate = grid[grid.length - 1].date;
 const nDays = grid.length;
 const occList = grid.filter(d => d.occ);
-const note = (ar ? MONTHS_NOTES_AR : MONTHS_NOTES_EN)[hm - 1];
-const wdHead = ar ? WD_HEAD_AR : WD_HEAD_EN;
-const gShort = ar ? G_SHORT_AR : G_SHORT_EN;
+const note = pick(lang, MONTHS_NOTES_AR, MONTHS_NOTES_EN, MONTHS_NOTES_UR)[hm - 1];
+const wdHead = wdHeadArr(lang);
+const gShort = gShortArr(lang);
+const era = hijriEra(lang);
 
 const prev = prevMonth(hy, hm);
 const next = nextMonth(hy, hm);
 
-const canonical = `https://islamicdates.org${monthBasePath(hy, hm, ar)}`;
-const altHref = monthBasePath(hy, hm, !ar);
-const xDefault = monthBasePath(hy, hm, true);
+const canonical = `https://islamicdates.org${monthBasePath(hy, hm, lang)}`;
 
-const spanG = ar
-  ? `${fmtGShort(firstDate, true)} – ${fmtGShort(lastDate, true)}`
-  : `${fmtGShort(firstDate, false)} – ${fmtGShort(lastDate, false)}`;
+const spanG = `${fmtGShort(firstDate, lang)} – ${fmtGShort(lastDate, lang)}`;
 
-const title = ar
-  ? `${name} ${hy} هـ — التقويم الهجري بالميلادي | تقويم أم القرى`
-  : `${name} ${hy} AH — Hijri Calendar with Gregorian Dates | Umm al-Qura`;
-const description = ar
-  ? `شهر ${name} ${hy} هـ يوافق ${spanG} ميلادياً (${nDays} يوماً). التقويم الكامل لأيام الشهر بالهجري والميلادي ومناسباته وفق تقويم أم القرى.`
-  : `${name} ${hy} AH corresponds to ${spanG} (${nDays} days). The full day-by-day Hijri–Gregorian calendar for the month and its occasions, per the Umm al-Qura calendar.`;
+const title = pick(lang,
+  `${name} ${hy} هـ — التقويم الهجري بالميلادي | تقويم أم القرى`,
+  `${name} ${hy} AH — Hijri Calendar with Gregorian Dates | Umm al-Qura`,
+  `${name} ${hy} ھ — ہجری کیلنڈر بمع عیسوی تاریخیں | اُمّ القریٰ`);
+const description = pick(lang,
+  `شهر ${name} ${hy} هـ يوافق ${spanG} ميلادياً (${nDays} يوماً). التقويم الكامل لأيام الشهر بالهجري والميلادي ومناسباته وفق تقويم أم القرى.`,
+  `${name} ${hy} AH corresponds to ${spanG} (${nDays} days). The full day-by-day Hijri–Gregorian calendar for the month and its occasions, per the Umm al-Qura calendar.`,
+  `${name} ${hy} ھ عیسوی ${spanG} کے مطابق ہے (${nDays} دن)۔ مہینے کے دن بہ دن مکمل ہجری–عیسوی کیلنڈر اور اس کی مناسبتیں، اُمّ القریٰ تقویم کے مطابق۔`);
 
 // Schema: breadcrumb only (Event markup removed — these are calendar dates, not attendable events)
 const breadcrumb = {
   "@context": "https://schema.org", "@type": "BreadcrumbList",
   "itemListElement": [
-    { "@type": "ListItem", "position": 1, "name": ar ? "الرئيسية" : "Home", "item": ar ? "https://islamicdates.org/" : "https://islamicdates.org/en/" },
+    { "@type": "ListItem", "position": 1, "name": pick(lang, "الرئيسية", "Home", "ہوم"), "item": pick(lang, "https://islamicdates.org/", "https://islamicdates.org/en/", "https://islamicdates.org/ur/") },
     { "@type": "ListItem", "position": 2, "name": `${name} ${hy}`, "item": canonical },
   ],
 };
@@ -52,55 +51,66 @@ const jsonLd = JSON.stringify([breadcrumb]);
 
 const dotFor = (cat: string) => cat === 'eid' ? 'var(--gold)' : cat === 'holy' ? 'var(--holy)' : 'var(--accent)';
 
+const homeHref = pick(lang, '/', '/en/', '/ur/');
+const prayerHref = pick(lang, '/prayer-times/', '/en/prayer-times/', '/ur/prayer-times/');
+const privacyHref = pick(lang, '/privacy/', '/en/privacy/', '/ur/privacy/');
+
 const t = {
-  spanLabel: ar ? 'يوافق ميلادياً' : 'Gregorian span',
-  daysLabel: ar ? 'عدد الأيام' : 'Days in month',
-  aboutTitle: ar ? `عن شهر ${name}` : `About ${name}`,
-  calTitle: ar ? `تقويم ${name} ${hy} يوماً بيوم` : `${name} ${hy} day by day`,
-  occTitle: ar ? 'مناسبات هذا الشهر' : 'Occasions this month',
-  none: ar ? 'لا توجد مناسبات بارزة في هذا الشهر' : 'No major occasions this month',
-  monthsOf: ar ? `أشهر سنة ${hy} هـ` : `Months of ${hy} AH`,
-  prevLbl: ar ? 'الشهر السابق' : 'Previous month',
-  nextLbl: ar ? 'الشهر التالي' : 'Next month',
-  toolsTitle: ar ? 'أدوات ذات صلة' : 'Related tools',
-  fullCal: ar ? 'التقويم الهجري الكامل وتاريخ اليوم' : 'Full Hijri calendar & today\'s date',
-  converter: ar ? 'محوّل التاريخ الهجري والميلادي' : 'Hijri–Gregorian date converter',
-  howTitle: ar ? 'كيف تُحسب هذه التواريخ؟' : 'How are these dates calculated?',
-  howBody: ar
-    ? 'تُحسب التواريخ هنا فلكياً وفق معايير تقويم أم القرى المعتمد في السعودية. وقد تعتمد بعض الدول على رؤية الهلال المباشرة، فيختلف بدء الشهر بيوم واحد تقريباً بين دولة وأخرى.'
-    : 'Dates here are calculated astronomically per the Umm al-Qura standard used in Saudi Arabia. Some countries rely on direct moon sighting, so the month\'s start can differ by about one day between regions.',
+  spanLabel: pick(lang, 'يوافق ميلادياً', 'Gregorian span', 'عیسوی مطابقت'),
+  daysLabel: pick(lang, 'عدد الأيام', 'Days in month', 'مہینے کے دن'),
+  calTitle: pick(lang, `تقويم ${name} ${hy} يوماً بيوم`, `${name} ${hy} day by day`, `${name} ${hy} دن بہ دن`),
+  occTitle: pick(lang, 'مناسبات هذا الشهر', 'Occasions this month', 'اس مہینے کی مناسبتیں'),
+  none: pick(lang, 'لا توجد مناسبات بارزة في هذا الشهر', 'No major occasions this month', 'اس مہینے کوئی نمایاں مناسبت نہیں'),
+  monthsOf: pick(lang, `أشهر سنة ${hy} هـ`, `Months of ${hy} AH`, `${hy} ھ کے مہینے`),
+  prevLbl: pick(lang, 'الشهر السابق', 'Previous month', 'پچھلا مہینہ'),
+  nextLbl: pick(lang, 'الشهر التالي', 'Next month', 'اگلا مہینہ'),
+  toolsTitle: pick(lang, 'أدوات ذات صلة', 'Related tools', 'متعلقہ اوزار'),
+  fullCal: pick(lang, 'التقويم الهجري الكامل وتاريخ اليوم', "Full Hijri calendar & today's date", 'مکمل ہجری کیلنڈر اور آج کی تاریخ'),
+  converter: pick(lang, 'محوّل التاريخ الهجري والميلادي', 'Hijri–Gregorian date converter', 'ہجری–عیسوی تاریخ کنورٹر'),
+  howTitle: pick(lang, 'كيف تُحسب هذه التواريخ؟', 'How are these dates calculated?', 'یہ تاریخیں کیسے نکالی جاتی ہیں؟'),
+  howBody: pick(lang,
+    'تُحسب التواريخ هنا فلكياً وفق معايير تقويم أم القرى المعتمد في السعودية. وقد تعتمد بعض الدول على رؤية الهلال المباشرة، فيختلف بدء الشهر بيوم واحد تقريباً بين دولة وأخرى.',
+    'Dates here are calculated astronomically per the Umm al-Qura standard used in Saudi Arabia. Some countries rely on direct moon sighting, so the month\'s start can differ by about one day between regions.',
+    'یہاں تاریخوں کا حساب سعودی عرب میں رائج اُمّ القریٰ معیار کے مطابق فلکی طور پر کیا جاتا ہے۔ بعض ممالک براہِ راست رؤیتِ ہلال پر انحصار کرتے ہیں، اس لیے مہینے کا آغاز مختلف ممالک کے درمیان تقریباً ایک دن آگے پیچھے ہو سکتا ہے۔'),
+  prayer: pick(lang, 'مواقيت الصلاة', 'Prayer times', 'مواقیتِ نماز'),
+  brand: pick(lang, 'التقويم الهجري', 'Hijri Calendar', 'ہجری کیلنڈر'),
+  home: pick(lang, 'الرئيسية', 'Home', 'ہوم'),
+  homeAria: pick(lang, 'الانتقال إلى الصفحة الرئيسية', 'Go to homepage', 'ہوم پیج پر جائیں'),
+  ad: pick(lang, 'مساحة إعلانية', 'Advertisement', 'اشتہار'),
+  footer: pick(lang, 'الحساب وفق تقويم أم القرى', 'Dates based on the Umm al-Qura calendar · for reference', 'حساب اُمّ القریٰ تقویم کے مطابق'),
+  privacy: pick(lang, 'سياسة الخصوصية', 'Privacy Policy', 'رازداری پالیسی'),
 };
 
 // 12 months of this year for internal-link nav
 const yearMonths = Array.from({ length: 12 }, (_, i) => ({
   hm: i + 1,
-  name: monthName(i + 1, ar),
-  href: monthBasePath(hy, i + 1, ar),
+  name: monthName(i + 1, lang),
+  href: monthBasePath(hy, i + 1, lang),
   current: i + 1 === hm,
 }));
 ---
-<Layout title={title} description={description} canonical={canonical} lang={lang} jsonLd={jsonLd} altPath={altHref} xDefaultPath={xDefault}>
+<Layout title={title} description={description} canonical={canonical} lang={lang} jsonLd={jsonLd}
+  arPath={monthBasePath(hy, hm, 'ar')} enPath={monthBasePath(hy, hm, 'en')} urPath={monthBasePath(hy, hm, 'ur')}>
   <header class="site-header">
     <div class="header-start">
-    <a href={ar ? '/' : '/en/'} class="logo" aria-label={ar ? 'الانتقال إلى الصفحة الرئيسية' : 'Go to homepage'}>
+    <a href={homeHref} class="logo" aria-label={t.homeAria}>
       <div class="logo-icon">☾</div>
       <div>
-        <div class="brand">{ar ? 'التقويم الهجري' : 'Hijri Calendar'}</div>
-        <div class="tagline">{name} {hy} {ar ? 'هـ' : 'AH'}</div>
+        <div class="brand">{t.brand}</div>
+        <div class="tagline">{name} {hy} {era}</div>
       </div>
     </a>
-      <a href={ar ? '/' : '/en/'} class="home-btn">
+      <a href={homeHref} class="home-btn">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
-        <span>{ar ? 'الرئيسية' : 'Home'}</span>
+        <span>{t.home}</span>
       </a>
     </div>
-    <a href={altHref} class="lang-btn">{ar ? 'EN' : 'ع'}</a>
   </header>
 
   <div class="layout">
     <main>
       <section class="card section-card" style="order:1">
-        <h1 class="section-h2" style="font-size:25px">{name} {hy} {ar ? 'هـ' : 'AH'}</h1>
+        <h1 class="section-h2" style="font-size:25px">{name} {hy} {era}</h1>
         <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:26px">
           <div>
             <div style="font-size:13px;color:var(--muted);font-weight:600;letter-spacing:.04em;text-transform:uppercase">{t.spanLabel}</div>
@@ -116,7 +126,7 @@ const yearMonths = Array.from({ length: 12 }, (_, i) => ({
 
       <section class="card section-card" style="order:2">
         <h2 class="section-h2">{t.calTitle}</h2>
-        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:14px">
+        <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-top:14px">
           {wdHead.map(w => (
             <div style="text-align:center;font-size:12px;font-weight:700;color:var(--muted);padding:4px 0">{w}</div>
           ))}
@@ -148,7 +158,7 @@ const yearMonths = Array.from({ length: 12 }, (_, i) => ({
                       ? <a href={d.occ!.href} style="color:var(--accent);text-decoration:none">{d.occ!.name}</a>
                       : <span>{d.occ!.name}</span>}
                   </div>
-                  <div style="font-size:13.5px;color:var(--muted);margin-top:2px">{fmtH(hy, hm, d.hd, ar)} · {fmtG(d.date, ar)}</div>
+                  <div style="font-size:13.5px;color:var(--muted);margin-top:2px">{fmtH(hy, hm, d.hd, lang)} · {fmtG(d.date, lang)}</div>
                 </div>
               </div>
             ))}
@@ -172,10 +182,10 @@ const yearMonths = Array.from({ length: 12 }, (_, i) => ({
         </div>
         <div style="display:flex;justify-content:space-between;gap:12px;margin-top:18px;flex-wrap:wrap">
           {prev ? (
-            <a href={monthBasePath(prev.hy, prev.hm, ar)} style="color:var(--accent);text-decoration:none;font-weight:700;font-size:14.5px">‹ {t.prevLbl}: {monthName(prev.hm, ar)} {prev.hy}</a>
+            <a href={monthBasePath(prev.hy, prev.hm, lang)} style="color:var(--accent);text-decoration:none;font-weight:700;font-size:14.5px">‹ {t.prevLbl}: {monthName(prev.hm, lang)} {prev.hy}</a>
           ) : <span></span>}
           {next ? (
-            <a href={monthBasePath(next.hy, next.hm, ar)} style="color:var(--accent);text-decoration:none;font-weight:700;font-size:14.5px">{t.nextLbl}: {monthName(next.hm, ar)} {next.hy} ›</a>
+            <a href={monthBasePath(next.hy, next.hm, lang)} style="color:var(--accent);text-decoration:none;font-weight:700;font-size:14.5px">{t.nextLbl}: {monthName(next.hm, lang)} {next.hy} ›</a>
           ) : <span></span>}
         </div>
       </section>
@@ -183,23 +193,23 @@ const yearMonths = Array.from({ length: 12 }, (_, i) => ({
 
     <aside>
       <div class="ad-slot">
-        <span class="ad-label">{ar ? 'مساحة إعلانية' : 'Advertisement'}</span>
+        <span class="ad-label">{t.ad}</span>
         <span style="font-size:13px;opacity:.7">300 × 250</span>
       </div>
       <div class="card" style="padding:18px 20px">
         <h3 style="margin:0 0 12px;font-size:15.5px;font-weight:700">{t.toolsTitle}</h3>
         <div style="display:flex;flex-direction:column;gap:10px;font-size:14.5px">
-          <a href={ar ? '/' : '/en/'} style="color:var(--accent);text-decoration:none">{t.fullCal}</a>
-          <a href={ar ? '/' : '/en/'} style="color:var(--accent);text-decoration:none">{t.converter}</a>
-          <a href={ar ? '/prayer-times/' : '/en/prayer-times/'} style="color:var(--accent);text-decoration:none">{ar ? 'مواقيت الصلاة' : 'Prayer times'}</a>
+          <a href={homeHref} style="color:var(--accent);text-decoration:none">{t.fullCal}</a>
+          <a href={homeHref} style="color:var(--accent);text-decoration:none">{t.converter}</a>
+          <a href={prayerHref} style="color:var(--accent);text-decoration:none">{t.prayer}</a>
         </div>
       </div>
     </aside>
   </div>
 
   <footer class="site-footer">
-    {ar ? 'الحساب وفق تقويم أم القرى' : 'Dates based on the Umm al-Qura calendar · for reference'}
+    {t.footer}
     <span style="margin:0 8px;opacity:.4">·</span>
-    <a href={ar ? '/privacy/' : '/en/privacy/'} style="color:var(--muted);text-decoration:none;font-size:13px">{ar ? 'سياسة الخصوصية' : 'Privacy Policy'}</a>
+    <a href={privacyHref} style="color:var(--muted);text-decoration:none;font-size:13px">{t.privacy}</a>
   </footer>
 </Layout>
