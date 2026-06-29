@@ -23,12 +23,38 @@ export default function PrintCalendarIsland({ lang }: Props) {
   const [hm, setHm] = useState(g2h(todayUTC()).m);
   const [busy, setBusy] = useState('');
   const sheetRef = useRef<HTMLDivElement>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const scalerRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+  const [scaledH, setScaledH] = useState<number | undefined>(undefined);
+
+  // Design width of the printable sheet (keeps PDF/PNG output crisp & A4-friendly).
+  const sheetW = view === 'year' ? 1040 : 560;
 
   useEffect(() => {
     setMounted(true);
     const t = todayUTC();
     setTodayKey(t.getUTCFullYear() * 10000 + (t.getUTCMonth() + 1) * 100 + t.getUTCDate());
   }, []);
+
+  // Fit the fixed-width sheet to the available width on narrow screens by scaling
+  // a wrapper (NOT the capture target), so downloads stay full resolution.
+  useEffect(() => {
+    if (!mounted) return;
+    const recompute = () => {
+      const wrap = wrapRef.current, sheet = sheetRef.current;
+      if (!wrap || !sheet) return;
+      const avail = wrap.clientWidth;
+      const s = Math.min(1, avail / sheetW);
+      setScale(s);
+      setScaledH(sheet.offsetHeight * s); // offsetHeight ignores transforms
+    };
+    recompute();
+    const ro = new ResizeObserver(recompute);
+    if (wrapRef.current) ro.observe(wrapRef.current);
+    window.addEventListener('resize', recompute);
+    return () => { ro.disconnect(); window.removeEventListener('resize', recompute); };
+  }, [mounted, view, hy, hm, sheetW]);
 
   const t = {
     yearLabel: pick(lang, 'السنة الهجرية', 'Hijri year', 'ہجری سال'),
@@ -101,7 +127,16 @@ export default function PrintCalendarIsland({ lang }: Props) {
   const capture = async () => {
     const node = sheetRef.current;
     if (!node || !ensureLibs()) return null;
-    return await window.html2canvas(node, { scale: 2, backgroundColor: '#ffffff', useCORS: true, logging: false });
+    // Strip the fit-to-width scaling during capture so html2canvas measures the
+    // sheet at its full design size — keeps exported PNG/PDF at full resolution.
+    const scaler = scalerRef.current;
+    const prev = scaler ? scaler.style.transform : '';
+    if (scaler) scaler.style.transform = 'none';
+    try {
+      return await window.html2canvas(node, { scale: 2, backgroundColor: '#ffffff', useCORS: true, logging: false });
+    } finally {
+      if (scaler) scaler.style.transform = prev;
+    }
   };
   const downloadPng = async () => {
     setBusy('png');
@@ -167,25 +202,42 @@ export default function PrintCalendarIsland({ lang }: Props) {
         </div>
       </div>
 
-      {/* Printable sheet */}
-      <div id="print-sheet" ref={sheetRef} style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: 12, padding: view === 'year' ? '22px 22px 16px' : '22px', maxWidth: view === 'year' ? 1040 : 560, margin: '0 auto' }}>
-        <div style={{ textAlign: 'center', marginBottom: 16 }}>
-          <div style={{ fontSize: view === 'year' ? 24 : 22, fontWeight: 800, color: 'var(--text)' }}>
-            {view === 'year' ? t.yearTitle(hy) : `${hMon[hm - 1]} ${hy} ${era}`}
+      {/* Print-sheet print resets: undo the on-screen fit-to-width scaling when printing */}
+      <style>{`
+        @media print {
+          .sheet-spacer { height: auto !important; overflow: visible !important; }
+          .sheet-scaler { transform: none !important; width: 100% !important; }
+          #print-sheet { width: 100% !important; max-width: 100% !important; }
+        }
+      `}</style>
+
+      {/* Fit-to-width wrapper: the sheet renders at its fixed design width and the
+          scaler shrinks it to fit narrow screens. The capture target (#print-sheet)
+          itself carries NO transform, so html2canvas exports at full resolution. */}
+      <div ref={wrapRef} style={{ width: '100%' }}>
+        <div className="sheet-spacer" style={{ height: scaledH, overflow: 'hidden' }}>
+          <div className="sheet-scaler" ref={scalerRef} style={{ width: sheetW, transform: `scale(${scale})`, transformOrigin: 'top left' }}>
+            <div id="print-sheet" ref={sheetRef} style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: 12, padding: view === 'year' ? '22px 22px 16px' : '22px', width: sheetW, margin: '0 auto' }}>
+              <div style={{ textAlign: 'center', marginBottom: 16 }}>
+                <div style={{ fontSize: view === 'year' ? 24 : 22, fontWeight: 800, color: 'var(--text)' }}>
+                  {view === 'year' ? t.yearTitle(hy) : `${hMon[hm - 1]} ${hy} ${era}`}
+                </div>
+                <div style={{ fontSize: 13.5, color: 'var(--muted)', marginTop: 3 }}>{view === 'year' ? gSpan : ''}</div>
+              </div>
+
+              {view === 'year' ? (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+                  {Array.from({ length: 12 }, (_, i) => <MonthBlock key={i} m={i + 1} big={false} />)}
+                </div>
+              ) : (
+                <MonthBlock m={hm} big={true} />
+              )}
+
+              <Legend />
+              <div style={{ textAlign: 'center', marginTop: 14, fontSize: 12, color: 'var(--muted)', fontWeight: 600 }}>{t.brand}</div>
+            </div>
           </div>
-          <div style={{ fontSize: 13.5, color: 'var(--muted)', marginTop: 3 }}>{view === 'year' ? gSpan : ''}</div>
         </div>
-
-        {view === 'year' ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
-            {Array.from({ length: 12 }, (_, i) => <MonthBlock key={i} m={i + 1} big={false} />)}
-          </div>
-        ) : (
-          <MonthBlock m={hm} big={true} />
-        )}
-
-        <Legend />
-        <div style={{ textAlign: 'center', marginTop: 14, fontSize: 12, color: 'var(--muted)', fontWeight: 600 }}>{t.brand}</div>
       </div>
     </div>
   );
