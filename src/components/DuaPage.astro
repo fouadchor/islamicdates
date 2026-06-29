@@ -1,0 +1,128 @@
+---
+import { type Lang } from '../lib/data';
+import { DUA_SECTIONS, srcLabel, DUA_PAGE } from '../lib/duas';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+
+const P = DUA_PAGE[lang];
+const home = lang === 'ar' ? '/' : `/${lang}/`;
+const tool = (p: string) => (lang === 'ar' ? p : `/${lang}${p}`);
+const L = (ar: string, en: string, ur: string) => (lang === 'ar' ? ar : lang === 'ur' ? ur : en);
+const pick = (t: { ar: string; en: string; ur: string }) => (lang === 'ar' ? t.ar : lang === 'ur' ? t.ur : t.en);
+
+const related = [
+  { href: home, label: L('التقويم الهجري وتاريخ اليوم', 'Hijri calendar & today’s date', 'ہجری کیلنڈر و آج کی تاریخ') },
+  { href: tool('/prayer-times/'), label: L('مواقيت الصلاة', 'Prayer times', 'مواقیتِ نماز') },
+  { href: tool('/zakat/'), label: L('حاسبة الزكاة', 'Zakat calculator', 'زکوٰۃ کیلکولیٹر') },
+  { href: tool('/about/'), label: L('دليل التقويم الهجري', 'Hijri calendar guide', 'ہجری کیلنڈر گائیڈ') },
+];
+---
+<header class="site-header">
+  <div class="header-start">
+    <a href={home} class="logo" aria-label={L('الانتقال إلى الصفحة الرئيسية', 'Go to homepage', 'ہوم پیج پر جائیں')}>
+      <div class="logo-icon">☾</div>
+      <div>
+        <div class="brand">{L('التقويم الهجري', 'Hijri Calendar', 'ہجری کیلنڈر')}</div>
+        <div class="tagline">{L('الدعاء والأذكار', 'Duʿaʾ & Adhkar', 'دعا و اذکار')}</div>
+      </div>
+    </a>
+    <a href={home} class="home-btn">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+      <span>{L('الرئيسية', 'Home', 'ہوم')}</span>
+    </a>
+  </div>
+</header>
+
+<div class="layout">
+  <main>
+    <section class="card section-card">
+      <h1 class="section-h2" style="font-size:25px">{P.h1}</h1>
+      <p class="section-p" style="margin-top:8px">{P.lead}</p>
+      <p class="dua-note">{P.sourcesNote}</p>
+      <nav class="dua-toc" aria-label={L('الأقسام', 'Sections', 'حصص')}>
+        {DUA_SECTIONS.map(s => (
+          <a href={`#${s.id}`}>{pick(s.title)}</a>
+        ))}
+      </nav>
+    </section>
+
+    {DUA_SECTIONS.map(s => (
+      <section id={s.id} class="card section-card dua-section">
+        <h2 class="section-h2">{pick(s.title)}</h2>
+        <p class="section-p" style="margin-bottom:6px">{pick(s.intro)}</p>
+        <div class="dua-list">
+          {s.items.map(d => (
+            <article class="dua-item">
+              {(d.when || d.count) && (
+                <div class="dua-meta">
+                  {d.when && <span class="dua-when">{pick(d.when)}</span>}
+                  {d.count && <span class="dua-count">×{d.count}</span>}
+                </div>
+              )}
+              <p class="dua-text" dir="rtl" lang="ar">{d.ar}</p>
+              <div class="dua-src">{srcLabel(d.src, lang)}</div>
+            </article>
+          ))}
+        </div>
+      </section>
+    ))}
+  </main>
+
+  <aside>
+    <div class="ad-slot"><span class="ad-label">{L('مساحة إعلانية', 'Advertisement', 'اشتہار')}</span><span style="font-size:13px;opacity:.7">300 × 250</span></div>
+    <div class="card" style="padding:18px 20px">
+      <h3 style="margin:0 0 12px;font-size:15.5px;font-weight:700">{P.relatedTitle}</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;font-size:14.5px">
+        {related.map(r => <a href={r.href} style="color:var(--accent);text-decoration:none">{r.label}</a>)}
+      </div>
+    </div>
+  </aside>
+</div>
+
+<footer class="site-footer">
+  {L('الأدعية من القرآن الكريم والسنة الصحيحة', 'Supplications from the Quran and authentic Sunnah', 'دعائیں قرآن کریم اور صحیح سنت سے')}
+  <span style="margin:0 8px;opacity:.4">·</span>
+  <a href={tool('/privacy/')} style="color:var(--muted);text-decoration:none;font-size:13px">{L('سياسة الخصوصية', 'Privacy Policy', 'رازداری پالیسی')}</a>
+</footer>
+
+<style>
+  .dua-note {
+    margin: 14px 0 0; padding: 12px 15px; border-radius: 12px;
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--muted); font-size: 13.5px; line-height: 1.8;
+  }
+  .dua-toc { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 16px; }
+  .dua-toc a {
+    display: inline-flex; align-items: center; padding: 8px 14px; border-radius: 999px;
+    background: var(--surface2); border: 1px solid var(--border); color: var(--accent);
+    font-weight: 700; font-size: 13.5px; text-decoration: none; transition: background .2s, color .2s, border-color .2s;
+  }
+  .dua-toc a:hover { background: var(--accent); color: var(--accent-contrast); border-color: var(--accent); }
+
+  .dua-section { scroll-margin-top: 16px; }
+  .dua-list { display: flex; flex-direction: column; gap: 14px; margin-top: 16px; }
+  .dua-item {
+    border: 1px solid var(--border); border-radius: 14px;
+    background: var(--surface2); padding: 16px 18px;
+    border-inline-start: 4px solid var(--accent);
+  }
+  .dua-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+  .dua-when {
+    font-size: 12.5px; font-weight: 700; color: var(--accent);
+    background: var(--accent-soft); padding: 4px 11px; border-radius: 999px;
+  }
+  .dua-count {
+    font-size: 12.5px; font-weight: 700; color: var(--gold-deep);
+    background: var(--gold-soft); padding: 4px 11px; border-radius: 999px;
+  }
+  .dua-text {
+    margin: 0; font-family: 'Noto Naskh Arabic', 'IBM Plex Sans Arabic', serif;
+    font-size: clamp(19px, 2.6vw, 23px); line-height: 2.15; font-weight: 500;
+    color: var(--text); text-align: right; white-space: pre-line; text-wrap: pretty;
+  }
+  .dua-src {
+    margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--border);
+    font-size: 13px; font-weight: 600; color: var(--muted);
+  }
+</style>
