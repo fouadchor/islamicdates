@@ -71,16 +71,21 @@ const jsonLd = JSON.stringify([
       <section id="occasions" class="card section-card" style="order:5;scroll-margin-top:64px">
         <h2 class="section-h2">اسلامی مناسبتوں کی تاریخیں</h2>
         <p class="section-p" style="margin-bottom:14px">ہر مناسبت کی ہجری اور عیسوی تاریخ عددِ معکوس کے ساتھ جانیں</p>
-        <div class="months-grid">
-          {occLinks.map(o => (
-            <a href={o.href} class="month-item" style="text-decoration:none;color:inherit">
-              <div>
-                <div class="month-name">{o.name} {o.year}</div>
-                <div class="month-note">{fmtGShort(o.date, 'ur')}</div>
-              </div>
-            </a>
-          ))}
-        </div>
+        {_homeYears.map((_yr, _i) => (
+          <div style={`margin-top:${_i === 0 ? 4 : 26}px`}>
+            <h3 style="margin:0 0 12px;font-size:16px;font-weight:700;color:var(--accent)">{_yr} کی مناسبتیں</h3>
+            <div class="months-grid">
+              {occLinks.filter(o => o.year === _yr).map(o => (
+                <a href={o.href} class="month-item" style="text-decoration:none;color:inherit">
+                  <div>
+                    <div class="month-name">{o.name} {o.year}</div>
+                    <div class="month-note">{fmtGShort(o.date, 'ur')}</div>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+        ))}
       </section>
 
       <section class="card section-card" style="order:5">
