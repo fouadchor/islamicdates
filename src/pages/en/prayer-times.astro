@@ -24,7 +24,7 @@ const jsonLd = JSON.stringify([
   { '@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': faq.map(f => ({ '@type': 'Question', 'name': f.q, 'acceptedAnswer': { '@type': 'Answer', 'text': f.a } })) },
 ]);
 ---
-<Layout title={title} description={description} canonical={canonical} lang="en" jsonLd={jsonLd} altPath="/prayer-times/" xDefaultPath="/prayer-times/">
+<Layout title={title} description={description} canonical={canonical} lang="en" jsonLd={jsonLd} arPath="/prayer-times/" enPath="/en/prayer-times/" urPath="/ur/prayer-times/">
   <header class="site-header">
     <div class="header-start">
     <a href="/en/" class="logo" aria-label="Go to homepage">
@@ -39,7 +39,6 @@ const jsonLd = JSON.stringify([
         <span>Home</span>
       </a>
     </div>
-    <a href="/prayer-times/" class="lang-btn">ع</a>
   </header>
 
   <div class="layout">
