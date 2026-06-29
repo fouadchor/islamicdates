@@ -1,26 +1,47 @@
 ---
-// redeploy marker 2026-06-24b — region auto-detect + subtle selector
+// redeploy marker 2026-06-29 — trilingual (ar / en / ur)
+import { type Lang, pick } from '../lib/data';
 interface Props {
   title: string;
   description: string;
   canonical: string;
-  lang: 'ar' | 'en';
+  lang: Lang;
   jsonLd?: string;
-  altPath?: string;
-  xDefaultPath?: string;
+  // Path (no domain) of each language version of this page — used for hreflang + switcher.
+  arPath?: string;
+  enPath?: string;
+  urPath?: string;
 }
-const { title, description, canonical, lang, jsonLd, altPath, xDefaultPath } = Astro.props;
-const dir = lang === 'ar' ? 'rtl' : 'ltr';
-const altLang = lang === 'ar' ? 'en' : 'ar';
-const altHref = altPath ?? (lang === 'ar' ? '/en/' : '/');
-const xDefHref = xDefaultPath ?? '/';
-const _navHome = lang === 'ar' ? '/' : '/en/';
-const _navPrayer = lang === 'ar' ? '/prayer-times/' : '/en/prayer-times/';
-const _navZakat = lang === 'ar' ? '/zakat/' : '/en/zakat/';
-const _navAbout = lang === 'ar' ? '/about/' : '/en/about/';
-const navItems = lang === 'ar'
-  ? [{ h: _navHome, t: 'الرئيسية' }, { h: _navHome + '#converter', t: 'المحوّل' }, { h: _navPrayer, t: 'مواقيت الصلاة' }, { h: _navZakat, t: 'حاسبة الزكاة' }, { h: _navHome + '#occasions', t: 'المناسبات' }, { h: _navAbout, t: 'الدليل' }]
-  : [{ h: _navHome, t: 'Home' }, { h: _navHome + '#converter', t: 'Converter' }, { h: _navPrayer, t: 'Prayer Times' }, { h: _navZakat, t: 'Zakat Calculator' }, { h: _navHome + '#occasions', t: 'Occasions' }, { h: _navAbout, t: 'Guide' }];
+const { title, description, canonical, lang, jsonLd, arPath = '/', enPath = '/en/', urPath = '/ur/' } = Astro.props;
+const dir = lang === 'en' ? 'ltr' : 'rtl';
+const ogLocale = pick(lang, 'ar_AR', 'en_US', 'ur_PK');
+const base = 'https://islamicdates.org';
+const langs: { code: Lang; path: string; label: string }[] = [
+  { code: 'ar', path: arPath, label: 'ع' },
+  { code: 'en', path: enPath, label: 'EN' },
+  { code: 'ur', path: urPath, label: 'اردو' },
+];
+
+const _navHome = pick(lang, '/', '/en/', '/ur/');
+const _navPrayer = pick(lang, '/prayer-times/', '/en/prayer-times/', '/ur/prayer-times/');
+const _navZakat = pick(lang, '/zakat/', '/en/zakat/', '/ur/zakat/');
+const _navAbout = pick(lang, '/about/', '/en/about/', '/ur/about/');
+const _labels = {
+  home:     pick(lang, 'الرئيسية', 'Home', 'ہوم'),
+  conv:     pick(lang, 'المحوّل', 'Converter', 'کنورٹر'),
+  prayer:   pick(lang, 'مواقيت الصلاة', 'Prayer Times', 'مواقیتِ نماز'),
+  zakat:    pick(lang, 'حاسبة الزكاة', 'Zakat Calculator', 'زکوٰۃ کیلکولیٹر'),
+  occ:      pick(lang, 'المناسبات', 'Occasions', 'مناسبتیں'),
+  guide:    pick(lang, 'الدليل', 'Guide', 'رہنمائی'),
+};
+const navItems = [
+  { h: _navHome, t: _labels.home },
+  { h: _navHome + '#converter', t: _labels.conv },
+  { h: _navPrayer, t: _labels.prayer },
+  { h: _navZakat, t: _labels.zakat },
+  { h: _navHome + '#occasions', t: _labels.occ },
+  { h: _navAbout, t: _labels.guide },
+];
 ---
 <!DOCTYPE html>
 <html lang={lang} dir={dir}>
@@ -32,9 +53,8 @@ const navItems = lang === 'ar'
   <meta name="robots" content="index, follow, max-image-preview:large" />
   <meta name="theme-color" content="#0d9488" />
   <link rel="canonical" href={canonical} />
-  <link rel="alternate" hreflang={lang} href={canonical} />
-  <link rel="alternate" hreflang={altLang} href={`https://islamicdates.org${altHref}`} />
-  <link rel="alternate" hreflang="x-default" href={`https://islamicdates.org${xDefHref}`} />
+  {langs.map(l => <link rel="alternate" hreflang={l.code} href={`${base}${l.path}`} />)}
+  <link rel="alternate" hreflang="x-default" href={`${base}${arPath}`} />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content={title} />
@@ -43,7 +63,7 @@ const navItems = lang === 'ar'
   <meta property="og:image" content="https://islamicdates.org/og-image.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
-  <meta property="og:locale" content={lang === 'ar' ? 'ar_AR' : 'en_US'} />
+  <meta property="og:locale" content={ogLocale} />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={title} />
   <meta name="twitter:description" content={description} />
@@ -59,7 +79,7 @@ const navItems = lang === 'ar'
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1722763564281190" crossorigin="anonymous"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style is:global>
     *, *::before, *::after { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; }
@@ -87,6 +107,7 @@ const navItems = lang === 'ar'
 
     [lang="ar"] { font-family: 'IBM Plex Sans Arabic', sans-serif; }
     [lang="en"] { font-family: 'Plus Jakarta Sans', sans-serif; }
+    [lang="ur"] { font-family: 'Noto Naskh Arabic', 'IBM Plex Sans Arabic', serif; }
 
     @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
     @keyframes pop    { from { opacity:0; transform:scale(.96); } to { opacity:1; transform:none; } }
@@ -114,14 +135,28 @@ const navItems = lang === 'ar'
       display: flex; flex-wrap: wrap; gap: 2px;
       padding: 0 12px;
     }
-    .site-nav a {
+    .site-nav .nav-link {
       color: var(--accent-contrast); text-decoration: none;
       font-weight: 600; font-size: 14px; white-space: nowrap;
       padding: 12px 15px; opacity: .9;
       border-bottom: 3px solid transparent;
       transition: opacity .2s, background .2s;
     }
-    .site-nav a:hover { opacity: 1; background: rgba(255,255,255,.14); }
+    .site-nav .nav-link:hover { opacity: 1; background: rgba(255,255,255,.14); }
+
+    .lang-switch {
+      margin-inline-start: auto;
+      display: flex; align-items: center; gap: 2px;
+      padding: 5px 0;
+    }
+    .lang-switch a {
+      color: var(--accent-contrast); text-decoration: none;
+      font-weight: 700; font-size: 13px; line-height: 1;
+      padding: 6px 11px; border-radius: 999px; opacity: .82;
+      transition: background .2s, opacity .2s;
+    }
+    .lang-switch a:hover { opacity: 1; background: rgba(255,255,255,.16); }
+    .lang-switch a.on { background: var(--accent-contrast); color: var(--accent); opacity: 1; }
 
     .site-header {
       position: relative; z-index: 1;
@@ -210,9 +245,12 @@ const navItems = lang === 'ar'
   </style>
 </head>
 <body>
-  <nav class="site-nav" aria-label={lang === 'ar' ? 'التنقل الرئيسي' : 'Main navigation'}>
+  <nav class="site-nav" aria-label={pick(lang, 'التنقل الرئيسي', 'Main navigation', 'مرکزی نیویگیشن')}>
     <div class="site-nav-inner">
-      {navItems.map(it => <a href={it.h}>{it.t}</a>)}
+      {navItems.map(it => <a class="nav-link" href={it.h}>{it.t}</a>)}
+      <div class="lang-switch" role="group" aria-label={pick(lang, 'اللغة', 'Language', 'زبان')}>
+        {langs.map(l => <a href={l.path} class={l.code === lang ? 'on' : ''} hreflang={l.code} lang={l.code} aria-current={l.code === lang ? 'true' : undefined}>{l.label}</a>)}
+      </div>
     </div>
   </nav>
   <slot />
