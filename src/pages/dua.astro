@@ -1,0 +1,19 @@
+---
+import Layout from '../layouts/Layout.astro';
+import DuaPage from '../components/DuaPage.astro';
+import { DUA_PAGE } from '../lib/duas';
+
+const canonical = 'https://islamicdates.org/dua/';
+const P = DUA_PAGE.ar;
+const description = 'مجموعة أدعية وأذكار صحيحة من القرآن الكريم والسنة النبوية: أذكار الصباح والمساء، أدعية من القرآن، أدعية الكرب والهمّ، وأدعية يومية، مع ذكر مصدر كل دعاء.';
+
+const jsonLd = JSON.stringify([
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [
+    { '@type': 'ListItem', 'position': 1, 'name': 'الرئيسية', 'item': 'https://islamicdates.org/' },
+    { '@type': 'ListItem', 'position': 2, 'name': 'الدعاء', 'item': canonical },
+  ] },
+]);
+---
+<Layout title={P.title} description={description} canonical={canonical} lang="ar" jsonLd={jsonLd} arPath="/dua/" enPath="/en/dua/" urPath="/ur/dua/">
+  <DuaPage lang="ar" />
+</Layout>
