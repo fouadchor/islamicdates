@@ -1,6 +1,6 @@
 // Shareable Hijri→Gregorian converter page helpers. Build-time only.
 import { g2h, h2g } from './hijri';
-import { H_MON_AR, H_MON_EN, G_MON_AR, G_MON_EN, WD_AR, WD_EN } from './data';
+import { type LangLike, toLang, hMonArr, gMonArr, wdArr, hijriEra } from './data';
 
 // Years to generate converter pages for (AH 1445–1450, ~2024–2029)
 export const CONV_HY_START = 1445;
@@ -23,6 +23,7 @@ export function parseSlug(slug: string): { hy: number; hm: number; hd: number } 
   if (parts.length !== 3) return null;
   const [hy, hm, hd] = parts.map(Number);
   if (!hy || !hm || !hd || hm < 1 || hm > 12 || hd < 1 || hd > 30) return null;
+  // Verify round-trip: h2g then g2h must give back same date
   const gDate = h2g(hy, hm, hd);
   const back = g2h(gDate);
   if (back.y !== hy || back.m !== hm || back.d !== hd) return null;
@@ -30,8 +31,10 @@ export function parseSlug(slug: string): { hy: number; hm: number; hd: number } 
 }
 
 /** Canonical paths */
-export function convBasePath(hy: number, hm: number, hd: number, ar: boolean): string {
-  return ar ? `/convert/${convSlug(hy, hm, hd)}/` : `/en/convert/${convSlug(hy, hm, hd)}/`;
+export function convBasePath(hy: number, hm: number, hd: number, lang: LangLike): string {
+  const l = toLang(lang);
+  const s = convSlug(hy, hm, hd);
+  return l === 'ar' ? `/convert/${s}/` : l === 'ur' ? `/ur/convert/${s}/` : `/en/convert/${s}/`;
 }
 
 /** All valid Hijri day numbers for a given (hy, hm) per Umm al-Qura */
@@ -48,29 +51,30 @@ export function validDaysInMonth(hy: number, hm: number): number[] {
 }
 
 /** Human-readable Hijri date */
-export function fmtHijri(hy: number, hm: number, hd: number, ar: boolean): string {
-  const mon = (ar ? H_MON_AR : H_MON_EN)[hm - 1];
-  return ar ? `${hd} ${mon} ${hy} هـ` : `${hd} ${mon} ${hy} AH`;
+export function fmtHijri(hy: number, hm: number, hd: number, lang: LangLike): string {
+  const mon = hMonArr(lang)[hm - 1];
+  return `${hd} ${mon} ${hy} ${hijriEra(lang)}`;
 }
 
 /** Human-readable Gregorian date */
-export function fmtGregorian(d: Date, ar: boolean): string {
-  const wd  = (ar ? WD_AR : WD_EN)[d.getUTCDay()];
-  const mon = (ar ? G_MON_AR : G_MON_EN)[d.getUTCMonth()];
-  return ar
-    ? `${wd}، ${d.getUTCDate()} ${mon} ${d.getUTCFullYear()}`
-    : `${wd}, ${d.getUTCDate()} ${mon} ${d.getUTCFullYear()}`;
+export function fmtGregorian(d: Date, lang: LangLike): string {
+  const l = toLang(lang);
+  const wd  = wdArr(l)[d.getUTCDay()];
+  const mon = gMonArr(l)[d.getUTCMonth()];
+  return l === 'en'
+    ? `${wd}, ${d.getUTCDate()} ${mon} ${d.getUTCFullYear()}`
+    : `${wd}، ${d.getUTCDate()} ${mon} ${d.getUTCFullYear()}`;
 }
 
-export function fmtGregorianShort(d: Date, ar: boolean): string {
-  const mon = (ar ? G_MON_AR : G_MON_EN)[d.getUTCMonth()];
-  return ar ? `${d.getUTCDate()} ${mon} ${d.getUTCFullYear()}` : `${d.getUTCDate()} ${mon} ${d.getUTCFullYear()}`;
+export function fmtGregorianShort(d: Date, lang: LangLike): string {
+  const mon = gMonArr(lang)[d.getUTCMonth()];
+  return `${d.getUTCDate()} ${mon} ${d.getUTCFullYear()}`;
 }
 
 export function isoDate(d: Date): string {
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
 }
 
-export function monthName(hm: number, ar: boolean): string {
-  return (ar ? H_MON_AR : H_MON_EN)[hm - 1];
+export function monthName(hm: number, lang: LangLike): string {
+  return hMonArr(lang)[hm - 1];
 }

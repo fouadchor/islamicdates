@@ -15,19 +15,19 @@ interface MethodParams {
   midnight?: 'Standard' | 'Jafari';
 }
 
-export const METHODS: Record<MethodId, { ar: string; en: string; params: MethodParams }> = {
-  MWL:       { ar: 'رابطة العالم الإسلامي', en: 'Muslim World League',        params: { fajr: 18,   isha: 17 } },
-  ISNA:      { ar: 'أمريكا الشمالية (ISNA)', en: 'Islamic Society of N. America', params: { fajr: 15,   isha: 15 } },
-  Egypt:     { ar: 'الهيئة المصرية العامة',  en: 'Egyptian General Authority',  params: { fajr: 19.5, isha: 17.5 } },
-  Makkah:    { ar: 'أم القرى (مكة المكرمة)', en: 'Umm al-Qura, Makkah',         params: { fajr: 18.5, isha: { minutes: 90 } } },
-  Karachi:   { ar: 'جامعة العلوم - كراتشي',  en: 'University of Karachi',        params: { fajr: 18,   isha: 18 } },
-  Gulf:      { ar: 'هيئة الخليج (الإمارات)', en: 'Gulf Region',                 params: { fajr: 19.5, isha: { minutes: 90 } } },
-  Kuwait:    { ar: 'الكويت',                 en: 'Kuwait',                      params: { fajr: 18,   isha: 17.5 } },
-  Qatar:     { ar: 'قطر',                    en: 'Qatar',                       params: { fajr: 18,   isha: { minutes: 90 } } },
-  Singapore: { ar: 'سنغافورة',               en: 'Singapore',                   params: { fajr: 20,   isha: 18 } },
-  Turkey:    { ar: 'تركيا (ديانت)',          en: 'Turkey (Diyanet)',            params: { fajr: 18,   isha: 17 } },
-  Tehran:    { ar: 'طهران',                  en: 'Univ. of Tehran',             params: { fajr: 17.7, isha: 14, maghrib: 4.5, midnight: 'Jafari' } },
-  Jafari:    { ar: 'الشيعة (جعفري)',         en: 'Shia Ithna-Ashari (Jafari)',  params: { fajr: 16,   isha: 14, maghrib: 4,   midnight: 'Jafari' } },
+export const METHODS: Record<MethodId, { ar: string; en: string; ur: string; params: MethodParams }> = {
+  MWL:       { ar: 'رابطة العالم الإسلامي', en: 'Muslim World League',        ur: 'مسلم ورلڈ لیگ',           params: { fajr: 18,   isha: 17 } },
+  ISNA:      { ar: 'أمريكا الشمالية (ISNA)', en: 'Islamic Society of N. America', ur: 'شمالی امریکہ (ISNA)',  params: { fajr: 15,   isha: 15 } },
+  Egypt:     { ar: 'الهيئة المصرية العامة',  en: 'Egyptian General Authority',  ur: 'مصری ادارہ',              params: { fajr: 19.5, isha: 17.5 } },
+  Makkah:    { ar: 'أم القرى (مكة المكرمة)', en: 'Umm al-Qura, Makkah',         ur: 'اُمّ القریٰ، مکہ',          params: { fajr: 18.5, isha: { minutes: 90 } } },
+  Karachi:   { ar: 'جامعة العلوم - كراتشي',  en: 'University of Karachi',        ur: 'جامعہ کراچی',             params: { fajr: 18,   isha: 18 } },
+  Gulf:      { ar: 'هيئة الخليج (الإمارات)', en: 'Gulf Region',                 ur: 'خطۂ خلیج',                params: { fajr: 19.5, isha: { minutes: 90 } } },
+  Kuwait:    { ar: 'الكويت',                 en: 'Kuwait',                      ur: 'کویت',                    params: { fajr: 18,   isha: 17.5 } },
+  Qatar:     { ar: 'قطر',                    en: 'Qatar',                       ur: 'قطر',                     params: { fajr: 18,   isha: { minutes: 90 } } },
+  Singapore: { ar: 'سنغافورة',               en: 'Singapore',                   ur: 'سنگاپور',                 params: { fajr: 20,   isha: 18 } },
+  Turkey:    { ar: 'تركيا (ديانت)',          en: 'Turkey (Diyanet)',            ur: 'ترکی (دیانت)',            params: { fajr: 18,   isha: 17 } },
+  Tehran:    { ar: 'طهران',                  en: 'Univ. of Tehran',             ur: 'یونیورسٹی آف تہران',      params: { fajr: 17.7, isha: 14, maghrib: 4.5, midnight: 'Jafari' } },
+  Jafari:    { ar: 'الشيعة (جعفري)',         en: 'Shia Ithna-Ashari (Jafari)',  ur: 'شیعہ اثنا عشری (جعفری)',  params: { fajr: 16,   isha: 14, maghrib: 4,   midnight: 'Jafari' } },
 };
 
 // ---- trig helpers (degrees) ----
@@ -152,14 +152,18 @@ export function computePrayerTimes(date: Date, lat: number, lng: number, timezon
 }
 
 // Format decimal hours (0..24) to "HH:MM" 24h, or 12h with suffix.
-export function fmtTime(t: number, h12: boolean, ar: boolean): string {
+import { type LangLike, toLang } from './data';
+export function fmtTime(t: number, h12: boolean, lang: LangLike): string {
   if (isNaN(t)) return '--:--';
   t = fixHour(t + 0.5 / 60); // round to nearest minute
   let h = Math.floor(t);
   const m = Math.floor((t - h) * 60);
   const mm = String(m).padStart(2, '0');
   if (!h12) return `${String(h).padStart(2, '0')}:${mm}`;
-  const suffix = ar ? (h < 12 ? 'ص' : 'م') : (h < 12 ? 'AM' : 'PM');
+  const l = toLang(lang);
+  const am = l === 'ar' ? 'ص' : l === 'ur' ? 'صبح' : 'AM';
+  const pm = l === 'ar' ? 'م' : l === 'ur' ? 'شام' : 'PM';
+  const suffix = h < 12 ? am : pm;
   let hh = h % 12; if (hh === 0) hh = 12;
   return `${hh}:${mm} ${suffix}`;
 }
@@ -167,11 +171,11 @@ export function fmtTime(t: number, h12: boolean, ar: boolean): string {
 export const PRAYER_KEYS = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'] as const;
 export type PrayerKey = typeof PRAYER_KEYS[number];
 
-export const PRAYER_LABELS: Record<PrayerKey, { ar: string; en: string }> = {
-  fajr:    { ar: 'الفجر',    en: 'Fajr' },
-  sunrise: { ar: 'الشروق',   en: 'Sunrise' },
-  dhuhr:   { ar: 'الظهر',    en: 'Dhuhr' },
-  asr:     { ar: 'العصر',    en: 'Asr' },
-  maghrib: { ar: 'المغرب',   en: 'Maghrib' },
-  isha:    { ar: 'العشاء',   en: 'Isha' },
+export const PRAYER_LABELS: Record<PrayerKey, { ar: string; en: string; ur: string }> = {
+  fajr:    { ar: 'الفجر',    en: 'Fajr',    ur: 'فجر' },
+  sunrise: { ar: 'الشروق',   en: 'Sunrise', ur: 'طلوعِ آفتاب' },
+  dhuhr:   { ar: 'الظهر',    en: 'Dhuhr',   ur: 'ظہر' },
+  asr:     { ar: 'العصر',    en: 'Asr',     ur: 'عصر' },
+  maghrib: { ar: 'المغرب',   en: 'Maghrib', ur: 'مغرب' },
+  isha:    { ar: 'العشاء',   en: 'Isha',    ur: 'عشاء' },
 };

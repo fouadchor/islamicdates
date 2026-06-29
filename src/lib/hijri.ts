@@ -47,23 +47,31 @@ export function daysInHMonth(hy: number, hm: number): number {
 }
 
 export type OccCat = 'eid' | 'holy' | 'fast';
-export type Occ = [OccCat, string, string];
+// [category, arabic name, english name, urdu name]
+export type Occ = [OccCat, string, string, string];
 
 const OCC: Record<string, Occ> = {
-  '1-1':  ['holy', 'رأس السنة الهجرية', 'Islamic New Year'],
-  '1-10': ['holy', 'عاشوراء', 'Ashura'],
-  '3-12': ['holy', 'المولد النبوي الشريف', 'Mawlid al-Nabi'],
-  '7-27': ['holy', 'الإسراء والمعراج', 'Isra & Miʿraj'],
-  '8-15': ['holy', 'ليلة النصف من شعبان', 'Mid-Shaʿban'],
-  '9-1':  ['fast', 'أول رمضان', 'First of Ramadan'],
-  '9-27': ['holy', 'ليلة القدر', 'Laylat al-Qadr'],
-  '10-1': ['eid',  'عيد الفطر', 'Eid al-Fitr'],
-  '12-9': ['holy', 'يوم عرفة', 'Day of Arafah'],
-  '12-10':['eid',  'عيد الأضحى', 'Eid al-Adha'],
+  '1-1':  ['holy', 'رأس السنة الهجرية', 'Islamic New Year', 'نیا ہجری سال'],
+  '1-10': ['holy', 'عاشوراء', 'Ashura', 'عاشورا'],
+  '3-12': ['holy', 'المولد النبوي الشريف', 'Mawlid al-Nabi', 'میلاد النبی ﷺ'],
+  '7-27': ['holy', 'الإسراء والمعراج', 'Isra & Miʿraj', 'شبِ معراج'],
+  '8-15': ['holy', 'ليلة النصف من شعبان', 'Mid-Shaʿban', 'شبِ برات'],
+  '9-1':  ['fast', 'أول رمضان', 'First of Ramadan', 'یکم رمضان'],
+  '9-27': ['holy', 'ليلة القدر', 'Laylat al-Qadr', 'شبِ قدر'],
+  '10-1': ['eid',  'عيد الفطر', 'Eid al-Fitr', 'عید الفطر'],
+  '12-9': ['holy', 'يوم عرفة', 'Day of Arafah', 'یومِ عرفہ'],
+  '12-10':['eid',  'عيد الأضحى', 'Eid al-Adha', 'عید الاضحیٰ'],
 };
 
 export function getOcc(hm: number, hd: number): Occ | null {
   return OCC[`${hm}-${hd}`] ?? null;
+}
+
+// Pick the localized occasion name from an Occ tuple.
+import type { LangLike } from './data';
+import { pick } from './data';
+export function occName(occ: Occ, lang: LangLike): string {
+  return pick(lang, occ[1], occ[2], occ[3]);
 }
 
 export function dotColor(cat: OccCat): string {
