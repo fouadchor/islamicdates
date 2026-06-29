@@ -25,12 +25,14 @@ const langs: { code: Lang; path: string; label: string }[] = [
 const _navHome = pick(lang, '/', '/en/', '/ur/');
 const _navPrayer = pick(lang, '/prayer-times/', '/en/prayer-times/', '/ur/prayer-times/');
 const _navZakat = pick(lang, '/zakat/', '/en/zakat/', '/ur/zakat/');
+const _navDua = pick(lang, '/dua/', '/en/dua/', '/ur/dua/');
 const _navAbout = pick(lang, '/about/', '/en/about/', '/ur/about/');
 const _labels = {
   home:     pick(lang, 'الرئيسية', 'Home', 'ہوم'),
   conv:     pick(lang, 'المحوّل', 'Converter', 'کنورٹر'),
   prayer:   pick(lang, 'مواقيت الصلاة', 'Prayer Times', 'مواقیتِ نماز'),
   zakat:    pick(lang, 'حاسبة الزكاة', 'Zakat Calculator', 'زکوٰۃ کیلکولیٹر'),
+  dua:      pick(lang, 'الدعاء', 'Duʿaʾ', 'دعا'),
   occ:      pick(lang, 'المناسبات', 'Occasions', 'مناسبتیں'),
   guide:    pick(lang, 'الدليل', 'Guide', 'رہنمائی'),
 };
@@ -39,6 +41,7 @@ const navItems = [
   { h: _navHome + '#converter', t: _labels.conv },
   { h: _navPrayer, t: _labels.prayer },
   { h: _navZakat, t: _labels.zakat },
+  { h: _navDua, t: _labels.dua },
   { h: _navHome + '#occasions', t: _labels.occ },
   { h: _navAbout, t: _labels.guide },
 ];
