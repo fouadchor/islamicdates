@@ -1,0 +1,19 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import DuaPage from '../../components/DuaPage.astro';
+import { DUA_PAGE } from '../../lib/duas';
+
+const canonical = 'https://islamicdates.org/en/dua/';
+const P = DUA_PAGE.en;
+const description = 'Authentic supplications and remembrances from the Quran and Sunnah: morning & evening adhkar, Quranic duas, duas for distress and hardship, and daily supplications — each with its source.';
+
+const jsonLd = JSON.stringify([
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [
+    { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': 'https://islamicdates.org/en/' },
+    { '@type': 'ListItem', 'position': 2, 'name': 'Duʿaʾ', 'item': canonical },
+  ] },
+]);
+---
+<Layout title={P.title} description={description} canonical={canonical} lang="en" jsonLd={jsonLd} arPath="/dua/" enPath="/en/dua/" urPath="/ur/dua/">
+  <DuaPage lang="en" />
+</Layout>
