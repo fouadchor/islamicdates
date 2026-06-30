@@ -1,7 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import DuaPage from '../../components/DuaPage.astro';
-import { DUA_PAGE } from '../../lib/duas';
+import { DUA_PAGE, DUA_SECTIONS, DUA_HUB_FAQ } from '../../lib/duas';
 
 const canonical = 'https://islamicdates.org/ur/dua/';
 const P = DUA_PAGE.ur;
@@ -12,6 +12,8 @@ const jsonLd = JSON.stringify([
     { '@type': 'ListItem', 'position': 1, 'name': 'ہوم', 'item': 'https://islamicdates.org/ur/' },
     { '@type': 'ListItem', 'position': 2, 'name': 'دعا', 'item': canonical },
   ] },
+  { '@context': 'https://schema.org', '@type': 'ItemList', 'name': 'دعا و اذکار کے حصے', 'itemListElement': DUA_SECTIONS.map((s, i) => ({ '@type': 'ListItem', 'position': i + 1, 'name': s.title.ur, 'url': `https://islamicdates.org/ur/dua/${s.id}/` })) },
+  { '@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': DUA_HUB_FAQ.map(f => ({ '@type': 'Question', 'name': f.q.ur, 'acceptedAnswer': { '@type': 'Answer', 'text': f.a.ur } })) },
 ]);
 ---
 <Layout title={P.title} description={description} canonical={canonical} lang="ur" jsonLd={jsonLd} arPath="/dua/" enPath="/en/dua/" urPath="/ur/dua/">
