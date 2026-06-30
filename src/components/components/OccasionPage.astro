@@ -1,0 +1,273 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { OCCASIONS, occLoc, occurrencesInGYear, gYears, fmtG, fmtGShort, fmtH, isoUTC, occBasePath } from '../lib/occasions';
+import { type Lang, pick, hMonArr } from '../lib/data';
+
+interface Props { lang: Lang; slug: string; gYear: number; }
+const { lang, slug, gYear } = Astro.props;
+const occ = OCCASIONS.find(o => o.slug === slug)!;
+const loc = occLoc(occ, lang);
+
+const occs = occurrencesInGYear(occ.hm, occ.hd, gYear);
+const first = occs[0];
+
+// Hijri-day alias (e.g. "10 محرم" / "10 Muharram") — many people search by this.
+const hijriDay = `${occ.hd} ${hMonArr(lang)[occ.hm - 1]}`;
+
+// Country-context FAQ (captures "...in saudi arabia / pakistan / egypt" queries) + FAQ rich result.
+const faqItems = first ? pick<{ q: string; a: string }[]>(lang, [
+  { q: `متى ${loc.name} ${gYear}؟`, a: `${loc.name} ${gYear} يوافق ${fmtG(first.date, lang)}، أي ${fmtH(first.hy, occ.hm, occ.hd, lang)} (${hijriDay}) وفق تقويم أم القرى.` },
+  { q: `هل يختلف تاريخ ${loc.name} ${gYear} بين الدول مثل السعودية ومصر وباكستان؟`, a: `التاريخ المعروض محسوب وفق تقويم أم القرى المعتمد في السعودية. وتعتمد بعض الدول مثل مصر وباكستان والمغرب على رؤية الهلال المباشرة، لذا قد يتقدّم اليوم الفعلي أو يتأخّر بمقدار يوم واحد تقريباً.` },
+], [
+  { q: `When is ${loc.name} ${gYear}?`, a: `${loc.name} ${gYear} falls on ${fmtG(first.date, lang)}, i.e. ${fmtH(first.hy, occ.hm, occ.hd, lang)} (${hijriDay}) per the Umm al-Qura calendar.` },
+  { q: `Does the date of ${loc.name} ${gYear} differ between countries like Saudi Arabia, Pakistan and Egypt?`, a: `The date shown is calculated using the Umm al-Qura calendar used in Saudi Arabia. Some countries such as Pakistan, Egypt and Morocco rely on direct moon sighting, so the actual day may shift by about one day.` },
+], [
+  { q: `${loc.name} ${gYear} کب ہے؟`, a: `${loc.name} ${gYear} کو ${fmtG(first.date, lang)} ہے، یعنی ${fmtH(first.hy, occ.hm, occ.hd, lang)} (${hijriDay}) اُمّ القریٰ تقویم کے مطابق۔` },
+  { q: `کیا ${loc.name} ${gYear} کی تاریخ سعودی عرب، پاکستان اور مصر جیسے ممالک میں مختلف ہوتی ہے؟`, a: `دکھائی گئی تاریخ سعودی عرب میں رائج اُمّ القریٰ تقویم سے نکالی گئی ہے۔ پاکستان، مصر اور مراکش جیسے بعض ممالک براہِ راست رؤیتِ ہلال پر انحصار کرتے ہیں، اس لیے اصل دن تقریباً ایک دن آگے پیچھے ہو سکتا ہے۔` },
+]) : [];
+
+// Same occasion across all years (for internal-link table)
+const yearRows = gYears().map(y => {
+  const list = occurrencesInGYear(occ.hm, occ.hd, y);
+  return list.length ? { year: y, date: list[0].date, href: occBasePath(slug, y, lang), current: y === gYear } : null;
+}).filter(Boolean) as { year: number; date: Date; href: string; current: boolean }[];
+
+// Other occasions in the same Gregorian year (cross-links)
+const otherOcc = OCCASIONS.filter(o => o.slug !== slug)
+  .map(o => {
+    const list = occurrencesInGYear(o.hm, o.hd, gYear);
+    return list.length ? { name: occLoc(o, lang).name, href: occBasePath(o.slug, gYear, lang), date: list[0].date } : null;
+  }).filter(Boolean)
+  .sort((a, b) => a!.date.getTime() - b!.date.getTime()) as { name: string; href: string; date: Date }[];
+
+const canonical = `https://islamicdates.org${occBasePath(slug, gYear, lang)}`;
+
+const title = pick(lang,
+  `متى ${loc.name} ${gYear}؟ (${hijriDay}) التاريخ الهجري والميلادي`,
+  `When is ${loc.name} ${gYear}? (${hijriDay}) Hijri & Gregorian date`,
+  `${loc.name} ${gYear} کب ہے؟ (${hijriDay}) ہجری و عیسوی تاریخ`);
+const description = pick(lang,
+  `${loc.name} ${gYear} (${hijriDay}): ${first ? fmtG(first.date, lang) + ' الموافق ' + fmtH(first.hy, occ.hm, occ.hd, lang) : ''} وفق تقويم أم القرى. التاريخ في السعودية ومصر وباكستان وبقية الدول مع العدّ التنازلي.`,
+  `${loc.name} ${gYear} (${hijriDay}): ${first ? fmtG(first.date, lang) + ', corresponding to ' + fmtH(first.hy, occ.hm, occ.hd, lang) : ''} per the Umm al-Qura calendar. Date in Saudi Arabia, Pakistan, Egypt and worldwide, with a countdown.`,
+  `${loc.name} ${gYear} (${hijriDay}): ${first ? fmtG(first.date, lang) + ' بمطابق ' + fmtH(first.hy, occ.hm, occ.hd, lang) : ''} اُمّ القریٰ تقویم کے مطابق۔ سعودی عرب، پاکستان، مصر اور دنیا بھر میں تاریخ، عددِ معکوس کے ساتھ۔`);
+
+const breadcrumb = {
+  "@context": "https://schema.org", "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": pick(lang, "الرئيسية", "Home", "ہوم"), "item": pick(lang, "https://islamicdates.org/", "https://islamicdates.org/en/", "https://islamicdates.org/ur/") },
+    { "@type": "ListItem", "position": 2, "name": `${loc.name} ${gYear}`, "item": canonical },
+  ],
+};
+// Only BreadcrumbList markup — these are informational date pages, not Event-rich-result
+// entities, so Event schema is intentionally omitted to avoid invalid structured data.
+const jsonLd = JSON.stringify(faqItems.length
+  ? [breadcrumb, { "@context": "https://schema.org", "@type": "FAQPage", "mainEntity": faqItems.map(f => ({ "@type": "Question", "name": f.q, "acceptedAnswer": { "@type": "Answer", "text": f.a } })) }]
+  : [breadcrumb]);
+
+// Add-to-calendar (all-day event for the occasion's first/next occurrence)
+const _calStart = first ? isoUTC(first.date).replace(/-/g, '') : '';
+const _calEnd = first ? isoUTC(new Date(first.date.getTime() + 86400000)).replace(/-/g, '') : '';
+const _calTitle = `${loc.name} ${gYear}`;
+const _calDesc = (loc.what || '').replace(/\s+/g, ' ').trim();
+const gcalUrl = first
+  ? `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(_calTitle)}&dates=${_calStart}/${_calEnd}&details=${encodeURIComponent(_calDesc + ' — islamicdates.org')}`
+  : '';
+
+const homeHref = pick(lang, '/', '/en/', '/ur/');
+const prayerHref = pick(lang, '/prayer-times/', '/en/prayer-times/', '/ur/prayer-times/');
+const privacyHref = pick(lang, '/privacy/', '/en/privacy/', '/ur/privacy/');
+
+const t = {
+  h1: pick(lang, `متى ${loc.name} ${gYear}؟`, `When is ${loc.name} ${gYear}?`, `${loc.name} ${gYear} کب ہے؟`),
+  answer: pick(lang, 'الإجابة', 'The answer', 'جواب'),
+  corresponds: pick(lang, 'الموافق', 'corresponding to', 'بمطابق'),
+  twiceNote: pick(lang,
+    `يقع ${loc.name} مرتين في عام ${gYear} الميلادي بسبب قِصَر السنة الهجرية عن الميلادية.`,
+    `${loc.name} occurs twice in ${gYear} because the Hijri year is shorter than the Gregorian year.`,
+    `سالِ ${gYear} میں ${loc.name} دو بار آتا ہے کیونکہ ہجری سال عیسوی سال سے چھوٹا ہے۔`),
+  whatTitle: pick(lang, `ما هو ${loc.name}؟`, `What is ${loc.name}?`, `${loc.name} کیا ہے؟`),
+  howTitle: pick(lang, 'كيف يُحدَّد التاريخ؟', 'How is the date determined?', 'تاریخ کا تعین کیسے ہوتا ہے؟'),
+  howBody: pick(lang,
+    'تُحسب التواريخ هنا فلكياً وفق معايير تقويم أم القرى المعتمد في السعودية. وقد تعتمد بعض الدول على رؤية الهلال المباشرة، فيختلف التاريخ الفعلي بيوم واحد تقريباً بين دولة وأخرى.',
+    'Dates here are calculated astronomically per the Umm al-Qura standard used in Saudi Arabia. Some countries rely on direct moon sighting instead, so the actual date can differ by about one day between regions.',
+    'یہاں تاریخوں کا حساب سعودی عرب میں رائج اُمّ القریٰ معیار کے مطابق فلکی طور پر کیا جاتا ہے۔ بعض ممالک براہِ راست رؤیتِ ہلال پر انحصار کرتے ہیں، اس لیے اصل تاریخ مختلف ممالک کے درمیان تقریباً ایک دن آگے پیچھے ہو سکتی ہے۔'),
+  yearsTitle: pick(lang, `تواريخ ${loc.name} عبر السنوات`, `${loc.name} dates by year`, `سالوں کے حساب سے ${loc.name} کی تاریخیں`),
+  otherTitle: pick(lang, `مناسبات أخرى في ${gYear}`, `Other occasions in ${gYear}`, `${gYear} کی دیگر مناسبتیں`),
+  toolsTitle: pick(lang, 'أدوات ذات صلة', 'Related tools', 'متعلقہ اوزار'),
+  fullCal: pick(lang, 'التقويم الهجري الكامل وتاريخ اليوم', "Full Hijri calendar & today's date", 'مکمل ہجری کیلنڈر اور آج کی تاریخ'),
+  converter: pick(lang, 'محوّل التاريخ الهجري والميلادي', 'Hijri–Gregorian date converter', 'ہجری–عیسوی تاریخ کنورٹر'),
+  countdownLabel: pick(lang, 'العد التنازلي', 'Countdown', 'عددِ معکوس'),
+  addToCal: pick(lang, 'أضِفه إلى تقويمك', 'Add to your calendar', 'اپنے کیلنڈر میں شامل کریں'),
+  gcal: pick(lang, 'تقويم Google', 'Google Calendar', 'گوگل کیلنڈر'),
+  ics: pick(lang, 'تنزيل (‎.ics)', 'Download .ics', 'ڈاؤن لوڈ (‎.ics)'),
+  prayer: pick(lang, 'مواقيت الصلاة', 'Prayer times', 'مواقیتِ نماز'),
+  faq: pick(lang, 'أسئلة شائعة', 'Frequently asked questions', 'اکثر پوچھے جانے والے سوالات'),
+  th_year: pick(lang, 'السنة', 'Year', 'سال'),
+  th_greg: pick(lang, 'التاريخ الميلادي', 'Gregorian date', 'عیسوی تاریخ'),
+  th_hijri: pick(lang, 'التاريخ الهجري', 'Hijri date', 'ہجری تاریخ'),
+  brand: pick(lang, 'التقويم الهجري', 'Hijri Calendar', 'ہجری کیلنڈر'),
+  home: pick(lang, 'الصفحة الرئيسية', 'Home', 'ہوم'),
+  ad: pick(lang, 'مساحة إعلانية', 'Advertisement', 'اشتہار'),
+  footer: pick(lang, 'الحساب وفق تقويم أم القرى', 'Dates based on the Umm al-Qura calendar · for reference', 'حساب اُمّ القریٰ تقویم کے مطابق'),
+  privacy: pick(lang, 'سياسة الخصوصية', 'Privacy Policy', 'رازداری پالیسی'),
+  twiceJoin: pick(lang, ' و ', ' and ', ' اور '),
+};
+---
+<Layout title={title} description={description} canonical={canonical} lang={lang} jsonLd={jsonLd}
+  arPath={occBasePath(slug, gYear, 'ar')} enPath={occBasePath(slug, gYear, 'en')} urPath={occBasePath(slug, gYear, 'ur')}>
+  <header class="site-header">
+    <a href={homeHref} class="logo" style="text-decoration:none;color:inherit" aria-label={t.home}>
+      <div class="logo-icon">☾</div>
+      <div>
+        <div class="brand">{t.brand}</div>
+        <div class="tagline">{loc.name + ' ' + gYear}</div>
+      </div>
+    </a>
+    <a href={homeHref} class="home-btn">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+      <span>{t.home}</span>
+    </a>
+  </header>
+
+  <div class="layout">
+    <main>
+      <section class="card section-card" style="order:1">
+        <h1 class="section-h2" style="font-size:25px">{t.h1}</h1>
+        {first ? (
+          <>
+            <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:18px;align-items:baseline">
+              <div>
+                <div style="font-size:13px;color:var(--muted);font-weight:600;letter-spacing:.04em;text-transform:uppercase">{t.answer}</div>
+                <div style="font-size:26px;font-weight:800;color:var(--accent);margin-top:4px;line-height:1.25">{fmtG(first.date, lang)}</div>
+                <div style="font-size:16px;color:var(--muted);margin-top:4px">{t.corresponds} {fmtH(first.hy, occ.hm, occ.hd, lang)}</div>
+              </div>
+              <div style="margin-inline-start:auto;text-align:center;background:var(--accent-soft);border-radius:14px;padding:14px 20px;min-width:120px">
+                <div style="font-size:12px;color:var(--accent);font-weight:700;letter-spacing:.04em;text-transform:uppercase">{t.countdownLabel}</div>
+                <div id="occ-countdown" style="font-size:20px;font-weight:800;color:var(--accent);margin-top:4px">—</div>
+              </div>
+            </div>
+            <div style="margin-top:18px;display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+              <span style="font-size:13.5px;color:var(--muted);font-weight:600">{t.addToCal}:</span>
+              <a href={gcalUrl} target="_blank" rel="noopener" style="padding:9px 16px;border-radius:11px;background:var(--accent);color:var(--accent-contrast);font-weight:700;font-size:13.5px;text-decoration:none">{t.gcal}</a>
+              <button type="button" id="ics-btn" style="padding:9px 16px;border-radius:11px;background:var(--surface2);border:1px solid var(--border);color:var(--accent);font-weight:700;font-size:13.5px;cursor:pointer">{t.ics}</button>
+            </div>
+            {occs.length > 1 && (
+              <p class="section-p" style="margin-top:16px">{t.twiceNote} {occs.map(o => fmtG(o.date, lang)).join(t.twiceJoin)}.</p>
+            )}
+          </>
+        ) : null}
+      </section>
+
+      <section class="card section-card" style="order:2">
+        <h2 class="section-h2">{t.whatTitle}</h2>
+        <p class="section-p">{loc.what}</p>
+        <h2 class="section-h2" style="margin-top:22px">{t.howTitle}</h2>
+        <p class="section-p">{t.howBody}</p>
+      </section>
+
+      {faqItems.length > 0 && (
+        <section class="card section-card" style="order:3">
+          <h2 class="section-h2">{t.faq}</h2>
+          {faqItems.map((f, i) => (
+            <div class="faq-item" style={i === faqItems.length - 1 ? 'border-bottom:none' : ''}>
+              <h3 class="faq-q">{f.q}</h3>
+              <p class="faq-a">{f.a}</p>
+            </div>
+          ))}
+        </section>
+      )}
+
+      <section class="card section-card" style="order:4">
+        <h2 class="section-h2">{t.yearsTitle}</h2>
+        <div style="overflow-x:auto;margin-top:12px">
+          <table style="width:100%;border-collapse:collapse;font-size:14.5px">
+            <thead>
+              <tr style="text-align:start;color:var(--muted)">
+                <th style="text-align:start;padding:8px 10px;border-bottom:1px solid var(--border);font-weight:600">{t.th_year}</th>
+                <th style="text-align:start;padding:8px 10px;border-bottom:1px solid var(--border);font-weight:600">{t.th_greg}</th>
+                <th style="text-align:start;padding:8px 10px;border-bottom:1px solid var(--border);font-weight:600">{t.th_hijri}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {yearRows.map(r => (
+                <tr style={r.current ? 'background:var(--accent-soft)' : ''}>
+                  <td style="padding:8px 10px;border-bottom:1px solid var(--border);font-weight:700">
+                    {r.current ? <span>{r.year}</span> : <a href={r.href} style="color:var(--accent);text-decoration:none">{r.year}</a>}
+                  </td>
+                  <td style="padding:8px 10px;border-bottom:1px solid var(--border)">{fmtGShort(r.date, lang)}</td>
+                  <td style="padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted)">{fmtH(occurrencesInGYear(occ.hm, occ.hd, r.year)[0].hy, occ.hm, occ.hd, lang)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <aside>
+      <div class="ad-slot">
+        <span class="ad-label">{t.ad}</span>
+        <span style="font-size:13px;opacity:.7">300 × 250</span>
+      </div>
+
+      <div class="card" style="padding:18px 20px">
+        <h3 style="margin:0 0 12px;font-size:15.5px;font-weight:700">{t.toolsTitle}</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:14.5px">
+          <a href={homeHref} style="color:var(--accent);text-decoration:none">{t.fullCal}</a>
+          <a href={homeHref} style="color:var(--accent);text-decoration:none">{t.converter}</a>
+          <a href={prayerHref} style="color:var(--accent);text-decoration:none">{t.prayer}</a>
+        </div>
+      </div>
+
+      {otherOcc.length > 0 && (
+        <div class="card" style="padding:18px 20px">
+          <h3 style="margin:0 0 12px;font-size:15.5px;font-weight:700">{t.otherTitle}</h3>
+          <div style="display:flex;flex-direction:column;gap:10px;font-size:14.5px">
+            {otherOcc.map(o => (
+              <a href={o.href} style="color:var(--accent);text-decoration:none">{o.name} {gYear}</a>
+            ))}
+          </div>
+        </div>
+      )}
+    </aside>
+  </div>
+
+  <footer class="site-footer">
+    {t.footer}
+    <span style="margin:0 8px;opacity:.4">·</span>
+    <a href={privacyHref} style="color:var(--muted);text-decoration:none;font-size:13px">{t.privacy}</a>
+  </footer>
+
+  <script define:vars={{ targetIso: first ? isoUTC(first.date) : null, lang }}>
+    (function () {
+      var el = document.getElementById('occ-countdown');
+      if (!el || !targetIso) return;
+      var target = new Date(targetIso + 'T00:00:00Z');
+      var now = new Date();
+      var today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+      var diff = Math.round((target - today) / 86400000);
+      if (diff > 0) el.textContent = lang === 'ar' ? ('باقٍ ' + diff + ' يوم') : lang === 'ur' ? (diff + ' دن باقی') : (diff + (diff === 1 ? ' day left' : ' days left'));
+      else if (diff === 0) el.textContent = lang === 'ar' ? 'اليوم' : lang === 'ur' ? 'آج' : 'Today';
+      else el.textContent = lang === 'ar' ? 'انقضى' : lang === 'ur' ? 'گزر گیا' : 'Passed';
+    })();
+  </script>
+
+  <script define:vars={{ icsDate: _calStart || null, icsEnd: _calEnd || null, icsTitle: _calTitle, icsDesc: _calDesc, icsUid: `${slug}-${gYear}` }}>
+    (function () {
+      var btn = document.getElementById('ics-btn');
+      if (!btn || !icsDate) return;
+      btn.addEventListener('click', function () {
+        var p = function (n) { return ('0' + n).slice(-2); };
+        var d = new Date();
+        var stamp = d.getUTCFullYear() + p(d.getUTCMonth() + 1) + p(d.getUTCDate()) + 'T' + p(d.getUTCHours()) + p(d.getUTCMinutes()) + p(d.getUTCSeconds()) + 'Z';
+        var lines = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//islamicdates.org//Hijri Calendar//EN','CALSCALE:GREGORIAN','BEGIN:VEVENT','UID:' + icsUid + '@islamicdates.org','DTSTAMP:' + stamp,'DTSTART;VALUE=DATE:' + icsDate,'DTEND;VALUE=DATE:' + icsEnd,'SUMMARY:' + icsTitle,'DESCRIPTION:' + icsDesc,'TRANSP:TRANSPARENT','END:VEVENT','END:VCALENDAR'];
+        var blob = new Blob([lines.join('\r\n')], { type: 'text/calendar;charset=utf-8' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url; a.download = icsUid + '.ics';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+      });
+    })();
+  </script>
+</Layout>
