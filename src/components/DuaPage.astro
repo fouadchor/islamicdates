@@ -101,8 +101,10 @@ const related = [
     display: grid; gap: 24px;
     grid-template-columns: 1fr;
   }
-  .dua-main { min-width: 0; display: flex; flex-direction: column; gap: 22px; }
-  .dua-side { display: flex; flex-direction: column; gap: 18px; }
+  .dua-main { min-width: 0; display: flex; flex-direction: column; gap: 22px; order: 1; }
+  /* Mobile-first: reset the global sticky/width aside rule so the sidebar
+     stacks below the content instead of floating over it. */
+  .dua-side { display: flex; flex-direction: column; gap: 18px; order: 2; position: static; max-width: none; min-width: 0; top: auto; }
 
   @media (min-width: 960px) {
     .dua-layout { grid-template-columns: 282px minmax(0, 1fr); align-items: start; }
