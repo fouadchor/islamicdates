@@ -1,0 +1,34 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import DuaCategoryPage from '../../../components/DuaCategoryPage.astro';
+import { DUA_SECTIONS, DUA_SECTION_SEO, getDuaSection } from '../../../lib/duas';
+
+export function getStaticPaths() {
+  return DUA_SECTIONS.map(s => ({ params: { section: s.id } }));
+}
+
+const { section } = Astro.params;
+const seo = DUA_SECTION_SEO[section!];
+const sec = getDuaSection(section!)!;
+const canonical = `https://islamicdates.org/en/dua/${section}/`;
+
+const jsonLd = JSON.stringify([
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [
+    { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': 'https://islamicdates.org/en/' },
+    { '@type': 'ListItem', 'position': 2, 'name': 'Duʿaʾ', 'item': 'https://islamicdates.org/en/dua/' },
+    { '@type': 'ListItem', 'position': 3, 'name': sec.title.en, 'item': canonical },
+  ] },
+]);
+---
+<Layout
+  title={`${seo.title.en} · Hijri Calendar`}
+  description={seo.desc.en}
+  canonical={canonical}
+  lang="en"
+  jsonLd={jsonLd}
+  arPath={`/dua/${section}/`}
+  enPath={`/en/dua/${section}/`}
+  urPath={`/ur/dua/${section}/`}
+>
+  <DuaCategoryPage lang="en" sectionId={section!} />
+</Layout>
