@@ -1,6 +1,6 @@
 ---
 import { type Lang } from '../lib/data';
-import { DUA_SECTIONS, DUA_PAGE, DUA_UI } from '../lib/duas';
+import { DUA_SECTIONS, DUA_PAGE, DUA_UI, DUA_HUB_FAQ, DUA_FAQ_TITLE } from '../lib/duas';
 import DuaNav from './DuaNav.astro';
 
 interface Props { lang: Lang }
@@ -84,6 +84,18 @@ const related = [
         </a>
       ))}
     </nav>
+
+    <section class="card section-card dua-faq" aria-label={pick(DUA_FAQ_TITLE)}>
+      <h2 class="faq-title">{pick(DUA_FAQ_TITLE)}</h2>
+      <div class="faq-list">
+        {DUA_HUB_FAQ.map((f, i) => (
+          <details class="faq-item" open={i === 0}>
+            <summary class="faq-q">{pick(f.q)}</summary>
+            <p class="faq-a">{pick(f.a)}</p>
+          </details>
+        ))}
+      </div>
+    </section>
   </main>
 </div>
 
@@ -165,4 +177,23 @@ const related = [
     font-size: 13px; font-weight: 800; color: var(--accent);
   }
   [dir="rtl"] .tc-cta svg { transform: scaleX(-1); }
+
+  /* FAQ */
+  .faq-title { margin: 0 0 8px; font-size: 18px; font-weight: 800; }
+  .faq-list { display: flex; flex-direction: column; }
+  .faq-item { border-bottom: 1px solid var(--border); padding: 4px 0; }
+  .faq-item:last-child { border-bottom: none; }
+  .faq-q {
+    cursor: pointer; list-style: none; position: relative;
+    padding: 12px 30px 12px 0; font-weight: 700; font-size: 15.5px; color: var(--text);
+    line-height: 1.6;
+  }
+  [dir="rtl"] .faq-q { padding: 12px 0 12px 30px; }
+  .faq-q::-webkit-details-marker { display: none; }
+  .faq-q::after {
+    content: '+'; position: absolute; inset-inline-end: 4px; top: 10px;
+    font-size: 20px; font-weight: 700; color: var(--accent); transition: transform .2s;
+  }
+  .faq-item[open] .faq-q::after { content: '−'; }
+  .faq-a { margin: 0 0 12px; color: var(--muted); line-height: 1.9; font-size: 14.5px; text-wrap: pretty; }
 </style>

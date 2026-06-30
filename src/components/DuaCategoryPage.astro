@@ -1,6 +1,6 @@
 ---
 import { type Lang } from '../lib/data';
-import { DUA_SECTIONS, getDuaSection, DUA_PAGE, DUA_UI } from '../lib/duas';
+import { DUA_SECTIONS, getDuaSection, DUA_PAGE, DUA_UI, DUA_FAQ, DUA_FAQ_TITLE } from '../lib/duas';
 import DuaSectionBlock from './DuaSectionBlock.astro';
 import DuaNav from './DuaNav.astro';
 
@@ -11,6 +11,7 @@ const P = DUA_PAGE[lang];
 const U = DUA_UI[lang];
 const section = getDuaSection(sectionId)!;
 const others = DUA_SECTIONS.filter(s => s.id !== sectionId);
+const faqs = DUA_FAQ[sectionId] ?? [];
 
 const home = lang === 'ar' ? '/' : `/${lang}/`;
 const tool = (p: string) => (lang === 'ar' ? p : `/${lang}${p}`);
@@ -88,6 +89,20 @@ const related = [
         ))}
       </div>
     </section>
+
+    {faqs.length > 0 && (
+      <section class="card section-card dua-faq" aria-label={pick(DUA_FAQ_TITLE)}>
+        <h2 class="faq-title">{pick(DUA_FAQ_TITLE)}</h2>
+        <div class="faq-list">
+          {faqs.map((f, i) => (
+            <details class="faq-item" open={i === 0}>
+              <summary class="faq-q">{pick(f.q)}</summary>
+              <p class="faq-a">{pick(f.a)}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+    )}
   </main>
 </div>
 
@@ -162,6 +177,25 @@ const related = [
   .other-count { font-size: 12.5px; color: var(--muted); }
   .other-arrow { flex: 0 0 auto; color: var(--accent); opacity: .8; }
   [dir="rtl"] .other-arrow { transform: scaleX(-1); }
+
+  /* FAQ */
+  .faq-title { margin: 0 0 8px; font-size: 18px; font-weight: 800; }
+  .faq-list { display: flex; flex-direction: column; }
+  .faq-item { border-bottom: 1px solid var(--border); padding: 4px 0; }
+  .faq-item:last-child { border-bottom: none; }
+  .faq-q {
+    cursor: pointer; list-style: none; position: relative;
+    padding: 12px 30px 12px 0; font-weight: 700; font-size: 15.5px; color: var(--text);
+    line-height: 1.6;
+  }
+  [dir="rtl"] .faq-q { padding: 12px 0 12px 30px; }
+  .faq-q::-webkit-details-marker { display: none; }
+  .faq-q::after {
+    content: '+'; position: absolute; inset-inline-end: 4px; top: 10px;
+    font-size: 20px; font-weight: 700; color: var(--accent); transition: transform .2s;
+  }
+  .faq-item[open] .faq-q::after { content: '−'; }
+  .faq-a { margin: 0 0 12px; color: var(--muted); line-height: 1.9; font-size: 14.5px; text-wrap: pretty; }
 
   .dua-totop {
     position: fixed; inset-block-end: 22px; inset-inline-end: 22px; z-index: 50;
