@@ -1,15 +1,26 @@
 ---
 import { type Lang } from '../lib/data';
-import { DUA_SECTIONS, srcLabel, DUA_PAGE } from '../lib/duas';
+import { DUA_SECTIONS, DUA_PAGE, DUA_UI } from '../lib/duas';
+import DuaNav from './DuaNav.astro';
 
 interface Props { lang: Lang }
 const { lang } = Astro.props;
 
 const P = DUA_PAGE[lang];
+const U = DUA_UI[lang];
 const home = lang === 'ar' ? '/' : `/${lang}/`;
 const tool = (p: string) => (lang === 'ar' ? p : `/${lang}${p}`);
+const catHref = (id: string) => tool(`/dua/${id}/`);
 const L = (ar: string, en: string, ur: string) => (lang === 'ar' ? ar : lang === 'ur' ? ur : en);
 const pick = (t: { ar: string; en: string; ur: string }) => (lang === 'ar' ? t.ar : lang === 'ur' ? t.ur : t.en);
+
+// Section icons (kept simple & friendly, themed by section).
+const ICONS: Record<string, string> = {
+  'morning-evening': '🌅',
+  'quran': '📖',
+  'distress': '🤲',
+  'daily': '🌙',
+};
 
 const related = [
   { href: home, label: L('التقويم الهجري وتاريخ اليوم', 'Hijri calendar & today’s date', 'ہجری کیلنڈر و آج کی تاریخ') },
@@ -34,50 +45,46 @@ const related = [
   </div>
 </header>
 
-<div class="layout">
-  <main>
-    <section class="card section-card">
-      <h1 class="section-h2" style="font-size:25px">{P.h1}</h1>
-      <p class="section-p" style="margin-top:8px">{P.lead}</p>
-      <p class="dua-note">{P.sourcesNote}</p>
-      <nav class="dua-toc" aria-label={L('الأقسام', 'Sections', 'حصص')}>
-        {DUA_SECTIONS.map(s => (
-          <a href={`#${s.id}`}>{pick(s.title)}</a>
-        ))}
-      </nav>
-    </section>
+<div class="dua-layout">
+  <aside class="dua-side">
+    <DuaNav lang={lang} />
 
-    {DUA_SECTIONS.map(s => (
-      <section id={s.id} class="card section-card dua-section">
-        <h2 class="section-h2">{pick(s.title)}</h2>
-        <p class="section-p" style="margin-bottom:6px">{pick(s.intro)}</p>
-        <div class="dua-list">
-          {s.items.map(d => (
-            <article class="dua-item">
-              {(d.when || d.count) && (
-                <div class="dua-meta">
-                  {d.when && <span class="dua-when">{pick(d.when)}</span>}
-                  {d.count && <span class="dua-count">×{d.count}</span>}
-                </div>
-              )}
-              <p class="dua-text" dir="rtl" lang="ar">{d.ar}</p>
-              <div class="dua-src">{srcLabel(d.src, lang)}</div>
-            </article>
-          ))}
-        </div>
-      </section>
-    ))}
-  </main>
-
-  <aside>
     <div class="ad-slot"><span class="ad-label">{L('مساحة إعلانية', 'Advertisement', 'اشتہار')}</span><span style="font-size:13px;opacity:.7">300 × 250</span></div>
-    <div class="card" style="padding:18px 20px">
-      <h3 style="margin:0 0 12px;font-size:15.5px;font-weight:700">{P.relatedTitle}</h3>
-      <div style="display:flex;flex-direction:column;gap:10px;font-size:14.5px">
-        {related.map(r => <a href={r.href} style="color:var(--accent);text-decoration:none">{r.label}</a>)}
+
+    <div class="card related-card">
+      <h2 class="related-title">{P.relatedTitle}</h2>
+      <div class="related-links">
+        {related.map(r => <a href={r.href}>{r.label}</a>)}
       </div>
     </div>
   </aside>
+
+  <main class="dua-main">
+    <section class="card section-card dua-hero">
+      <h1 class="dua-h1">{P.h1}</h1>
+      <p class="section-p" style="margin-top:10px">{P.lead}</p>
+      <p class="dua-note">{P.sourcesNote}</p>
+    </section>
+
+    <!-- Hub: each card opens its own standalone category page -->
+    <nav class="topic-cards" aria-label={L('أقسام الدعاء', 'Duʿaʾ sections', 'دعا کے حصے')}>
+      {DUA_SECTIONS.map(s => (
+        <a class="topic-card" href={catHref(s.id)}>
+          <span class="tc-ic" aria-hidden="true">{ICONS[s.id] ?? '☾'}</span>
+          <span class="tc-body">
+            <span class="tc-title">{pick(s.title)}</span>
+            <span class="tc-intro">{pick(s.intro)}</span>
+            <span class="tc-foot">
+              <span class="tc-count">{s.items.length} {U.supplications}</span>
+              <span class="tc-cta">{U.viewAll}
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+              </span>
+            </span>
+          </span>
+        </a>
+      ))}
+    </nav>
+  </main>
 </div>
 
 <footer class="site-footer">
@@ -87,42 +94,73 @@ const related = [
 </footer>
 
 <style>
-  .dua-note {
-    margin: 14px 0 0; padding: 12px 15px; border-radius: 12px;
-    background: var(--surface2); border: 1px solid var(--border);
-    color: var(--muted); font-size: 13.5px; line-height: 1.8;
+  /* ───── Layout: direction-aware grid (sidebar on the start side: right in RTL) ───── */
+  .dua-layout {
+    max-width: 1180px; margin: 0 auto;
+    padding: 22px 20px 56px;
+    display: grid; gap: 24px;
+    grid-template-columns: 1fr;
   }
-  .dua-toc { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 16px; }
-  .dua-toc a {
-    display: inline-flex; align-items: center; padding: 8px 14px; border-radius: 999px;
-    background: var(--surface2); border: 1px solid var(--border); color: var(--accent);
-    font-weight: 700; font-size: 13.5px; text-decoration: none; transition: background .2s, color .2s, border-color .2s;
-  }
-  .dua-toc a:hover { background: var(--accent); color: var(--accent-contrast); border-color: var(--accent); }
+  .dua-main { min-width: 0; display: flex; flex-direction: column; gap: 22px; }
+  .dua-side { display: flex; flex-direction: column; gap: 18px; }
 
-  .dua-section { scroll-margin-top: 16px; }
-  .dua-list { display: flex; flex-direction: column; gap: 14px; margin-top: 16px; }
-  .dua-item {
-    border: 1px solid var(--border); border-radius: 14px;
-    background: var(--surface2); padding: 16px 18px;
-    border-inline-start: 4px solid var(--accent);
+  @media (min-width: 960px) {
+    .dua-layout { grid-template-columns: 282px minmax(0, 1fr); align-items: start; }
+    .dua-side { grid-column: 1; grid-row: 1; position: sticky; top: 70px; }
+    .dua-main { grid-column: 2; grid-row: 1; }
   }
-  .dua-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
-  .dua-when {
-    font-size: 12.5px; font-weight: 700; color: var(--accent);
-    background: var(--accent-soft); padding: 4px 11px; border-radius: 999px;
+
+  /* ───── Related card ───── */
+  .related-card { padding: 18px 20px; }
+  .related-title { margin: 0 0 12px; font-size: 15.5px; font-weight: 700; }
+  .related-links { display: flex; flex-direction: column; gap: 10px; font-size: 14.5px; }
+  .related-links a { color: var(--accent); text-decoration: none; }
+  .related-links a:hover { text-decoration: underline; }
+
+  /* ───── Hero ───── */
+  .dua-h1 { margin: 0; font-size: 26px; font-weight: 800; line-height: 1.3; }
+  .dua-note {
+    margin: 16px 0 0; padding: 13px 16px; border-radius: 12px;
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--muted); font-size: 13.5px; line-height: 1.85;
   }
-  .dua-count {
-    font-size: 12.5px; font-weight: 700; color: var(--gold-deep);
-    background: var(--gold-soft); padding: 4px 11px; border-radius: 999px;
+
+  /* ───── Topic cards (hub → standalone pages) ───── */
+  .topic-cards {
+    display: grid; gap: 14px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .dua-text {
-    margin: 0; font-family: 'Noto Naskh Arabic', 'IBM Plex Sans Arabic', serif;
-    font-size: clamp(19px, 2.6vw, 23px); line-height: 2.15; font-weight: 500;
-    color: var(--text); text-align: right; white-space: pre-line; text-wrap: pretty;
+  @media (max-width: 560px) { .topic-cards { grid-template-columns: 1fr; } }
+  .topic-card {
+    display: flex; gap: 14px; align-items: flex-start;
+    padding: 18px; border-radius: var(--radius);
+    background: var(--surface); border: 1px solid var(--border);
+    box-shadow: var(--shadow); text-decoration: none; color: var(--text);
+    transition: transform .18s, box-shadow .18s, border-color .18s;
   }
-  .dua-src {
-    margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--border);
-    font-size: 13px; font-weight: 600; color: var(--muted);
+  .topic-card:hover {
+    transform: translateY(-2px); border-color: var(--accent);
+    box-shadow: 0 8px 26px rgba(13,40,48,.10);
   }
+  .tc-ic {
+    flex: 0 0 auto; width: 50px; height: 50px; border-radius: 14px;
+    background: var(--accent-soft); display: flex; align-items: center; justify-content: center;
+    font-size: 26px; line-height: 1;
+  }
+  .tc-body { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .tc-title { font-weight: 800; font-size: 17px; line-height: 1.3; }
+  .tc-intro {
+    font-size: 13px; color: var(--muted); line-height: 1.7;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .tc-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 4px; }
+  .tc-count {
+    font-size: 12px; font-weight: 800; color: var(--gold-deep);
+    background: var(--gold-soft); padding: 3px 10px; border-radius: 999px;
+  }
+  .tc-cta {
+    display: inline-flex; align-items: center; gap: 3px;
+    font-size: 13px; font-weight: 800; color: var(--accent);
+  }
+  [dir="rtl"] .tc-cta svg { transform: scaleX(-1); }
 </style>

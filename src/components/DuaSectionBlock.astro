@@ -1,0 +1,135 @@
+---
+import { type Lang } from '../lib/data';
+import { type DuaSection, srcLabel } from '../lib/duas';
+
+interface Props {
+  lang: Lang;
+  section: DuaSection;
+  as?: 'h1' | 'h2';   // heading level for the section title
+  anchor?: boolean;   // give the <section> an id (for in-page nav on the hub)
+}
+const { lang, section, as = 'h2', anchor = false } = Astro.props;
+const pick = (t: { ar: string; en: string; ur: string }) => (lang === 'ar' ? t.ar : lang === 'ur' ? t.ur : t.en);
+
+const ICONS: Record<string, string> = {
+  'morning-evening': '🌅',
+  'quran': '📖',
+  'distress': '🤲',
+  'daily': '🌙',
+};
+const Heading = as;
+---
+<section class={`card section-card dua-section${anchor ? '' : ' dua-section--page'}`} id={anchor ? section.id : undefined}>
+  <div class="dua-section-head">
+    <span class="dua-section-icon" aria-hidden="true">{ICONS[section.id] ?? '☾'}</span>
+    <div class="dua-section-headtext">
+      <Heading class="section-h2 dua-section-title">{pick(section.title)}</Heading>
+      <p class="section-p dua-section-intro">{pick(section.intro)}</p>
+    </div>
+    <span class="dua-section-count">{section.items.length}</span>
+  </div>
+
+  <div class="dua-list">
+    {section.items.map((d, i) => (
+      <article class="dua-item" id={`${section.id}__${i}`}>
+        <span class="dua-num" aria-hidden="true">{i + 1}</span>
+        <div class="dua-body">
+          {(d.when || d.count) && (
+            <div class="dua-head">
+              {d.when && <h3 class="dua-when">{pick(d.when)}</h3>}
+              {d.count && <span class="dua-count">×{d.count}</span>}
+            </div>
+          )}
+          <p class="dua-text" dir="rtl" lang="ar">{d.ar}</p>
+          <div class="dua-src">
+            <span class="src-ic" aria-hidden="true">{d.src.kind === 'quran' ? '📖' : '📜'}</span>
+            {srcLabel(d.src, lang)}
+          </div>
+        </div>
+      </article>
+    ))}
+  </div>
+</section>
+
+<style>
+  .dua-section { scroll-margin-top: 64px; }
+
+  .dua-section-head {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding-bottom: 16px; margin-bottom: 4px;
+    border-bottom: 1px solid var(--border);
+  }
+  .dua-section-icon {
+    flex: 0 0 auto; width: 46px; height: 46px; border-radius: 13px;
+    background: var(--accent-soft);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; line-height: 1;
+  }
+  .dua-section--page .dua-section-icon { width: 54px; height: 54px; font-size: 28px; border-radius: 15px; }
+  .dua-section-headtext { flex: 1 1 auto; min-width: 0; }
+  .dua-section-title { margin: 0; }
+  .dua-section-title::after { content: none; }
+  .dua-section--page .dua-section-title { font-size: 24px; }
+  .dua-section-intro { margin-top: 7px; font-size: 14px; }
+  .dua-section-count {
+    flex: 0 0 auto; align-self: center;
+    min-width: 34px; height: 34px; padding: 0 11px; border-radius: 999px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--gold-soft); color: var(--gold-deep);
+    font-weight: 800; font-size: 15px;
+  }
+
+  .dua-list { display: flex; flex-direction: column; gap: 16px; margin-top: 18px; }
+  .dua-item {
+    display: flex; gap: 14px; scroll-margin-top: 60px;
+    border: 1px solid var(--border); border-radius: 16px;
+    background: var(--surface2); padding: 16px 18px;
+    border-inline-start: 4px solid var(--accent);
+    transition: box-shadow .2s, transform .2s, border-color .2s;
+  }
+  .dua-item:hover {
+    box-shadow: 0 6px 22px rgba(13,40,48,.07);
+    transform: translateY(-1px);
+    border-inline-start-color: var(--gold);
+  }
+  .dua-num {
+    flex: 0 0 auto; width: 28px; height: 28px; margin-top: 2px;
+    border-radius: 9px; background: var(--surface); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 800; color: var(--muted);
+  }
+  .dua-body { flex: 1 1 auto; min-width: 0; }
+
+  /* Context label rendered as a subtitle heading for each supplication. */
+  .dua-head {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    margin-bottom: 12px; padding-bottom: 10px;
+    border-bottom: 1px dashed var(--border);
+  }
+  .dua-when {
+    margin: 0; flex: 1 1 auto; min-width: 0;
+    display: flex; align-items: center; gap: 9px;
+    font-size: 16.5px; font-weight: 800; color: var(--accent); line-height: 1.4;
+  }
+  .dua-when::before {
+    content: ''; flex: 0 0 auto;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--gold);
+  }
+  .dua-count {
+    flex: 0 0 auto;
+    font-size: 12.5px; font-weight: 700; color: var(--gold-deep);
+    background: var(--gold-soft); padding: 4px 11px; border-radius: 999px;
+  }
+  .dua-text {
+    margin: 0; font-family: 'Noto Naskh Arabic', 'IBM Plex Sans Arabic', serif;
+    font-size: clamp(19px, 2.6vw, 23px); line-height: 2.2; font-weight: 500;
+    color: var(--text); text-align: right; white-space: pre-line; text-wrap: pretty;
+  }
+  .dua-src {
+    display: flex; align-items: center; gap: 7px;
+    margin-top: 13px; padding-top: 11px; border-top: 1px dashed var(--border);
+    font-size: 13px; font-weight: 600; color: var(--muted);
+  }
+  .src-ic { font-size: 14px; line-height: 1; }
+</style>
