@@ -393,3 +393,120 @@ export const DUA_UI: Record<'ar' | 'en' | 'ur', {
   en: { duaCrumb: 'Duʿaʾ', allSections: 'All duʿaʾ sections', otherSections: 'Browse other sections', viewAll: 'View section', backToHub: 'All supplications & adhkar', supplications: 'duʿāʾ' },
   ur: { duaCrumb: 'دعا', allSections: 'دعا کے تمام حصے', otherSections: 'دیگر حصے دیکھیں', viewAll: 'حصہ دیکھیں', backToHub: 'تمام دعائیں و اذکار', supplications: 'دعائیں' },
 };
+
+// Localized heading for the FAQ blocks.
+export const DUA_FAQ_TITLE: Tri = {
+  ar: 'أسئلة شائعة',
+  en: 'Frequently asked questions',
+  ur: 'اکثر پوچھے گئے سوالات',
+};
+
+// Short, human-readable name for a supplication (used in ItemList structured data).
+export function duaItemName(d: Dua, lang: 'ar' | 'en' | 'ur'): string {
+  if (d.when) return pickTri(d.when, lang);
+  if (d.src.kind === 'quran') return srcLabel(d.src, lang);
+  return d.ar.replace(/\n[\s\S]*$/, '').split(/\s+/).slice(0, 6).join(' ');
+}
+
+// FAQ content per section (and the hub) — feeds both the visible FAQ block and FAQPage schema.
+export const DUA_HUB_FAQ: { q: Tri; a: Tri }[] = [
+  {
+    q: { ar: 'ما هذه المجموعة من الأدعية والأذكار؟', en: 'What is this collection of supplications?', ur: 'یہ دعاؤں اور اذکار کا مجموعہ کیا ہے؟' },
+    a: {
+      ar: 'هي مجموعة من الأدعية والأذكار الصحيحة من القرآن الكريم والسنة النبوية، مرتّبة في أقسام: أذكار الصباح والمساء، وأدعية من القرآن، وأدعية الكرب والهمّ، وأدعية يومية، مع ذكر مصدر كل دعاء.',
+      en: 'It is a collection of authentic supplications and remembrances from the Quran and Sunnah, organized into sections: morning & evening adhkar, Quranic duas, duas for distress, and daily supplications — each with its source.',
+      ur: 'یہ قرآن و سنت سے مستند دعاؤں اور اذکار کا مجموعہ ہے، جو حصص میں مرتب ہے: صبح و شام کے اذکار، قرآنی دعائیں، کرب کی دعائیں اور روزمرہ کی دعائیں — ہر ایک کے حوالے کے ساتھ۔',
+    },
+  },
+  {
+    q: { ar: 'هل الأدعية صحيحة ومصدرها موثوق؟', en: 'Are the supplications authentic and well-sourced?', ur: 'کیا دعائیں مستند اور باحوالہ ہیں؟' },
+    a: {
+      ar: 'نعم، جميع الأدعية مأخوذة من القرآن الكريم وكتب السنة الصحيحة (كالبخاري ومسلم والسنن) على نهج كتاب «حصن المسلم»، ويُذكر مصدر كل دعاء أسفله.',
+      en: 'Yes. Every supplication is taken from the Quran and authentic hadith collections (such as al-Bukhari, Muslim and the Sunan), in the manner of Hisn al-Muslim, with the source noted beneath each one.',
+      ur: 'جی ہاں، تمام دعائیں قرآن اور صحیح احادیث (بخاری، مسلم، سنن) سے «حصن المسلم» کے طرز پر لی گئی ہیں، اور ہر دعا کا حوالہ نیچے درج ہے۔',
+    },
+  },
+];
+
+export const DUA_FAQ: Record<string, { q: Tri; a: Tri }[]> = {
+  'morning-evening': [
+    {
+      q: { ar: 'متى تُقال أذكار الصباح والمساء؟', en: 'When are the morning and evening adhkar said?', ur: 'صبح و شام کے اذکار کب پڑھے جاتے ہیں؟' },
+      a: {
+        ar: 'تُقال أذكار الصباح بعد صلاة الفجر إلى طلوع الشمس، وأذكار المساء بعد صلاة العصر إلى غروب الشمس، ومن فاته الوقت قضاها متى تذكّر.',
+        en: 'The morning adhkar are said after Fajr until sunrise, and the evening adhkar after ʿAsr until sunset; whoever misses the time may say them once they remember.',
+        ur: 'صبح کے اذکار فجر کے بعد طلوعِ آفتاب تک اور شام کے اذکار عصر کے بعد غروبِ آفتاب تک پڑھے جاتے ہیں؛ وقت نکل جائے تو یاد آنے پر پڑھ لیں۔',
+      },
+    },
+    {
+      q: { ar: 'ما فضل المحافظة على أذكار الصباح والمساء؟', en: 'What is the virtue of keeping the morning & evening adhkar?', ur: 'صبح و شام کے اذکار کی پابندی کی کیا فضیلت ہے؟' },
+      a: {
+        ar: 'فيها حفظٌ وحصنٌ للمسلم من الشرور بإذن الله، وطمأنينةٌ للقلب، وهي ثابتة عن النبي ﷺ في أحاديث صحيحة.',
+        en: 'They are a protection and fortress for the believer from harm by Allah’s leave, bring tranquility to the heart, and are established from the Prophet ﷺ in authentic hadith.',
+        ur: 'یہ مسلمان کے لیے اللہ کے اذن سے شر سے حفاظت اور قلعہ ہیں، دل کو سکون دیتے ہیں، اور نبی ﷺ سے صحیح احادیث میں ثابت ہیں۔',
+      },
+    },
+    {
+      q: { ar: 'كم مرة تُقرأ المعوذات في الصباح والمساء؟', en: 'How many times are the protective surahs recited?', ur: 'معوذات کتنی بار پڑھی جائیں؟' },
+      a: {
+        ar: 'يُستحب قراءة سورة الإخلاص والمعوذتين (الفلق والناس) ثلاث مرات في الصباح وثلاثاً في المساء.',
+        en: 'It is recommended to recite al-Ikhlas, al-Falaq and an-Nas three times in the morning and three times in the evening.',
+        ur: 'سورۃ الاخلاص اور معوذتین (الفلق و الناس) صبح تین بار اور شام تین بار پڑھنا مستحب ہے۔',
+      },
+    },
+  ],
+  'quran': [
+    {
+      q: { ar: 'ما هي الأدعية القرآنية؟', en: 'What are Quranic supplications?', ur: 'قرآنی دعائیں کیا ہیں؟' },
+      a: {
+        ar: 'هي أدعية جامعة وردت في القرآن الكريم على لسان الأنبياء والصالحين، يدعو بها المسلم في كل وقت، مع ذكر السورة ورقم الآية لكل دعاء.',
+        en: 'They are comprehensive supplications found in the Quran on the tongues of the prophets and the righteous, to be recited at any time, each with its surah and ayah number.',
+        ur: 'یہ قرآن میں انبیاء اور صالحین کی زبان پر آنے والی جامع دعائیں ہیں، جو ہر وقت پڑھی جا سکتی ہیں، ہر ایک کے ساتھ سورت اور آیت کا حوالہ ہے۔',
+      },
+    },
+    {
+      q: { ar: 'هل يجوز الدعاء بالأدعية الواردة في القرآن؟', en: 'Is it permissible to supplicate with Quranic duas?', ur: 'کیا قرآنی دعاؤں سے دعا کرنا جائز ہے؟' },
+      a: {
+        ar: 'نعم، الدعاء بما ورد في القرآن من أفضل الدعاء وأجمعه، ويُستحب التوجّه به في الصلاة وخارجها.',
+        en: 'Yes; supplicating with what came in the Quran is among the best and most comprehensive forms of duʿaʾ, recommended in and outside of prayer.',
+        ur: 'جی ہاں، قرآن میں وارد دعاؤں سے دعا کرنا بہترین اور جامع ترین دعا ہے، نماز میں اور باہر دونوں جگہ مستحب ہے۔',
+      },
+    },
+  ],
+  'distress': [
+    {
+      q: { ar: 'ما هو دعاء الكرب والهمّ والحزن؟', en: 'What is the supplication for distress and grief?', ur: 'کرب اور غم کی دعا کیا ہے؟' },
+      a: {
+        ar: 'هي أدعية نبوية ثابتة يلجأ بها المسلم إلى ربه عند الهمّ والحزن والضيق، من أشهرها دعاء الكرب ودعاء ذي النون: «لا إله إلا أنت سبحانك إني كنت من الظالمين».',
+        en: 'They are established prophetic supplications by which the believer turns to his Lord in worry, grief and hardship — most famously the duʿaʾ of distress and the duʿaʾ of Dhun-Nun: “Lā ilāha illā anta subḥānaka innī kuntu mina-ẓ-ẓālimīn.”',
+        ur: 'یہ نبوی دعائیں ہیں جن سے مومن غم اور تنگی میں اپنے رب کی طرف رجوع کرتا ہے، سب سے مشہور دعائے کرب اور دعائے ذوالنون: «لا الٰہ الا انت سبحانک انی کنت من الظالمین»۔',
+      },
+    },
+    {
+      q: { ar: 'هل هناك دعاء لقضاء الدَّين وتفريج الكرب؟', en: 'Is there a duʿaʾ for clearing debt and relieving distress?', ur: 'کیا قرض اتارنے اور کرب دور کرنے کی دعا ہے؟' },
+      a: {
+        ar: 'نعم، من ذلك: «اللهم اكفني بحلالك عن حرامك، وأغنني بفضلك عمّن سواك»، مع الأخذ بالأسباب والتوكّل على الله.',
+        en: 'Yes, such as: “Allāhumma-kfinī bi-ḥalālika ʿan ḥarāmik, wa aghninī bi-faḍlika ʿamman siwāk,” alongside taking practical means and relying on Allah.',
+        ur: 'جی ہاں، جیسے: «اللهم اکفنی بحلالک عن حرامک واغننی بفضلک عمن سواک»، اسباب اختیار کرنے اور اللہ پر توکل کے ساتھ۔',
+      },
+    },
+  ],
+  'daily': [
+    {
+      q: { ar: 'ما هي الأدعية اليومية؟', en: 'What are the daily supplications?', ur: 'روزمرہ کی دعائیں کیا ہیں؟' },
+      a: {
+        ar: 'هي أذكار وأدعية ثابتة ترافق المسلم في يومه: عند الاستيقاظ والنوم والطعام والخروج من المنزل ودخول المسجد والسفر والاستخارة وبعد الوضوء.',
+        en: 'They are established remembrances that accompany the believer through the day: on waking, sleeping, eating, leaving home, entering the mosque, travelling, istikharah, and after ablution.',
+        ur: 'یہ ثابت اذکار ہیں جو دن بھر مومن کے ساتھ رہتے ہیں: بیداری، نیند، کھانے، گھر سے نکلنے، مسجد میں داخلے، سفر، استخارہ اور وضو کے بعد۔',
+      },
+    },
+    {
+      q: { ar: 'كيف تُؤدّى صلاة ودعاء الاستخارة؟', en: 'How is the istikharah prayer and duʿaʾ performed?', ur: 'استخارہ کی نماز اور دعا کیسے ادا کی جائے؟' },
+      a: {
+        ar: 'يصلّي المسلم ركعتين من غير الفريضة، ثم يدعو بدعاء الاستخارة: «اللهم إني أستخيرك بعلمك...» عند إرادة أمرٍ مباح ويُسمّيه في موضعه.',
+        en: 'One prays two units (rakʿahs) other than the obligatory prayer, then recites the istikharah duʿaʾ: “Allāhumma innī astakhīruka bi-ʿilmik…”, naming the matter at its place when intending a permissible decision.',
+        ur: 'فرض کے علاوہ دو رکعتیں پڑھ کر استخارہ کی دعا پڑھی جاتی ہے: «اللهم انی استخیرک بعلمک...»، اور جائز کام کا ارادہ کرتے وقت اس کا نام لیا جاتا ہے۔',
+      },
+    },
+  ],
+};
