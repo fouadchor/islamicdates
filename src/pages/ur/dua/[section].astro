@@ -1,0 +1,34 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import DuaCategoryPage from '../../../components/DuaCategoryPage.astro';
+import { DUA_SECTIONS, DUA_SECTION_SEO, getDuaSection } from '../../../lib/duas';
+
+export function getStaticPaths() {
+  return DUA_SECTIONS.map(s => ({ params: { section: s.id } }));
+}
+
+const { section } = Astro.params;
+const seo = DUA_SECTION_SEO[section!];
+const sec = getDuaSection(section!)!;
+const canonical = `https://islamicdates.org/ur/dua/${section}/`;
+
+const jsonLd = JSON.stringify([
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [
+    { '@type': 'ListItem', 'position': 1, 'name': 'ہوم', 'item': 'https://islamicdates.org/ur/' },
+    { '@type': 'ListItem', 'position': 2, 'name': 'دعا', 'item': 'https://islamicdates.org/ur/dua/' },
+    { '@type': 'ListItem', 'position': 3, 'name': sec.title.ur, 'item': canonical },
+  ] },
+]);
+---
+<Layout
+  title={`${seo.title.ur} · ہجری کیلنڈر`}
+  description={seo.desc.ur}
+  canonical={canonical}
+  lang="ur"
+  jsonLd={jsonLd}
+  arPath={`/dua/${section}/`}
+  enPath={`/en/dua/${section}/`}
+  urPath={`/ur/dua/${section}/`}
+>
+  <DuaCategoryPage lang="ur" sectionId={section!} />
+</Layout>
