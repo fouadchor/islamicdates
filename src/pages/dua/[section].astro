@@ -1,0 +1,34 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import DuaCategoryPage from '../../components/DuaCategoryPage.astro';
+import { DUA_SECTIONS, DUA_SECTION_SEO, getDuaSection } from '../../lib/duas';
+
+export function getStaticPaths() {
+  return DUA_SECTIONS.map(s => ({ params: { section: s.id } }));
+}
+
+const { section } = Astro.params;
+const seo = DUA_SECTION_SEO[section!];
+const sec = getDuaSection(section!)!;
+const canonical = `https://islamicdates.org/dua/${section}/`;
+
+const jsonLd = JSON.stringify([
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [
+    { '@type': 'ListItem', 'position': 1, 'name': 'الرئيسية', 'item': 'https://islamicdates.org/' },
+    { '@type': 'ListItem', 'position': 2, 'name': 'الدعاء', 'item': 'https://islamicdates.org/dua/' },
+    { '@type': 'ListItem', 'position': 3, 'name': sec.title.ar, 'item': canonical },
+  ] },
+]);
+---
+<Layout
+  title={`${seo.title.ar} · التقويم الهجري`}
+  description={seo.desc.ar}
+  canonical={canonical}
+  lang="ar"
+  jsonLd={jsonLd}
+  arPath={`/dua/${section}/`}
+  enPath={`/en/dua/${section}/`}
+  urPath={`/ur/dua/${section}/`}
+>
+  <DuaCategoryPage lang="ar" sectionId={section!} />
+</Layout>
