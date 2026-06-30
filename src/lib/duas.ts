@@ -111,35 +111,42 @@ export const DUA_SECTIONS: DuaSection[] = [
       },
       {
         ar: 'اللّهُمَّ عَافِنِي فِي بَدَنِي، اللّهُمَّ عَافِنِي فِي سَمْعِي، اللّهُمَّ عَافِنِي فِي بَصَرِي، لا إِلَهَ إِلاَّ أَنْتَ',
+        when: { ar: 'دعاء العافية في البدن', en: 'Well-being in body, hearing & sight', ur: 'بدن، سماعت و بصارت کی عافیت' },
         count: 3,
         src: { kind: 'hadith', books: ['abudawud'] },
       },
       {
         ar: 'حَسْبِيَ اللَّهُ لا إِلَهَ إِلاَّ هُوَ، عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ',
+        when: { ar: 'حَسْبِيَ الله — كفاية وتوكّل', en: 'Allah suffices me — reliance', ur: 'اللہ کافی ہے — توکل' },
         count: 7,
         src: { kind: 'hadith', books: ['abudawud'] },
       },
       {
         ar: 'بِسْمِ اللَّهِ الَّذِي لا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ',
+        when: { ar: 'التحصّن باسم الله', en: 'Protection by Allah’s name', ur: 'اللہ کے نام سے حفاظت' },
         count: 3,
         src: { kind: 'hadith', books: ['abudawud', 'tirmidhi'] },
       },
       {
         ar: 'رَضِيتُ بِاللَّهِ رَبًّا، وَبِالْإِسْلامِ دِينًا، وَبِمُحَمَّدٍ ﷺ نَبِيًّا',
+        when: { ar: 'الرضا بالله ربًّا', en: 'Contentment with Allah as Lord', ur: 'اللہ کے رب ہونے پر رضا' },
         count: 3,
         src: { kind: 'hadith', books: ['abudawud', 'ahmad'] },
       },
       {
         ar: 'اللّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي الدُّنْيَا وَالْآخِرَةِ، اللّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي دِينِي وَدُنْيَايَ وَأَهْلِي وَمَالِي',
+        when: { ar: 'سؤال العفو والعافية', en: 'Asking for pardon & well-being', ur: 'عفو و عافیت کا سوال' },
         src: { kind: 'hadith', books: ['abudawud', 'ibnmajah'] },
       },
       {
         ar: 'سُبْحَانَ اللَّهِ وَبِحَمْدِهِ',
+        when: { ar: 'التسبيح بحمد الله', en: 'Glorifying & praising Allah', ur: 'اللہ کی تسبیح و حمد' },
         count: 100,
         src: { kind: 'hadith', books: ['agreed'] },
       },
       {
         ar: 'لا إِلَهَ إِلاَّ اللَّهُ وَحْدَهُ لا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ',
+        when: { ar: 'التهليل وتوحيد الله', en: 'Declaring Allah’s oneness', ur: 'توحید کا کلمہ' },
         count: 10,
         src: { kind: 'hadith', books: ['agreed'] },
       },
@@ -156,19 +163,19 @@ export const DUA_SECTIONS: DuaSection[] = [
       ur: 'اللہ کی کتاب میں انبیاء اور صالحین کی زبان پر آنے والی جامع دعائیں، جو ہر وقت پڑھی جا سکتی ہیں۔',
     },
     items: [
-      { ar: 'رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ', src: { kind: 'quran', surah: 2, ayah: '201' } },
-      { ar: 'رَبَّنَا لا تُؤَاخِذْنَا إِن نَّسِينَا أَوْ أَخْطَأْنَا ۚ رَبَّنَا وَلا تَحْمِلْ عَلَيْنَا إِصْرًا كَمَا حَمَلْتَهُ عَلَى الَّذِينَ مِن قَبْلِنَا ۚ رَبَّنَا وَلا تُحَمِّلْنَا مَا لا طَاقَةَ لَنَا بِهِ ۖ وَاعْفُ عَنَّا وَاغْفِرْ لَنَا وَارْحَمْنَا ۚ أَنتَ مَوْلانَا فَانصُرْنَا عَلَى الْقَوْمِ الْكَافِرِينَ', src: { kind: 'quran', surah: 2, ayah: '286' } },
-      { ar: 'رَبَّنَا لا تُزِغْ قُلُوبَنَا بَعْدَ إِذْ هَدَيْتَنَا وَهَبْ لَنَا مِن لَّدُنكَ رَحْمَةً ۚ إِنَّكَ أَنتَ الْوَهَّابُ', src: { kind: 'quran', surah: 3, ayah: '8' } },
-      { ar: 'رَبَّنَا اغْفِرْ لَنَا ذُنُوبَنَا وَإِسْرَافَنَا فِي أَمْرِنَا وَثَبِّتْ أَقْدَامَنَا وَانصُرْنَا عَلَى الْقَوْمِ الْكَافِرِينَ', src: { kind: 'quran', surah: 3, ayah: '147' } },
-      { ar: 'رَبَّنَا ظَلَمْنَا أَنفُسَنَا وَإِن لَّمْ تَغْفِرْ لَنَا وَتَرْحَمْنَا لَنَكُونَنَّ مِنَ الْخَاسِرِينَ', src: { kind: 'quran', surah: 7, ayah: '23' } },
-      { ar: 'رَبِّ اجْعَلْنِي مُقِيمَ الصَّلاةِ وَمِن ذُرِّيَّتِي ۚ رَبَّنَا وَتَقَبَّلْ دُعَاءِ ۝ رَبَّنَا اغْفِرْ لِي وَلِوَالِدَيَّ وَلِلْمُؤْمِنِينَ يَوْمَ يَقُومُ الْحِسَابُ', src: { kind: 'quran', surah: 14, ayah: '40-41' } },
-      { ar: 'رَبِّ اشْرَحْ لِي صَدْرِي ۝ وَيَسِّرْ لِي أَمْرِي ۝ وَاحْلُلْ عُقْدَةً مِّن لِّسَانِي ۝ يَفْقَهُوا قَوْلِي', src: { kind: 'quran', surah: 20, ayah: '25-28' } },
-      { ar: 'رَّبِّ زِدْنِي عِلْمًا', src: { kind: 'quran', surah: 20, ayah: '114' } },
-      { ar: 'لا إِلَهَ إِلاَّ أَنتَ سُبْحَانَكَ إِنِّي كُنتُ مِنَ الظَّالِمِينَ', src: { kind: 'quran', surah: 21, ayah: '87' } },
-      { ar: 'رَّبِّ أَعُوذُ بِكَ مِنْ هَمَزَاتِ الشَّيَاطِينِ ۝ وَأَعُوذُ بِكَ رَبِّ أَن يَحْضُرُونِ', src: { kind: 'quran', surah: 23, ayah: '97-98' } },
-      { ar: 'رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ وَاجْعَلْنَا لِلْمُتَّقِينَ إِمَامًا', src: { kind: 'quran', surah: 25, ayah: '74' } },
-      { ar: 'رَبِّ إِنِّي لِمَا أَنزَلْتَ إِلَيَّ مِنْ خَيْرٍ فَقِيرٌ', src: { kind: 'quran', surah: 28, ayah: '24' } },
-      { ar: 'رَبِّ أَوْزِعْنِي أَنْ أَشْكُرَ نِعْمَتَكَ الَّتِي أَنْعَمْتَ عَلَيَّ وَعَلَى وَالِدَيَّ وَأَنْ أَعْمَلَ صَالِحًا تَرْضَاهُ وَأَصْلِحْ لِي فِي ذُرِّيَّتِي ۖ إِنِّي تُبْتُ إِلَيْكَ وَإِنِّي مِنَ الْمُسْلِمِينَ', src: { kind: 'quran', surah: 46, ayah: '15' } },
+      { ar: 'رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ', when: { ar: 'دعاء خير الدنيا والآخرة', en: 'Good in this world & the next', ur: 'دنیا و آخرت کی بھلائی' }, src: { kind: 'quran', surah: 2, ayah: '201' } },
+      { ar: 'رَبَّنَا لا تُؤَاخِذْنَا إِن نَّسِينَا أَوْ أَخْطَأْنَا ۚ رَبَّنَا وَلا تَحْمِلْ عَلَيْنَا إِصْرًا كَمَا حَمَلْتَهُ عَلَى الَّذِينَ مِن قَبْلِنَا ۚ رَبَّنَا وَلا تُحَمِّلْنَا مَا لا طَاقَةَ لَنَا بِهِ ۖ وَاعْفُ عَنَّا وَاغْفِرْ لَنَا وَارْحَمْنَا ۚ أَنتَ مَوْلانَا فَانصُرْنَا عَلَى الْقَوْمِ الْكَافِرِينَ', when: { ar: 'خواتيم سورة البقرة', en: 'The closing verses of al-Baqarah', ur: 'سورۃ البقرہ کی آخری آیات' }, src: { kind: 'quran', surah: 2, ayah: '286' } },
+      { ar: 'رَبَّنَا لا تُزِغْ قُلُوبَنَا بَعْدَ إِذْ هَدَيْتَنَا وَهَبْ لَنَا مِن لَّدُنكَ رَحْمَةً ۚ إِنَّكَ أَنتَ الْوَهَّابُ', when: { ar: 'دعاء الثبات على الهدى', en: 'Steadfastness upon guidance', ur: 'ہدایت پر ثابت قدمی' }, src: { kind: 'quran', surah: 3, ayah: '8' } },
+      { ar: 'رَبَّنَا اغْفِرْ لَنَا ذُنُوبَنَا وَإِسْرَافَنَا فِي أَمْرِنَا وَثَبِّتْ أَقْدَامَنَا وَانصُرْنَا عَلَى الْقَوْمِ الْكَافِرِينَ', when: { ar: 'دعاء المغفرة والنصر', en: 'Forgiveness & victory', ur: 'مغفرت اور نصرت' }, src: { kind: 'quran', surah: 3, ayah: '147' } },
+      { ar: 'رَبَّنَا ظَلَمْنَا أَنفُسَنَا وَإِن لَّمْ تَغْفِرْ لَنَا وَتَرْحَمْنَا لَنَكُونَنَّ مِنَ الْخَاسِرِينَ', when: { ar: 'دعاء آدم ﷺ — الاعتراف بالذنب', en: 'The prayer of Adam ﷺ', ur: 'آدم علیہ السلام کی دعا' }, src: { kind: 'quran', surah: 7, ayah: '23' } },
+      { ar: 'رَبِّ اجْعَلْنِي مُقِيمَ الصَّلاةِ وَمِن ذُرِّيَّتِي ۚ رَبَّنَا وَتَقَبَّلْ دُعَاءِ ۝ رَبَّنَا اغْفِرْ لِي وَلِوَالِدَيَّ وَلِلْمُؤْمِنِينَ يَوْمَ يَقُومُ الْحِسَابُ', when: { ar: 'دعاء إبراهيم ﷺ — إقامة الصلاة', en: 'Ibrahim’s ﷺ prayer for ṣalāh', ur: 'ابراہیم علیہ السلام کی دعا' }, src: { kind: 'quran', surah: 14, ayah: '40-41' } },
+      { ar: 'رَبِّ اشْرَحْ لِي صَدْرِي ۝ وَيَسِّرْ لِي أَمْرِي ۝ وَاحْلُلْ عُقْدَةً مِّن لِّسَانِي ۝ يَفْقَهُوا قَوْلِي', when: { ar: 'دعاء موسى ﷺ — شرح الصدر', en: 'Musa’s ﷺ prayer — opening the heart', ur: 'موسیٰ علیہ السلام کی دعا' }, src: { kind: 'quran', surah: 20, ayah: '25-28' } },
+      { ar: 'رَّبِّ زِدْنِي عِلْمًا', when: { ar: 'دعاء طلب العلم', en: 'Prayer for increase in knowledge', ur: 'علم میں اضافہ کی دعا' }, src: { kind: 'quran', surah: 20, ayah: '114' } },
+      { ar: 'لا إِلَهَ إِلاَّ أَنتَ سُبْحَانَكَ إِنِّي كُنتُ مِنَ الظَّالِمِينَ', when: { ar: 'دعاء يونس ﷺ — ذي النون', en: 'The prayer of Yunus ﷺ (Dhun-Nun)', ur: 'یونس علیہ السلام کی دعا' }, src: { kind: 'quran', surah: 21, ayah: '87' } },
+      { ar: 'رَّبِّ أَعُوذُ بِكَ مِنْ هَمَزَاتِ الشَّيَاطِينِ ۝ وَأَعُوذُ بِكَ رَبِّ أَن يَحْضُرُونِ', when: { ar: 'الاستعاذة من همزات الشياطين', en: 'Refuge from the whispers of devils', ur: 'شیطانی وسوسوں سے پناہ' }, src: { kind: 'quran', surah: 23, ayah: '97-98' } },
+      { ar: 'رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ وَاجْعَلْنَا لِلْمُتَّقِينَ إِمَامًا', when: { ar: 'دعاء صلاح الأهل والذرية', en: 'Prayer for a righteous family', ur: 'نیک اہل و اولاد کی دعا' }, src: { kind: 'quran', surah: 25, ayah: '74' } },
+      { ar: 'رَبِّ إِنِّي لِمَا أَنزَلْتَ إِلَيَّ مِنْ خَيْرٍ فَقِيرٌ', when: { ar: 'دعاء موسى ﷺ — طلب الرزق', en: 'Musa’s ﷺ prayer for provision', ur: 'موسیٰ علیہ السلام کی رزق کی دعا' }, src: { kind: 'quran', surah: 28, ayah: '24' } },
+      { ar: 'رَبِّ أَوْزِعْنِي أَنْ أَشْكُرَ نِعْمَتَكَ الَّتِي أَنْعَمْتَ عَلَيَّ وَعَلَى وَالِدَيَّ وَأَنْ أَعْمَلَ صَالِحًا تَرْضَاهُ وَأَصْلِحْ لِي فِي ذُرِّيَّتِي ۖ إِنِّي تُبْتُ إِلَيْكَ وَإِنِّي مِنَ الْمُسْلِمِينَ', when: { ar: 'دعاء الشكر وبرّ الوالدين', en: 'Gratitude & kindness to parents', ur: 'شکر اور والدین کے ساتھ احسان' }, src: { kind: 'quran', surah: 46, ayah: '15' } },
     ],
   },
 
@@ -194,6 +201,7 @@ export const DUA_SECTIONS: DuaSection[] = [
       },
       {
         ar: 'اللّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ، وَالْعَجْزِ وَالْكَسَلِ، وَالْبُخْلِ وَالْجُبْنِ، وَضَلَعِ الدَّيْنِ وَغَلَبَةِ الرِّجَالِ',
+        when: { ar: 'الاستعاذة من الهمّ والعجز والدَّين', en: 'Refuge from worry, weakness & debt', ur: 'غم، عاجزی اور قرض سے پناہ' },
         src: { kind: 'hadith', books: ['bukhari'] },
       },
       {
@@ -203,14 +211,17 @@ export const DUA_SECTIONS: DuaSection[] = [
       },
       {
         ar: 'اللّهُمَّ رَحْمَتَكَ أَرْجُو فَلا تَكِلْنِي إِلَى نَفْسِي طَرْفَةَ عَيْنٍ، وَأَصْلِحْ لِي شَأْنِي كُلَّهُ، لا إِلَهَ إِلاَّ أَنْتَ',
+        when: { ar: 'تفويض الأمر إلى الله', en: 'Entrusting all affairs to Allah', ur: 'تمام معاملات اللہ کے سپرد' },
         src: { kind: 'hadith', books: ['abudawud'] },
       },
       {
         ar: 'اللّهُمَّ لا سَهْلَ إِلاَّ مَا جَعَلْتَهُ سَهْلاً، وَأَنْتَ تَجْعَلُ الْحَزْنَ إِذَا شِئْتَ سَهْلاً',
+        when: { ar: 'دعاء تيسير الأمور', en: 'Making the difficult easy', ur: 'آسانی کی دعا' },
         src: { kind: 'hadith', books: ['ibnhibban'] },
       },
       {
         ar: 'يَا حَيُّ يَا قَيُّومُ بِرَحْمَتِكَ أَسْتَغِيثُ، أَصْلِحْ لِي شَأْنِي كُلَّهُ، وَلا تَكِلْنِي إِلَى نَفْسِي طَرْفَةَ عَيْنٍ',
+        when: { ar: 'الاستغاثة عند الكرب', en: 'Seeking Allah’s aid in distress', ur: 'کرب میں اللہ سے فریاد' },
         src: { kind: 'hadith', books: ['hakim'] },
       },
       {
@@ -220,6 +231,7 @@ export const DUA_SECTIONS: DuaSection[] = [
       },
       {
         ar: 'اللّهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ جَهْدِ الْبَلاءِ، وَدَرَكِ الشَّقَاءِ، وَسُوءِ الْقَضَاءِ، وَشَمَاتَةِ الْأَعْدَاءِ',
+        when: { ar: 'الاستعاذة من جهد البلاء', en: 'Refuge from severe affliction', ur: 'سخت آزمائش سے پناہ' },
         src: { kind: 'hadith', books: ['agreed'] },
       },
     ],
@@ -314,4 +326,70 @@ export const DUA_PAGE: Record<'ar' | 'en' | 'ur', {
     sourcesNote: 'تمام دعائیں قرآن کریم اور صحیح احادیث کی کتب (مثلاً بخاری، مسلم اور سنن) سے ماخوذ ہیں، «حصن المسلم» کے طرز پر۔ ہر دعا کا حوالہ اس کے نیچے درج ہے۔',
     relatedTitle: 'متعلقہ ٹولز',
   },
+};
+
+// Look up a section by its id.
+export const getDuaSection = (id: string): DuaSection | undefined =>
+  DUA_SECTIONS.find(s => s.id === id);
+
+// Per-section SEO metadata for the standalone category pages.
+// (title → <title>/og:title, desc → meta description; longer & keyword-focused.)
+export const DUA_SECTION_SEO: Record<string, { title: Tri; desc: Tri }> = {
+  'morning-evening': {
+    title: {
+      ar: 'أذكار الصباح والمساء كاملة مع العدد والمصدر',
+      en: 'Morning & Evening Adhkar — Complete, with Counts & Sources',
+      ur: 'صبح و شام کے مکمل اذکار — تعداد اور حوالہ کے ساتھ',
+    },
+    desc: {
+      ar: 'أذكار الصباح والمساء الثابتة عن النبي ﷺ كاملةً: سيد الاستغفار، آية الكرسي، المعوذات وغيرها، مع عدد المرات ومصدر كل ذكر.',
+      en: 'The complete morning and evening remembrances established from the Prophet ﷺ — Sayyid al-Istighfar, Ayat al-Kursi, the protective surahs and more, with repetitions and sources.',
+      ur: 'نبی کریم ﷺ سے ثابت صبح و شام کے مکمل اذکار: سید الاستغفار، آیت الکرسی، معوذات وغیرہ، تعداد اور حوالہ کے ساتھ۔',
+    },
+  },
+  'quran': {
+    title: {
+      ar: 'أدعية من القرآن الكريم — أدعية قرآنية مع رقم الآية',
+      en: 'Supplications from the Quran — Quranic Duas with References',
+      ur: 'قرآن کریم سے دعائیں — سورت و آیت کے حوالہ کے ساتھ',
+    },
+    desc: {
+      ar: 'أدعية قرآنية جامعة وردت على لسان الأنبياء والصالحين، مع ذكر اسم السورة ورقم الآية لكل دعاء.',
+      en: 'Comprehensive Quranic supplications on the tongues of the prophets and the righteous, each with its surah name and ayah number.',
+      ur: 'قرآن کی جامع دعائیں جو انبیاء اور صالحین کی زبان پر آئیں، ہر ایک کے ساتھ سورت اور آیت کا حوالہ۔',
+    },
+  },
+  'distress': {
+    title: {
+      ar: 'أدعية الكرب والهمّ والشدّة من السنة النبوية',
+      en: 'Duas for Distress, Anxiety & Hardship — from the Sunnah',
+      ur: 'پریشانی، غم اور تنگی کی دعائیں — سنت سے',
+    },
+    desc: {
+      ar: 'أدعية نبوية للكرب والهمّ والحزن وقضاء الدَّين وتفريج الشدائد: دعاء الكرب ودعاء ذي النون وغيرهما، مع مصدر كل دعاء.',
+      en: 'Prophetic supplications for distress, worry, grief, debt and relief from hardship — the dua of distress, the dua of Dhun-Nun and more, each with its source.',
+      ur: 'کرب، غم، قرض اور تنگی سے نجات کی نبوی دعائیں: دعائے کرب، دعائے ذوالنون وغیرہ، حوالہ کے ساتھ۔',
+    },
+  },
+  'daily': {
+    title: {
+      ar: 'أدعية يومية وأذكار من السنة لكل المناسبات',
+      en: 'Daily Supplications & Adhkar from the Sunnah',
+      ur: 'روزمرہ کی دعائیں اور اذکار — سنت سے',
+    },
+    desc: {
+      ar: 'أدعية وأذكار اليوم الثابتة: النوم والاستيقاظ والطعام والخروج والسفر والاستخارة ودخول المسجد، مع مصدر كل دعاء.',
+      en: 'Established everyday duas: sleeping, waking, eating, leaving home, travel, istikharah and entering the mosque, each with its source.',
+      ur: 'روزمرہ کی ثابت دعائیں: سونا، جاگنا، کھانا، گھر سے نکلنا، سفر، استخارہ اور مسجد میں داخلہ، حوالہ کے ساتھ۔',
+    },
+  },
+};
+
+// UI chrome strings shared by the hub cards and category pages.
+export const DUA_UI: Record<'ar' | 'en' | 'ur', {
+  duaCrumb: string; allSections: string; otherSections: string; viewAll: string; backToHub: string; supplications: string;
+}> = {
+  ar: { duaCrumb: 'الدعاء', allSections: 'كل أقسام الدعاء', otherSections: 'تصفّح أقساماً أخرى', viewAll: 'عرض القسم', backToHub: 'كل الأدعية والأذكار', supplications: 'دعاء' },
+  en: { duaCrumb: 'Duʿaʾ', allSections: 'All duʿaʾ sections', otherSections: 'Browse other sections', viewAll: 'View section', backToHub: 'All supplications & adhkar', supplications: 'duʿāʾ' },
+  ur: { duaCrumb: 'دعا', allSections: 'دعا کے تمام حصے', otherSections: 'دیگر حصے دیکھیں', viewAll: 'حصہ دیکھیں', backToHub: 'تمام دعائیں و اذکار', supplications: 'دعائیں' },
 };
