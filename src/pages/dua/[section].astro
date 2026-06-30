@@ -1,7 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import DuaCategoryPage from '../../components/DuaCategoryPage.astro';
-import { DUA_SECTIONS, DUA_SECTION_SEO, getDuaSection } from '../../lib/duas';
+import { DUA_SECTIONS, DUA_SECTION_SEO, getDuaSection, DUA_FAQ, duaItemName } from '../../lib/duas';
 
 export function getStaticPaths() {
   return DUA_SECTIONS.map(s => ({ params: { section: s.id } }));
@@ -10,6 +10,7 @@ export function getStaticPaths() {
 const { section } = Astro.params;
 const seo = DUA_SECTION_SEO[section!];
 const sec = getDuaSection(section!)!;
+const faqs = DUA_FAQ[section!] ?? [];
 const canonical = `https://islamicdates.org/dua/${section}/`;
 
 const jsonLd = JSON.stringify([
@@ -18,6 +19,8 @@ const jsonLd = JSON.stringify([
     { '@type': 'ListItem', 'position': 2, 'name': 'الدعاء', 'item': 'https://islamicdates.org/dua/' },
     { '@type': 'ListItem', 'position': 3, 'name': sec.title.ar, 'item': canonical },
   ] },
+  { '@context': 'https://schema.org', '@type': 'ItemList', 'name': sec.title.ar, 'numberOfItems': sec.items.length, 'itemListElement': sec.items.map((d, i) => ({ '@type': 'ListItem', 'position': i + 1, 'name': duaItemName(d, 'ar') })) },
+  ...(faqs.length ? [{ '@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': faqs.map(f => ({ '@type': 'Question', 'name': f.q.ar, 'acceptedAnswer': { '@type': 'Answer', 'text': f.a.ar } })) }] : []),
 ]);
 ---
 <Layout
