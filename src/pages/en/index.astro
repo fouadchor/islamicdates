@@ -121,7 +121,7 @@ const jsonLd = JSON.stringify([
           var h = hList[((day % hList.length) + hList.length) % hList.length];
           var t = document.getElementById('hadith-text');
           var s = document.getElementById('hadith-src');
-          if (t) t.textContent = '“' + h.t + '”';
+          if (t) t.textContent = '\u201C' + h.t + '\u201D';
           if (s) s.textContent = h.s;
         })();
       </script>
