@@ -45,6 +45,8 @@ const SURAHS: Record<number, Tri> = {
   3:  { ar: 'آل عمران',  en: 'Aal ʿImran',  ur: 'آلِ عمران' },
   7:  { ar: 'الأعراف',   en: 'al-Aʿraf',    ur: 'الاعراف' },
   14: { ar: 'إبراهيم',   en: 'Ibrahim',     ur: 'ابراہیم' },
+  17: { ar: 'الإسراء',   en: 'al-Isra',     ur: 'بنی اسرائیل' },
+  18: { ar: 'الكهف',     en: 'al-Kahf',     ur: 'الکہف' },
   20: { ar: 'طه',        en: 'Ta-Ha',       ur: 'طٰہٰ' },
   21: { ar: 'الأنبياء',  en: 'al-Anbiyaʾ',  ur: 'الانبیاء' },
   23: { ar: 'المؤمنون',  en: 'al-Muʾminun', ur: 'المؤمنون' },
@@ -297,6 +299,140 @@ export const DUA_SECTIONS: DuaSection[] = [
         when: { ar: 'بعد الوضوء', en: 'After ablution (wudu)', ur: 'وضو کے بعد' },
         src: { kind: 'hadith', books: ['muslim', 'tirmidhi'] },
       },
+      {
+        ar: 'إِذَا عَطَسَ أَحَدُكُمْ فَلْيَقُلِ: الْحَمْدُ لِلَّهِ، وَلْيَقُلْ لَهُ أَخُوهُ أَوْ صَاحِبُهُ: يَرْحَمُكَ اللَّهُ، فَإِذَا قَالَ لَهُ: يَرْحَمُكَ اللَّهُ، فَلْيَقُلْ: يَهْدِيكُمُ اللَّهُ وَيُصْلِحُ بَالَكُمْ',
+        when: { ar: 'عند العطاس', en: 'On sneezing', ur: 'چھینک کے وقت' },
+        src: { kind: 'hadith', books: ['bukhari'] },
+      },
+      {
+        ar: 'اللّهُمَّ لَكَ الْحَمْدُ أَنْتَ كَسَوْتَنِيهِ، أَسْأَلُكَ مِنْ خَيْرِهِ وَخَيْرِ مَا صُنِعَ لَهُ، وَأَعُوذُ بِكَ مِنْ شَرِّهِ وَشَرِّ مَا صُنِعَ لَهُ',
+        when: { ar: 'عند لبس الثوب الجديد', en: 'On wearing new clothes', ur: 'نیا لباس پہنتے وقت' },
+        src: { kind: 'hadith', books: ['abudawud', 'tirmidhi'] },
+      },
+      {
+        ar: 'لا إِلَهَ إِلاَّ اللَّهُ وَحْدَهُ لا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ يُحْيِي وَيُمِيتُ وَهُوَ حَيٌّ لا يَمُوتُ، بِيَدِهِ الْخَيْرُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ',
+        when: { ar: 'عند دخول السوق', en: 'On entering the marketplace', ur: 'بازار میں داخل ہوتے وقت' },
+        src: { kind: 'hadith', books: ['tirmidhi'] },
+      },
+      {
+        ar: 'ذَهَبَ الظَّمَأُ وَابْتَلَّتِ الْعُرُوقُ وَثَبَتَ الْأَجْرُ إِنْ شَاءَ اللَّهُ',
+        when: { ar: 'دعاء الإفطار', en: 'On breaking the fast (iftar)', ur: 'روزہ افطار کرتے وقت' },
+        src: { kind: 'hadith', books: ['abudawud'] },
+      },
+    ],
+  },
+
+  // ───────────────────────── 5. Parents, family & marriage ─────────────────────────
+  {
+    id: 'parents-family',
+    title: { ar: 'أدعية الوالدين والأسرة والزواج', en: 'Supplications for Parents, Family & Marriage', ur: 'والدین، خاندان اور نکاح کی دعائیں' },
+    intro: {
+      ar: 'أدعية من القرآن والسنة في برّ الوالدين والدعاء لهما، وتهنئة الزوجين عند الزواج، وطلب الذرية الصالحة وحفظ الأبناء.',
+      en: 'Supplications from the Quran and Sunnah for honoring and praying for one’s parents, for spouses at marriage, and for righteous offspring and the protection of children.',
+      ur: 'قرآن و سنت سے والدین کی دعا، نکاح کے موقع پر دولہا دلہن کی دعا، نیک اولاد اور بچوں کی حفاظت سے متعلق دعائیں۔',
+    },
+    items: [
+      {
+        ar: 'رَبِّ ارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا',
+        when: { ar: 'دعاء الوالدين', en: 'Prayer for one’s parents', ur: 'والدین کے لیے دعا' },
+        src: { kind: 'quran', surah: 17, ayah: '24' },
+      },
+      {
+        ar: 'رَبِّ هَبْ لِي مِن لَّدُنكَ ذُرِّيَّةً طَيِّبَةً ۖ إِنَّكَ سَمِيعُ الدُّعَاءِ',
+        when: { ar: 'دعاء زكريا ﷺ — طلب الذرية الصالحة', en: 'Zakariyya’s ﷺ prayer for righteous offspring', ur: 'زکریا علیہ السلام کی نیک اولاد کی دعا' },
+        src: { kind: 'quran', surah: 3, ayah: '38' },
+      },
+      {
+        ar: 'بَارَكَ اللَّهُ لَكَ، وَبَارَكَ عَلَيْكَ، وَجَمَعَ بَيْنَكُمَا فِي خَيْرٍ',
+        when: { ar: 'دعاء تهنئة العروسين', en: 'Congratulating the newly married couple', ur: 'دولہا دلہن کی تہنیت' },
+        src: { kind: 'hadith', books: ['abudawud', 'tirmidhi'] },
+      },
+      {
+        ar: 'اللّهُمَّ إِنِّي أَسْأَلُكَ خَيْرَهَا وَخَيْرَ مَا جَبَلْتَهَا عَلَيْهِ، وَأَعُوذُ بِكَ مِنْ شَرِّهَا وَشَرِّ مَا جَبَلْتَهَا عَلَيْهِ',
+        when: { ar: 'دعاء الزوج لزوجته عند الزواج', en: 'The husband’s prayer for his wife at marriage', ur: 'شادی کے وقت شوہر کی بیوی کے لیے دعا' },
+        src: { kind: 'hadith', books: ['abudawud', 'ibnmajah'] },
+      },
+      {
+        ar: 'أُعِيذُكُمَا بِكَلِمَاتِ اللَّهِ التَّامَّةِ مِنْ كُلِّ شَيْطَانٍ وَهَامَّةٍ، وَمِنْ كُلِّ عَيْنٍ لاَمَّةٍ',
+        when: { ar: 'دعاء حفظ الأولاد (كما كان النبي ﷺ يُعَوِّذ به الحسن والحسين)', en: 'Prayer for protecting one’s children (as the Prophet ﷺ used for Hasan & Husain)', ur: 'اولاد کی حفاظت کی دعا (جیسے نبی ﷺ نے حسن و حسین کے لیے پڑھی)' },
+        src: { kind: 'hadith', books: ['bukhari'] },
+      },
+    ],
+  },
+
+  // ───────────────────────── 6. Healing, ruqyah & protection ─────────────────────────
+  {
+    id: 'health-protection',
+    title: { ar: 'أدعية الشفاء والرقية والحماية', en: 'Supplications for Healing, Ruqyah & Protection', ur: 'شفا، رقیہ اور حفاظت کی دعائیں' },
+    intro: {
+      ar: 'أدعية ورقى نبوية ثابتة للشفاء من المرض، والرقية الشرعية من العين والحسد، وطلب الحفظ والعافية.',
+      en: 'Established prophetic supplications and ruqyah for healing from illness, protection from the evil eye and envy, and seeking safety and well-being.',
+      ur: 'بیماری سے شفا، نظرِ بد اور حسد سے رقیہ شرعی، اور حفاظت و عافیت کی نبوی دعائیں۔',
+    },
+    items: [
+      {
+        ar: 'اللَّهُمَّ رَبَّ النَّاسِ أَذْهِبِ الْبَأْسَ، اشْفِ أَنْتَ الشَّافِي، لاَ شِفَاءَ إِلاَّ شِفَاؤُكَ، شِفَاءً لاَ يُغَادِرُ سَقَمًا',
+        when: { ar: 'دعاء الشفاء للمريض', en: 'Supplication for healing the sick', ur: 'مریض کے لیے شفا کی دعا' },
+        src: { kind: 'hadith', books: ['agreed'] },
+      },
+      {
+        ar: 'بِسْمِ اللَّهِ (ثلاثاً)، أَعُوذُ بِعِزَّةِ اللَّهِ وَقُدْرَتِهِ مِنْ شَرِّ مَا أَجِدُ وَأُحَاذِرُ (سبع مرات)',
+        when: { ar: 'الرقية بوضع اليد على موضع الألم', en: 'Ruqyah by placing the hand on the site of pain', ur: 'درد کی جگہ ہاتھ رکھ کر رقیہ' },
+        src: { kind: 'hadith', books: ['muslim'] },
+      },
+      {
+        ar: 'بِسْمِ اللَّهِ أَرْقِيكَ، مِنْ كُلِّ شَيْءٍ يُؤْذِيكَ، مِنْ شَرِّ كُلِّ نَفْسٍ أَوْ عَيْنِ حَاسِدٍ، اللَّهُ يَشْفِيكَ، بِسْمِ اللَّهِ أَرْقِيكَ',
+        when: { ar: 'رقية جبريل عليه السلام للنبي ﷺ', en: 'The ruqyah of Jibril ﷺ for the Prophet ﷺ', ur: 'جبریل علیہ السلام کی نبی ﷺ کے لیے رقیہ' },
+        src: { kind: 'hadith', books: ['muslim'] },
+      },
+      {
+        ar: 'مَا شَاءَ اللَّهُ لَا قُوَّةَ إِلَّا بِاللَّهِ',
+        when: { ar: 'دفع العين عند استحسان شيء', en: 'Warding off the evil eye when admiring something', ur: 'کسی چیز کو پسند کرتے وقت نظرِ بد سے بچاؤ' },
+        src: { kind: 'quran', surah: 18, ayah: '39' },
+      },
+      {
+        ar: 'الْحَمْدُ لِلَّهِ الَّذِي عَافَانِي مِمَّا ابْتَلاَكَ بِهِ وَفَضَّلَنِي عَلَى كَثِيرٍ مِمَّنْ خَلَقَ تَفْضِيلاً',
+        when: { ar: 'عند رؤية مبتلى', en: 'On seeing someone afflicted with a trial', ur: 'کسی مصیبت زدہ کو دیکھ کر' },
+        src: { kind: 'hadith', books: ['tirmidhi'] },
+      },
+    ],
+  },
+
+  // ───────────────────────── 7. Provision, repentance & ease ─────────────────────────
+  {
+    id: 'rizq-tawbah',
+    title: { ar: 'أدعية الرزق والتوبة وتيسير الأمور', en: 'Supplications for Provision, Repentance & Ease', ur: 'رزق، توبہ اور آسانی کی دعائیں' },
+    intro: {
+      ar: 'أدعية نبوية لطلب الرزق الحلال والعلم النافع، والتوبة والاستغفار، وقنوت النبي ﷺ في الصلاة.',
+      en: 'Prophetic supplications for seeking lawful provision and beneficial knowledge, repentance and seeking forgiveness, and the Prophet’s ﷺ Qunut in prayer.',
+      ur: 'حلال رزق اور نفع بخش علم کی طلب، توبہ و استغفار اور نبی ﷺ کے دعائے قنوت کی دعائیں۔',
+    },
+    items: [
+      {
+        ar: 'اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْمًا نَافِعًا، وَرِزْقًا طَيِّبًا، وَعَمَلًا مُتَقَبَّلاً',
+        when: { ar: 'دعاء بعد صلاة الفجر', en: 'Supplication after the Fajr prayer', ur: 'نمازِ فجر کے بعد کی دعا' },
+        src: { kind: 'hadith', books: ['ibnmajah'] },
+      },
+      {
+        ar: 'اللَّهُمَّ اهْدِنِي فِيمَنْ هَدَيْتَ، وَعَافِنِي فِيمَنْ عَافَيْتَ، وَتَوَلَّنِي فِيمَنْ تَوَلَّيْتَ، وَبَارِكْ لِي فِيمَا أَعْطَيْتَ، وَقِنِي شَرَّ مَا قَضَيْتَ، فَإِنَّكَ تَقْضِي وَلَا يُقْضَى عَلَيْكَ، إِنَّهُ لَا يَذِلُّ مَنْ وَالَيْتَ، تَبَارَكْتَ رَبَّنَا وَتَعَالَيْتَ',
+        when: { ar: 'دعاء القنوت', en: 'The Qunut supplication', ur: 'دعائے قنوت' },
+        src: { kind: 'hadith', books: ['abudawud', 'tirmidhi', 'nasai'] },
+      },
+      {
+        ar: 'رَبِّ اغْفِرْ لِي وَتُبْ عَلَيَّ إِنَّكَ أَنْتَ التَّوَّابُ الرَّحِيمُ',
+        when: { ar: 'كان النبي ﷺ يقولها في المجلس الواحد مائة مرة', en: 'Repeated by the Prophet ﷺ a hundred times in a single gathering', ur: 'نبی ﷺ ایک مجلس میں سو بار پڑھا کرتے تھے' },
+        src: { kind: 'hadith', books: ['abudawud', 'tirmidhi', 'ibnmajah'] },
+      },
+      {
+        ar: 'اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْكُفْرِ وَالْفَقْرِ',
+        when: { ar: 'الاستعاذة من الفقر', en: 'Seeking refuge from poverty', ur: 'فقر سے پناہ' },
+        src: { kind: 'hadith', books: ['abudawud', 'nasai'] },
+      },
+      {
+        ar: 'أَسْتَغْفِرُ اللَّهَ الَّذِي لَا إِلَهَ إِلَّا هُوَ الْحَيَّ الْقَيُّومَ وَأَتُوبُ إِلَيْهِ',
+        when: { ar: 'الاستغفار الجامع', en: 'A comprehensive supplication of repentance', ur: 'جامع استغفار' },
+        src: { kind: 'hadith', books: ['abudawud', 'tirmidhi'] },
+      },
     ],
   },
 ];
@@ -378,9 +514,45 @@ export const DUA_SECTION_SEO: Record<string, { title: Tri; desc: Tri }> = {
       ur: 'روزمرہ کی دعائیں اور اذکار — سنت سے',
     },
     desc: {
-      ar: 'أدعية وأذكار اليوم الثابتة: النوم والاستيقاظ والطعام والخروج والسفر والاستخارة ودخول المسجد، مع مصدر كل دعاء.',
-      en: 'Established everyday duas: sleeping, waking, eating, leaving home, travel, istikharah and entering the mosque, each with its source.',
-      ur: 'روزمرہ کی ثابت دعائیں: سونا، جاگنا، کھانا، گھر سے نکلنا، سفر، استخارہ اور مسجد میں داخلہ، حوالہ کے ساتھ۔',
+      ar: 'أدعية وأذكار اليوم الثابتة: النوم والاستيقاظ والطعام والخروج والسفر والاستخارة ودخول المسجد والسوق والعطاس والإفطار، مع مصدر كل دعاء.',
+      en: 'Established everyday duas: sleeping, waking, eating, leaving home, travel, istikharah, entering the mosque and the market, sneezing, and breaking the fast — each with its source.',
+      ur: 'روزمرہ کی ثابت دعائیں: سونا، جاگنا، کھانا، گھر سے نکلنا، سفر، استخارہ، مسجد اور بازار میں داخلہ، چھینک اور افطار کے وقت، حوالہ کے ساتھ۔',
+    },
+  },
+  'parents-family': {
+    title: {
+      ar: 'أدعية الوالدين والزواج والذرية الصالحة',
+      en: 'Duas for Parents, Marriage & Righteous Offspring',
+      ur: 'والدین، نکاح اور نیک اولاد کی دعائیں',
+    },
+    desc: {
+      ar: 'أدعية من القرآن والسنة لبرّ الوالدين والدعاء لهما، وتهنئة العروسين، وطلب الذرية الصالحة، وحفظ الأبناء، مع مصدر كل دعاء.',
+      en: 'Supplications from the Quran and Sunnah for honoring one’s parents, congratulating newlyweds, praying for righteous children, and protecting them — each with its source.',
+      ur: 'قرآن و سنت سے والدین کی دعا، دولہا دلہن کی تہنیت، نیک اولاد کی دعا اور بچوں کی حفاظت کی دعائیں، حوالہ کے ساتھ۔',
+    },
+  },
+  'health-protection': {
+    title: {
+      ar: 'أدعية الشفاء والرقية الشرعية من العين والحسد',
+      en: 'Duas for Healing & Ruqyah from the Evil Eye',
+      ur: 'شفا اور نظرِ بد سے رقیہ شرعی کی دعائیں',
+    },
+    desc: {
+      ar: 'أدعية ورقى نبوية ثابتة لشفاء المريض، ورقية جبريل عليه السلام، ودفع العين والحسد، مع مصدر كل دعاء من صحيح السنة.',
+      en: 'Established prophetic supplications and ruqyah for healing the sick, the ruqyah of Jibril, and warding off the evil eye and envy — each sourced from authentic Sunnah.',
+      ur: 'مریض کی شفا، جبریل علیہ السلام کی رقیہ اور نظرِ بد و حسد سے حفاظت کی نبوی دعائیں، صحیح سنت کے حوالہ کے ساتھ۔',
+    },
+  },
+  'rizq-tawbah': {
+    title: {
+      ar: 'أدعية الرزق والتوبة والاستغفار ودعاء القنوت',
+      en: 'Duas for Provision, Repentance & Qunut',
+      ur: 'رزق، توبہ، استغفار اور دعائے قنوت',
+    },
+    desc: {
+      ar: 'أدعية نبوية لطلب الرزق الحلال والعلم النافع، والتوبة والاستغفار، ودعاء القنوت الثابت عن النبي ﷺ، مع مصدر كل دعاء.',
+      en: 'Prophetic supplications for lawful provision and beneficial knowledge, repentance and seeking forgiveness, and the Qunut supplication established from the Prophet ﷺ — each with its source.',
+      ur: 'حلال رزق، نفع بخش علم، توبہ و استغفار اور نبی ﷺ سے ثابت دعائے قنوت، حوالہ کے ساتھ۔',
     },
   },
 };
@@ -506,6 +678,68 @@ export const DUA_FAQ: Record<string, { q: Tri; a: Tri }[]> = {
         ar: 'يصلّي المسلم ركعتين من غير الفريضة، ثم يدعو بدعاء الاستخارة: «اللهم إني أستخيرك بعلمك...» عند إرادة أمرٍ مباح ويُسمّيه في موضعه.',
         en: 'One prays two units (rakʿahs) other than the obligatory prayer, then recites the istikharah duʿaʾ: “Allāhumma innī astakhīruka bi-ʿilmik…”, naming the matter at its place when intending a permissible decision.',
         ur: 'فرض کے علاوہ دو رکعتیں پڑھ کر استخارہ کی دعا پڑھی جاتی ہے: «اللهم انی استخیرک بعلمک...»، اور جائز کام کا ارادہ کرتے وقت اس کا نام لیا جاتا ہے۔',
+      },
+    },
+    {
+      q: { ar: 'ما هو دعاء الإفطار في رمضان؟', en: 'What is the dua for breaking the fast in Ramadan?', ur: 'رمضان میں روزہ افطار کرنے کی دعا کیا ہے؟' },
+      a: {
+        ar: 'من الأدعية الثابتة عند الإفطار: «ذهب الظمأ وابتلّت العروق وثبت الأجر إن شاء الله»، رواه أبو داود.',
+        en: 'An established supplication upon breaking the fast is: “The thirst has gone, the veins are moistened, and the reward is confirmed, if Allah wills” — reported by Abu Dawud.',
+        ur: 'افطار کے وقت ثابت دعا: «ذہب الظمأ وابتلت العروق وثبت الاجر ان شاء اللہ»، جسے ابو داؤد نے روایت کیا۔',
+      },
+    },
+  ],
+  'parents-family': [
+    {
+      q: { ar: 'ما هو أفضل دعاء للوالدين؟', en: 'What is the best supplication for one’s parents?', ur: 'والدین کے لیے بہترین دعا کیا ہے؟' },
+      a: {
+        ar: 'من أفضل الأدعية للوالدين ما ورد في القرآن الكريم: «رَبِّ ارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا»، وهو دعاء جامع يُقال في حياتهما وبعد وفاتهما.',
+        en: 'Among the best supplications is the Quranic prayer: “My Lord, have mercy upon them as they raised me when I was small” (Quran 17:24) — comprehensive and said both during their lifetime and after their passing.',
+        ur: 'والدین کے لیے بہترین دعاؤں میں سے قرآنی دعا ہے: «رب ارحمہما کما ربیانی صغیرا» (بنی اسرائیل: 24)، جو ان کی زندگی میں اور وفات کے بعد بھی پڑھی جا سکتی ہے۔',
+      },
+    },
+    {
+      q: { ar: 'ماذا يقال للعروسين يوم الزفاف؟', en: 'What is said to a newly married couple?', ur: 'شادی کے دن دولہا دلہن سے کیا کہا جائے؟' },
+      a: {
+        ar: 'يُستحب أن يُقال للعروسين: «بارك الله لك، وبارك عليك، وجمع بينكما في خير»، وهو دعاء ثابت عن النبي ﷺ.',
+        en: 'It is recommended to say to them: “May Allah bless you, shower His blessings upon you, and join you together in goodness” — a supplication established from the Prophet ﷺ.',
+        ur: 'دولہا دلہن سے کہنا مستحب ہے: «بارک اللہ لک وبارک علیک وجمع بینکما فی خیر»، جو نبی ﷺ سے ثابت دعا ہے۔',
+      },
+    },
+  ],
+  'health-protection': [
+    {
+      q: { ar: 'ما هو دعاء الرقية الشرعية من العين والحسد؟', en: 'What is the ruqyah supplication against the evil eye and envy?', ur: 'نظرِ بد اور حسد سے رقیہ شرعی کی دعا کیا ہے؟' },
+      a: {
+        ar: 'من أثبت الرقى رقيةُ جبريل عليه السلام للنبي ﷺ: «بسم الله أرقيك، من كل شيء يؤذيك، من شر كل نفس أو عين حاسد، الله يشفيك»، وتُقرأ أيضاً المعوذتان وآية الكرسي.',
+        en: 'Among the most established is the ruqyah of Jibril ﷺ for the Prophet ﷺ: “In the name of Allah I perform ruqyah for you, from everything that harms you, from the evil of every soul or envious eye, Allah heals you.” Al-Falaq, an-Nas and Ayat al-Kursi are also recited.',
+        ur: 'ثابت رقیوں میں سے جبریل علیہ السلام کی نبی ﷺ کے لیے رقیہ ہے: «بسم اللہ ارقیک من کل شیء یؤذیک...»، اس کے علاوہ معوذتین اور آیت الکرسی بھی پڑھی جاتی ہیں۔',
+      },
+    },
+    {
+      q: { ar: 'ماذا يُقال عند زيارة المريض؟', en: 'What is said when visiting the sick?', ur: 'مریض کی عیادت کے وقت کیا کہا جائے؟' },
+      a: {
+        ar: 'يُستحب أن يقول الزائر: «اللهم رب الناس أذهب البأس، اشفِ أنت الشافي، لا شفاء إلا شفاؤك، شفاءً لا يغادر سقماً»، وهو دعاء ثابت عن النبي ﷺ متفق عليه.',
+        en: 'It is recommended for the visitor to say: “O Allah, Lord of mankind, remove the affliction and heal, for You are the Healer; there is no healing but Your healing, a healing that leaves no illness behind” — established from the Prophet ﷺ and agreed upon (Bukhari & Muslim).',
+        ur: 'عیادت کرنے والے کے لیے مستحب ہے کہ کہے: «اللہم رب الناس اذہب البأس اشف انت الشافی...»، یہ نبی ﷺ سے ثابت اور متفق علیہ دعا ہے۔',
+      },
+    },
+  ],
+  'rizq-tawbah': [
+    {
+      q: { ar: 'ما هو دعاء طلب الرزق الحلال؟', en: 'What is the supplication for seeking lawful provision?', ur: 'حلال رزق طلب کرنے کی دعا کیا ہے؟' },
+      a: {
+        ar: 'من الأدعية الثابتة بعد صلاة الفجر: «اللهم إني أسألك علماً نافعاً، ورزقاً طيباً، وعملاً متقبلاً»، رواه ابن ماجه.',
+        en: 'An established supplication after Fajr is: “O Allah, I ask You for beneficial knowledge, good provision, and accepted deeds” — reported by Ibn Majah.',
+        ur: 'فجر کے بعد ثابت دعا: «اللہم انی اسألک علما نافعا ورزقا طیبا وعملا متقبلا»، جسے ابن ماجہ نے روایت کیا ہے۔',
+      },
+    },
+    {
+      q: { ar: 'ما هو دعاء القنوت الذي علّمه النبي ﷺ للحسن؟', en: 'What is the Qunut dua the Prophet ﷺ taught al-Hasan?', ur: 'دعائے قنوت جو نبی ﷺ نے حسن رضی اللہ عنہ کو سکھائی وہ کیا ہے؟' },
+      a: {
+        ar: 'علّم النبي ﷺ الحسنَ بنَ علي رضي الله عنهما أن يقول في قنوت الوتر: «اللهم اهدني فيمن هديت...» إلى آخره، رواه أبو داود والترمذي والنسائي.',
+        en: 'The Prophet ﷺ taught al-Hasan ibn ʿAli, may Allah be pleased with him, to say in the Witr Qunut: “O Allah, guide me among those You have guided…” — reported by Abu Dawud, at-Tirmidhi and an-Nasaʾi.',
+        ur: 'نبی ﷺ نے حسن بن علی رضی اللہ عنہما کو وتر کے قنوت میں یہ دعا سکھائی: «اللہم اہدنی فیمن ہدیت...»، جسے ابو داؤد، ترمذی اور نسائی نے روایت کیا۔',
       },
     },
   ],
