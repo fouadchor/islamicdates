@@ -91,8 +91,9 @@ export default function TodayIsland({ lang }: Props) {
   );
 
   return (
-    <section style={{ background:'var(--surface)', border:'1px solid var(--border)', borderRadius:'var(--radius)', boxShadow:'var(--shadow)', padding:'28px 30px', animation:'fadeUp .5s ease' }}>
-      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:12, flexWrap:'wrap', marginBottom:14 }}>
+    <section style={{ position:'relative', overflow:'hidden', background:'var(--surface)', backgroundImage:'linear-gradient(135deg, var(--accent-glow) 0%, transparent 55%)', border:'1px solid var(--border)', borderRadius:'var(--radius)', boxShadow:'var(--shadow)', padding:'28px 30px', animation:'fadeUp .5s ease' }}>
+      <span aria-hidden="true" style={{ position:'absolute', top:-34, insetInlineEnd:-18, fontSize:150, lineHeight:1, color:'var(--accent)', opacity:.05, pointerEvents:'none', userSelect:'none' }}>☾</span>
+      <div style={{ position:'relative', display:'flex', alignItems:'center', justifyContent:'space-between', gap:12, flexWrap:'wrap', marginBottom:14 }}>
         <div style={{ fontSize:'12.5px', letterSpacing:'.12em', textTransform:'uppercase', color:'var(--accent)', fontWeight:700 }}>
           {pick(lang, 'تاريخ اليوم', "Today's Date", 'آج کی تاریخ')}
         </div>
