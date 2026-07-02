@@ -17,7 +17,7 @@ const lang = 'ur';
 const L = getL('ur');
 const _h = hadithOfDay(new Date());
 
-const _featured = ['ramadan', 'eid-al-fitr', 'eid-al-adha', 'ashura', 'mawlid-al-nabi', 'islamic-new-year', 'isra-and-miraj', 'laylat-al-qadr', 'day-of-arafah'];
+const _featured = OCCASIONS.map(o => o.slug); // all occasions, ordered by date below
 const _homeYears = (() => { const y = new Date().getUTCFullYear(); return [y, y+1]; })();
 const occLinks = [];
 for (const _y of _homeYears) {
@@ -28,6 +28,7 @@ for (const _y of _homeYears) {
     if (_occ) occLinks.push({ name: occLoc(_o, 'ur').name, year: _y, href: occBasePath(_slug, _y, 'ur'), date: _occ.date });
   }
 }
+occLinks.sort((a, b) => a.year - b.year || a.date.getTime() - b.date.getTime());
 
 const jsonLd = JSON.stringify([
   {

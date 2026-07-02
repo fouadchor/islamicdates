@@ -26,6 +26,14 @@ const faqItems = first ? pick<{ q: string; a: string }[]>(lang, [
   { q: `کیا ${loc.name} ${gYear} کی تاریخ سعودی عرب، پاکستان اور مصر جیسے ممالک میں مختلف ہوتی ہے؟`, a: `دکھائی گئی تاریخ سعودی عرب میں رائج اُمّ القریٰ تقویم سے نکالی گئی ہے۔ پاکستان، مصر اور مراکش جیسے بعض ممالک براہِ راست رؤیتِ ہلال پر انحصار کرتے ہیں، اس لیے اصل دن تقریباً ایک دن آگے پیچھے ہو سکتا ہے۔` },
 ]) : [];
 
+// Practices FAQ item (rendered + included in FAQ rich result)
+if (first && loc.practices) {
+  faqItems.push({
+    q: pick(lang, `ماذا يفعل المسلمون في ${loc.name}؟`, `What do Muslims do on ${loc.name}?`, `${loc.name} میں مسلمان کیا کرتے ہیں؟`),
+    a: loc.practices,
+  });
+}
+
 // Same occasion across all years (for internal-link table)
 const yearRows = gYears().map(y => {
   const list = occurrencesInGYear(occ.hm, occ.hd, y);
@@ -86,6 +94,8 @@ const t = {
     `${loc.name} occurs twice in ${gYear} because the Hijri year is shorter than the Gregorian year.`,
     `سالِ ${gYear} میں ${loc.name} دو بار آتا ہے کیونکہ ہجری سال عیسوی سال سے چھوٹا ہے۔`),
   whatTitle: pick(lang, `ما هو ${loc.name}؟`, `What is ${loc.name}?`, `${loc.name} کیا ہے؟`),
+  virtuesTitle: pick(lang, `فضل ${loc.name}`, `The virtue of ${loc.name}`, `${loc.name} کی فضیلت`),
+  practicesTitle: pick(lang, `ماذا يُفعل في ${loc.name}؟`, `What is done on ${loc.name}?`, `${loc.name} میں کیا کیا جاتا ہے؟`),
   howTitle: pick(lang, 'كيف يُحدَّد التاريخ؟', 'How is the date determined?', 'تاریخ کا تعین کیسے ہوتا ہے؟'),
   howBody: pick(lang,
     'تُحسب التواريخ هنا فلكياً وفق معايير تقويم أم القرى المعتمد في السعودية. وقد تعتمد بعض الدول على رؤية الهلال المباشرة، فيختلف التاريخ الفعلي بيوم واحد تقريباً بين دولة وأخرى.',
@@ -161,6 +171,18 @@ const t = {
       <section class="card section-card" style="order:2">
         <h2 class="section-h2">{t.whatTitle}</h2>
         <p class="section-p">{loc.what}</p>
+        {loc.virtues && (
+          <div style="margin-top:20px;padding:16px 18px;border-radius:13px;background:var(--gold-soft, var(--accent-soft));border-inline-start:3px solid var(--gold, var(--accent))">
+            <h2 class="section-h2" style="margin:0;font-size:17px;color:var(--gold-deep, var(--accent))">{t.virtuesTitle}</h2>
+            <p class="section-p" style="margin-top:8px">{loc.virtues}</p>
+          </div>
+        )}
+        {loc.practices && (
+          <>
+            <h2 class="section-h2" style="margin-top:22px">{t.practicesTitle}</h2>
+            <p class="section-p">{loc.practices}</p>
+          </>
+        )}
         <h2 class="section-h2" style="margin-top:22px">{t.howTitle}</h2>
         <p class="section-p">{t.howBody}</p>
       </section>
