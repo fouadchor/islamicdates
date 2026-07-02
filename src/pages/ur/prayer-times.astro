@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import PrayerTimesIsland from '../../components/PrayerTimesIsland';
+import PrayerDirectory from '../../components/PrayerDirectory.astro';
 
 const canonical = 'https://islamicdates.org/ur/prayer-times/';
 const title = 'آج کے مواقیتِ نماز آپ کے مقام کے مطابق · فجر، ظہر، عصر، مغرب، عشاء';
@@ -49,6 +50,8 @@ const jsonLd = JSON.stringify([
       </section>
 
       <PrayerTimesIsland lang="ur" client:load />
+
+      <PrayerDirectory lang="ur" />
 
       <section class="card section-card" style="order:3">
         <h2 class="section-h2">مواقیتِ نماز کے بارے میں</h2>

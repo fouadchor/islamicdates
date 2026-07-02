@@ -1,0 +1,121 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { type PtCountry, citiesOfCountry, cityPath, countryPath, ptBase } from '../lib/cities';
+import { METHODS } from '../lib/prayer';
+import { type Lang, pick } from '../lib/data';
+
+interface Props { lang: Lang; country: PtCountry }
+const { lang, country } = Astro.props;
+
+const countryName = pick(lang, country.ar, country.en, country.ur);
+const methodName  = pick(lang, METHODS[country.method].ar, METHODS[country.method].en, METHODS[country.method].ur);
+const cities      = citiesOfCountry(country.code);
+const canonical   = `https://islamicdates.org${countryPath(country.slug, lang)}`;
+const homeHref    = pick(lang, '/', '/en/', '/ur/');
+
+const title = pick(lang,
+  `مواقيت الصلاة في ${countryName} · جميع المدن — اليوم وطوال الشهر`,
+  `Prayer Times in ${countryName} · All Cities — Today & Monthly`,
+  `${countryName} میں اوقاتِ نماز · تمام شہر — آج اور پورا مہینہ`);
+
+const description = pick(lang,
+  `مواقيت الصلاة في مدن ${countryName}: ${cities.slice(0, 6).map(c => c.ar).join('، ')} وغيرها. مواقيت اليوم، جدول شهري كامل، واتجاه القبلة لكل مدينة. الحساب وفق ${methodName}.`,
+  `Prayer times for cities in ${countryName}: ${cities.slice(0, 6).map(c => c.en).join(', ')} and more. Today's times, a full monthly timetable and Qibla direction for every city. Calculated per ${methodName}.`,
+  `${countryName} کے شہروں کے اوقاتِ نماز: ${cities.slice(0, 6).map(c => c.ur).join('، ')} وغیرہ۔ آج کے اوقات، مکمل ماہانہ جدول اور ہر شہر کے لیے قبلہ کا رخ۔ حساب ${methodName} کے مطابق۔`);
+
+const jsonLd = JSON.stringify([
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [
+    { '@type': 'ListItem', 'position': 1, 'name': pick(lang, 'الرئيسية', 'Home', 'ہوم'), 'item': `https://islamicdates.org${homeHref}` },
+    { '@type': 'ListItem', 'position': 2, 'name': pick(lang, 'مواقيت الصلاة', 'Prayer Times', 'اوقاتِ نماز'), 'item': `https://islamicdates.org${ptBase(lang)}` },
+    { '@type': 'ListItem', 'position': 3, 'name': countryName, 'item': canonical },
+  ] },
+  { '@context': 'https://schema.org', '@type': 'ItemList', 'name': title,
+    'itemListElement': cities.map((c, i) => ({ '@type': 'ListItem', 'position': i + 1, 'name': pick(lang, c.ar, c.en, c.ur), 'url': `https://islamicdates.org${cityPath(country.slug, c.slug, lang)}` })) },
+]);
+
+const t = {
+  brand:    pick(lang, 'التقويم الهجري', 'Hijri Calendar', 'ہجری کیلنڈر'),
+  tagline:  pick(lang, 'مواقيت الصلاة', 'Prayer Times', 'اوقاتِ نماز'),
+  home:     pick(lang, 'الرئيسية', 'Home', 'ہوم'),
+  homeAria: pick(lang, 'الانتقال إلى الصفحة الرئيسية', 'Go to homepage', 'ہوم پیج پر جائیں'),
+  h1:       pick(lang, `مواقيت الصلاة في ${countryName}`, `Prayer Times in ${countryName}`, `${countryName} میں اوقاتِ نماز`),
+  intro:    pick(lang,
+    `اختر مدينتك لعرض مواقيت الصلاة الخمس اليوم، مع جدول شهري كامل واتجاه القبلة وعدّ تنازلي للصلاة القادمة. طريقة الحساب الافتراضية في ${countryName} هي ${methodName} ويمكن تغييرها من داخل الصفحة.`,
+    `Choose your city to see today's five prayer times, with a full monthly timetable, Qibla direction and a live countdown to the next prayer. The default calculation method for ${countryName} is ${methodName}; it can be changed on each page.`,
+    `اپنا شہر منتخب کریں اور آج کے پانچ نمازوں کے اوقات، مکمل ماہانہ جدول، قبلہ کا رخ اور اگلی نماز کی الٹی گنتی دیکھیں۔ ${countryName} کے لیے طے شدہ طریقہ ${methodName} ہے جو ہر صفحے پر بدلا جا سکتا ہے۔`),
+  cities:   pick(lang, `المدن (${cities.length})`, `Cities (${cities.length})`, `شہر (${cities.length})`),
+  backAll:  pick(lang, '← جميع الدول', '← All countries', '← تمام ممالک'),
+  tools:    pick(lang, 'أدوات ذات صلة', 'Related tools', 'متعلقہ اوزار'),
+  mainTool: pick(lang, 'مواقيت الصلاة حسب موقعك', 'Prayer times for your location', 'آپ کے مقام کے اوقاتِ نماز'),
+  fullCal:  pick(lang, 'التقويم الهجري الكامل وتاريخ اليوم', "Full Hijri calendar & today's date", 'مکمل ہجری کیلنڈر اور آج کی تاریخ'),
+  ad:       pick(lang, 'مساحة إعلانية', 'Advertisement', 'اشتہار'),
+  footer:   pick(lang, 'المواقيت محسوبة فلكياً · للأغراض التقريبية', 'Astronomically calculated · for reference', 'اوقات فلکی حساب سے · تقریبی مقاصد کے لیے'),
+  privacy:  pick(lang, 'سياسة الخصوصية', 'Privacy Policy', 'رازداری پالیسی'),
+};
+---
+<Layout title={title} description={description} canonical={canonical} lang={lang} jsonLd={jsonLd}
+  arPath={countryPath(country.slug, 'ar')} enPath={countryPath(country.slug, 'en')} urPath={countryPath(country.slug, 'ur')}>
+  <header class="site-header">
+    <div class="header-start">
+      <a href={homeHref} class="logo" aria-label={t.homeAria}>
+        <div class="logo-icon">☾</div>
+        <div>
+          <div class="brand">{t.brand}</div>
+          <div class="tagline">{t.tagline}</div>
+        </div>
+      </a>
+      <a href={homeHref} class="home-btn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+        <span>{t.home}</span>
+      </a>
+    </div>
+  </header>
+
+  <div class="layout">
+    <main>
+      <nav aria-label="breadcrumb" style="font-size:13px;color:var(--muted);margin-bottom:12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+        <a href={ptBase(lang)} style="color:var(--accent);text-decoration:none">{t.tagline}</a>
+        <span aria-hidden="true">›</span>
+        <span>{countryName}</span>
+      </nav>
+
+      <section class="card section-card">
+        <h1 class="section-h2" style="font-size:24px">{t.h1}</h1>
+        <p class="section-p" style="margin-top:8px">{t.intro}</p>
+      </section>
+
+      <section class="card section-card">
+        <h2 class="section-h2">{t.cities}</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-top:14px">
+          {cities.map(c => (
+            <a href={cityPath(country.slug, c.slug, lang)}
+              style="display:block;padding:13px 15px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);color:var(--text);text-decoration:none;font-weight:700;font-size:14.5px">
+              {pick(lang, c.ar, c.en, c.ur)}
+              <span style="display:block;font-size:12px;font-weight:500;color:var(--muted);margin-top:3px">{pick(lang, 'مواقيت الصلاة ←', 'Prayer times →', 'اوقاتِ نماز ←')}</span>
+            </a>
+          ))}
+        </div>
+        <div style="margin-top:16px">
+          <a href={ptBase(lang)} style="color:var(--accent);text-decoration:none;font-size:14px;font-weight:700">{t.backAll}</a>
+        </div>
+      </section>
+    </main>
+
+    <aside>
+      <div class="ad-slot"><span class="ad-label">{t.ad}</span><span style="font-size:13px;opacity:.7">300 × 250</span></div>
+      <div class="card" style="padding:18px 20px">
+        <h3 style="margin:0 0 12px;font-size:15.5px;font-weight:700">{t.tools}</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:14.5px">
+          <a href={ptBase(lang)} style="color:var(--accent);text-decoration:none">{t.mainTool}</a>
+          <a href={homeHref} style="color:var(--accent);text-decoration:none">{t.fullCal}</a>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="site-footer">
+    {t.footer}
+    <span style="margin:0 8px;opacity:.4">·</span>
+    <a href={pick(lang, '/privacy/', '/en/privacy/', '/ur/privacy/')} style="color:var(--muted);text-decoration:none;font-size:13px">{t.privacy}</a>
+  </footer>
+</Layout>

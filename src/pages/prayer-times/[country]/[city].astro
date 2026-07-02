@@ -1,0 +1,13 @@
+---
+import PrayerCityPage from '../../../components/PrayerCityPage.astro';
+import { PT_COUNTRIES, PT_CITIES } from '../../../lib/cities';
+
+export function getStaticPaths() {
+  return PT_CITIES.map(city => {
+    const country = PT_COUNTRIES.find(c => c.code === city.cc)!;
+    return { params: { country: country.slug, city: city.slug }, props: { country, city } };
+  });
+}
+const { country, city } = Astro.props;
+---
+<PrayerCityPage lang="ar" country={country} city={city} />
