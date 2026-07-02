@@ -1,0 +1,315 @@
+---
+// Sunnah fasting days hub: white days (13–15) with exact Gregorian dates for two
+// Hijri years, weekly and annual fasts, and forbidden days — trilingual.
+import Layout from '../layouts/Layout.astro';
+import { type Lang, pick, hijriEra } from '../lib/data';
+import {
+  whiteDaysForYear, annualFasts, forbiddenDays, currentHY,
+  fmtGDay, fmtSpan, isoDate, fastingBasePath,
+} from '../lib/fasting';
+import { occBasePath } from '../lib/occasions';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+
+const era = hijriEra(lang);
+const hy1 = currentHY();
+const hy2 = hy1 + 1;
+const wd1 = whiteDaysForYear(hy1, lang);
+const wd2 = whiteDaysForYear(hy2, lang);
+const an1 = annualFasts(hy1, lang);
+const an2 = annualFasts(hy2, lang);
+const fb1 = forbiddenDays(hy1, lang);
+const fb2 = forbiddenDays(hy2, lang);
+
+// Gregorian years covered (for titles / SEO)
+const gyA = wd1[0].g13.getUTCFullYear();
+const gyB = wd2[11].g15.getUTCFullYear();
+const gySpan = gyA === gyB ? `${gyA}` : `${gyA}–${gyB}`;
+
+const canonical = `https://islamicdates.org${fastingBasePath(lang)}`;
+const homeHref = pick(lang, '/', '/en/', '/ur/');
+const prayerHref = pick(lang, '/prayer-times/', '/en/prayer-times/', '/ur/prayer-times/');
+const printableHref = pick(lang, '/printable/', '/en/printable/', '/ur/printable/');
+const duaHref = pick(lang, '/dua/', '/en/dua/', '/ur/dua/');
+const privacyHref = pick(lang, '/privacy/', '/en/privacy/', '/ur/privacy/');
+
+const title = pick(lang,
+  `الأيام البيض ${gySpan} وأيام الصيام المستحبة — بالهجري والميلادي`,
+  `White Days ${gySpan} & Sunnah Fasting Days — Hijri and Gregorian Dates`,
+  `ایامِ بیض ${gySpan} اور مسنون روزوں کے دن — ہجری و عیسوی تاریخیں`);
+const description = pick(lang,
+  `جدول الأيام البيض (13–14–15) لكل شهر هجري في ${hy1} و${hy2} هـ بالتواريخ الميلادية الدقيقة، مع صيام الاثنين والخميس ويوم عرفة وعاشوراء وستٍّ من شوال، والأيام التي يحرم صيامها — وفق تقويم أم القرى.`,
+  `White days (13th–15th) of every Hijri month in ${hy1} and ${hy2} AH with exact Gregorian dates, plus Monday–Thursday fasting, Arafah, Ashura, the six days of Shawwal, and the days when fasting is forbidden — per the Umm al-Qura calendar.`,
+  `${hy1} اور ${hy2} ھ کے ہر ہجری مہینے کے ایامِ بیض (13–14–15) کی درست عیسوی تاریخیں، پیر و جمعرات کے روزے، یومِ عرفہ، عاشوراء، شوال کے چھ روزے، اور وہ دن جن میں روزہ منع ہے — اُمّ القریٰ تقویم کے مطابق۔`);
+
+const jsonLd = JSON.stringify([
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [
+    { '@type': 'ListItem', 'position': 1, 'name': pick(lang, 'الرئيسية', 'Home', 'ہوم'), 'item': `https://islamicdates.org${homeHref}` },
+    { '@type': 'ListItem', 'position': 2, 'name': pick(lang, 'أيام الصيام', 'Fasting Days', 'روزوں کے دن'), 'item': canonical },
+  ] },
+  { '@context': 'https://schema.org', '@type': 'Article',
+    'headline': title, 'inLanguage': lang, 'mainEntityOfPage': canonical,
+    'description': description,
+    'about': ['White days', 'Ayyam al-Beed', 'Sunnah fasting', 'الأيام البيض'],
+    'publisher': { '@type': 'Organization', 'name': 'islamicdates.org', 'url': 'https://islamicdates.org/' } },
+]);
+
+const t = {
+  brand: pick(lang, 'التقويم الهجري', 'Hijri Calendar', 'ہجری کیلنڈر'),
+  tag: pick(lang, 'أيام الصيام المستحبة', 'Sunnah fasting days', 'مسنون روزوں کے دن'),
+  home: pick(lang, 'الرئيسية', 'Home', 'ہوم'),
+  homeAria: pick(lang, 'الانتقال إلى الصفحة الرئيسية', 'Go to homepage', 'ہوم پیج پر جائیں'),
+  h1: pick(lang, `الأيام البيض وأيام الصيام المستحبة ${gySpan}`, `White Days & Sunnah Fasting Days ${gySpan}`, `ایامِ بیض اور مسنون روزوں کے دن ${gySpan}`),
+  intro: pick(lang,
+    `جمعنا في هذه الصفحة أيام الصيام المستحبة على مدار السنة: الأيام البيض من كل شهر هجري، وصيام الاثنين والخميس، والمواسم السنوية كيوم عرفة وعاشوراء وستٍّ من شوال — مع تواريخها الميلادية الدقيقة لعامي ${hy1} و${hy2} هـ وفق تقويم أم القرى.`,
+    `This page brings together the recommended fasting days of the whole year: the white days of every Hijri month, Monday and Thursday fasting, and the annual seasons such as Arafah, Ashura and the six days of Shawwal — with their exact Gregorian dates for ${hy1} and ${hy2} AH, per the Umm al-Qura calendar.`,
+    `اس صفحے پر سال بھر کے مسنون روزوں کے دن یکجا کیے گئے ہیں: ہر ہجری مہینے کے ایامِ بیض، پیر اور جمعرات کے روزے، اور سالانہ مواقع جیسے یومِ عرفہ، عاشوراء اور شوال کے چھ روزے — ${hy1} اور ${hy2} ھ کی درست عیسوی تاریخوں کے ساتھ، اُمّ القریٰ تقویم کے مطابق۔`),
+  wdTitle: pick(lang, 'الأيام البيض: ما هي؟', 'What are the white days?', 'ایامِ بیض کیا ہیں؟'),
+  wdBody: pick(lang,
+    'الأيام البيض هي الثالثَ عشرَ والرابعَ عشرَ والخامسَ عشرَ من كل شهر هجري، وسُمّيت بذلك لابيضاض لياليها باكتمال القمر. وقد أوصى النبي ﷺ بصيامها؛ فعن أبي ذرٍّ رضي الله عنه قال: قال رسول الله ﷺ: «إذا صُمْتَ من الشهرِ ثلاثاً فصُمْ ثلاثَ عشرةَ وأربعَ عشرةَ وخمسَ عشرةَ» (رواه الترمذي والنسائي). وصيام ثلاثة أيام من كل شهر يعدل صيام الدهر، لأن الحسنة بعشر أمثالها.',
+    'The white days (Ayyam al-Beed) are the 13th, 14th and 15th of every Hijri month, named after the full moon that brightens their nights. The Prophet ﷺ recommended fasting them: Abu Dharr narrated that the Messenger of Allah ﷺ said, “If you fast three days of the month, then fast the thirteenth, the fourteenth and the fifteenth” (Tirmidhi, Nasaʾi). Fasting three days each month equals fasting a lifetime, since every good deed is multiplied tenfold.',
+    'ایامِ بیض ہر ہجری مہینے کی 13، 14 اور 15 تاریخیں ہیں، جن کی راتیں چاند کے مکمل ہونے سے روشن ہوتی ہیں۔ نبی کریم ﷺ نے ان کے روزوں کی تلقین فرمائی؛ حضرت ابوذرؓ سے روایت ہے کہ رسول اللہ ﷺ نے فرمایا: «جب تم مہینے میں تین روزے رکھو تو تیرہ، چودہ اور پندرہ تاریخ کے رکھو» (ترمذی، نسائی)۔ ہر ماہ تین روزے رکھنا پورے سال کے روزوں کے برابر ہے، کیونکہ ہر نیکی کا اجر دس گنا ہے۔'),
+  tblTitle: (hy: number, ga: number, gb: number) => pick(lang,
+    `جدول الأيام البيض لعام ${hy} هـ (${ga}–${gb} م)`,
+    `White days of ${hy} AH (${ga}–${gb} CE)`,
+    `${hy} ھ کے ایامِ بیض (${ga}–${gb}ء)`),
+  colMonth: pick(lang, 'الشهر الهجري', 'Hijri month', 'ہجری مہینہ'),
+  colHijri: pick(lang, 'الأيام بالهجري', 'Hijri days', 'ہجری ایام'),
+  colFrom: pick(lang, 'من (ميلادي)', 'From (Gregorian)', 'از (عیسوی)'),
+  colTo: pick(lang, 'إلى (ميلادي)', 'To (Gregorian)', 'تا (عیسوی)'),
+  nowBadge: pick(lang, 'الأقرب', 'Next up', 'قریب ترین'),
+  weeklyTitle: pick(lang, 'صيام الاثنين والخميس', 'Monday and Thursday fasting', 'پیر اور جمعرات کے روزے'),
+  weeklyBody: pick(lang,
+    'كان النبي ﷺ يتحرّى صيام الاثنين والخميس، وقال: «تُعْرَضُ الأعمالُ يومَ الاثنينِ والخميسِ، فأُحِبُّ أن يُعْرَضَ عملي وأنا صائمٌ» (رواه الترمذي). وسُئل ﷺ عن صوم يوم الاثنين فقال: «ذاك يومٌ وُلِدْتُ فيه، ويومٌ بُعِثْتُ — أو أُنزِلَ عليَّ — فيه» (رواه مسلم). وهو صيام أسبوعي مستمر لا يرتبط بتاريخ معيّن، ويمكن الجمع بينه وبين الأيام البيض إذا وافقها.',
+    'The Prophet ﷺ made a point of fasting Mondays and Thursdays, saying: “Deeds are presented on Monday and Thursday, and I love that my deeds be presented while I am fasting” (Tirmidhi). Asked about fasting on Monday, he said: “That is the day I was born and the day I was sent — or the day revelation came to me” (Muslim). It is an ongoing weekly fast tied to no particular date, and it can coincide with the white days.',
+    'نبی کریم ﷺ پیر اور جمعرات کے روزوں کا اہتمام فرماتے اور فرمایا: «اعمال پیر اور جمعرات کو پیش کیے جاتے ہیں، اور مجھے پسند ہے کہ میرا عمل اس حال میں پیش ہو کہ میں روزے سے ہوں» (ترمذی)۔ پیر کے روزے کے بارے میں فرمایا: «یہ وہ دن ہے جس میں میری ولادت ہوئی اور جس میں مجھے مبعوث کیا گیا — یا مجھ پر وحی نازل ہوئی» (مسلم)۔ یہ ہفتہ وار روزہ کسی خاص تاریخ سے وابستہ نہیں، اور ایامِ بیض سے مل جائے تو دونوں کی نیت ہو سکتی ہے۔'),
+  annualTitle: pick(lang, 'مواسم الصيام السنوية', 'Annual fasting days', 'سالانہ روزوں کے مواقع'),
+  arafahT: pick(lang, 'يوم عرفة', 'Day of Arafah', 'یومِ عرفہ'),
+  arafahB: pick(lang,
+    'قال ﷺ: «صيامُ يومِ عرفةَ أحتسبُ على اللهِ أن يُكفِّرَ السنةَ التي قبلَه والسنةَ التي بعدَه» (رواه مسلم) — وذلك لغير الحاجّ.',
+    'The Prophet ﷺ said: “Fasting the Day of Arafah, I hope from Allah that it expiates the year before it and the year after it” (Muslim) — for those not performing Hajj.',
+    'نبی ﷺ نے فرمایا: «یومِ عرفہ کا روزہ، مجھے اللہ سے امید ہے کہ گزشتہ اور آئندہ سال کے گناہ مٹا دے گا» (مسلم) — یہ غیر حاجی کے لیے ہے۔'),
+  ashuraT: pick(lang, 'تاسوعاء وعاشوراء', 'Tasuʿa and Ashura', 'تاسوعاء اور عاشوراء'),
+  ashuraB: pick(lang,
+    'قال ﷺ عن عاشوراء: «أحتسبُ على اللهِ أن يُكفِّرَ السنةَ التي قبلَه» (رواه مسلم)، ويُستحب صيام التاسع معه لقوله ﷺ: «لئن بقيتُ إلى قابلٍ لأصومنَّ التاسعَ» (رواه مسلم).',
+    'Of Ashura the Prophet ﷺ said: “I hope from Allah that it expiates the year before it” (Muslim). Fasting the 9th with it is recommended: “If I live to next year, I shall fast the ninth” (Muslim).',
+    'عاشوراء کے بارے میں فرمایا: «مجھے اللہ سے امید ہے کہ گزشتہ سال کے گناہ مٹا دے گا» (مسلم)، اور اس کے ساتھ نویں کا روزہ مستحب ہے: «اگر میں آئندہ سال تک رہا تو نویں کا روزہ ضرور رکھوں گا» (مسلم)۔'),
+  shawwalT: pick(lang, 'ستٌّ من شوال', 'Six days of Shawwal', 'شوال کے چھ روزے'),
+  shawwalB: pick(lang,
+    'قال ﷺ: «من صام رمضانَ ثم أتبعه ستّاً من شوالٍ كان كصيامِ الدهرِ» (رواه مسلم). تُصام في أي أيام من الشهر بعد يوم العيد، متتابعةً أو متفرقة.',
+    'The Prophet ﷺ said: “Whoever fasts Ramadan then follows it with six days of Shawwal, it is as if he fasted a lifetime” (Muslim). They may be fasted on any days of the month after Eid, consecutively or separately.',
+    'نبی ﷺ نے فرمایا: «جس نے رمضان کے روزے رکھے پھر شوال کے چھ روزے رکھے، گویا اس نے پورے سال کے روزے رکھے» (مسلم)۔ یہ عید کے دن کے بعد مہینے کے کسی بھی دنوں میں، مسلسل یا الگ الگ رکھے جا سکتے ہیں۔'),
+  shabanT: pick(lang, 'الإكثار في شعبان والمحرم', 'Shaʿban and Muharram', 'شعبان اور محرم'),
+  shabanB: pick(lang,
+    'قالت عائشة رضي الله عنها: «لم يكنِ النبيُّ ﷺ يصومُ شهراً أكثرَ من شعبانَ» (متفق عليه)، وقال ﷺ: «أفضلُ الصيامِ بعد رمضانَ شهرُ اللهِ المحرَّمُ» (رواه مسلم).',
+    'Aisha said: “The Prophet ﷺ did not fast in any month more than in Shaʿban” (agreed upon). And he ﷺ said: “The best fasting after Ramadan is in the month of Allah, Muharram” (Muslim).',
+    'حضرت عائشہؓ فرماتی ہیں: «نبی ﷺ کسی مہینے میں شعبان سے زیادہ روزے نہیں رکھتے تھے» (متفق علیہ)، اور فرمایا: «رمضان کے بعد افضل روزے اللہ کے مہینے محرم کے ہیں» (مسلم)۔'),
+  windowLbl: pick(lang, 'نافذة الصيام', 'Fasting window', 'روزوں کا دورانیہ'),
+  forbTitle: pick(lang, 'أيام يَحرُم صيامها', 'Days when fasting is forbidden', 'جن دنوں میں روزہ منع ہے'),
+  forbBody: pick(lang,
+    'نهى النبي ﷺ عن صيام يومي العيدين (متفق عليه)، وأيام التشريق الثلاثة بعد عيد الأضحى، فهي «أيامُ أكلٍ وشربٍ وذكرٍ للهِ» (رواه مسلم) — إلا لمن لم يجد الهدي في الحج.',
+    'The Prophet ﷺ forbade fasting on the two Eid days (agreed upon) and on the three Tashreeq days after Eid al-Adha, for they are “days of eating, drinking and remembering Allah” (Muslim) — except for a pilgrim who cannot offer the sacrifice.',
+    'نبی ﷺ نے عیدین کے دونوں دنوں کے روزے سے منع فرمایا (متفق علیہ)، اور عید الاضحیٰ کے بعد ایامِ تشریق سے بھی، کیونکہ یہ «کھانے پینے اور اللہ کے ذکر کے دن ہیں» (مسلم) — سوائے اس حاجی کے جو قربانی نہ پا سکے۔'),
+  eidFitrLbl: pick(lang, 'عيد الفطر', 'Eid al-Fitr', 'عید الفطر'),
+  eidAdhaLbl: pick(lang, 'عيد الأضحى', 'Eid al-Adha', 'عید الاضحیٰ'),
+  tashreeqLbl: pick(lang, 'أيام التشريق', 'Tashreeq days', 'ایامِ تشریق'),
+  methodTitle: pick(lang, 'كيف حُسبت هذه التواريخ؟', 'How were these dates calculated?', 'یہ تاریخیں کیسے نکالی گئیں؟'),
+  methodBody: pick(lang,
+    'حُسبت جميع التواريخ فلكياً وفق تقويم أم القرى المعتمد في السعودية. وقد يختلف بدء الشهر بيوم واحد في بعض الدول حسب إعلان رؤية الهلال محلياً، فتنتقل الأيام البيض تبعاً لذلك.',
+    'All dates are calculated astronomically per the Umm al-Qura calendar used in Saudi Arabia. In some countries the month may start one day earlier or later depending on local moon sighting, shifting the white days accordingly.',
+    'تمام تاریخوں کا حساب سعودی عرب میں رائج اُمّ القریٰ تقویم کے مطابق فلکی طور پر کیا گیا ہے۔ بعض ممالک میں مقامی رؤیتِ ہلال کے اعلان سے مہینہ ایک دن آگے پیچھے شروع ہو سکتا ہے، جس سے ایامِ بیض بھی اسی قدر منتقل ہو جاتے ہیں۔'),
+  relatedTitle: pick(lang, 'صفحات ذات صلة', 'Related pages', 'متعلقہ صفحات'),
+  relCal: pick(lang, 'التقويم الهجري وتاريخ اليوم', "Hijri calendar & today's date", 'ہجری کیلنڈر اور آج کی تاریخ'),
+  relPrayer: pick(lang, 'مواقيت الصلاة حسب موقعك', 'Prayer times for your location', 'آپ کے مقام کے مطابق مواقیتِ نماز'),
+  relDua: pick(lang, 'أدعية وأذكار صحيحة', 'Authentic duas and adhkar', 'مستند دعائیں اور اذکار'),
+  relPrint: pick(lang, 'تقويم هجري للطباعة', 'Printable Hijri calendar', 'قابلِ طباعت ہجری کیلنڈر'),
+  ad: pick(lang, 'مساحة إعلانية', 'Advertisement', 'اشتہار'),
+  footer: pick(lang, 'الحساب وفق تقويم أم القرى', 'Dates based on the Umm al-Qura calendar · for reference', 'حساب اُمّ القریٰ تقویم کے مطابق'),
+  privacy: pick(lang, 'سياسة الخصوصية', 'Privacy Policy', 'رازداری پالیسی'),
+  hijriDaysCell: pick(lang, '13 – 15', '13 – 15', '13 – 15'),
+};
+
+const years = [
+  { hy: hy1, rows: wd1, an: an1, fb: fb1 },
+  { hy: hy2, rows: wd2, an: an2, fb: fb2 },
+];
+
+const arafahLink = (d: Date) => occBasePath('day-of-arafah', d.getUTCFullYear(), lang);
+const ashuraLink = (d: Date) => occBasePath('ashura', d.getUTCFullYear(), lang);
+---
+<Layout title={title} description={description} canonical={canonical} lang={lang} jsonLd={jsonLd}
+  arPath={fastingBasePath('ar')} enPath={fastingBasePath('en')} urPath={fastingBasePath('ur')}>
+  <header class="site-header">
+    <div class="header-start">
+      <a href={homeHref} class="logo" aria-label={t.homeAria}>
+        <div class="logo-icon">☾</div>
+        <div>
+          <div class="brand">{t.brand}</div>
+          <div class="tagline">{t.tag}</div>
+        </div>
+      </a>
+      <a href={homeHref} class="home-btn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+        <span>{t.home}</span>
+      </a>
+    </div>
+  </header>
+
+  <div class="layout">
+    <main>
+      <!-- Hero -->
+      <section class="card section-card">
+        <h1 class="section-h2" style="font-size:25px">{t.h1}</h1>
+        <p class="section-p" style="margin-top:12px">{t.intro}</p>
+        <div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:8px">
+          <span style="padding:7px 15px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:13.5px">{hy1} {era}</span>
+          <span style="padding:7px 15px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:13.5px">{hy2} {era}</span>
+          <span style="padding:7px 15px;border-radius:999px;background:var(--gold-soft);color:var(--gold-deep);font-weight:700;font-size:13.5px">{gySpan}</span>
+        </div>
+      </section>
+
+      <!-- White days explainer + tables -->
+      <section class="card section-card">
+        <h2 class="section-h2">{t.wdTitle}</h2>
+        <p class="section-p">{t.wdBody}</p>
+
+        {years.map(({ hy, rows }) => (
+          <div style="margin-top:26px">
+            <h3 style="margin:0 0 12px;font-size:16.5px;font-weight:700;color:var(--accent)">
+              {t.tblTitle(hy, rows[0].g13.getUTCFullYear(), rows[11].g15.getUTCFullYear())}
+            </h3>
+            <div style="overflow-x:auto">
+              <table class="wd-table">
+                <thead>
+                  <tr><th>{t.colMonth}</th><th>{t.colHijri}</th><th>{t.colFrom}</th><th>{t.colTo}</th></tr>
+                </thead>
+                <tbody>
+                  {rows.map(r => (
+                    <tr data-wd-end={isoDate(r.g15)}>
+                      <td><span class="wd-num">{r.hm}</span> {r.monthName}</td>
+                      <td>{t.hijriDaysCell}</td>
+                      <td>{fmtGDay(r.g13, lang)}</td>
+                      <td>{fmtGDay(r.g15, lang)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ))}
+      </section>
+
+      <!-- Weekly -->
+      <section class="card section-card">
+        <h2 class="section-h2">{t.weeklyTitle}</h2>
+        <p class="section-p">{t.weeklyBody}</p>
+      </section>
+
+      <!-- Annual -->
+      <section class="card section-card">
+        <h2 class="section-h2">{t.annualTitle}</h2>
+        <div class="fast-grid">
+          <div class="fast-item">
+            <div class="fast-name">{t.arafahT}</div>
+            <p class="section-p" style="font-size:14px">{t.arafahB}</p>
+            {years.map(({ an }) => (
+              <a class="fast-date" href={arafahLink(an.arafah.date)}>{an.arafah.hijriLabel} · {fmtGDay(an.arafah.date, lang)}</a>
+            ))}
+          </div>
+          <div class="fast-item">
+            <div class="fast-name">{t.ashuraT}</div>
+            <p class="section-p" style="font-size:14px">{t.ashuraB}</p>
+            {years.map(({ an }) => (
+              <a class="fast-date" href={ashuraLink(an.ashura.date)}>{an.ashura.hijriLabel} · {fmtGDay(an.ashura.date, lang)}</a>
+            ))}
+          </div>
+          <div class="fast-item">
+            <div class="fast-name">{t.shawwalT}</div>
+            <p class="section-p" style="font-size:14px">{t.shawwalB}</p>
+            {years.map(({ an }) => (
+              <span class="fast-date" style="cursor:default">{t.windowLbl}: {fmtSpan(an.shawwalStart.date, an.shawwalEnd.date, lang)}</span>
+            ))}
+          </div>
+          <div class="fast-item">
+            <div class="fast-name">{t.shabanT}</div>
+            <p class="section-p" style="font-size:14px">{t.shabanB}</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Forbidden -->
+      <section class="card section-card" style="border-inline-start:4px solid var(--gold)">
+        <h2 class="section-h2">{t.forbTitle}</h2>
+        <p class="section-p">{t.forbBody}</p>
+        <div style="overflow-x:auto;margin-top:14px">
+          <table class="wd-table">
+            <thead><tr><th></th>{years.map(({ hy }) => <th>{hy} {era}</th>)}</tr></thead>
+            <tbody>
+              <tr><td style="font-weight:700">{t.eidFitrLbl}</td>{years.map(({ fb }) => <td>{fmtGDay(fb.eidFitr.date, lang)}</td>)}</tr>
+              <tr><td style="font-weight:700">{t.eidAdhaLbl}</td>{years.map(({ fb }) => <td>{fmtGDay(fb.eidAdha.date, lang)}</td>)}</tr>
+              <tr><td style="font-weight:700">{t.tashreeqLbl}</td>{years.map(({ fb }) => <td>{fmtSpan(fb.tashreeq.date, fb.tashreeq.dateEnd!, lang)}</td>)}</tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Method -->
+      <section class="card section-card">
+        <h2 class="section-h2">{t.methodTitle}</h2>
+        <p class="section-p">{t.methodBody}</p>
+      </section>
+    </main>
+
+    <aside>
+      <div class="card" style="padding:18px 20px">
+        <h3 style="margin:0 0 12px;font-size:15.5px;font-weight:700">{t.relatedTitle}</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:14.5px">
+          <a href={homeHref} style="color:var(--accent);text-decoration:none">{t.relCal}</a>
+          <a href={prayerHref} style="color:var(--accent);text-decoration:none">{t.relPrayer}</a>
+          <a href={duaHref} style="color:var(--accent);text-decoration:none">{t.relDua}</a>
+          <a href={printableHref} style="color:var(--accent);text-decoration:none">{t.relPrint}</a>
+        </div>
+      </div>
+      <div class="ad-slot">
+        <span class="ad-label">{t.ad}</span>
+        <span style="font-size:13px;opacity:.7">300 × 250</span>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="site-footer">
+    {t.footer}
+    <span style="margin:0 8px;opacity:.4">·</span>
+    <a href={privacyHref} style="color:var(--muted);text-decoration:none;font-size:13px">{t.privacy}</a>
+  </footer>
+
+  <style is:global>
+    .wd-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .wd-table th, .wd-table td { padding: 10px 12px; text-align: start; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    .wd-table th { font-size: 12.5px; color: var(--muted); font-weight: 700; letter-spacing: .04em; }
+    .wd-table tbody tr:last-child td { border-bottom: none; }
+    .wd-table tbody tr:hover td { background: var(--surface2); }
+    .wd-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 7px; background: var(--gold-soft); color: var(--gold-deep); font-weight: 700; font-size: 12px; margin-inline-end: 4px; }
+    tr.wd-now td { background: var(--accent-soft) !important; font-weight: 700; }
+    tr.wd-now td:first-child::after { content: ' ● '; color: var(--accent); font-size: 9px; vertical-align: middle; }
+    .fast-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin-top: 14px; }
+    .fast-item { border: 1px solid var(--border); border-radius: 14px; background: var(--surface2); padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; }
+    .fast-name { font-weight: 800; font-size: 16px; color: var(--accent); }
+    .fast-date { display: inline-block; margin-top: 2px; padding: 7px 13px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); color: var(--text); font-weight: 600; font-size: 13px; text-decoration: none; transition: border-color .2s, color .2s; }
+    a.fast-date:hover { border-color: var(--accent); color: var(--accent); }
+    @media (max-width: 700px) { .wd-table { font-size: 13px; } .wd-table th, .wd-table td { padding: 8px 9px; } }
+  </style>
+  <script is:inline>
+    // Highlight the nearest upcoming (or current) white-days row.
+    (function () {
+      var rows = document.querySelectorAll('tr[data-wd-end]');
+      var now = new Date();
+      var today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+      for (var i = 0; i < rows.length; i++) {
+        var p = rows[i].getAttribute('data-wd-end').split('-').map(Number);
+        if (Date.UTC(p[0], p[1] - 1, p[2]) >= today) { rows[i].classList.add('wd-now'); break; }
+      }
+    })();
+  </script>
+</Layout>
