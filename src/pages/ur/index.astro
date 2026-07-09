@@ -4,6 +4,7 @@ import TodayIsland from '../../components/TodayIsland';
 import CalendarIsland from '../../components/CalendarIsland';
 import ConverterIsland from '../../components/ConverterIsland';
 import UpcomingIsland from '../../components/UpcomingIsland';
+import SidebarExtras from '../../components/SidebarExtras.astro';
 import { getL } from '../../lib/data';
 import { HADITHS, hadithOfDay } from '../../lib/hadiths';
 import { OCCASIONS, occLoc, occurrencesInGYear, occBasePath, fmtGShort } from '../../lib/occasions';
@@ -180,6 +181,9 @@ const jsonLd = JSON.stringify([
         </span>
         <span><span style="display:block;font-weight:700;font-size:15.5px;color:var(--gold-deep)">آپ کی سائٹ کے لیے ویجٹ</span><span style="display:block;font-size:13px;color:var(--muted);margin-top:2px">آج کی ہجری تاریخ مفت اپنی سائٹ پر شامل کریں</span></span>
       </a>
+
+      <!-- Sidebar extras: prayer mini, upcoming occasions, dua of the day -->
+      <SidebarExtras lang="ur" />
 
       <div class="ad-slot">
         <span class="ad-label">{L.ad}</span>
