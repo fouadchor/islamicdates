@@ -9,8 +9,10 @@ export default function TodayIsland({ lang }: Props) {
   const ll = toLang(lang);
   const [country, setCountry] = useState('sa');
   const [copied, setCopied] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     // Quietly default the region to the visitor's location using their
     // browser timezone — no permission prompt, no IP lookup. Selector stays
     // available as an override for anyone who wants a different region.
@@ -28,7 +30,7 @@ export default function TodayIsland({ lang }: Props) {
   const gMon = gMonArr(lang);
   const wd   = wdArr(lang);
   const sep  = ll === 'en' ? ', ' : '، ';
-  const cName = (c: typeof COUNTRIES[number]) => pick(lang, c.ar, c.en, c.en);
+  const cName = (c: typeof COUNTRIES[number]) => pick(lang, c.ar, c.en, c.ur);
 
   const fmtH = (d: Date, withDay: boolean) => {
     const h = g2h(d);
@@ -71,7 +73,7 @@ export default function TodayIsland({ lang }: Props) {
     : pick(lang,
         `العرض وفق تقويم أم القرى؛ وقد يختلف التاريخ الرسمي في ${cur.ar} بمقدار يوم واحد حسب رؤية الهلال محلياً.`,
         `Based on the Umm al-Qura calendar; the official date in ${cur.en} may differ by one day depending on local moon sighting.`,
-        `یہ نمائش اُمّ القریٰ تقویم کے مطابق ہے؛ ${cur.en} میں سرکاری تاریخ مقامی رؤیتِ ہلال کے مطابق ایک دن مختلف ہو سکتی ہے۔`);
+        `یہ نمائش اُمّ القریٰ تقویم کے مطابق ہے؛ ${cur.ur} میں سرکاری تاریخ مقامی رؤیتِ ہلال کے مطابق ایک دن مختلف ہو سکتی ہے۔`);
 
   const copyToday = () => {
     try { navigator.clipboard?.writeText(todayFull); } catch {}
@@ -84,10 +86,15 @@ export default function TodayIsland({ lang }: Props) {
     window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
   };
 
+  if (!mounted) return (
+    <div style={{ background:'var(--surface)', border:'1px solid var(--border)', borderRadius:'var(--radius)', boxShadow:'var(--shadow)', padding:'28px 30px', minHeight: 200 }} />
+  );
+
   return (
     <section style={{ position:'relative', overflow:'hidden', background:'var(--surface)', backgroundImage:'linear-gradient(135deg, var(--accent-glow) 0%, transparent 55%)', border:'1px solid var(--border)', borderRadius:'var(--radius)', boxShadow:'var(--shadow)', padding:'28px 30px', animation:'fadeUp .5s ease' }}>
       <span aria-hidden="true" style={{ position:'absolute', top:-34, insetInlineEnd:-18, fontSize:150, lineHeight:1, color:'var(--accent)', opacity:.05, pointerEvents:'none', userSelect:'none' }}>☾</span>
-      <div style={{ position:'relative', display:'flex', alignItems:'center', justifyContent:'space-between', gap:12, flexWrap:'wrap', marginBottom:14 }}>
+
+      <div style={{ position:'relative', display:'flex', alignItems:'center', justifyContent:'space-between', gap:12, flexWrap:'wrap', marginBottom:18 }}>
         <div style={{ fontSize:'12.5px', letterSpacing:'.12em', textTransform:'uppercase', color:'var(--accent)', fontWeight:700 }}>
           {pick(lang, 'تاريخ اليوم', "Today's Date", 'آج کی تاریخ')}
         </div>
@@ -104,40 +111,51 @@ export default function TodayIsland({ lang }: Props) {
         </label>
       </div>
 
-      <h1 style={{ margin:0, fontWeight:700, fontSize:'clamp(30px,6.2vw,54px)', lineHeight:1.05 }}>{todayHijri}</h1>
-      <div style={{ marginTop:12, fontSize:'clamp(15px,2.6vw,21px)', color:'var(--muted)' }}>{todayGreg}</div>
+      <div style={{ position:'relative', display:'flex', alignItems:'center', justifyContent:'space-between', gap:28, flexWrap:'wrap' }}>
+        <div style={{ flex:'1 1 320px', minWidth:0 }}>
+          <h1 style={{ margin:0, fontWeight:700, fontSize:'clamp(30px,6.2vw,54px)', lineHeight:1.05 }}>{todayHijri}</h1>
+          <div style={{ marginTop:12, fontSize:'clamp(15px,2.6vw,21px)', color:'var(--muted)' }}>{todayGreg}</div>
 
-      <div style={{ marginTop:18, display:'flex', flexWrap:'wrap', gap:10, alignItems:'center' }}>
-        {todayOcc && (
-          <div style={{ display:'inline-flex', alignItems:'center', gap:10, padding:'10px 18px', borderRadius:999, background:'var(--accent-soft)', color:'var(--accent)', fontWeight:700, fontSize:15 }}>
-            <span style={{ width:9, height:9, borderRadius:'50%', background:'var(--accent)', display:'inline-block' }} />
-            {todayOcc}
+          <div style={{ marginTop:18, display:'flex', flexWrap:'wrap', gap:10, alignItems:'center' }}>
+            {todayOcc && (
+              <div style={{ display:'inline-flex', alignItems:'center', gap:10, padding:'10px 18px', borderRadius:999, background:'var(--accent-soft)', color:'var(--accent)', fontWeight:700, fontSize:15 }}>
+                <span style={{ width:9, height:9, borderRadius:'50%', background:'var(--accent)', display:'inline-block' }} />
+                {todayOcc}
+              </div>
+            )}
+            {countdown && (
+              <div style={{ display:'inline-flex', alignItems:'center', gap:9, padding:'10px 18px', borderRadius:999, background:'var(--surface2)', border:'1px solid var(--border)', fontWeight:600, fontSize:14 }}>
+                <span style={{ width:8, height:8, borderRadius:'50%', background:'var(--gold)', display:'inline-block' }} />
+                {countdown}
+              </div>
+            )}
           </div>
-        )}
-        {countdown && (
-          <div style={{ display:'inline-flex', alignItems:'center', gap:9, padding:'10px 18px', borderRadius:999, background:'var(--surface2)', border:'1px solid var(--border)', fontWeight:600, fontSize:14 }}>
-            <span style={{ width:8, height:8, borderRadius:'50%', background:'var(--gold)', display:'inline-block' }} />
-            {countdown}
+
+          <div style={{ marginTop:18, display:'flex', flexWrap:'wrap', gap:10 }}>
+            <button onClick={copyToday}
+              style={{ padding:'11px 18px', borderRadius:11, border:'none', background:'var(--accent)', color:'var(--accent-contrast)', fontWeight:700, fontSize:14, transition:'filter .2s' }}
+              onMouseEnter={e => (e.currentTarget.style.filter='brightness(1.06)')}
+              onMouseLeave={e => (e.currentTarget.style.filter='')}>
+              {copied ? pick(lang, 'تم النسخ ✓', 'Copied ✓', 'کاپی ہو گیا ✓') : pick(lang, 'انسخ تاريخ اليوم', "Copy today's date", 'آج کی تاریخ کاپی کریں')}
+            </button>
+            <button onClick={shareWa}
+              style={{ padding:'11px 18px', borderRadius:11, border:'1px solid var(--border)', background:'var(--surface2)', color:'var(--accent)', fontWeight:700, fontSize:14, transition:'border-color .2s' }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor='var(--accent)')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor='var(--border)')}>
+              {pick(lang, 'شارك عبر واتساب', 'Share on WhatsApp', 'واٹس ایپ پر شیئر کریں')}
+            </button>
           </div>
-        )}
-      </div>
 
-      <div style={{ marginTop:18, display:'flex', flexWrap:'wrap', gap:10 }}>
-        <button onClick={copyToday}
-          style={{ padding:'11px 18px', borderRadius:11, border:'none', background:'var(--accent)', color:'var(--accent-contrast)', fontWeight:700, fontSize:14, transition:'filter .2s' }}
-          onMouseEnter={e => (e.currentTarget.style.filter='brightness(1.06)')}
-          onMouseLeave={e => (e.currentTarget.style.filter='')}>
-          {copied ? pick(lang, 'تم النسخ ✓', 'Copied ✓', 'کاپی ہو گیا ✓') : pick(lang, 'انسخ تاريخ اليوم', "Copy today's date", 'آج کی تاریخ کاپی کریں')}
-        </button>
-        <button onClick={shareWa}
-          style={{ padding:'11px 18px', borderRadius:11, border:'1px solid var(--border)', background:'var(--surface2)', color:'var(--accent)', fontWeight:700, fontSize:14, transition:'border-color .2s' }}
-          onMouseEnter={e => (e.currentTarget.style.borderColor='var(--accent)')}
-          onMouseLeave={e => (e.currentTarget.style.borderColor='var(--border)')}>
-          {pick(lang, 'شارك عبر واتساب', 'Share on WhatsApp', 'واٹس ایپ پر شیئر کریں')}
-        </button>
-      </div>
+          <p style={{ margin:'16px 0 0', fontSize:'12.5px', color:'var(--muted)', lineHeight:1.65, textWrap:'pretty' as any }}>{hilalNote}</p>
+        </div>
 
-      <p style={{ margin:'16px 0 0', fontSize:'12.5px', color:'var(--muted)', lineHeight:1.65, textWrap:'pretty' as any }}>{hilalNote}</p>
+        <div aria-hidden="true" style={{ flex:'0 0 auto', width:186, height:186, borderRadius:'50%', background:'linear-gradient(140deg, var(--accent) 0%, var(--accent-strong) 100%)', color:'var(--accent-contrast)', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', textAlign:'center', boxShadow:'0 14px 34px rgba(13,148,136,.30)', border:'6px solid var(--accent-soft)' }}>
+          <span style={{ fontSize:24, lineHeight:1, opacity:.92 }}>☾</span>
+          <span style={{ fontSize:15, fontWeight:600, opacity:.92, marginTop:5 }}>{hMon[th.m-1]}</span>
+          <span style={{ fontSize:62, fontWeight:800, lineHeight:1.02 }}>{th.d}</span>
+          <span style={{ fontSize:14, fontWeight:600, opacity:.92 }}>{th.y} {hijriEra(lang)}</span>
+        </div>
+      </div>
     </section>
   );
 }
