@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 480" role="img" aria-labelledby="at ad">
+<title id="at">عيد الأضحى — الكعبة المشرّفة</title>
+<desc id="ad">رسم توضيحي لعيد الأضحى وموسم الحج: الكعبة المشرّفة بحزامها الذهبي تحت هلال في سماء الليل.</desc>
+<defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#11544c"/><stop offset="1" stop-color="#06251f"/>
+  </linearGradient>
+  <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#f7d98d"/><stop offset="1" stop-color="#d9a441"/>
+  </linearGradient>
+  <radialGradient id="glow">
+    <stop offset="0" stop-color="#fbe4a3" stop-opacity=".35"/><stop offset="1" stop-color="#fbe4a3" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="ground">
+    <stop offset="0" stop-color="#5eead4" stop-opacity=".16"/><stop offset="1" stop-color="#5eead4" stop-opacity="0"/>
+  </radialGradient>
+  <path id="sp" d="M0,-7 Q1.8,-1.8 7,0 Q1.8,1.8 0,7 Q-1.8,1.8 -7,0 Q-1.8,-1.8 0,-7 Z"/>
+  <pattern id="geo" width="96" height="96" patternUnits="userSpaceOnUse">
+    <g fill="none" stroke="#5eead4" stroke-opacity=".07" stroke-width="1.4">
+      <rect x="28" y="28" width="40" height="40"/>
+      <rect x="28" y="28" width="40" height="40" transform="rotate(45 48 48)"/>
+    </g>
+  </pattern>
+</defs>
+<rect width="1200" height="480" fill="url(#sky)"/>
+<rect width="1200" height="480" fill="url(#geo)"/>
+<!-- small crescent -->
+<circle cx="220" cy="132" r="140" fill="url(#glow)"/>
+<path d="M0,-14 A14,14 0 1 0 9,10 A11,11 0 1 1 0,-14 Z" transform="translate(220 132) rotate(-20) scale(5.6)" fill="url(#gold)"/>
+<!-- stars -->
+<g fill="#ffe9b8">
+  <use href="#sp" x="460" y="80" opacity=".7"/>
+  <use href="#sp" x="620" y="150" opacity=".5"/>
+  <use href="#sp" x="1100" y="100" opacity=".75"/>
+  <use href="#sp" x="380" y="240" opacity=".4"/>
+  <circle cx="540" cy="60" r="2.4" opacity=".6"/>
+  <circle cx="700" cy="70" r="2" opacity=".5"/>
+  <circle cx="1010" cy="200" r="2.4" opacity=".55"/>
+  <circle cx="1160" cy="260" r="2" opacity=".45"/>
+  <circle cx="300" cy="300" r="2" opacity=".4"/>
+</g>
+<!-- plaza glow -->
+<ellipse cx="820" cy="420" rx="330" ry="60" fill="url(#ground)"/>
+<!-- Kaaba -->
+<g transform="translate(820,190)">
+  <circle cx="0" cy="60" r="220" fill="url(#glow)" opacity=".5"/>
+  <rect x="-118" y="-44" width="236" height="212" rx="5" fill="#101a1d"/>
+  <rect x="-118" y="-44" width="236" height="10" rx="5" fill="#1d2c30"/>
+  <!-- hizam (gold band) -->
+  <rect x="-118" y="6" width="236" height="27" fill="url(#gold)"/>
+  <g stroke="#a97c22" stroke-width="2" opacity=".7">
+    <line x1="-96" y1="6" x2="-96" y2="33"/><line x1="-58" y1="6" x2="-58" y2="33"/>
+    <line x1="-20" y1="6" x2="-20" y2="33"/><line x1="18" y1="6" x2="18" y2="33"/>
+    <line x1="56" y1="6" x2="56" y2="33"/><line x1="94" y1="6" x2="94" y2="33"/>
+  </g>
+  <!-- door curtain -->
+  <rect x="34" y="52" width="48" height="82" rx="4" fill="url(#gold)"/>
+  <line x1="58" y1="52" x2="58" y2="134" stroke="#a97c22" stroke-width="2" opacity=".7"/>
+  <!-- tawaf circle -->
+  <ellipse cx="0" cy="196" rx="218" ry="38" fill="none" stroke="#5eead4" stroke-opacity=".45" stroke-width="2.5" stroke-dasharray="4 14" stroke-linecap="round"/>
+</g>
+<!-- ground -->
+<rect y="444" width="1200" height="36" fill="#05221d"/>
+</svg>

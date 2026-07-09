@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 480" role="img" aria-labelledby="nt nd">
+<title id="nt">رأس السنة الهجرية — هلال جديد عند الفجر</title>
+<desc id="nd">رسم توضيحي لرأس السنة الهجرية: هلال رقيق يولد فوق فجر جديد مع شعاع مشرق يرمز لبداية العام الهجري.</desc>
+<defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#0c3d37"/><stop offset=".62" stop-color="#12594f"/><stop offset="1" stop-color="#1d7a6b"/>
+  </linearGradient>
+  <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#f7d98d"/><stop offset="1" stop-color="#d9a441"/>
+  </linearGradient>
+  <radialGradient id="dawn">
+    <stop offset="0" stop-color="#ffe9ad" stop-opacity=".5"/><stop offset="1" stop-color="#ffe9ad" stop-opacity="0"/>
+  </radialGradient>
+  <path id="sp" d="M0,-7 Q1.8,-1.8 7,0 Q1.8,1.8 0,7 Q-1.8,1.8 -7,0 Q-1.8,-1.8 0,-7 Z"/>
+  <pattern id="geo" width="96" height="96" patternUnits="userSpaceOnUse">
+    <g fill="none" stroke="#5eead4" stroke-opacity=".07" stroke-width="1.4">
+      <rect x="28" y="28" width="40" height="40"/>
+      <rect x="28" y="28" width="40" height="40" transform="rotate(45 48 48)"/>
+    </g>
+  </pattern>
+</defs>
+<rect width="1200" height="480" fill="url(#sky)"/>
+<rect width="1200" height="480" fill="url(#geo)"/>
+<!-- sunburst on horizon -->
+<circle cx="380" cy="400" r="300" fill="url(#dawn)"/>
+<g stroke="#ffe9ad" stroke-opacity=".3" stroke-width="3" stroke-linecap="round">
+  <line x1="380" y1="400" x2="380" y2="240"/>
+  <line x1="380" y1="400" x2="250" y2="270"/>
+  <line x1="380" y1="400" x2="510" y2="270"/>
+  <line x1="380" y1="400" x2="180" y2="350"/>
+  <line x1="380" y1="400" x2="580" y2="350"/>
+</g>
+<circle cx="380" cy="400" r="70" fill="url(#gold)"/>
+<!-- thin new crescent (hilal) -->
+<path d="M0,-14 A14,14 0 1 0 9,10 A11,11 0 1 1 0,-14 Z" transform="translate(880 145) rotate(-30) scale(7.4)" fill="url(#gold)"/>
+<!-- stars fading at dawn -->
+<g fill="#ffefc4">
+  <use href="#sp" x="640" y="90" opacity=".6"/>
+  <use href="#sp" x="1090" y="200" opacity=".5"/>
+  <use href="#sp" x="150" y="110" opacity=".55"/>
+  <circle cx="540" cy="180" r="2.2" opacity=".5"/>
+  <circle cx="760" cy="260" r="2" opacity=".45"/>
+  <circle cx="1150" cy="80" r="2.4" opacity=".5"/>
+  <circle cx="260" cy="180" r="2" opacity=".4"/>
+</g>
+<!-- horizon dunes -->
+<path d="M0,480 L0,420 Q260,378 520,420 Q800,462 1200,410 L1200,480 Z" fill="#0a3f37"/>
+<path d="M0,480 L0,452 Q330,420 660,452 Q940,478 1200,448 L1200,480 Z" fill="#062b25"/>
+</svg>

@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 480" role="img" aria-labelledby="it id2">
+<title id="it">الإسراء والمعراج — المسجد الأقصى ورحلة الليل</title>
+<desc id="id2">رسم توضيحي للإسراء والمعراج: قبة الصخرة المشرّفة في القدس ومسار نجمي يصعد نحو هلال في سماء الليل.</desc>
+<defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#0d3a4a"/><stop offset="1" stop-color="#062622"/>
+  </linearGradient>
+  <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#f7d98d"/><stop offset="1" stop-color="#d9a441"/>
+  </linearGradient>
+  <radialGradient id="glow">
+    <stop offset="0" stop-color="#fbe4a3" stop-opacity=".4"/><stop offset="1" stop-color="#fbe4a3" stop-opacity="0"/>
+  </radialGradient>
+  <path id="sp" d="M0,-7 Q1.8,-1.8 7,0 Q1.8,1.8 0,7 Q-1.8,1.8 -7,0 Q-1.8,-1.8 0,-7 Z"/>
+  <pattern id="geo" width="96" height="96" patternUnits="userSpaceOnUse">
+    <g fill="none" stroke="#5eead4" stroke-opacity=".07" stroke-width="1.4">
+      <rect x="28" y="28" width="40" height="40"/>
+      <rect x="28" y="28" width="40" height="40" transform="rotate(45 48 48)"/>
+    </g>
+  </pattern>
+</defs>
+<rect width="1200" height="480" fill="url(#sky)"/>
+<rect width="1200" height="480" fill="url(#geo)"/>
+<!-- destination crescent -->
+<circle cx="258" cy="120" r="150" fill="url(#glow)"/>
+<path d="M0,-14 A14,14 0 1 0 9,10 A11,11 0 1 1 0,-14 Z" transform="translate(258 120) rotate(15) scale(6.2)" fill="url(#gold)"/>
+<!-- ascending star trail from dome to crescent -->
+<path d="M812,196 Q640,60 380,96" fill="none" stroke="#ffe9b8" stroke-opacity=".85" stroke-width="5" stroke-linecap="round" stroke-dasharray="0 22"/>
+<use href="#sp" x="700" y="108" fill="#ffe9b8" opacity=".9"/>
+<use href="#sp" x="520" y="80" fill="#ffe9b8" opacity=".7"/>
+<!-- Dome of the Rock -->
+<g transform="translate(830,400)">
+  <circle cx="0" cy="-120" r="230" fill="url(#glow)" opacity=".45"/>
+  <!-- octagonal base -->
+  <path d="M-200,0 L-166,-78 L166,-78 L200,0 Z" fill="#0e4a54"/>
+  <g fill="#8ff0dc" opacity=".55">
+    <rect x="-128" y="-62" width="13" height="34" rx="6.5"/>
+    <rect x="-92" y="-62" width="13" height="34" rx="6.5"/>
+    <rect x="-56" y="-62" width="13" height="34" rx="6.5"/>
+    <rect x="-20" y="-62" width="13" height="34" rx="6.5"/>
+    <rect x="16" y="-62" width="13" height="34" rx="6.5"/>
+    <rect x="52" y="-62" width="13" height="34" rx="6.5"/>
+    <rect x="88" y="-62" width="13" height="34" rx="6.5"/>
+    <rect x="124" y="-62" width="13" height="34" rx="6.5"/>
+  </g>
+  <path d="M-30,0 L-30,-44 Q-30,-60 0,-60 Q30,-60 30,-44 L30,0 Z" fill="url(#gold)"/>
+  <!-- drum -->
+  <rect x="-88" y="-124" width="176" height="46" fill="#12333c"/>
+  <g fill="#8ff0dc" opacity=".45">
+    <rect x="-68" y="-114" width="10" height="24" rx="5"/>
+    <rect x="-40" y="-114" width="10" height="24" rx="5"/>
+    <rect x="-12" y="-114" width="10" height="24" rx="5"/>
+    <rect x="16" y="-114" width="10" height="24" rx="5"/>
+    <rect x="44" y="-114" width="10" height="24" rx="5"/>
+  </g>
+  <!-- golden dome -->
+  <path d="M0,-236 C36,-214 88,-186 88,-146 C88,-128 56,-124 0,-124 C-56,-124 -88,-128 -88,-146 C-88,-186 -36,-214 0,-236 Z" fill="url(#gold)"/>
+  <path d="M0,-236 C12,-214 30,-186 30,-146 C30,-130 20,-124 0,-124" fill="none" stroke="#fff3cf" stroke-opacity=".5" stroke-width="2"/>
+  <rect x="-2.5" y="-258" width="5" height="24" fill="url(#gold)"/>
+  <circle cx="0" cy="-262" r="5" fill="url(#gold)"/>
+</g>
+<!-- stars -->
+<g fill="#ffe9b8">
+  <use href="#sp" x="120" y="280" opacity=".5"/>
+  <use href="#sp" x="480" y="230" opacity=".55"/>
+  <use href="#sp" x="1110" y="90" opacity=".7"/>
+  <circle cx="600" cy="170" r="2.2" opacity=".5"/>
+  <circle cx="940" cy="70" r="2.4" opacity=".55"/>
+  <circle cx="1060" cy="240" r="2" opacity=".45"/>
+  <circle cx="60" cy="120" r="2" opacity=".4"/>
+</g>
+<!-- old city wall skyline -->
+<g fill="#04191c">
+  <rect y="440" width="1200" height="40"/>
+  <rect x="60" y="410" width="90" height="34" rx="4"/>
+  <rect x="200" y="422" width="1000" height="20"/>
+  <rect x="1080" y="404" width="70" height="40" rx="4"/>
+</g>
+</svg>

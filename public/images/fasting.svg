@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 480" role="img" aria-labelledby="fst fsd">
+<title id="fst">أيام الصيام — تمر وماء عند الإفطار</title>
+<desc id="fsd">رسم توضيحي لأيام الصيام والإفطار: طبق تمر وكوب ماء تحت هلال ذهبي يرمز لسنّة الإفطار على التمر.</desc>
+<defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#12594f"/><stop offset="1" stop-color="#07302a"/>
+  </linearGradient>
+  <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#f7d98d"/><stop offset="1" stop-color="#d9a441"/>
+  </linearGradient>
+  <linearGradient id="date" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#a06a33"/><stop offset="1" stop-color="#6e4218"/>
+  </linearGradient>
+  <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#8ff0dc"/><stop offset="1" stop-color="#2ba28c"/>
+  </linearGradient>
+  <radialGradient id="glow">
+    <stop offset="0" stop-color="#fbe4a3" stop-opacity=".38"/><stop offset="1" stop-color="#fbe4a3" stop-opacity="0"/>
+  </radialGradient>
+  <path id="sp" d="M0,-7 Q1.8,-1.8 7,0 Q1.8,1.8 0,7 Q-1.8,1.8 -7,0 Q-1.8,-1.8 0,-7 Z"/>
+  <pattern id="geo" width="96" height="96" patternUnits="userSpaceOnUse">
+    <g fill="none" stroke="#5eead4" stroke-opacity=".07" stroke-width="1.4">
+      <rect x="28" y="28" width="40" height="40"/>
+      <rect x="28" y="28" width="40" height="40" transform="rotate(45 48 48)"/>
+    </g>
+  </pattern>
+</defs>
+<rect width="1200" height="480" fill="url(#sky)"/>
+<rect width="1200" height="480" fill="url(#geo)"/>
+<!-- crescent -->
+<circle cx="262" cy="130" r="160" fill="url(#glow)"/>
+<path d="M0,-14 A14,14 0 1 0 9,10 A11,11 0 1 1 0,-14 Z" transform="translate(262 130) rotate(-20) scale(6.8)" fill="url(#gold)"/>
+<!-- stars -->
+<g fill="#ffe9b8">
+  <use href="#sp" x="540" y="70" opacity=".7"/>
+  <use href="#sp" x="760" y="130" opacity=".55"/>
+  <use href="#sp" x="1090" y="80" opacity=".7"/>
+  <use href="#sp" x="470" y="200" opacity=".45"/>
+  <circle cx="640" cy="180" r="2.2" opacity=".5"/>
+  <circle cx="900" cy="60" r="2.4" opacity=".55"/>
+  <circle cx="1160" cy="200" r="2" opacity=".45"/>
+  <circle cx="80" cy="300" r="2" opacity=".4"/>
+</g>
+<!-- iftar table scene -->
+<g transform="translate(820,300)">
+  <circle cx="0" cy="20" r="230" fill="url(#glow)" opacity=".4"/>
+  <!-- water glass -->
+  <g transform="translate(-180,-6)">
+    <path d="M-30,-70 L30,-70 L22,60 L-22,60 Z" fill="none" stroke="#8ff0dc" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M-26,-40 L26,-40 L21,54 L-21,54 Z" fill="url(#water)" opacity=".8"/>
+  </g>
+  <!-- plate of dates -->
+  <g>
+    <ellipse cx="60" cy="66" rx="180" ry="26" fill="#0a3b33"/>
+    <path d="M-120,60 L240,60 L214,96 L-94,96 Z" fill="#e7f4f0"/>
+    <ellipse cx="60" cy="60" rx="180" ry="24" fill="#f6fbf9"/>
+    <ellipse cx="60" cy="60" rx="150" ry="18" fill="#dcebe6"/>
+    <!-- dates -->
+    <g>
+      <ellipse cx="-10" cy="46" rx="34" ry="18" fill="url(#date)" transform="rotate(-14 -10 46)"/>
+      <ellipse cx="66" cy="38" rx="34" ry="18" fill="url(#date)" transform="rotate(6 66 38)"/>
+      <ellipse cx="140" cy="48" rx="34" ry="18" fill="url(#date)" transform="rotate(16 140 48)"/>
+      <ellipse cx="28" cy="24" rx="32" ry="17" fill="url(#date)" transform="rotate(-4 28 24)"/>
+      <ellipse cx="104" cy="22" rx="32" ry="17" fill="url(#date)" transform="rotate(10 104 22)"/>
+      <ellipse cx="66" cy="8" rx="30" ry="16" fill="url(#date)"/>
+      <!-- highlights -->
+      <ellipse cx="20" cy="18" rx="10" ry="4" fill="#c89158" opacity=".8" transform="rotate(-8 20 18)"/>
+      <ellipse cx="96" cy="16" rx="10" ry="4" fill="#c89158" opacity=".8" transform="rotate(8 96 16)"/>
+      <ellipse cx="60" cy="2" rx="9" ry="3.6" fill="#c89158" opacity=".8"/>
+    </g>
+  </g>
+</g>
+<!-- ground -->
+<path d="M0,480 L0,440 Q300,414 600,440 Q900,466 1200,438 L1200,480 Z" fill="#05231e"/>
+</svg>

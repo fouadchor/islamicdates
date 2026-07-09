@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 480" role="img" aria-labelledby="mt md">
+<title id="mt">المولد النبوي — القبة الخضراء</title>
+<desc id="md">رسم توضيحي للمولد النبوي الشريف: قبة المسجد النبوي الخضراء يعلوها هلال ذهبي وتحيط بها زخارف وردية إسلامية.</desc>
+<defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#11544c"/><stop offset="1" stop-color="#06251f"/>
+  </linearGradient>
+  <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#f7d98d"/><stop offset="1" stop-color="#d9a441"/>
+  </linearGradient>
+  <linearGradient id="dome" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#3fae97"/><stop offset="1" stop-color="#14705f"/>
+  </linearGradient>
+  <radialGradient id="halo">
+    <stop offset="0" stop-color="#8ff0dc" stop-opacity=".28"/><stop offset="1" stop-color="#8ff0dc" stop-opacity="0"/>
+  </radialGradient>
+  <path id="sp" d="M0,-7 Q1.8,-1.8 7,0 Q1.8,1.8 0,7 Q-1.8,1.8 -7,0 Q-1.8,-1.8 0,-7 Z"/>
+  <g id="rosette">
+    <g fill="url(#gold)">
+      <ellipse cx="0" cy="-14" rx="6.5" ry="12"/>
+      <ellipse cx="0" cy="-14" rx="6.5" ry="12" transform="rotate(45)"/>
+      <ellipse cx="0" cy="-14" rx="6.5" ry="12" transform="rotate(90)"/>
+      <ellipse cx="0" cy="-14" rx="6.5" ry="12" transform="rotate(135)"/>
+      <ellipse cx="0" cy="-14" rx="6.5" ry="12" transform="rotate(180)"/>
+      <ellipse cx="0" cy="-14" rx="6.5" ry="12" transform="rotate(225)"/>
+      <ellipse cx="0" cy="-14" rx="6.5" ry="12" transform="rotate(270)"/>
+      <ellipse cx="0" cy="-14" rx="6.5" ry="12" transform="rotate(315)"/>
+    </g>
+    <circle r="7" fill="#5eead4"/>
+  </g>
+  <pattern id="geo" width="96" height="96" patternUnits="userSpaceOnUse">
+    <g fill="none" stroke="#5eead4" stroke-opacity=".07" stroke-width="1.4">
+      <rect x="28" y="28" width="40" height="40"/>
+      <rect x="28" y="28" width="40" height="40" transform="rotate(45 48 48)"/>
+    </g>
+  </pattern>
+</defs>
+<rect width="1200" height="480" fill="url(#sky)"/>
+<rect width="1200" height="480" fill="url(#geo)"/>
+<!-- halo -->
+<circle cx="760" cy="240" r="280" fill="url(#halo)"/>
+<circle cx="760" cy="230" r="170" fill="none" stroke="#8ff0dc" stroke-opacity=".18" stroke-width="2"/>
+<circle cx="760" cy="230" r="205" fill="none" stroke="#8ff0dc" stroke-opacity=".1" stroke-width="2"/>
+<!-- green dome mosque -->
+<g transform="translate(760,384)">
+  <!-- base building -->
+  <rect x="-190" y="-64" width="380" height="64" fill="#0a332c"/>
+  <g fill="#fff3cf" opacity=".85">
+    <rect x="-160" y="-46" width="16" height="30" rx="8"/>
+    <rect x="-118" y="-46" width="16" height="30" rx="8"/>
+    <rect x="-76" y="-46" width="16" height="30" rx="8"/>
+    <rect x="60" y="-46" width="16" height="30" rx="8"/>
+    <rect x="102" y="-46" width="16" height="30" rx="8"/>
+    <rect x="144" y="-46" width="16" height="30" rx="8"/>
+  </g>
+  <!-- gold arch door -->
+  <path d="M-26,0 L-26,-40 Q-26,-58 0,-58 Q26,-58 26,-40 L26,0 Z" fill="url(#gold)"/>
+  <!-- drum -->
+  <rect x="-74" y="-112" width="148" height="48" fill="#0d423a"/>
+  <g fill="#fff3cf" opacity=".7">
+    <rect x="-56" y="-102" width="10" height="24" rx="5"/>
+    <rect x="-28" y="-102" width="10" height="24" rx="5"/>
+    <rect x="0" y="-102" width="10" height="24" rx="5"/>
+    <rect x="28" y="-102" width="10" height="24" rx="5"/>
+    <rect x="48" y="-102" width="10" height="24" rx="5"/>
+  </g>
+  <!-- green onion dome -->
+  <path d="M0,-238 C30,-212 72,-186 72,-142 C72,-118 46,-112 0,-112 C-46,-112 -72,-118 -72,-142 C-72,-186 -30,-212 0,-238 Z" fill="url(#dome)"/>
+  <path d="M0,-238 C10,-212 24,-186 24,-142 C24,-120 16,-112 0,-112" fill="none" stroke="#8ff0dc" stroke-opacity=".35" stroke-width="2"/>
+  <path d="M0,-238 C-10,-212 -24,-186 -24,-142 C-24,-120 -16,-112 0,-112" fill="none" stroke="#0a4a3e" stroke-opacity=".5" stroke-width="2"/>
+  <!-- finial with crescent -->
+  <rect x="-2.5" y="-262" width="5" height="26" fill="url(#gold)"/>
+  <circle cx="0" cy="-266" r="5" fill="url(#gold)"/>
+  <path d="M0,-292 A13,13 0 1 0 8,-270 A10,10 0 1 1 0,-292 Z" fill="url(#gold)"/>
+  <!-- minarets -->
+  <g fill="#0a332c">
+    <rect x="-236" y="-176" width="18" height="176"/><circle cx="-227" cy="-180" r="13"/><path d="M-238,-188 L-227,-214 L-216,-188 Z" fill="#0d423a"/>
+    <rect x="218" y="-176" width="18" height="176"/><circle cx="227" cy="-180" r="13"/><path d="M216,-188 L227,-214 L238,-188 Z" fill="#0d423a"/>
+  </g>
+  <circle cx="-227" cy="-222" r="3.6" fill="url(#gold)"/>
+  <circle cx="227" cy="-222" r="3.6" fill="url(#gold)"/>
+</g>
+<!-- rosettes -->
+<use href="#rosette" x="200" y="140"/>
+<use href="#rosette" x="330" y="260" transform="scale(1)" opacity=".85"/>
+<use href="#rosette" x="1080" y="180" opacity=".9"/>
+<g transform="translate(120,300) scale(.7)"><use href="#rosette" opacity=".7"/></g>
+<g transform="translate(1150,320) scale(.65)"><use href="#rosette" opacity=".7"/></g>
+<!-- stars -->
+<g fill="#ffe9b8">
+  <use href="#sp" x="450" y="90" opacity=".7"/>
+  <use href="#sp" x="1010" y="70" opacity=".6"/>
+  <circle cx="560" cy="150" r="2.2" opacity=".5"/>
+  <circle cx="920" cy="120" r="2" opacity=".5"/>
+  <circle cx="260" cy="60" r="2.4" opacity=".55"/>
+</g>
+<!-- ground -->
+<rect y="452" width="1200" height="28" fill="#04201b"/>
+</svg>

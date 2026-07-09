@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 480" role="img" aria-labelledby="ft fd">
+<title id="ft">عيد الفطر — هلال وزينة احتفالية</title>
+<desc id="fd">رسم توضيحي لعيد الفطر المبارك: هلال ذهبي وزينة أعلام مثلثة احتفالية فوق صورة ظلية لمآذن ومساجد.</desc>
+<defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#12594f"/><stop offset="1" stop-color="#072b25"/>
+  </linearGradient>
+  <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#f7d98d"/><stop offset="1" stop-color="#d9a441"/>
+  </linearGradient>
+  <radialGradient id="glow">
+    <stop offset="0" stop-color="#fbe4a3" stop-opacity=".38"/><stop offset="1" stop-color="#fbe4a3" stop-opacity="0"/>
+  </radialGradient>
+  <path id="sp" d="M0,-7 Q1.8,-1.8 7,0 Q1.8,1.8 0,7 Q-1.8,1.8 -7,0 Q-1.8,-1.8 0,-7 Z"/>
+  <path id="burst" d="M0,0 L0,-46 M0,0 L33,-33 M0,0 L46,0 M0,0 L33,33 M0,0 L0,46 M0,0 L-33,33 M0,0 L-46,0 M0,0 L-33,-33"/>
+  <pattern id="geo" width="96" height="96" patternUnits="userSpaceOnUse">
+    <g fill="none" stroke="#5eead4" stroke-opacity=".07" stroke-width="1.4">
+      <rect x="28" y="28" width="40" height="40"/>
+      <rect x="28" y="28" width="40" height="40" transform="rotate(45 48 48)"/>
+    </g>
+  </pattern>
+</defs>
+<rect width="1200" height="480" fill="url(#sky)"/>
+<rect width="1200" height="480" fill="url(#geo)"/>
+<!-- crescent (left, faces festive bunting) -->
+<circle cx="278" cy="172" r="185" fill="url(#glow)"/>
+<path d="M0,-14 A14,14 0 1 0 9,10 A11,11 0 1 1 0,-14 Z" transform="translate(278 172) rotate(25) scale(-7.2 7.2)" fill="url(#gold)"/>
+<!-- fireworks bursts -->
+<g stroke="#ffe9b8" stroke-width="3" stroke-linecap="round" fill="none">
+  <use href="#burst" x="640" y="110" opacity=".75"/>
+  <use href="#burst" x="880" y="200" opacity=".45" transform="scale(.7)"/>
+  <use href="#burst" x="1080" y="90" opacity=".6" transform="scale(.85)"/>
+</g>
+<g fill="#5eead4" opacity=".9">
+  <circle cx="640" cy="110" r="4"/><circle cx="880" cy="200" r="3.4"/><circle cx="1080" cy="90" r="3.4"/>
+</g>
+<!-- bunting -->
+<path d="M470,34 Q720,110 1200,52" fill="none" stroke="#d9a441" stroke-width="3"/>
+<g>
+  <path d="M520,52 L546,54 L532,92 Z" fill="#5eead4"/>
+  <path d="M600,66 L626,67 L612,105 Z" fill="url(#gold)"/>
+  <path d="M684,76 L710,76 L696,114 Z" fill="#8ff0dc"/>
+  <path d="M770,80 L796,80 L782,118 Z" fill="url(#gold)"/>
+  <path d="M856,80 L882,79 L868,117 Z" fill="#5eead4"/>
+  <path d="M942,74 L968,72 L954,111 Z" fill="url(#gold)"/>
+  <path d="M1028,66 L1054,63 L1041,102 Z" fill="#8ff0dc"/>
+  <path d="M1114,56 L1140,52 L1128,92 Z" fill="url(#gold)"/>
+</g>
+<!-- stars -->
+<g fill="#ffe9b8">
+  <use href="#sp" x="520" y="200" opacity=".6"/>
+  <use href="#sp" x="760" y="160" opacity=".5"/>
+  <use href="#sp" x="980" y="250" opacity=".55"/>
+  <circle cx="460" cy="140" r="2.4" opacity=".6"/>
+  <circle cx="700" cy="230" r="2" opacity=".5"/>
+  <circle cx="1150" cy="200" r="2.4" opacity=".55"/>
+  <circle cx="90" cy="330" r="2" opacity=".4"/>
+</g>
+<!-- skyline -->
+<g fill="#05231e">
+  <rect y="430" width="1200" height="50"/>
+  <circle cx="130" cy="436" r="46"/>
+  <rect x="250" y="326" width="15" height="108"/><circle cx="257" cy="324" r="10"/><path d="M248,317 L257,297 L266,317 Z"/>
+  <circle cx="400" cy="432" r="56"/>
+  <rect x="530" y="354" width="12" height="80"/><circle cx="536" cy="352" r="8"/><path d="M529,347 L536,331 L543,347 Z"/>
+  <circle cx="660" cy="436" r="48"/>
+  <rect x="790" y="336" width="14" height="98"/><circle cx="797" cy="334" r="9"/><path d="M789,328 L797,310 L805,328 Z"/>
+  <circle cx="930" cy="434" r="54"/>
+  <rect x="1060" y="352" width="12" height="82"/><circle cx="1066" cy="350" r="8"/><path d="M1059,345 L1066,329 L1073,345 Z"/>
+  <circle cx="1160" cy="440" r="42"/>
+</g>
+</svg>

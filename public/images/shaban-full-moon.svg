@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 480" role="img" aria-labelledby="bt bd">
+<title id="bt">ليلة النصف من شعبان — بدر التمام</title>
+<desc id="bd">رسم توضيحي لليلة النصف من شعبان: بدر مكتمل مضيء بين سحب رقيقة فوق صورة ظلية لمسجد.</desc>
+<defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#0f4f47"/><stop offset="1" stop-color="#052420"/>
+  </linearGradient>
+  <linearGradient id="moon" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#fdf3d3"/><stop offset="1" stop-color="#ecc878"/>
+  </linearGradient>
+  <radialGradient id="halo">
+    <stop offset="0" stop-color="#ffefc0" stop-opacity=".45"/><stop offset="1" stop-color="#ffefc0" stop-opacity="0"/>
+  </radialGradient>
+  <path id="sp" d="M0,-7 Q1.8,-1.8 7,0 Q1.8,1.8 0,7 Q-1.8,1.8 -7,0 Q-1.8,-1.8 0,-7 Z"/>
+  <pattern id="geo" width="96" height="96" patternUnits="userSpaceOnUse">
+    <g fill="none" stroke="#5eead4" stroke-opacity=".07" stroke-width="1.4">
+      <rect x="28" y="28" width="40" height="40"/>
+      <rect x="28" y="28" width="40" height="40" transform="rotate(45 48 48)"/>
+    </g>
+  </pattern>
+</defs>
+<rect width="1200" height="480" fill="url(#sky)"/>
+<rect width="1200" height="480" fill="url(#geo)"/>
+<!-- full moon -->
+<circle cx="860" cy="180" r="240" fill="url(#halo)"/>
+<circle cx="860" cy="180" r="110" fill="url(#moon)"/>
+<g fill="#c9a355" opacity=".3">
+  <circle cx="820" cy="140" r="16"/>
+  <circle cx="900" cy="210" r="22"/>
+  <circle cx="850" cy="230" r="10"/>
+  <circle cx="910" cy="130" r="9"/>
+</g>
+<circle cx="822" cy="142" r="10" fill="#fff" opacity=".35"/>
+<!-- drifting clouds -->
+<g fill="#0c4038" opacity=".85">
+  <rect x="640" y="230" width="260" height="26" rx="13"/>
+  <rect x="700" y="212" width="150" height="22" rx="11"/>
+  <rect x="120" y="120" width="220" height="24" rx="12"/>
+  <rect x="170" y="104" width="120" height="20" rx="10"/>
+  <rect x="420" y="300" width="180" height="22" rx="11"/>
+</g>
+<!-- stars -->
+<g fill="#ffefc4">
+  <use href="#sp" x="150" y="230" opacity=".7"/>
+  <use href="#sp" x="400" y="90" opacity=".6"/>
+  <use href="#sp" x="580" y="170" opacity=".65"/>
+  <use href="#sp" x="1120" y="300" opacity=".5"/>
+  <circle cx="260" cy="200" r="2.2" opacity=".5"/>
+  <circle cx="480" cy="240" r="2" opacity=".45"/>
+  <circle cx="640" cy="70" r="2.4" opacity=".6"/>
+  <circle cx="1090" cy="120" r="2.2" opacity=".5"/>
+  <circle cx="90" cy="60" r="2" opacity=".45"/>
+</g>
+<!-- skyline -->
+<g fill="#04201b">
+  <rect y="432" width="1200" height="48"/>
+  <circle cx="180" cy="436" r="50"/>
+  <rect x="310" y="336" width="14" height="100"/><circle cx="317" cy="334" r="9"/><path d="M309,328 L317,310 L325,328 Z"/>
+  <circle cx="470" cy="438" r="44"/>
+  <rect x="600" y="354" width="12" height="82"/><circle cx="606" cy="352" r="8"/><path d="M599,347 L606,331 L613,347 Z"/>
+  <circle cx="750" cy="434" r="56"/>
+  <rect x="900" y="342" width="14" height="94"/><circle cx="907" cy="340" r="9"/><path d="M899,334 L907,316 L915,334 Z"/>
+  <circle cx="1060" cy="438" r="48"/>
+</g>
+</svg>
