@@ -4,6 +4,7 @@ import TodayIsland from '../components/TodayIsland';
 import CalendarIsland from '../components/CalendarIsland';
 import ConverterIsland from '../components/ConverterIsland';
 import UpcomingIsland from '../components/UpcomingIsland';
+import SidebarExtras from '../components/SidebarExtras.astro';
 import { H_MON_AR, MONTHS_NOTES_AR } from '../lib/data';
 import { getL } from '../lib/data';
 import { HADITHS, hadithOfDay } from '../lib/hadiths';
@@ -58,6 +59,7 @@ const jsonLd = JSON.stringify([
         <div class="tagline">{L.tagline}</div>
       </div>
     </a>
+    <a href="/en/" class="lang-btn">EN</a>
   </header>
 
   <div class="layout">
@@ -189,6 +191,9 @@ const jsonLd = JSON.stringify([
         </span>
         <span><span style="display:block;font-weight:700;font-size:15.5px;color:var(--gold-deep)">ويدجت لموقعك</span><span style="display:block;font-size:13px;color:var(--muted);margin-top:2px">أضِف تاريخ اليوم الهجري إلى موقعك مجاناً</span></span>
       </a>
+
+      <!-- Sidebar extras: prayer mini, upcoming occasions, dua of the day -->
+      <SidebarExtras lang="ar" />
 
       <!-- Ad slot -->
       <div class="ad-slot">
