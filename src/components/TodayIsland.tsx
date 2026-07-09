@@ -9,10 +9,8 @@ export default function TodayIsland({ lang }: Props) {
   const ll = toLang(lang);
   const [country, setCountry] = useState('sa');
   const [copied, setCopied] = useState(false);
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
     // Quietly default the region to the visitor's location using their
     // browser timezone — no permission prompt, no IP lookup. Selector stays
     // available as an override for anyone who wants a different region.
@@ -30,7 +28,7 @@ export default function TodayIsland({ lang }: Props) {
   const gMon = gMonArr(lang);
   const wd   = wdArr(lang);
   const sep  = ll === 'en' ? ', ' : '، ';
-  const cName = (c: typeof COUNTRIES[number]) => pick(lang, c.ar, c.en, c.ur);
+  const cName = (c: typeof COUNTRIES[number]) => pick(lang, c.ar, c.en, c.en);
 
   const fmtH = (d: Date, withDay: boolean) => {
     const h = g2h(d);
@@ -73,7 +71,7 @@ export default function TodayIsland({ lang }: Props) {
     : pick(lang,
         `العرض وفق تقويم أم القرى؛ وقد يختلف التاريخ الرسمي في ${cur.ar} بمقدار يوم واحد حسب رؤية الهلال محلياً.`,
         `Based on the Umm al-Qura calendar; the official date in ${cur.en} may differ by one day depending on local moon sighting.`,
-        `یہ نمائش اُمّ القریٰ تقویم کے مطابق ہے؛ ${cur.ur} میں سرکاری تاریخ مقامی رؤیتِ ہلال کے مطابق ایک دن مختلف ہو سکتی ہے۔`);
+        `یہ نمائش اُمّ القریٰ تقویم کے مطابق ہے؛ ${cur.en} میں سرکاری تاریخ مقامی رؤیتِ ہلال کے مطابق ایک دن مختلف ہو سکتی ہے۔`);
 
   const copyToday = () => {
     try { navigator.clipboard?.writeText(todayFull); } catch {}
@@ -85,10 +83,6 @@ export default function TodayIsland({ lang }: Props) {
     const text = todayFull + ' \n' + (typeof location !== 'undefined' ? location.href : '');
     window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
   };
-
-  if (!mounted) return (
-    <div style={{ background:'var(--surface)', border:'1px solid var(--border)', borderRadius:'var(--radius)', boxShadow:'var(--shadow)', padding:'28px 30px', minHeight: 200 }} />
-  );
 
   return (
     <section style={{ position:'relative', overflow:'hidden', background:'var(--surface)', backgroundImage:'linear-gradient(135deg, var(--accent-glow) 0%, transparent 55%)', border:'1px solid var(--border)', borderRadius:'var(--radius)', boxShadow:'var(--shadow)', padding:'28px 30px', animation:'fadeUp .5s ease' }}>

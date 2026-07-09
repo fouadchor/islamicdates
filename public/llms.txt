@@ -1,0 +1,32 @@
+# Islamic Dates
+
+> IslamicDates.org provides Hijri and Gregorian calendars, date conversion, prayer times, Islamic occasion dates, recommended fasting days, duas, Zakat tools, and printable calendars in Arabic, English, and Urdu. Dates use the Umm al-Qura calendar and may differ by one day according to local moon-sighting announcements.
+
+## Languages
+
+- [Arabic](https://islamicdates.org/): Arabic homepage and Hijri calendar
+- [English](https://islamicdates.org/en/): English homepage and Hijri calendar
+- [Urdu](https://islamicdates.org/ur/): Urdu homepage and Hijri calendar
+
+## Calendars and date tools
+
+- [Today's Hijri date](https://islamicdates.org/en/): Current Hijri and Gregorian dates, monthly calendar, and date converter
+- [Hijri age calculator](https://islamicdates.org/en/age/): Calculate age in Hijri and Gregorian years
+- [Printable Hijri calendar](https://islamicdates.org/en/printable/): Create printable and downloadable calendars
+
+## Worship tools
+
+- [Prayer times](https://islamicdates.org/en/prayer-times/): Prayer schedules by country and city
+- [Zakat calculator](https://islamicdates.org/en/zakat/): Calculate Zakat on eligible wealth
+- [Fasting dates](https://islamicdates.org/en/fasting/): Sunnah fasting days and their Gregorian dates
+- [Duas](https://islamicdates.org/en/dua/): Categorized Islamic supplications
+
+## Site information
+
+- [Calendar methodology and guide](https://islamicdates.org/en/about/): How the Hijri calendar and date calculations work
+- [Contact](https://islamicdates.org/en/contact/): Contact IslamicDates.org
+- [Sitemap](https://islamicdates.org/sitemap.xml): Complete list of public pages
+
+## Optional
+
+- [Embeddable widget](https://islamicdates.org/en/widget/): Add the Hijri date widget to another website
