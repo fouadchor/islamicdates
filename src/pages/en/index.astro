@@ -4,6 +4,7 @@ import TodayIsland from '../../components/TodayIsland';
 import CalendarIsland from '../../components/CalendarIsland';
 import ConverterIsland from '../../components/ConverterIsland';
 import UpcomingIsland from '../../components/UpcomingIsland';
+import SidebarExtras from '../../components/SidebarExtras.astro';
 import { H_MON_EN, MONTHS_NOTES_EN } from '../../lib/data';
 import { getL } from '../../lib/data';
 import { HADITHS, hadithOfDay } from '../../lib/hadiths';
@@ -122,7 +123,7 @@ const jsonLd = JSON.stringify([
           var h = hList[((day % hList.length) + hList.length) % hList.length];
           var t = document.getElementById('hadith-text');
           var s = document.getElementById('hadith-src');
-          if (t) t.textContent = '\u201C' + h.t + '\u201D';
+          if (t) t.textContent = '“' + h.t + '”';
           if (s) s.textContent = h.s;
         })();
       </script>
@@ -179,6 +180,9 @@ const jsonLd = JSON.stringify([
         </span>
         <span><span style="display:block;font-weight:700;font-size:15.5px;color:var(--gold-deep)">Widget for your site</span><span style="display:block;font-size:13px;color:var(--muted);margin-top:2px">Add today's Hijri date to your website — free</span></span>
       </a>
+
+      <!-- Sidebar extras: prayer mini, upcoming occasions, dua of the day -->
+      <SidebarExtras lang="en" />
 
       <div class="ad-slot">
         <span class="ad-label">{L.ad}</span>
