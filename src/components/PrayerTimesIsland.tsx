@@ -26,6 +26,14 @@ const CITIES: City[] = [
   { key: 'jakarta',   ar: 'جاكرتا',          en: 'Jakarta',     ur: 'جکارتہ',      lat: -6.2088, lng: 106.8456, zone: 'Asia/Jakarta',   method: 'Singapore' },
 ];
 
+// Match the visitor's browser timezone to a listed city (e.g. Asia/Qatar → Doha).
+function cityForTz(): City | null {
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    return CITIES.find(c => c.zone === tz) || null;
+  } catch { return null; }
+}
+
 // Pick a country-appropriate calculation method from an IANA timezone.
 function methodForZone(zone: string): MethodId {
   const z = (zone || '').toLowerCase();
@@ -75,10 +83,24 @@ export default function PrayerTimesIsland({ lang }: Props) {
       if (s.method && METHODS[s.method as MethodId]) setMethod(s.method);
       if (s.asr) setAsr(s.asr);
       if (typeof s.h12 === 'boolean') setH12(s.h12);
-      if (s.loc && typeof s.loc.lat === 'number') setLoc(s.loc);
-      else { const c = CITIES[0]; setLoc({ lat: c.lat, lng: c.lng, zone: c.zone, key: c.key }); setMethod(c.method); }
+      if (s.loc && typeof s.loc.lat === 'number') {
+        // Snap a saved location without a city (e.g. an old "my location") to a
+        // matching listed city so it shows the city name and selects the dropdown.
+        let loaded = s.loc as Loc;
+        if (!loaded.key) {
+          const m = CITIES.find(c => c.zone === loaded.zone);
+          if (m) { loaded = { lat: m.lat, lng: m.lng, zone: m.zone, key: m.key }; setMethod(m.method); }
+        }
+        setLoc(loaded);
+      } else {
+        const c = cityForTz() || CITIES[0];
+        setLoc({ lat: c.lat, lng: c.lng, zone: c.zone, key: c.key });
+        setMethod(c.method);
+      }
     } catch {
-      const c = CITIES[0]; setLoc({ lat: c.lat, lng: c.lng, zone: c.zone, key: c.key });
+      const c = cityForTz() || CITIES[0];
+      setLoc({ lat: c.lat, lng: c.lng, zone: c.zone, key: c.key });
+      setMethod(c.method);
     }
     tick.current = window.setInterval(() => setNow(new Date()), 1000);
     return () => { if (tick.current) clearInterval(tick.current); };
@@ -98,8 +120,15 @@ export default function PrayerTimesIsland({ lang }: Props) {
     navigator.geolocation.getCurrentPosition(
       pos => {
         const zone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
-        setLoc({ lat: pos.coords.latitude, lng: pos.coords.longitude, zone, isGeo: true });
-        setMethod(methodForZone(zone));
+        // If the location falls in a listed city's region, select that city by name.
+        const city = CITIES.find(c => c.zone === zone);
+        if (city) {
+          setLoc({ lat: city.lat, lng: city.lng, zone: city.zone, key: city.key });
+          setMethod(city.method);
+        } else {
+          setLoc({ lat: pos.coords.latitude, lng: pos.coords.longitude, zone, isGeo: true });
+          setMethod(methodForZone(zone));
+        }
         setGeo('idle');
       },
       () => setGeo('denied'),

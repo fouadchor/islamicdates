@@ -17,12 +17,22 @@ const CITIES: City[] = [
   { key: 'kuwait',    ar: 'الكويت',          en: 'Kuwait City', ur: 'کویت سٹی',    lat: 29.3759, lng: 47.9774, zone: 'Asia/Kuwait',     method: 'Kuwait' },
   { key: 'cairo',     ar: 'القاهرة',         en: 'Cairo',       ur: 'قاہرہ',       lat: 30.0444, lng: 31.2357, zone: 'Africa/Cairo',    method: 'Egypt' },
   { key: 'amman',     ar: 'عمّان',           en: 'Amman',       ur: 'عمان',        lat: 31.9539, lng: 35.9106, zone: 'Asia/Amman',      method: 'MWL' },
+  { key: 'damascus',  ar: 'دمشق',            en: 'Damascus',    ur: 'دمشق',        lat: 33.5138, lng: 36.2765, zone: 'Asia/Damascus',   method: 'MWL' },
   { key: 'istanbul',  ar: 'إسطنبول',         en: 'Istanbul',    ur: 'استنبول',     lat: 41.0082, lng: 28.9784, zone: 'Europe/Istanbul', method: 'Turkey' },
   { key: 'london',    ar: 'لندن',            en: 'London',      ur: 'لندن',        lat: 51.5074, lng: -0.1278, zone: 'Europe/London',   method: 'MWL' },
+  { key: 'paris',     ar: 'باريس',           en: 'Paris',       ur: 'پیرس',        lat: 48.8566, lng:  2.3522, zone: 'Europe/Paris',    method: 'MWL' },
   { key: 'newyork',   ar: 'نيويورك',         en: 'New York',    ur: 'نیویارک',     lat: 40.7128, lng: -74.0060, zone: 'America/New_York', method: 'ISNA' },
   { key: 'karachi',   ar: 'كراتشي',          en: 'Karachi',     ur: 'کراچی',       lat: 24.8607, lng: 67.0011, zone: 'Asia/Karachi',    method: 'Karachi' },
   { key: 'jakarta',   ar: 'جاكرتا',          en: 'Jakarta',     ur: 'جکارتہ',      lat: -6.2088, lng: 106.8456, zone: 'Asia/Jakarta',   method: 'Singapore' },
 ];
+
+// Match the visitor's browser timezone to a listed city (e.g. Asia/Qatar → Doha).
+function cityForTz(): City | null {
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    return CITIES.find(c => c.zone === tz) || null;
+  } catch { return null; }
+}
 
 function methodForZone(zone: string): MethodId {
   const z = (zone || '').toLowerCase();
@@ -70,10 +80,22 @@ export default function PrayerMiniIsland({ lang }: Props) {
       if (s.method) setMethod(s.method);
       if (s.asr) setAsr(s.asr);
       if (typeof s.h12 === 'boolean') setH12(s.h12);
-      if (s.loc && typeof s.loc.lat === 'number') setLoc(s.loc);
-      else { const c = CITIES[0]; setLoc({ lat: c.lat, lng: c.lng, zone: c.zone, key: c.key }); setMethod(c.method); }
+      if (s.loc && typeof s.loc.lat === 'number') {
+        let loaded = s.loc as Loc;
+        if (!loaded.key) {
+          const m = CITIES.find(c => c.zone === loaded.zone);
+          if (m) { loaded = { lat: m.lat, lng: m.lng, zone: m.zone, key: m.key }; setMethod(m.method); }
+        }
+        setLoc(loaded);
+      } else {
+        const c = cityForTz() || CITIES[0];
+        setLoc({ lat: c.lat, lng: c.lng, zone: c.zone, key: c.key });
+        setMethod(c.method);
+      }
     } catch {
-      const c = CITIES[0]; setLoc({ lat: c.lat, lng: c.lng, zone: c.zone, key: c.key });
+      const c = cityForTz() || CITIES[0];
+      setLoc({ lat: c.lat, lng: c.lng, zone: c.zone, key: c.key });
+      setMethod(c.method);
     }
     tick.current = window.setInterval(() => setNow(new Date()), 1000);
     return () => { if (tick.current) clearInterval(tick.current); };
@@ -93,8 +115,9 @@ export default function PrayerMiniIsland({ lang }: Props) {
     navigator.geolocation.getCurrentPosition(
       pos => {
         const zone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
-        setLoc({ lat: pos.coords.latitude, lng: pos.coords.longitude, zone, isGeo: true });
-        setMethod(methodForZone(zone));
+        const city = CITIES.find(c => c.zone === zone);
+        if (city) { setLoc({ lat: city.lat, lng: city.lng, zone: city.zone, key: city.key }); setMethod(city.method); }
+        else { setLoc({ lat: pos.coords.latitude, lng: pos.coords.longitude, zone, isGeo: true }); setMethod(methodForZone(zone)); }
         setGeo('idle');
       },
       () => setGeo('denied'),
