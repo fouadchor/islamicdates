@@ -61,6 +61,10 @@ const t = {
   home: pick(lang, 'الرئيسية', 'Home', 'ہوم'),
   homeAria: pick(lang, 'الانتقال إلى الصفحة الرئيسية', 'Go to homepage', 'ہوم پیج پر جائیں'),
   h1: pick(lang, `الأيام البيض وأيام الصيام المستحبة ${gySpan}`, `White Days & Sunnah Fasting Days ${gySpan}`, `ایامِ بیض اور مسنون روزوں کے دن ${gySpan}`),
+  imgAlt: pick(lang,
+    'طبق تمر وكوب ماء تحت هلال — رسم توضيحي لسنّة الإفطار وأيام الصيام',
+    'A plate of dates and a glass of water under a crescent — fasting and iftar illustration',
+    'کھجوروں کی طشتری اور پانی کا گلاس — روزے اور افطار کی تصویر'),
   intro: pick(lang,
     `جمعنا في هذه الصفحة أيام الصيام المستحبة على مدار السنة: الأيام البيض من كل شهر هجري، وصيام الاثنين والخميس، والمواسم السنوية كيوم عرفة وعاشوراء وستٍّ من شوال — مع تواريخها الميلادية الدقيقة لعامي ${hy1} و${hy2} هـ وفق تقويم أم القرى.`,
     `This page brings together the recommended fasting days of the whole year: the white days of every Hijri month, Monday and Thursday fasting, and the annual seasons such as Arafah, Ashura and the six days of Shawwal — with their exact Gregorian dates for ${hy1} and ${hy2} AH, per the Umm al-Qura calendar.`,
@@ -168,6 +172,10 @@ const ashuraLink = (d: Date) => occBasePath('ashura', d.getUTCFullYear(), lang);
           <span style="padding:7px 15px;border-radius:999px;background:var(--gold-soft);color:var(--gold-deep);font-weight:700;font-size:13.5px">{gySpan}</span>
         </div>
       </section>
+
+      <img src="/images/fasting.svg" alt={t.imgAlt} width="1200" height="480"
+        loading="lazy" decoding="async"
+        style="width:100%;height:auto;border-radius:16px;display:block" />
 
       <!-- White days explainer + tables -->
       <section class="card section-card">

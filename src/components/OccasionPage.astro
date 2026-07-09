@@ -8,6 +8,28 @@ const { lang, slug, gYear } = Astro.props;
 const occ = OCCASIONS.find(o => o.slug === slug)!;
 const loc = occLoc(occ, lang);
 
+// Occasion banner illustration (lightweight SVG in /public/images) + per-language alt
+const OCC_IMG: Record<string, { src: string; alt: [string, string, string] }> = {
+  'ramadan': { src: '/images/ramadan.svg', alt: ['فانوس وهلال رمضان فوق مآذن المساجد — رسم توضيحي لشهر رمضان', 'Ramadan lanterns and a golden crescent over a mosque skyline — Ramadan illustration', 'رمضان کی قندیلیں اور سنہرا ہلال — رمضان کی تصویری علامت'] },
+  'last-ten-nights-of-ramadan': { src: '/images/laylat-al-qadr.svg', alt: ['بدر منير وأشعة نور في سماء مرصّعة بالنجوم — رسم توضيحي للعشر الأواخر من رمضان', 'A radiant moon with descending light over a starry night — last ten nights of Ramadan illustration', 'نور برساتا روشن چاند اور ستاروں بھرا آسمان — رمضان کے آخری عشرے کی تصویر'] },
+  'laylat-al-qadr': { src: '/images/laylat-al-qadr.svg', alt: ['بدر منير تتنزّل منه أشعة النور في سماء مرصّعة بالنجوم — رسم توضيحي لليلة القدر', 'Radiant full moon with descending light over a starry night — Laylat al-Qadr illustration', 'نور برساتا روشن چاند اور ستاروں بھرا آسمان — لیلۃ القدر کی تصویر'] },
+  'eid-al-fitr': { src: '/images/eid-al-fitr.svg', alt: ['هلال ذهبي وزينة أعلام احتفالية فوق المآذن — رسم توضيحي لعيد الفطر', 'Golden crescent with festive bunting and fireworks over minarets — Eid al-Fitr illustration', 'سنہرا ہلال اور جشن کی جھنڈیاں — عید الفطر کی تصویر'] },
+  'six-days-of-shawwal': { src: '/images/fasting.svg', alt: ['طبق تمر وكوب ماء تحت هلال — رسم توضيحي لصيام الست من شوال', 'A plate of dates and a glass of water under a crescent — fasting the six days of Shawwal illustration', 'کھجوروں کی طشتری اور پانی کا گلاس — شوال کے چھ روزوں کی تصویر'] },
+  'eid-al-adha': { src: '/images/eid-al-adha.svg', alt: ['الكعبة المشرّفة بحزامها الذهبي تحت هلال — رسم توضيحي لعيد الأضحى', 'The Kaaba with its golden band under a crescent moon — Eid al-Adha illustration', 'خانہ کعبہ اور سنہری پٹی، اوپر ہلال — عید الاضحیٰ کی تصویر'] },
+  'ten-days-of-dhul-hijjah': { src: '/images/eid-al-adha.svg', alt: ['الكعبة المشرّفة تحت هلال — رسم توضيحي للعشر الأوائل من ذي الحجة', 'The Kaaba under a crescent moon — first ten days of Dhul-Hijjah illustration', 'خانہ کعبہ اور ہلال — ذوالحجہ کے پہلے عشرے کی تصویر'] },
+  'day-of-tarwiyah': { src: '/images/eid-al-adha.svg', alt: ['الكعبة المشرّفة تحت هلال — رسم توضيحي ليوم التروية وبداية مناسك الحج', 'The Kaaba under a crescent moon — Day of Tarwiyah and the start of Hajj illustration', 'خانہ کعبہ اور ہلال — یومِ ترویہ اور مناسکِ حج کے آغاز کی تصویر'] },
+  'days-of-tashriq': { src: '/images/eid-al-adha.svg', alt: ['الكعبة المشرّفة تحت هلال — رسم توضيحي لأيام التشريق', 'The Kaaba under a crescent moon — Days of Tashriq illustration', 'خانہ کعبہ اور ہلال — ایامِ تشریق کی تصویر'] },
+  'day-of-arafah': { src: '/images/day-of-arafah.svg', alt: ['جبل الرحمة بشاخصه الأبيض تحت شمس الأصيل — رسم توضيحي ليوم عرفة', 'Mount Arafah with its white pillar under a low sun — Day of Arafah illustration', 'جبلِ رحمت اور ڈھلتا سورج — یومِ عرفہ کی تصویر'] },
+  'islamic-new-year': { src: '/images/islamic-new-year.svg', alt: ['هلال جديد يولد فوق فجر مشرق — رسم توضيحي لرأس السنة الهجرية', 'A new crescent rising over a bright dawn — Islamic New Year illustration', 'نئی صبح پر ابھرتا نیا ہلال — اسلامی نئے سال کی تصویر'] },
+  'ashura': { src: '/images/ashura.svg', alt: ['أطوار القمر العشرة الأولى من محرم تنتهي ببدر مضيء — رسم توضيحي لعاشوراء', 'The first ten moon phases of Muharram ending in a bright moon — Ashura illustration', 'محرم کے پہلے دس چاند کے مراحل — عاشورہ کی تصویر'] },
+  'mawlid-al-nabi': { src: '/images/mawlid.svg', alt: ['القبة الخضراء يعلوها هلال ذهبي وزخارف وردية — رسم توضيحي للمولد النبوي', 'The Green Dome topped with a golden crescent and rosettes — Mawlid al-Nabi illustration', 'سبز گنبد اور سنہرا ہلال — میلاد النبی کی تصویر'] },
+  'isra-and-miraj': { src: '/images/isra-miraj.svg', alt: ['قبة الصخرة ومسار نجمي يصعد نحو الهلال — رسم توضيحي للإسراء والمعراج', 'The Dome of the Rock with a star trail ascending to a crescent — Isra and Miraj illustration', 'قبۃ الصخرہ اور ہلال کی طرف چڑھتی ستاروں کی راہ — اسراء و معراج کی تصویر'] },
+  'start-of-rajab': { src: '/images/islamic-new-year.svg', alt: ['هلال جديد يولد فوق فجر مشرق — رسم توضيحي لبداية شهر رجب', 'A new crescent rising over a bright dawn — start of the month of Rajab illustration', 'نئی صبح پر ابھرتا نیا ہلال — ماہِ رجب کے آغاز کی تصویر'] },
+  'mid-shaban': { src: '/images/shaban-full-moon.svg', alt: ['بدر مكتمل بين سحب رقيقة فوق مسجد — رسم توضيحي لليلة النصف من شعبان', 'A full moon among thin clouds over a mosque — Mid-Shaban illustration', 'بادلوں کے بیچ چودھویں کا چاند — شبِ برات کی تصویر'] },
+};
+const occImg = OCC_IMG[slug];
+const occImgAlt = occImg ? pick(lang, occImg.alt[0], occImg.alt[1], occImg.alt[2]) : '';
+
 const occs = occurrencesInGYear(occ.hm, occ.hd, gYear);
 const first = occs[0];
 
@@ -167,6 +189,12 @@ const t = {
           </>
         ) : null}
       </section>
+
+      {occImg && (
+        <img src={occImg.src} alt={occImgAlt} width="1200" height="480"
+          loading="lazy" decoding="async"
+          style="order:1;width:100%;height:auto;border-radius:16px;display:block" />
+      )}
 
       <section class="card section-card" style="order:2">
         <h2 class="section-h2">{t.whatTitle}</h2>
