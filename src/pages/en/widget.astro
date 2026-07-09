@@ -1,9 +1,10 @@
 ---
+import { OCCASIONS, occLoc } from '../../lib/occasions';
 import Layout from '../../layouts/Layout.astro';
 
 const canonical = 'https://islamicdates.org/en/widget/';
-const title = 'Free Hijri Date Widget for Your Website · Embed Today\'s Islamic Date';
-const description = 'Add a free "today\'s Hijri date" widget to your website or blog. Copy & paste the code, pick a language and theme — it updates automatically every day using the Umm al-Qura calendar.';
+const title = 'Free Islamic Widgets · Hijri Date, Ramadan & Eid Countdown, Prayer Times';
+const description = 'Three free widgets for your website or blog: today\'s Hijri date, a live countdown to Ramadan, Eid and other Islamic occasions, and daily prayer times for your city. Copy & paste — updates automatically every day.';
 
 const jsonLd = JSON.stringify([
   { '@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [
@@ -32,18 +33,27 @@ const jsonLd = JSON.stringify([
   <div class="layout">
     <main>
       <section class="card section-card" style="order:1">
-        <h1 class="section-h2" style="font-size:25px">Hijri date widget for your website</h1>
-        <p class="section-p" style="margin-top:8px">Add today's Hijri date to your website or blog in under a minute. Pick a language and theme, then copy the code and paste it into your page. It updates automatically every day using the Umm al-Qura calendar — no maintenance needed.</p>
+        <h1 class="section-h2" style="font-size:25px">Free Islamic widgets for your website</h1>
+        <p class="section-p" style="margin-top:8px">Add to your website or blog in under a minute: today's Hijri date, a countdown to Ramadan, Eid and other occasions, or daily prayer times for your city. Pick a type and options, then copy the code and paste it into your page — the widget updates automatically with no maintenance.</p>
       </section>
 
       <section class="card section-card" style="order:2">
         <h2 class="section-h2">1. Choose your options</h2>
         <div style="display:grid;gap:18px;margin-top:14px">
           <div>
+            <div style="font-size:13.5px;font-weight:700;color:var(--muted);margin-bottom:8px">Widget type</div>
+            <div class="wopts" data-group="type">
+              <button type="button" data-val="date" class="wopt is-on">Today's date</button>
+              <button type="button" data-val="countdown" class="wopt">Occasion countdown</button>
+              <button type="button" data-val="prayer" class="wopt">Prayer times</button>
+            </div>
+          </div>
+          <div>
             <div style="font-size:13.5px;font-weight:700;color:var(--muted);margin-bottom:8px">Language</div>
             <div class="wopts" data-group="lang">
               <button type="button" data-val="en" class="wopt is-on">English</button>
               <button type="button" data-val="ar" class="wopt">عربي</button>
+              <button type="button" data-val="ur" class="wopt">اردو</button>
             </div>
           </div>
           <div>
@@ -53,6 +63,32 @@ const jsonLd = JSON.stringify([
               <button type="button" data-val="dark" class="wopt">Dark</button>
               <button type="button" data-val="auto" class="wopt">Auto</button>
             </div>
+          </div>
+          <div id="w-occ-row" style="display:none">
+            <div style="font-size:13.5px;font-weight:700;color:var(--muted);margin-bottom:8px">Occasion</div>
+            <select id="w-occ" class="wsel">
+              {OCCASIONS.map(o => <option value={o.slug} selected={o.slug === 'ramadan'}>{occLoc(o, 'en').name}</option>)}
+            </select>
+          </div>
+          <div id="w-city-row" style="display:none">
+            <div style="font-size:13.5px;font-weight:700;color:var(--muted);margin-bottom:8px">City</div>
+            <select id="w-city" class="wsel">
+              <option value="makkah" selected>Makkah</option>
+              <option value="madinah">Madinah</option>
+              <option value="riyadh">Riyadh</option>
+              <option value="doha">Doha</option>
+              <option value="dubai">Dubai</option>
+              <option value="kuwait">Kuwait City</option>
+              <option value="cairo">Cairo</option>
+              <option value="amman">Amman</option>
+              <option value="damascus">Damascus</option>
+              <option value="istanbul">Istanbul</option>
+              <option value="london">London</option>
+              <option value="paris">Paris</option>
+              <option value="newyork">New York</option>
+              <option value="karachi">Karachi</option>
+              <option value="jakarta">Jakarta</option>
+            </select>
           </div>
         </div>
       </section>
@@ -99,22 +135,43 @@ const jsonLd = JSON.stringify([
     .wopts { display: flex; flex-wrap: wrap; gap: 8px; }
     .wopt { padding: 9px 16px; border-radius: 11px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-weight: 700; font-size: 14px; cursor: pointer; transition: all .15s; }
     .wopt.is-on { background: var(--accent); color: var(--accent-contrast); border-color: var(--accent); }
+    .wsel { width: 100%; max-width: 340px; padding: 10px 12px; border-radius: 11px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 14px; font-weight: 600; }
   </style>
 
   <script>
     (function () {
-      var state = { lang: 'en', theme: 'light' };
+      var state = { type: 'date', lang: 'en', theme: 'light', occasion: 'ramadan', city: 'makkah' };
+      var H = { date: 150, countdown: 235, prayer: 265 };
+      var TITLES = {
+        ar: { date: 'التاريخ الهجري اليوم', countdown: 'العد التنازلي للمناسبات الإسلامية', prayer: 'مواقيت الصلاة' },
+        en: { date: "Today's Hijri date", countdown: 'Islamic occasions countdown', prayer: 'Prayer times' },
+        ur: { date: 'آج کی ہجری تاریخ', countdown: 'اسلامی مناسبتوں کا عدِ معکوس', prayer: 'مواقیتِ نماز' }
+      };
+      var ATTRIB = { ar: 'التقويم الهجري — islamicdates.org', en: 'Hijri Calendar — islamicdates.org', ur: 'ہجری کیلنڈر — islamicdates.org' };
       var preview = document.getElementById('w-preview');
       var codeEl = document.getElementById('w-code');
       var copyBtn = document.getElementById('w-copy');
+      var occRow = document.getElementById('w-occ-row');
+      var cityRow = document.getElementById('w-city-row');
+      var occSel = document.getElementById('w-occ');
+      var citySel = document.getElementById('w-city');
+
+      function qs() {
+        var q = '?type=' + state.type + '&lang=' + state.lang + '&theme=' + state.theme;
+        if (state.type === 'countdown') q += '&occasion=' + state.occasion;
+        if (state.type === 'prayer') q += '&city=' + state.city;
+        return q;
+      }
 
       function build() {
-        var src = 'https://islamicdates.org/embed/?lang=' + state.lang + '&theme=' + state.theme;
-        if (preview) preview.src = '/embed/?lang=' + state.lang + '&theme=' + state.theme;
-        var attrib = state.lang === 'en' ? 'Hijri Calendar — islamicdates.org' : 'التقويم الهجري — islamicdates.org';
-        var titleAttr = state.lang === 'en' ? "Today's Hijri date" : 'التاريخ الهجري اليوم';
+        if (occRow) occRow.style.display = state.type === 'countdown' ? '' : 'none';
+        if (cityRow) cityRow.style.display = state.type === 'prayer' ? '' : 'none';
+        var h = H[state.type];
+        if (preview) { preview.src = '/embed/' + qs(); preview.height = h; preview.style.height = h + 'px'; }
+        var titleAttr = (TITLES[state.lang] || TITLES.ar)[state.type];
+        var attrib = ATTRIB[state.lang] || ATTRIB.ar;
         var code =
-          '<iframe src="' + src + '" title="' + titleAttr + '" width="360" height="150" loading="lazy" style="border:0;width:100%;max-width:360px"></iframe>\n' +
+          '<iframe src="https://islamicdates.org/embed/' + qs() + '" title="' + titleAttr + '" width="360" height="' + h + '" loading="lazy" style="border:0;width:100%;max-width:360px"></iframe>\n' +
           '<div style="font:13px system-ui,sans-serif;margin-top:6px"><a href="https://islamicdates.org/" target="_blank" rel="noopener">' + attrib + '</a></div>';
         if (codeEl) codeEl.value = code;
       }
@@ -129,6 +186,9 @@ const jsonLd = JSON.stringify([
           build();
         });
       });
+
+      if (occSel) occSel.addEventListener('change', function () { state.occasion = occSel.value; build(); });
+      if (citySel) citySel.addEventListener('change', function () { state.city = citySel.value; build(); });
 
       if (copyBtn) copyBtn.addEventListener('click', function () {
         if (!codeEl) return;
