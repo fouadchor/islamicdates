@@ -424,7 +424,10 @@ const _footOcc = _footOccSlugs.map(_s => {
     .back-top.show { opacity: 1; pointer-events: auto; transform: none; }
     .back-top:hover { background: var(--accent); color: var(--accent-contrast); }
 
-    /* ——— Mobile ——— */
+        .site-nav .nav-kids { align-self: center; margin: 0 4px; padding: 8px 16px; border-radius: 999px; border-bottom: none; opacity: 1; font-weight: 800; color: #4a2b00; background: linear-gradient(135deg, #fbbf24, #fb7185); box-shadow: 0 2px 10px rgba(0,0,0,.22); transition: transform .2s, box-shadow .2s, filter .2s; }
+    .site-nav .nav-kids:hover { opacity: 1; filter: brightness(1.07); transform: scale(1.05); box-shadow: 0 4px 14px rgba(0,0,0,.28); background: linear-gradient(135deg, #fcd34d, #fda4af); }
+
+/* ——— Mobile ——— */
     @media (max-width: 860px) {
       .sm-grid { grid-template-columns: 1fr 1fr; }
       .sm-brand { grid-column: 1 / -1; max-width: none; }
@@ -456,6 +459,7 @@ const _footOcc = _footOccSlugs.map(_s => {
     <div class="site-nav-inner">
       <div class="nav-links">
         {navItems.map(it => <a class={`nav-link${_isActive(it.h) ? ' active' : ''}`} href={it.h} aria-current={_isActive(it.h) ? 'page' : undefined}>{it.t}</a>)}
+<a class="nav-link nav-kids" href="/kids/">🌙 {pick(lang, 'ركن الصغار', 'Kids Corner', 'بچوں کا گوشہ')}</a>
       </div>
       <div class="nav-actions">
         <button type="button" class="theme-toggle" id="theme-toggle" aria-label={_themeLabel} title={_themeLabel}>
