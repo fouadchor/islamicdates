@@ -91,6 +91,18 @@
   @keyframes kpTwinkle{0%,100%{opacity:.25;transform:scale(1)}50%{opacity:.9;transform:scale(1.25)}}
   .kp-mascot{width:180px;flex:0 0 auto;animation:kpBob 4s ease-in-out infinite;filter:drop-shadow(0 10px 24px rgba(0,0,0,.25))}
   @keyframes kpBob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-14px) rotate(4deg)}}
+  .kp-home{position:absolute;top:16px;right:20px;z-index:3;display:inline-flex;align-items:center;gap:6px;
+    background:rgba(255,255,255,.16);border:1.5px solid rgba(255,255,255,.42);color:#fff;text-decoration:none;
+    font-weight:700;font-size:14px;padding:8px 16px;border-radius:999px;transition:background .2s,transform .2s}
+  .kp-home:hover{background:rgba(255,255,255,.3);transform:translateY(-1px)}
+
+  /* ── Footer links ─────────────────────────────────── */
+  .kp-foot{border-top:1.5px solid #dbeae5;margin-top:8px;padding:30px 0 48px;text-align:center}
+  .kp-footlinks{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+  .kp-footlinks a{display:inline-flex;align-items:center;gap:7px;background:var(--kp-card);
+    border:2px solid #d9ece7;color:var(--kp-teal-dark);text-decoration:none;font-weight:700;font-size:15px;
+    padding:11px 22px;border-radius:999px;transition:border-color .2s,transform .2s,box-shadow .2s}
+  .kp-footlinks a:hover{border-color:var(--kp-teal);transform:translateY(-2px);box-shadow:0 6px 16px rgba(13,148,136,.14)}
 
   /* ── Star badges bar ──────────────────────────────── */
   .kp-badges{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
@@ -124,7 +136,7 @@
   /* ── Months train ─────────────────────────────────── */
   .kp-months-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px}
   .kp-mcard{perspective:900px;border:0;background:none;padding:0;height:190px}
-  .kp-mcard-in{position:relative;width:100%;height:100%;transition:transform .55s cubic-bezier(.4,.9,.4,1.1);
+  .kp-mcard-in{display:block;position:relative;width:100%;height:100%;transition:transform .55s cubic-bezier(.4,.9,.4,1.1);
     transform-style:preserve-3d}
   .kp-mcard.flip .kp-mcard-in{transform:rotateY(180deg)}
   .kp-mface{position:absolute;inset:0;backface-visibility:hidden;border-radius:18px;
@@ -199,28 +211,45 @@
     align-items:center;justify-content:center;font-weight:700;color:#b3c8c2;
     font-size:13.5px;background:#f7fbfa;padding:4px;text-align:center;transition:all .25s}
   .kp-slot.done{border-style:solid;border-color:transparent;color:#fff;animation:kpPop .35s ease}
+  .kp-slot.over{border-color:var(--kp-teal);background:#e6f7f2;transform:scale(1.05)}
   .kp-order-pool{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
   .kp-chip{border:2px solid #dce8e4;background:#fff;border-radius:999px;padding:11px 20px;
-    font-weight:700;font-size:15px;color:var(--kp-ink);transition:all .2s}
+    font-weight:700;font-size:15px;color:var(--kp-ink);transition:transform .2s,border-color .2s,background .2s;touch-action:none}
   .kp-chip:hover{border-color:var(--kp-teal);transform:translateY(-2px)}
+  .kp-chip:active{cursor:grabbing}
+  .kp-chip.drag{opacity:.4}
   .kp-chip.no{animation:kpShake .4s;border-color:var(--kp-coral);background:#ffe1e6}
   .kp-order-msg{text-align:center;font-weight:700;font-size:16.5px;min-height:30px;margin:16px 0 0}
   .kp-order-reset{display:block;margin:10px auto 0;background:none;border:2px solid #dce8e4;
     border-radius:999px;padding:9px 26px;font-weight:700;font-size:14.5px;color:#5b7682;transition:all .2s}
   .kp-order-reset:hover{border-color:var(--kp-teal);color:var(--kp-teal)}
 
-  /* ── Hilal hunt ───────────────────────────────────── */
-  .kp-hunt{background:linear-gradient(180deg,var(--kp-night) 0%,var(--kp-night2) 100%);
-    border-radius:28px;padding:32px 24px;color:#eaf1ff}
+  /* ── Hilal hunt (twilight-purple, drifting clouds) ── */
+  .kp-hunt{background:linear-gradient(160deg,#2b1a5e 0%,#3d2472 60%,#4c2a6b 100%);
+    border-radius:28px;padding:32px 24px;color:#f2ecff}
   .kp-hunt .kp-h2{color:#fff}
-  .kp-hunt .kp-sub{color:#9fb0d8}
+  .kp-hunt .kp-sub{color:#cbbdec}
   .kp-hunt-bar{display:flex;justify-content:space-between;align-items:center;
-    margin-bottom:14px;font-weight:700;font-size:15.5px;color:var(--kp-mint)}
-  .kp-hunt-sky{width:100%;height:auto;display:block;border-radius:18px;cursor:crosshair;
-    border:2px solid rgba(255,255,255,.12)}
-  .kp-hunt-sky .kp-hilal{cursor:pointer}
+    margin-bottom:14px;font-weight:700;font-size:15.5px;color:#ffd6ef;gap:8px;flex-wrap:wrap}
+  .kp-hunt-timer{background:rgba(255,255,255,.14);border-radius:999px;padding:3px 14px;color:#fff}
+  .kp-hunt-sky{position:relative;width:100%;aspect-ratio:2/1;display:block;border-radius:18px;
+    overflow:hidden;cursor:crosshair;border:2px solid rgba(255,255,255,.16);
+    background:linear-gradient(180deg,#221146 0%,#3f2472 52%,#7a4a86 88%,#a06a86 100%)}
+  .kp-hstar{position:absolute;border-radius:50%;background:#fff;pointer-events:none;
+    z-index:1;animation:kpTwk 2.6s ease-in-out infinite}
+  @keyframes kpTwk{0%,100%{opacity:.3}50%{opacity:1}}
+  .kp-hcloud{position:absolute;pointer-events:none;border-radius:100px;will-change:left;
+    background:radial-gradient(closest-side,rgba(214,200,246,.7),rgba(214,200,246,0));
+    animation:kpDrift linear infinite}
+  @keyframes kpDrift{from{left:112%}to{left:-48%}}
+  .kp-decoy,.kp-hilal2{position:absolute;background:none;border:0;padding:0;line-height:0;
+    cursor:pointer;z-index:2}
+  .kp-hilal2{z-index:2;filter:drop-shadow(0 0 6px rgba(255,237,176,.55))}
+  .kp-hunt-sky .cloudfront{z-index:3}
+  .kp-hunt-hill{position:absolute;left:0;right:0;bottom:0;height:26%;z-index:2;
+    background:#1a0f38;border-radius:100% 100% 0 0/70px 70px 0 0}
   .kp-hunt-msg{min-height:32px;text-align:center;font-weight:700;font-size:16.5px;
-    margin-top:14px;color:var(--kp-sun)}
+    margin-top:14px;color:#ffd6a0}
   .kp-hunt-again{display:none;margin:10px auto 0;background:var(--kp-sun);color:#5b3d00;
     border:0;border-radius:999px;padding:11px 30px;font-weight:700;font-size:15.5px}
   .kp-hunt-again.show{display:block}
@@ -272,6 +301,7 @@
 
   <!-- ═══ HERO ═══ -->
   <header class="kp-hero">
+    <a class="kp-home" href="/" aria-label="العودة إلى الصفحة الرئيسية">🏠 الصفحة الرئيسية</a>
     <span class="kp-star-float" style="top:12%;right:8%;font-size:20px">✦</span>
     <span class="kp-star-float" style="top:24%;left:12%;font-size:14px;animation-delay:.8s">✦</span>
     <span class="kp-star-float" style="top:64%;right:20%;font-size:12px;animation-delay:1.4s">✦</span>
@@ -349,7 +379,7 @@
     <div class="kp-wrap">
       <div class="kp-order">
         <h2 class="kp-h2" id="kpOrderH">🧩 رتّب الشهور</h2>
-        <p class="kp-sub">اضغط على الشهور بالترتيب الصحيح — من محرم إلى ذي الحجة — لتكوّن السنة الهجرية كاملة!</p>
+        <p class="kp-sub">ضع كل شهر في مكانه الصحيح لتكوّن السنة الهجرية! طريقتان: <strong>اضغط</strong> على الشهر ليطير إلى خانته، أو <strong>اسحبه</strong> بإصبعك وضعه في الخانة الصحيحة.</p>
         <div class="kp-order-slots" id="kpOrderSlots"></div>
         <div class="kp-order-pool" id="kpOrderPool"></div>
         <div class="kp-order-msg" id="kpOrderMsg"></div>
@@ -363,13 +393,14 @@
     <div class="kp-wrap">
       <div class="kp-hunt">
         <h2 class="kp-h2" id="kpHuntH">🔍 ابحث عن الهلال</h2>
-        <p class="kp-sub">ليلة 29 من الشهر… الجميع يبحث عن هلال الشهر الجديد! دقّق في السماء واضغط على الهلال المخفي.</p>
+        <p class="kp-sub">ليلة 29 من الشهر… الجميع يبحث عن هلال الشهر الجديد! دقّق بين النجوم والغيوم المتحرّكة واضغط على الهلال الرفيع — احذر النجوم المخادعة!</p>
         <div class="kp-hunt-bar">
-          <span id="kpHuntRound">الجولة 1 من 3</span>
-          <span>🌙 كل جولة يصغر الهلال أكثر!</span>
+          <span id="kpHuntRound">الجولة 1 من 4</span>
+          <span class="kp-hunt-timer" id="kpHuntTimer">⏱️ 0.0ث</span>
+          <span>🌙 كل جولة أصعب!</span>
         </div>
-        <svg class="kp-hunt-sky" id="kpHuntSky" viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg"
-             role="img" aria-label="سماء ليلية — ابحث عن الهلال واضغط عليه"></svg>
+        <div class="kp-hunt-sky" id="kpHuntSky"
+             role="img" aria-label="سماء ليلية — ابحث عن الهلال واضغط عليه"></div>
         <div class="kp-hunt-msg" id="kpHuntMsg"></div>
         <button class="kp-hunt-again" id="kpHuntAgain">العب مرة أخرى 🔄</button>
       </div>
@@ -461,6 +492,17 @@
       </div>
     </div>
   </section>
+
+  <!-- ═══ FOOTER LINKS ═══ -->
+  <footer class="kp-foot">
+    <div class="kp-wrap">
+      <div class="kp-footlinks">
+        <a href="/">🏠 الصفحة الرئيسية</a>
+        <a href="/age/">🎂 حاسبة العمر بالهجري</a>
+        <a href="#moon-lab">🔭 عُد إلى الأنشطة</a>
+      </div>
+    </div>
+  </footer>
 </div>
 
 <script>
@@ -500,17 +542,23 @@
 
   /* ── 1 · Moon lab ───────────────────────────────── */
   function moonPath(p){
+    // p: 0 = new moon, 0.25 = first quarter, 0.5 = full, 0.75 = last quarter, 1 = new
     var r = 45, cx = 50, top = 5, bot = 95;
-    var w = Math.abs(r * Math.cos(2 * Math.PI * p));
-    if (p <= 0.01 || p >= 0.99) return '';
+    var cos = Math.cos(2 * Math.PI * p);
+    var w = Math.abs(r * cos);          // terminator (day/night line) half-width
+    if (p <= 0.008 || p >= 0.992) return '';   // new moon → nothing lit
+    // keep the thin crescent visible for kids (min sliver thickness)
+    if (p <= 0.25 || p >= 0.75) w = Math.min(w, 41);
     if (p <= 0.5){
-      var sw = (Math.cos(2 * Math.PI * p) > 0) ? 1 : 0;
+      // waxing: outer limb on the right, terminator bulges toward the lit side
+      var inner = (cos > 0) ? 0 : 1;
       return 'M ' + cx + ' ' + top + ' A ' + r + ' ' + r + ' 0 0 1 ' + cx + ' ' + bot +
-             ' A ' + w + ' ' + r + ' 0 0 ' + sw + ' ' + cx + ' ' + top + ' Z';
+             ' A ' + w + ' ' + r + ' 0 0 ' + inner + ' ' + cx + ' ' + top + ' Z';
     }
-    var sw2 = (Math.cos(2 * Math.PI * p) > 0) ? 0 : 1;
+    // waning: outer limb on the left
+    var inner2 = (cos > 0) ? 1 : 0;
     return 'M ' + cx + ' ' + top + ' A ' + r + ' ' + r + ' 0 0 0 ' + cx + ' ' + bot +
-           ' A ' + w + ' ' + r + ' 0 0 ' + sw2 + ' ' + cx + ' ' + top + ' Z';
+           ' A ' + w + ' ' + r + ' 0 0 ' + inner2 + ' ' + cx + ' ' + top + ' Z';
   }
   function moonInfo(d){
     if (d <= 2)  return ['🌒 هلال جديد', 'رأينا الهلال الصغير — الشهر الهجري بدأ! هذا أول ما نبحث عنه في السماء.'];
@@ -673,18 +721,21 @@
   });
   showQ();
 
-  /* ── 3b · Order the months game ─────────────────── */
-  var ordNext, ordTries;
+  /* ── 3b · Order the months game (click OR drag) ─── */
+  var ordFilled, dragMi = null, dragChip = null;
   function ordInit(){
-    ordNext = 0; ordTries = 0;
+    ordFilled = 0; dragMi = null; dragChip = null;
     $('kpOrderMsg').textContent = '';
+    $('kpOrderMsg').style.color = '#5b7682';
     var slots = $('kpOrderSlots');
     slots.innerHTML = '';
     for (var i = 0; i < 12; i++){
       var s = document.createElement('div');
       s.className = 'kp-slot';
       s.textContent = i + 1;
+      s.dataset.slot = i;
       slots.appendChild(s);
+      bindSlot(s);
     }
     var idx = MONTHS.map(function(_, i){ return i; });
     for (var j = idx.length - 1; j > 0; j--){
@@ -697,113 +748,181 @@
       var c = document.createElement('button');
       c.className = 'kp-chip';
       c.textContent = MONTHS[mi][0];
-      c.addEventListener('click', function(){ ordPick(mi, c); });
+      c.setAttribute('draggable', 'true');
+      c.dataset.mi = mi;
+      // click → fly to its own correct slot
+      c.addEventListener('click', function(){ placeMonth(mi, c); });
+      // desktop drag
+      c.addEventListener('dragstart', function(ev){
+        dragMi = mi; dragChip = c; c.classList.add('drag');
+        if (ev.dataTransfer){ ev.dataTransfer.effectAllowed = 'move'; ev.dataTransfer.setData('text/plain', String(mi)); }
+      });
+      c.addEventListener('dragend', function(){ c.classList.remove('drag'); });
       pool.appendChild(c);
     });
   }
-  function ordPick(mi, chip){
-    ordTries++;
-    if (mi === ordNext){
-      var slot = $('kpOrderSlots').children[mi];
-      slot.textContent = (mi + 1) + ' · ' + MONTHS[mi][0];
-      slot.style.background = MONTHS[mi][3];
-      slot.classList.add('done');
-      chip.remove();
-      ordNext++;
-      confetti(3);
-      if (ordNext === 12){
-        $('kpOrderMsg').textContent = '🎉 رائع! رتّبت السنة الهجرية كاملة في ' + ordTries + ' ضغطة!';
-        $('kpOrderMsg').style.color = '#0a8f5b';
-        confetti(35);
-        winBadge('order');
+  function bindSlot(s){
+    s.addEventListener('dragover', function(ev){
+      if (s.classList.contains('done')) return;
+      ev.preventDefault(); s.classList.add('over');
+    });
+    s.addEventListener('dragleave', function(){ s.classList.remove('over'); });
+    s.addEventListener('drop', function(ev){
+      ev.preventDefault(); s.classList.remove('over');
+      if (s.classList.contains('done') || dragMi === null) return;
+      var slotIdx = parseInt(s.dataset.slot, 10);
+      if (dragMi === slotIdx){
+        placeMonth(dragMi, dragChip);
       } else {
-        $('kpOrderMsg').textContent = 'أحسنت! ما هو الشهر رقم ' + (ordNext + 1) + '؟';
-        $('kpOrderMsg').style.color = '#0a8f5b';
+        var wrong = dragChip;
+        wrong.classList.add('no');
+        setTimeout(function(){ wrong.classList.remove('no'); }, 450);
+        $('kpOrderMsg').textContent = 'ليس هنا — الشهر «' + MONTHS[dragMi][0] + '» مكانه رقم ' + (dragMi + 1) + ' 🤔';
+        $('kpOrderMsg').style.color = '#d34b60';
       }
+      dragMi = null; dragChip = null;
+    });
+  }
+  function placeMonth(mi, chip){
+    var slot = $('kpOrderSlots').children[mi];
+    if (!slot || slot.classList.contains('done')) return;
+    slot.textContent = (mi + 1) + ' · ' + MONTHS[mi][0];
+    slot.style.background = MONTHS[mi][3];
+    slot.classList.add('done');
+    if (chip) chip.remove();
+    ordFilled++;
+    confetti(3);
+    if (ordFilled === 12){
+      $('kpOrderMsg').textContent = '🎉 رائع! رتّبت السنة الهجرية كاملة — من محرم إلى ذي الحجة!';
+      $('kpOrderMsg').style.color = '#0a8f5b';
+      confetti(35);
+      winBadge('order');
     } else {
-      chip.classList.add('no');
-      setTimeout(function(){ chip.classList.remove('no'); }, 450);
-      $('kpOrderMsg').textContent = 'ليس هذا — نبحث عن الشهر رقم ' + (ordNext + 1) + ' 🤔';
-      $('kpOrderMsg').style.color = '#d34b60';
+      $('kpOrderMsg').textContent = 'أحسنت! بقي ' + (12 - ordFilled) + ' شهراً 💪';
+      $('kpOrderMsg').style.color = '#0a8f5b';
     }
   }
   $('kpOrderReset').addEventListener('click', ordInit);
   ordInit();
 
-  /* ── 4b · Hilal hunt game ───────────────────────── */
-  var SVGNS = 'http://www.w3.org/2000/svg';
-  var huntRound = 0, huntDone = false;
-  var HUNT_R = [15, 11, 8];
-  function el(tag, attrs){
-    var e = document.createElementNS(SVGNS, tag);
-    for (var a in attrs) e.setAttribute(a, attrs[a]);
-    return e;
-  }
+  /* ── 4b · Hilal hunt (stars · drifting clouds · decoys) ── */
   function crescentD(cx, cy, r){
     return 'M ' + cx + ' ' + (cy - r) + ' A ' + r + ' ' + r + ' 0 0 1 ' + cx + ' ' + (cy + r) +
-           ' A ' + (r * 0.62) + ' ' + r + ' 0 0 1 ' + cx + ' ' + (cy - r) + ' Z';
+           ' A ' + (r * 0.6) + ' ' + r + ' 0 0 0 ' + cx + ' ' + (cy - r) + ' Z';
+  }
+  function crescentSVG(px, color){
+    return '<svg width="' + px + '" height="' + px + '" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">' +
+           '<path d="' + crescentD(20, 20, 16) + '" fill="' + color + '"/></svg>';
+  }
+  function starSVG(px, color){
+    return '<svg width="' + px + '" height="' + px + '" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">' +
+           '<path d="M12 1 L14 10 L23 12 L14 14 L12 23 L10 14 L1 12 L10 10 Z" fill="' + color + '"/></svg>';
+  }
+  var HUNT_ROUNDS = 4;
+  var HILAL_PX = [48, 38, 30, 22];
+  var huntRound = 0, huntDone = false, huntStart = 0, huntTimer = null;
+  function hnum(a, b){ return a + Math.random() * (b - a); }
+  function stopHuntTimer(){ if (huntTimer){ clearInterval(huntTimer); huntTimer = null; } }
+  function startHuntTimer(){
+    huntStart = Date.now();
+    stopHuntTimer();
+    huntTimer = setInterval(function(){
+      $('kpHuntTimer').textContent = '⏱️ ' + ((Date.now() - huntStart) / 1000).toFixed(1) + 'ث';
+    }, 100);
   }
   function buildSky(){
-    var svg = $('kpHuntSky');
-    svg.innerHTML =
-      '<defs><linearGradient id="kpSkyG" x1="0" y1="0" x2="0" y2="1">' +
-      '<stop offset="0" stop-color="#070d1f"/><stop offset="1" stop-color="#26335c"/>' +
-      '</linearGradient></defs>';
-    svg.appendChild(el('rect', { width:600, height:300, fill:'url(#kpSkyG)' }));
-    for (var i = 0; i < 55; i++){
-      svg.appendChild(el('circle', {
-        cx:(Math.random() * 600).toFixed(1), cy:(Math.random() * 245 + 6).toFixed(1),
-        r:(0.6 + Math.random() * 1.3).toFixed(2), fill:'#fff',
-        opacity:(0.25 + Math.random() * 0.65).toFixed(2)
-      }));
+    var sky = $('kpHuntSky');
+    sky.innerHTML = '';
+    // twinkling stars
+    var nStars = 46 + huntRound * 8;
+    for (var i = 0; i < nStars; i++){
+      var st = document.createElement('span');
+      st.className = 'kp-hstar';
+      var sz = hnum(1.5, 3.6).toFixed(1);
+      st.style.width = sz + 'px'; st.style.height = sz + 'px';
+      st.style.left = hnum(1, 98).toFixed(1) + '%';
+      st.style.top = hnum(2, 74).toFixed(1) + '%';
+      st.style.animationDelay = hnum(0, 2.6).toFixed(2) + 's';
+      sky.appendChild(st);
     }
-    for (var c = 0; c < 3; c++){
-      var gx = 60 + Math.random() * 460, gy = 40 + Math.random() * 130;
-      var g = el('g', { fill:'#232f55', opacity:'0.9' });
-      g.appendChild(el('ellipse', { cx:gx, cy:gy, rx:46, ry:14 }));
-      g.appendChild(el('ellipse', { cx:gx + 26, cy:gy - 8, rx:30, ry:12 }));
-      g.appendChild(el('ellipse', { cx:gx - 28, cy:gy - 6, rx:26, ry:11 }));
-      svg.appendChild(g);
+    // dark hill silhouette
+    var hill = document.createElement('div');
+    hill.className = 'kp-hunt-hill';
+    sky.appendChild(hill);
+    // decoy stars (tempting) — clicking = wrong
+    var nDecoy = 3 + huntRound;
+    for (var d = 0; d < nDecoy; d++){
+      var db = document.createElement('button');
+      db.className = 'kp-decoy';
+      db.setAttribute('aria-label', 'نجمة');
+      db.innerHTML = starSVG(hnum(12, 20).toFixed(0), (Math.random() < 0.5 ? '#ffe9a8' : '#fff'));
+      db.style.left = hnum(4, 92).toFixed(1) + '%';
+      db.style.top = hnum(6, 64).toFixed(1) + '%';
+      db.addEventListener('click', function(ev){
+        ev.stopPropagation();
+        if (huntDone) return;
+        $('kpHuntMsg').textContent = '⭐ هذه نجمة وليست الهلال! الهلال رفيعٌ ومنحنٍ كابتسامة 🌙';
+      });
+      sky.appendChild(db);
     }
-    var sil = el('path', { fill:'#060b18', d:
-      'M0 300 V268 H70 V244 Q100 216 130 244 V268 H180 V226 H188 L192 210 L196 226 H204 V268 H260 V252 H330 V268 H380 V240 Q404 218 428 240 V268 H600 V300 Z' });
-    svg.appendChild(sil);
-    var r = HUNT_R[huntRound];
-    var hx = 40 + Math.random() * 520, hy = 40 + Math.random() * 150;
-    var hg = el('g', { 'class':'kp-hilal', transform:'rotate(' + (Math.random() * 60 - 30).toFixed(0) + ' ' + hx + ' ' + hy + ')' });
-    hg.appendChild(el('path', { d:crescentD(hx, hy, r), fill:'#ffedb0', opacity:'0.9' }));
-    hg.appendChild(el('circle', { cx:hx, cy:hy, r:r + 12, fill:'transparent' }));
-    hg.addEventListener('click', function(ev){
+    // the hidden hilal (target)
+    var hb = document.createElement('button');
+    hb.className = 'kp-hilal2';
+    hb.setAttribute('aria-label', 'الهلال — اضغط عليه');
+    hb.innerHTML = crescentSVG(HILAL_PX[huntRound], '#ffedb0');
+    hb.style.left = hnum(6, 88).toFixed(1) + '%';
+    hb.style.top = hnum(6, 58).toFixed(1) + '%';
+    hb.style.transform = 'rotate(' + hnum(-35, 35).toFixed(0) + 'deg)';
+    hb.addEventListener('click', function(ev){
       ev.stopPropagation();
       if (huntDone) return;
       confetti(12);
       huntRound++;
-      if (huntRound >= 3){
+      if (huntRound >= HUNT_ROUNDS){
         huntDone = true;
-        $('kpHuntMsg').textContent = '🏆 ما شاء الله! وجدت الهلال ثلاث مرات — عين صقر!';
+        stopHuntTimer();
+        var secs = ((Date.now() - huntStart) / 1000).toFixed(1);
+        $('kpHuntMsg').textContent = '🏆 ما شاء الله! وجدت كل الأهلّة في ' + secs + 'ث — عين صقر!';
         $('kpHuntRound').textContent = 'أكملت كل الجولات!';
         $('kpHuntAgain').classList.add('show');
         confetti(35);
         winBadge('hunt');
       } else {
         $('kpHuntMsg').textContent = '🎉 وجدته! الجولة التالية أصعب…';
-        $('kpHuntRound').textContent = 'الجولة ' + (huntRound + 1) + ' من 3';
-        setTimeout(buildSky, 900);
+        $('kpHuntRound').textContent = 'الجولة ' + (huntRound + 1) + ' من ' + HUNT_ROUNDS;
+        setTimeout(buildSky, 650);
       }
     });
-    svg.appendChild(hg);
+    sky.appendChild(hb);
+    // drifting clouds (some pass in front and briefly hide the hilal)
+    var nCloud = 3 + huntRound;
+    for (var c = 0; c < nCloud; c++){
+      var cl = document.createElement('div');
+      cl.className = 'kp-hcloud' + (Math.random() < 0.5 ? ' cloudfront' : '');
+      var w = hnum(90, 190);
+      cl.style.width = w.toFixed(0) + 'px';
+      cl.style.height = (w * hnum(0.42, 0.6)).toFixed(0) + 'px';
+      cl.style.top = hnum(2, 56).toFixed(1) + '%';
+      cl.style.opacity = hnum(0.5, 0.85).toFixed(2);
+      var dur = hnum(16, 30);
+      cl.style.animationDuration = dur.toFixed(1) + 's';
+      cl.style.animationDelay = '-' + hnum(0, dur).toFixed(1) + 's';
+      sky.appendChild(cl);
+    }
   }
   $('kpHuntSky').addEventListener('click', function(){
     if (huntDone) return;
-    $('kpHuntMsg').textContent = '🔍 ليس هنا… دقّق أكثر! (تلميح: الهلال أصفر رفيع)';
+    $('kpHuntMsg').textContent = '🔍 ليس هنا… دقّق أكثر بين النجوم والغيوم! (الهلال رفيع وأصفر)';
   });
   $('kpHuntAgain').addEventListener('click', function(){
     huntRound = 0; huntDone = false;
     $('kpHuntMsg').textContent = '';
-    $('kpHuntRound').textContent = 'الجولة 1 من 3';
+    $('kpHuntRound').textContent = 'الجولة 1 من ' + HUNT_ROUNDS;
     $('kpHuntAgain').classList.remove('show');
+    startHuntTimer();
     buildSky();
   });
+  startHuntTimer();
   buildSky();
 
   /* ── 6b · Hijra story ───────────────────────────── */
@@ -819,10 +938,19 @@
         '<rect y="140" width="300" height="30" fill="#1d2742"/>' +
         '<rect x="115" y="72" width="70" height="68" fill="#15151c" stroke="#3a3a4a" stroke-width="1.5"/>' +
         '<rect x="115" y="88" width="70" height="10" fill="#d4af37"/></svg>' },
+    { t:'الدعوة والصبر',
+      x:'صبَر النبي ﷺ وأصحابه على الأذى سنواتٍ طويلة، وظلّوا يصلّون ويعبدون الله بإخلاص، ويدعون الناس إلى الخير بالحكمة واللين.',
+      s:'<svg viewBox="0 0 300 170" xmlns="http://www.w3.org/2000/svg">' + SKY_N +
+        '<rect y="140" width="300" height="30" fill="#1d2742"/>' +
+        '<circle cx="58" cy="66" r="15" fill="#ffedb0" opacity=".9"/>' +
+        '<circle cx="58" cy="66" r="27" fill="#ffedb0" opacity=".16"/>' +
+        '<ellipse cx="188" cy="139" rx="34" ry="7" fill="#0c1526"/>' +
+        '<path d="M162 139 q4 -40 26 -40 q22 0 26 40 Z" fill="#2b3a5e"/>' +
+        '<circle cx="188" cy="98" r="11" fill="#2b3a5e"/></svg>' },
     { t:'أمرُ الهجرة',
       x:'أمر اللهُ نبيَّه ﷺ بالهجرة إلى المدينة. فخرج ليلاً مع صاحبه الوفيّ أبي بكر الصدّيق رضي الله عنه، وتركا مكة بهدوء.',
       s:'<svg viewBox="0 0 300 170" xmlns="http://www.w3.org/2000/svg">' + SKY_N +
-        '<path d="M262 22 A16 16 0 0 1 262 54 A11 16 0 0 1 262 22 Z" fill="#ffedb0"/>' +
+        '<path d="M262 22 A16 16 0 0 1 262 54 A11 16 0 0 0 262 22 Z" fill="#ffedb0"/>' +
         '<ellipse cx="80" cy="185" rx="170" ry="60" fill="#2a2340"/>' +
         '<ellipse cx="250" cy="195" rx="180" ry="70" fill="#241d38"/>' +
         '<ellipse cx="70" cy="140" rx="5" ry="3" fill="#4a3f68"/><ellipse cx="95" cy="132" rx="5" ry="3" fill="#4a3f68"/>' +
@@ -866,6 +994,29 @@
         '<path d="M61 102 q-20 -14 -34 -6 M61 102 q20 -14 34 -6 M61 102 q-12 -20 -2 -28 M61 102 q12 -18 24 -14" stroke="#2e7d4f" stroke-width="5" fill="none" stroke-linecap="round"/>' +
         '<rect x="240" y="108" width="6" height="37" fill="#6b4a2f"/>' +
         '<path d="M243 108 q-16 -12 -28 -5 M243 108 q16 -12 28 -5 M243 108 q-9 -17 -1 -23 M243 108 q10 -15 20 -12" stroke="#2e7d4f" stroke-width="4.5" fill="none" stroke-linecap="round"/></svg>' },
+    { t:'المؤاخاة بين المسلمين',
+      x:'في المدينة آخى النبي ﷺ بين المهاجرين (من مكة) والأنصار (أهل المدينة)، فصاروا إخوةً متحابّين يتقاسمون الطعام والبيوت والفرح.',
+      s:'<svg viewBox="0 0 300 170" xmlns="http://www.w3.org/2000/svg">' +
+        '<rect width="300" height="170" fill="#12324a"/>' +
+        '<text x="34" y="26" font-size="10" fill="#fff" opacity=".7">✦</text>' +
+        '<text x="262" y="32" font-size="8" fill="#fff" opacity=".6">✦</text>' +
+        '<rect y="140" width="300" height="30" fill="#0e2436"/>' +
+        '<circle cx="115" cy="82" r="16" fill="#eccaa0"/>' +
+        '<path d="M92 140 q0 -40 23 -40 q23 0 23 40 Z" fill="#2e8d76"/>' +
+        '<circle cx="185" cy="82" r="16" fill="#d8ab80"/>' +
+        '<path d="M162 140 q0 -40 23 -40 q23 0 23 40 Z" fill="#c98a3a"/>' +
+        '<path d="M150 60 l0 -1 q-9 -12 -18 -3 q-6 7 2 15 l16 15 l16 -15 q8 -8 2 -15 q-9 -9 -18 3 Z" fill="#fb7185"/></svg>' },
+    { t:'بناء المسجد النبوي',
+      x:'بنى المسلمون معاً أوّل مسجدٍ في المدينة بأيديهم — المسجد النبوي — فصار بيتاً للصلاة وتعلُّم القرآن واجتماع الناس على الخير.',
+      s:'<svg viewBox="0 0 300 170" xmlns="http://www.w3.org/2000/svg">' + SKY_N +
+        '<rect y="140" width="300" height="30" fill="#0e2436"/>' +
+        '<rect x="108" y="94" width="84" height="46" fill="#efe6d8"/>' +
+        '<path d="M116 94 A34 34 0 0 1 184 94 Z" fill="#2e9d63"/>' +
+        '<rect x="198" y="58" width="10" height="82" fill="#efe6d8"/>' +
+        '<circle cx="203" cy="54" r="8" fill="#2e9d63"/>' +
+        '<rect x="142" y="116" width="16" height="24" rx="2" fill="#8a6d4a"/>' +
+        '<circle cx="74" cy="112" r="9" fill="#eccaa0"/>' +
+        '<path d="M62 140 q0 -24 12 -24 q12 0 12 24 Z" fill="#3a6ea5"/></svg>' },
     { t:'ولهذا نسمّيه «الهجري»!',
       x:'بعد سنوات، أراد الخليفة عمر بن الخطاب رضي الله عنه تاريخاً يجمع المسلمين، فجعل سنةَ الهجرة بدايةَ التقويم. فكلّ سنة هجرية تُذكّرنا بهذه الرحلة العظيمة! 🌙',
       s:'<svg viewBox="0 0 300 170" xmlns="http://www.w3.org/2000/svg">' + SKY_N +
@@ -875,7 +1026,7 @@
         '<text x="150" y="52" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold" font-family="inherit">محرم</text>' +
         '<text x="150" y="116" font-size="44" fill="#0f2730" text-anchor="middle" font-weight="bold" font-family="inherit">١</text>' +
         '<text x="150" y="140" font-size="12" fill="#5b7682" text-anchor="middle" font-family="inherit">السنة الهجرية ١</text>' +
-        '<path d="M248 60 A17 17 0 0 1 248 94 A11.5 17 0 0 1 248 60 Z" fill="#ffedb0"/></svg>' }
+        '<path d="M248 60 A17 17 0 0 1 248 94 A11.5 17 0 0 0 248 60 Z" fill="#ffedb0"/></svg>' }
   ];
   var sIdx = 0, sMax = 0;
   function drawStory(){
