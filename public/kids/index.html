@@ -35,6 +35,10 @@
 <title>ركن الصغار · تعلّم التقويم الهجري باللعب | islamicdates.org</title>
 <meta name="description" content="صفحة تفاعلية للأطفال لتعلّم التقويم الهجري: أطوار القمر، ألعاب الأشهر الهجرية، لعبة البحث عن الهلال، قصة الهجرة المصوّرة، اختبار ممتع، واكتشاف تاريخ ميلادك الهجري وفق تقويم أم القرى.">
 <link rel="canonical" href="https://islamicdates.org/kids/">
+<link rel="alternate" hreflang="ar" href="https://islamicdates.org/kids/">
+<link rel="alternate" hreflang="en" href="https://islamicdates.org/en/kids/">
+<link rel="alternate" hreflang="ur" href="https://islamicdates.org/ur/kids/">
+<link rel="alternate" hreflang="x-default" href="https://islamicdates.org/kids/">
 <meta name="theme-color" content="#0d9488">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -95,6 +99,12 @@
     background:rgba(255,255,255,.16);border:1.5px solid rgba(255,255,255,.42);color:#fff;text-decoration:none;
     font-weight:700;font-size:14px;padding:8px 16px;border-radius:999px;transition:background .2s,transform .2s}
   .kp-home:hover{background:rgba(255,255,255,.3);transform:translateY(-1px)}
+  .kp-lang{position:absolute;top:16px;left:20px;z-index:3;display:flex;gap:3px;
+    background:rgba(255,255,255,.14);border:1.5px solid rgba(255,255,255,.4);border-radius:999px;padding:4px}
+  .kp-lang a{color:#fff;text-decoration:none;font-weight:700;font-size:13px;padding:5px 11px;border-radius:999px;transition:background .2s}
+  .kp-lang a.on{background:var(--kp-sun);color:#5b3d00}
+  .kp-lang a:hover:not(.on){background:rgba(255,255,255,.22)}
+  @media (max-width:560px){.kp-home{font-size:12.5px;padding:6px 12px}.kp-lang a{font-size:12px;padding:4px 9px}}
 
   /* ── Footer links ─────────────────────────────────── */
   .kp-foot{border-top:1.5px solid #dbeae5;margin-top:8px;padding:30px 0 48px;text-align:center}
@@ -184,6 +194,8 @@
   .kp-bday-form{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
   .kp-bday-form input[type=date]{font-family:inherit;font-size:17px;padding:12px 16px;border-radius:14px;
     border:0;color:var(--kp-ink);background:#fff;min-width:210px}
+  .kp-bday-sel{font-family:inherit;font-size:16px;padding:12px 12px;border-radius:14px;border:0;
+    color:var(--kp-ink);background:#fff;cursor:pointer;flex:1 1 92px;min-width:82px;max-width:150px}
   .kp-bday-btn{background:var(--kp-sun);color:#5b3d00;border:0;border-radius:999px;
     padding:13px 34px;font-size:17px;font-weight:700;transition:all .2s}
   .kp-bday-btn:hover{transform:translateY(-2px) scale(1.03)}
@@ -302,6 +314,11 @@
   <!-- ═══ HERO ═══ -->
   <header class="kp-hero">
     <a class="kp-home" href="/" aria-label="العودة إلى الصفحة الرئيسية">🏠 الصفحة الرئيسية</a>
+    <nav class="kp-lang" aria-label="اللغة">
+      <a class="on" href="/kids/" aria-current="page">ع</a>
+      <a href="/en/kids/" hreflang="en">EN</a>
+      <a href="/ur/kids/" hreflang="ur">اردو</a>
+    </nav>
     <span class="kp-star-float" style="top:12%;right:8%;font-size:20px">✦</span>
     <span class="kp-star-float" style="top:24%;left:12%;font-size:14px;animation-delay:.8s">✦</span>
     <span class="kp-star-float" style="top:64%;right:20%;font-size:12px;animation-delay:1.4s">✦</span>
@@ -459,8 +476,10 @@
         <h2 class="kp-h2" id="kpBdayH">🎂 عيد ميلادي الهجري</h2>
         <p class="kp-sub">هل تعرف تاريخ ميلادك بالهجري؟ اكتشفه الآن!</p>
         <div class="kp-bday-form">
-          <label for="kpBdayInput" style="font-weight:600">تاريخ ميلادك الميلادي:</label>
-          <input type="date" id="kpBdayInput">
+          <label style="font-weight:600;width:100%">تاريخ ميلادك الميلادي:</label>
+          <select class="kp-bday-sel" id="kpBdayDay" aria-label="اليوم"></select>
+          <select class="kp-bday-sel" id="kpBdayMon" aria-label="الشهر"></select>
+          <select class="kp-bday-sel" id="kpBdayYear" aria-label="السنة"></select>
           <button class="kp-bday-btn" id="kpBdayBtn">اكتشف! ✨</button>
         </div>
         <div class="kp-bday-out" id="kpBdayOut" aria-live="polite"></div>
@@ -1054,9 +1073,19 @@
   drawStory();
 
   /* ── 7 · Hijri birthday (Umm al-Qura via Intl) ──── */
-  var bIn = $('kpBdayInput');
-  bIn.max = new Date().toISOString().slice(0, 10);
-  bIn.min = '1990-01-01';
+  var selD = $('kpBdayDay'), selM = $('kpBdayMon'), selY = $('kpBdayYear');
+  var GREG_MONTHS = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+  (function fillBday(){
+    var od = '<option value="">يوم</option>';
+    for (var d = 1; d <= 31; d++) od += '<option value="' + d + '">' + d + '</option>';
+    selD.innerHTML = od;
+    var om = '<option value="">شهر</option>';
+    for (var m = 0; m < 12; m++) om += '<option value="' + (m + 1) + '">' + GREG_MONTHS[m] + '</option>';
+    selM.innerHTML = om;
+    var ty = new Date().getFullYear(), oy = '<option value="">سنة</option>';
+    for (var y = ty; y >= 1940; y--) oy += '<option value="' + y + '">' + y + '</option>';
+    selY.innerHTML = oy;
+  })();
   function hijriParts(date){
     var parts = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
       weekday:'long', day:'numeric', month:'numeric', year:'numeric'
@@ -1070,12 +1099,23 @@
   }
   $('kpBdayBtn').addEventListener('click', function(){
     var out = $('kpBdayOut');
-    if (!bIn.value){
-      out.innerHTML = '👆 اختر تاريخ ميلادك أولاً!';
+    var dd = parseInt(selD.value, 10), mm = parseInt(selM.value, 10), yy = parseInt(selY.value, 10);
+    if (!dd || !mm || !yy){
+      out.innerHTML = '👆 اختر يوم وشهر وسنة ميلادك أولاً!';
       out.classList.add('show');
       return;
     }
-    var d = new Date(bIn.value + 'T12:00:00');
+    var d = new Date(yy, mm - 1, dd, 12, 0, 0);
+    if (d.getFullYear() !== yy || d.getMonth() !== mm - 1 || d.getDate() !== dd){
+      out.innerHTML = '🤔 هذا التاريخ غير موجود — تأكّد من عدد أيام الشهر!';
+      out.classList.add('show');
+      return;
+    }
+    if (d > new Date()){
+      out.innerHTML = '🚀 هذا التاريخ في المستقبل! اختر تاريخ ميلادك الحقيقي.';
+      out.classList.add('show');
+      return;
+    }
     var full = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
       weekday:'long', day:'numeric', month:'long', year:'numeric'
     }).format(d);
