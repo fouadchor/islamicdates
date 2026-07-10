@@ -1,0 +1,952 @@
+<!doctype html>
+<!--
+  ══════════════════════════════════════════════════════════════════════════
+  ركن الصغار · islamicdates.org/kids/
+  صفحة تفاعلية كاملة لتعليم الأطفال التقويم الهجري باللعب
+  ══════════════════════════════════════════════════════════════════════════
+
+  HOW TO USE
+  1. Create src/pages/kids.astro (or kids/index.astro) in your Astro project.
+  2. Copy the <head> extras (title, meta, JSON-LD) into your layout head,
+     and everything between  <!-- COPY FROM HERE -->  and  <!-- COPY TO HERE -->
+     into the page body (inside your site header/footer layout).
+  3. Fully self-contained: scoped under `.kids-page`, vanilla JS, no libraries.
+     Font "IBM Plex Sans Arabic" is already loaded on your site.
+  4. The birthday finder uses the browser-native Umm al-Qura calendar
+     (Intl islamic-umalqura) — same reference as the rest of the site.
+  5. Add a nav/footer link: ركن الصغار → /kids/
+
+  FEATURES (7 interactive activities, each earns the child a star ⭐)
+  · مختبر القمر: slider يقلّب أطوار القمر عبر 30 يوماً من الشهر الهجري
+  · قطار الشهور: 12 بطاقة تنقلب وتكشف سرّ كل شهر
+  · رتّب الشهور: لعبة ترتيب الشهور الهجرية الاثني عشر بالتسلسل
+  · ابحث عن الهلال: لعبة إيجاد الهلال المخفي في سماء الليل (3 جولات)
+  · تحدّي النجوم: اختبار من 8 أسئلة مع احتفال بالقصاصات
+  · قصة الهجرة: قصة مصوّرة من 6 مشاهد تشرح لماذا سُمّي التقويم هجرياً
+  · عيد ميلادي الهجري: يكتشف الطفل تاريخ ميلاده الهجري وشهره
+
+  SEO: h1 فريد، فقرات نصية للفهرسة، JSON-LD (LearningResource)،
+  استهداف كلمات: تعليم التقويم الهجري للأطفال، الأشهر الهجرية للأطفال…
+-->
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ركن الصغار · تعلّم التقويم الهجري باللعب | islamicdates.org</title>
+<meta name="description" content="صفحة تفاعلية للأطفال لتعلّم التقويم الهجري: أطوار القمر، ألعاب الأشهر الهجرية، لعبة البحث عن الهلال، قصة الهجرة المصوّرة، اختبار ممتع، واكتشاف تاريخ ميلادك الهجري وفق تقويم أم القرى.">
+<link rel="canonical" href="https://islamicdates.org/kids/">
+<meta name="theme-color" content="#0d9488">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "ركن الصغار — تعلّم التقويم الهجري باللعب",
+  "description": "أنشطة تفاعلية للأطفال: أطوار القمر، ألعاب الأشهر الهجرية، لعبة البحث عن الهلال، قصة الهجرة المصوّرة، اختبار، ومحوّل تاريخ الميلاد إلى الهجري وفق تقويم أم القرى.",
+  "url": "https://islamicdates.org/kids/",
+  "inLanguage": "ar",
+  "isFamilyFriendly": true,
+  "learningResourceType": "Interactive Resource",
+  "educationalLevel": "beginner",
+  "audience": { "@type": "EducationalAudience", "educationalRole": "student" },
+  "typicalAgeRange": "5-12",
+  "isPartOf": { "@type": "WebSite", "name": "التقويم الهجري", "url": "https://islamicdates.org/" }
+}
+</script>
+<style>body{margin:0;background:#eef2f6;font-family:"IBM Plex Sans Arabic",sans-serif}</style>
+</head>
+<body>
+
+<!-- COPY FROM HERE -->
+<style>
+  .kids-page{
+    --kp-teal:#0d9488;--kp-teal-dark:#0a6e66;--kp-mint:#5eead4;
+    --kp-sun:#fbbf24;--kp-coral:#fb7185;--kp-sky:#38bdf8;--kp-grape:#a78bfa;
+    --kp-ink:#0f2730;--kp-night:#141c33;--kp-night2:#1e2a4a;
+    --kp-card:#ffffff;--kp-bg:#f0fbf8;
+    font-family:"IBM Plex Sans Arabic",sans-serif;
+    direction:rtl;text-align:right;color:var(--kp-ink);
+    background:var(--kp-bg);overflow-x:hidden;
+  }
+  .kids-page *{box-sizing:border-box}
+  .kids-page button{font-family:inherit;cursor:pointer}
+  .kp-wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+  .kp-section{padding:56px 0}
+  .kp-h2{font-size:clamp(24px,4vw,34px);font-weight:700;margin:0 0 6px}
+  .kp-sub{color:#5b7682;font-size:16px;margin:0 0 28px}
+
+  /* ── Hero ─────────────────────────────────────────── */
+  .kp-hero{background:linear-gradient(160deg,#0d9488 0%,#0a6e66 55%,#0a5a54 100%);
+    color:#fff;padding:56px 0 72px;position:relative;overflow:hidden}
+  .kp-hero::after{content:"";position:absolute;inset:auto 0 -2px 0;height:38px;
+    background:var(--kp-bg);border-radius:100% 100% 0 0/38px 38px 0 0}
+  .kp-hero .kp-wrap{display:flex;align-items:center;gap:36px;flex-wrap:wrap;position:relative;z-index:1}
+  .kp-hero-txt{flex:1 1 340px}
+  .kp-hero h1{font-size:clamp(30px,5.5vw,46px);font-weight:700;margin:0 0 12px;line-height:1.3}
+  .kp-hero h1 span{color:var(--kp-sun)}
+  .kp-hero p{font-size:17px;line-height:1.9;color:#d5efe9;margin:0;max-width:520px}
+  .kp-star-float{position:absolute;color:rgba(255,255,255,.35);animation:kpTwinkle 3s ease-in-out infinite}
+  @keyframes kpTwinkle{0%,100%{opacity:.25;transform:scale(1)}50%{opacity:.9;transform:scale(1.25)}}
+  .kp-mascot{width:180px;flex:0 0 auto;animation:kpBob 4s ease-in-out infinite;filter:drop-shadow(0 10px 24px rgba(0,0,0,.25))}
+  @keyframes kpBob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-14px) rotate(4deg)}}
+
+  /* ── Star badges bar ──────────────────────────────── */
+  .kp-badges{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+  .kp-badge{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);
+    border:1.5px dashed rgba(255,255,255,.4);border-radius:999px;padding:7px 16px;
+    font-size:13.5px;font-weight:600;color:#cfeee7;transition:all .4s ease}
+  .kp-badge .st{font-size:17px;filter:grayscale(1);opacity:.5;transition:all .4s ease}
+  .kp-badge.won{background:var(--kp-sun);border-color:var(--kp-sun);color:#5b3d00;transform:scale(1.06)}
+  .kp-badge.won .st{filter:none;opacity:1}
+  .kp-trophy{display:none;margin-top:18px;background:#fff;color:var(--kp-teal-dark);
+    border-radius:16px;padding:14px 20px;font-weight:700;font-size:17px;
+    box-shadow:0 8px 24px rgba(0,0,0,.18);animation:kpPop .5s ease}
+  .kp-trophy.show{display:inline-block}
+  @keyframes kpPop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+
+  /* ── Moon lab ─────────────────────────────────────── */
+  .kp-moonlab{background:linear-gradient(180deg,var(--kp-night) 0%,var(--kp-night2) 100%);
+    color:#eaf1ff;border-radius:28px;padding:40px 28px;position:relative;overflow:hidden}
+  .kp-moonlab .kp-h2{color:#fff}
+  .kp-moonlab .kp-sub{color:#9fb0d8}
+  .kp-moon-stage{display:flex;flex-direction:column;align-items:center;gap:8px}
+  .kp-moon-svg{width:min(230px,58vw);height:auto;filter:drop-shadow(0 0 34px rgba(255,235,170,.35))}
+  .kp-moon-day{font-size:20px;font-weight:700;color:var(--kp-sun);min-height:30px}
+  .kp-moon-name{font-size:16px;color:#c7d4f2;min-height:52px;text-align:center;max-width:460px;line-height:1.8}
+  .kp-moon-slider{width:min(480px,90%);direction:rtl;accent-color:var(--kp-sun);height:34px;cursor:grab;margin-top:6px}
+  .kp-moon-ticks{display:flex;justify-content:space-between;width:min(480px,90%);
+    color:#8fa0c8;font-size:12.5px;font-weight:600}
+  .kp-moon-hint{margin-top:16px;background:rgba(255,255,255,.08);border-radius:14px;
+    padding:12px 18px;font-size:14.5px;color:#c7d4f2;line-height:1.9;max-width:560px;text-align:center}
+
+  /* ── Months train ─────────────────────────────────── */
+  .kp-months-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px}
+  .kp-mcard{perspective:900px;border:0;background:none;padding:0;height:190px}
+  .kp-mcard-in{position:relative;width:100%;height:100%;transition:transform .55s cubic-bezier(.4,.9,.4,1.1);
+    transform-style:preserve-3d}
+  .kp-mcard.flip .kp-mcard-in{transform:rotateY(180deg)}
+  .kp-mface{position:absolute;inset:0;backface-visibility:hidden;border-radius:18px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:12px}
+  .kp-mfront{background:var(--kp-card);border:2px solid #d9ece7;box-shadow:0 4px 14px rgba(13,148,136,.08)}
+  .kp-mfront .num{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-weight:700;color:#fff;font-size:15px}
+  .kp-mfront .nm{font-weight:700;font-size:16.5px}
+  .kp-mfront .tap{font-size:12px;color:#8aa4ad}
+  .kp-mback{transform:rotateY(180deg);color:#fff;font-size:13.5px;line-height:1.8;text-align:center;font-weight:500}
+  .kp-mback .emj{font-size:26px}
+
+  /* ── Quiz ─────────────────────────────────────────── */
+  .kp-quiz{background:var(--kp-card);border-radius:28px;padding:36px 26px;
+    border:2px solid #e2eeea;box-shadow:0 10px 30px rgba(13,148,136,.07);position:relative;overflow:hidden}
+  .kp-qdots{display:flex;gap:7px;justify-content:center;margin-bottom:22px}
+  .kp-qdot{width:12px;height:12px;border-radius:50%;background:#dce8e4;transition:all .3s}
+  .kp-qdot.cur{background:var(--kp-sky);transform:scale(1.35)}
+  .kp-qdot.ok{background:#34d399}.kp-qdot.bad{background:var(--kp-coral)}
+  .kp-qtext{font-size:clamp(19px,3vw,24px);font-weight:700;text-align:center;margin:0 0 24px;min-height:64px}
+  .kp-qopts{display:grid;gap:12px;max-width:560px;margin:0 auto}
+  .kp-qopt{border:2px solid #dce8e4;background:#f7fbfa;border-radius:14px;padding:14px 18px;
+    font-size:17px;font-weight:600;text-align:right;transition:all .2s;color:var(--kp-ink)}
+  .kp-qopt:hover{border-color:var(--kp-teal);transform:translateY(-2px)}
+  .kp-qopt.right{background:#d3f7e7;border-color:#34d399}
+  .kp-qopt.wrong{background:#ffe1e6;border-color:var(--kp-coral);animation:kpShake .4s}
+  .kp-qopt:disabled{cursor:default}
+  @keyframes kpShake{0%,100%{transform:translateX(0)}25%{transform:translateX(6px)}75%{transform:translateX(-6px)}}
+  .kp-qfeed{text-align:center;font-size:16.5px;font-weight:700;min-height:32px;margin:18px 0 4px}
+  .kp-qnext{display:block;margin:8px auto 0;background:var(--kp-teal);color:#fff;border:0;
+    border-radius:999px;padding:12px 38px;font-size:16.5px;font-weight:700;transition:all .2s;visibility:hidden}
+  .kp-qnext.show{visibility:visible}
+  .kp-qnext:hover{background:var(--kp-teal-dark);transform:translateY(-2px)}
+  .kp-qresult{text-align:center;display:none}
+  .kp-qresult.show{display:block;animation:kpPop .5s ease}
+  .kp-qresult .big{font-size:52px;margin:6px 0}
+  .kp-qresult h3{font-size:24px;margin:4px 0 8px}
+  .kp-qresult p{color:#5b7682;font-size:16px;margin:0 0 18px}
+  .kp-qstars{font-size:30px;letter-spacing:6px}
+
+  /* ── Birthday finder ──────────────────────────────── */
+  .kp-bday{background:linear-gradient(140deg,#7c5cd6 0%,#a78bfa 100%);border-radius:28px;
+    padding:40px 28px;color:#fff}
+  .kp-bday .kp-h2{color:#fff}.kp-bday .kp-sub{color:#e6defc}
+  .kp-bday-form{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+  .kp-bday-form input[type=date]{font-family:inherit;font-size:17px;padding:12px 16px;border-radius:14px;
+    border:0;color:var(--kp-ink);background:#fff;min-width:210px}
+  .kp-bday-btn{background:var(--kp-sun);color:#5b3d00;border:0;border-radius:999px;
+    padding:13px 34px;font-size:17px;font-weight:700;transition:all .2s}
+  .kp-bday-btn:hover{transform:translateY(-2px) scale(1.03)}
+  .kp-bday-out{display:none;background:rgba(255,255,255,.14);border:1.5px dashed rgba(255,255,255,.5);
+    border-radius:20px;padding:22px 24px;margin-top:18px;line-height:2.1;font-size:16.5px}
+  .kp-bday-out.show{display:block;animation:kpPop .5s ease}
+  .kp-bday-out .hij{font-size:clamp(20px,3.4vw,27px);font-weight:700;color:var(--kp-sun)}
+  .kp-bday-note{font-size:13px;color:#e6defc;margin-top:14px}
+  .kp-bday-note a{color:#fff}
+
+  /* ── Did you know ─────────────────────────────────── */
+  .kp-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+  .kp-fact{background:var(--kp-card);border-radius:18px;padding:20px;border-top:5px solid var(--kp-teal);
+    box-shadow:0 4px 14px rgba(13,148,136,.07);font-size:15px;line-height:1.9}
+  .kp-fact .emj{font-size:26px;display:block;margin-bottom:8px}
+  .kp-fact:nth-child(2){border-color:var(--kp-sun)}
+  .kp-fact:nth-child(3){border-color:var(--kp-coral)}
+  .kp-fact:nth-child(4){border-color:var(--kp-sky)}
+
+  /* ── Order game ───────────────────────────────────── */
+  .kp-order{background:var(--kp-card);border-radius:28px;padding:32px 24px;
+    border:2px solid #e2eeea;box-shadow:0 10px 30px rgba(13,148,136,.07)}
+  .kp-order-slots{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:24px}
+  .kp-slot{height:54px;border-radius:12px;border:2px dashed #cfe2dd;display:flex;
+    align-items:center;justify-content:center;font-weight:700;color:#b3c8c2;
+    font-size:13.5px;background:#f7fbfa;padding:4px;text-align:center;transition:all .25s}
+  .kp-slot.done{border-style:solid;border-color:transparent;color:#fff;animation:kpPop .35s ease}
+  .kp-order-pool{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+  .kp-chip{border:2px solid #dce8e4;background:#fff;border-radius:999px;padding:11px 20px;
+    font-weight:700;font-size:15px;color:var(--kp-ink);transition:all .2s}
+  .kp-chip:hover{border-color:var(--kp-teal);transform:translateY(-2px)}
+  .kp-chip.no{animation:kpShake .4s;border-color:var(--kp-coral);background:#ffe1e6}
+  .kp-order-msg{text-align:center;font-weight:700;font-size:16.5px;min-height:30px;margin:16px 0 0}
+  .kp-order-reset{display:block;margin:10px auto 0;background:none;border:2px solid #dce8e4;
+    border-radius:999px;padding:9px 26px;font-weight:700;font-size:14.5px;color:#5b7682;transition:all .2s}
+  .kp-order-reset:hover{border-color:var(--kp-teal);color:var(--kp-teal)}
+
+  /* ── Hilal hunt ───────────────────────────────────── */
+  .kp-hunt{background:linear-gradient(180deg,var(--kp-night) 0%,var(--kp-night2) 100%);
+    border-radius:28px;padding:32px 24px;color:#eaf1ff}
+  .kp-hunt .kp-h2{color:#fff}
+  .kp-hunt .kp-sub{color:#9fb0d8}
+  .kp-hunt-bar{display:flex;justify-content:space-between;align-items:center;
+    margin-bottom:14px;font-weight:700;font-size:15.5px;color:var(--kp-mint)}
+  .kp-hunt-sky{width:100%;height:auto;display:block;border-radius:18px;cursor:crosshair;
+    border:2px solid rgba(255,255,255,.12)}
+  .kp-hunt-sky .kp-hilal{cursor:pointer}
+  .kp-hunt-msg{min-height:32px;text-align:center;font-weight:700;font-size:16.5px;
+    margin-top:14px;color:var(--kp-sun)}
+  .kp-hunt-again{display:none;margin:10px auto 0;background:var(--kp-sun);color:#5b3d00;
+    border:0;border-radius:999px;padding:11px 30px;font-weight:700;font-size:15.5px}
+  .kp-hunt-again.show{display:block}
+
+  /* ── Hijra story ──────────────────────────────────── */
+  .kp-story{background:linear-gradient(140deg,#0e463f 0%,#0d9488 100%);
+    border-radius:28px;padding:36px 26px;color:#fff}
+  .kp-story .kp-h2{color:#fff}
+  .kp-story .kp-sub{color:#c9ebe4}
+  .kp-story-card{background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.18);
+    border-radius:20px;padding:18px;max-width:660px;margin:0 auto}
+  .kp-story-scene svg{width:100%;height:auto;border-radius:14px;display:block}
+  .kp-story-title{font-size:21px;font-weight:700;margin:16px 0 8px}
+  .kp-story-txt{line-height:2.1;font-size:16px;min-height:96px;margin:0;color:#eafaf5}
+  .kp-story-nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px;gap:10px}
+  .kp-story-btn{background:#fff;color:var(--kp-teal-dark);border:0;border-radius:999px;
+    padding:11px 28px;font-weight:700;font-size:15px;transition:all .2s}
+  .kp-story-btn:hover:not(:disabled){transform:translateY(-2px)}
+  .kp-story-btn:disabled{opacity:.35;cursor:default}
+  .kp-story-dots{display:flex;gap:7px}
+  .kp-sdot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.35);transition:all .3s}
+  .kp-sdot.cur{background:var(--kp-sun);transform:scale(1.3)}
+  .kp-sdot.seen{background:rgba(255,255,255,.75)}
+
+  /* ── SEO prose ────────────────────────────────────── */
+  .kp-prose{color:#41606b;font-size:15.5px;line-height:2.1;max-width:820px}
+  .kp-prose h2{font-size:21px;color:var(--kp-ink)}
+
+  /* ── Confetti ─────────────────────────────────────── */
+  .kp-confetti{position:fixed;top:-40px;z-index:9999;font-size:24px;pointer-events:none;
+    animation:kpFall linear forwards}
+  @keyframes kpFall{to{transform:translateY(110vh) rotate(720deg)}}
+
+  @media (max-width:560px){
+    .kp-hero .kp-wrap{flex-direction:column-reverse;text-align:center}
+    .kp-hero-txt{text-align:center}
+    .kp-badges{justify-content:center}
+    .kp-mascot{width:130px}
+    .kp-section{padding:40px 0}
+    .kp-order-slots{grid-template-columns:repeat(3,1fr)}
+    .kp-slot{font-size:12px;height:48px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .kids-page *,.kids-page *::after{animation:none!important;transition:none!important}
+  }
+</style>
+
+<div class="kids-page">
+
+  <!-- ═══ HERO ═══ -->
+  <header class="kp-hero">
+    <span class="kp-star-float" style="top:12%;right:8%;font-size:20px">✦</span>
+    <span class="kp-star-float" style="top:24%;left:12%;font-size:14px;animation-delay:.8s">✦</span>
+    <span class="kp-star-float" style="top:64%;right:20%;font-size:12px;animation-delay:1.4s">✦</span>
+    <span class="kp-star-float" style="top:40%;left:30%;font-size:17px;animation-delay:2s">✦</span>
+    <div class="kp-wrap">
+      <div class="kp-hero-txt">
+        <h1>أهلاً بك في <span>ركن الصغار</span> 🌙</h1>
+        <p>هنا نتعلّم التقويم الهجري باللعب! رافِق صديقنا «هلال» في سبع مغامرات ممتعة، واجمع النجوم السبع لتصبح <strong>خبير التقويم الهجري</strong>.</p>
+        <div class="kp-badges" id="kpBadges">
+          <span class="kp-badge" data-badge="moon"><span class="st">⭐</span> مستكشف القمر</span>
+          <span class="kp-badge" data-badge="months"><span class="st">⭐</span> حافظ الشهور</span>
+          <span class="kp-badge" data-badge="order"><span class="st">⭐</span> مرتّب الشهور</span>
+          <span class="kp-badge" data-badge="hunt"><span class="st">⭐</span> صائد الهلال</span>
+          <span class="kp-badge" data-badge="quiz"><span class="st">⭐</span> بطل الأسئلة</span>
+          <span class="kp-badge" data-badge="story"><span class="st">⭐</span> راوي القصة</span>
+          <span class="kp-badge" data-badge="bday"><span class="st">⭐</span> نجم الميلاد</span>
+        </div>
+        <div class="kp-trophy" id="kpTrophy">🏆 مبروك! جمعت كل النجوم — أنت الآن خبير التقويم الهجري!</div>
+      </div>
+      <svg class="kp-mascot" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="هلال — صديقك القمر">
+        <defs>
+          <mask id="kpCres"><rect width="120" height="120" fill="#fff"/><circle cx="46" cy="38" r="44" fill="#000"/></mask>
+        </defs>
+        <circle cx="60" cy="60" r="48" fill="#ffd76e" mask="url(#kpCres)"/>
+        <path d="M44 90 Q48 85 52 90" stroke="#7a5a12" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <path d="M68 90 Q72 85 76 90" stroke="#7a5a12" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <path d="M53 98 Q60 105 67 98" stroke="#7a5a12" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <circle cx="41" cy="96" r="4" fill="#ffb1a0" opacity=".7"/>
+        <circle cx="79" cy="96" r="4" fill="#ffb1a0" opacity=".7"/>
+        <text x="14" y="30" font-size="13" fill="#fff">✦</text>
+        <text x="96" y="22" font-size="10" fill="#fff">✦</text>
+        <text x="104" y="52" font-size="8" fill="#fff">✦</text>
+      </svg>
+    </div>
+  </header>
+
+  <!-- ═══ 1 · MOON LAB ═══ -->
+  <section class="kp-section" id="moon-lab" aria-labelledby="kpMoonH">
+    <div class="kp-wrap">
+      <div class="kp-moonlab">
+        <h2 class="kp-h2" id="kpMoonH">🔭 مختبر القمر</h2>
+        <p class="kp-sub">حرّك الشريط وشاهد كيف يتغيّر شكل القمر خلال الشهر الهجري!</p>
+        <div class="kp-moon-stage">
+          <svg class="kp-moon-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="50" cy="50" r="45" fill="#2b3654"/>
+            <path id="kpMoonLit" d="" fill="#ffedb0"/>
+            <g id="kpMoonFace" opacity="0">
+              <circle cx="42" cy="44" r="2.6" fill="#8a6d1f"/>
+              <circle cx="58" cy="44" r="2.6" fill="#8a6d1f"/>
+              <path d="M42 58 Q50 65 58 58" stroke="#8a6d1f" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+            </g>
+          </svg>
+          <div class="kp-moon-day" id="kpMoonDay"></div>
+          <div class="kp-moon-name" id="kpMoonName"></div>
+          <input type="range" class="kp-moon-slider" id="kpMoonSlider" min="1" max="30" value="1" step="1"
+                 aria-label="يوم الشهر الهجري">
+          <div class="kp-moon-ticks"><span>يوم 1</span><span>يوم 15</span><span>يوم 30</span></div>
+          <div class="kp-moon-hint">💡 الشهر الهجري يبدأ عندما نرى <strong>الهلال الصغير</strong> في السماء، وفي منتصفه يكتمل القمر ويصبح <strong>بدراً</strong> — لهذا تُسمّى أيام 13 و14 و15 «الأيام البيض»!</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 2 · MONTHS TRAIN ═══ -->
+  <section class="kp-section" id="months-game" aria-labelledby="kpMonthsH">
+    <div class="kp-wrap">
+      <h2 class="kp-h2" id="kpMonthsH">🚂 قطار الشهور الهجرية</h2>
+      <p class="kp-sub">اضغط على أي بطاقة لتكشف سرّ الشهر! اقلب 6 بطاقات لتربح نجمة «حافظ الشهور».</p>
+      <div class="kp-months-grid" id="kpMonthsGrid"></div>
+    </div>
+  </section>
+
+  <!-- ═══ 3 · ORDER GAME ═══ -->
+  <section class="kp-section" id="order-game" aria-labelledby="kpOrderH">
+    <div class="kp-wrap">
+      <div class="kp-order">
+        <h2 class="kp-h2" id="kpOrderH">🧩 رتّب الشهور</h2>
+        <p class="kp-sub">اضغط على الشهور بالترتيب الصحيح — من محرم إلى ذي الحجة — لتكوّن السنة الهجرية كاملة!</p>
+        <div class="kp-order-slots" id="kpOrderSlots"></div>
+        <div class="kp-order-pool" id="kpOrderPool"></div>
+        <div class="kp-order-msg" id="kpOrderMsg"></div>
+        <button class="kp-order-reset" id="kpOrderReset">🔄 ابدأ من جديد</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 4 · HILAL HUNT ═══ -->
+  <section class="kp-section" id="hilal-hunt" aria-labelledby="kpHuntH">
+    <div class="kp-wrap">
+      <div class="kp-hunt">
+        <h2 class="kp-h2" id="kpHuntH">🔍 ابحث عن الهلال</h2>
+        <p class="kp-sub">ليلة 29 من الشهر… الجميع يبحث عن هلال الشهر الجديد! دقّق في السماء واضغط على الهلال المخفي.</p>
+        <div class="kp-hunt-bar">
+          <span id="kpHuntRound">الجولة 1 من 3</span>
+          <span>🌙 كل جولة يصغر الهلال أكثر!</span>
+        </div>
+        <svg class="kp-hunt-sky" id="kpHuntSky" viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg"
+             role="img" aria-label="سماء ليلية — ابحث عن الهلال واضغط عليه"></svg>
+        <div class="kp-hunt-msg" id="kpHuntMsg"></div>
+        <button class="kp-hunt-again" id="kpHuntAgain">العب مرة أخرى 🔄</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 5 · QUIZ ═══ -->
+  <section class="kp-section" id="quiz" aria-labelledby="kpQuizH">
+    <div class="kp-wrap">
+      <h2 class="kp-h2" id="kpQuizH">🌟 تحدّي النجوم</h2>
+      <p class="kp-sub">ثمانية أسئلة… هل تستطيع الإجابة عليها كلها؟</p>
+      <div class="kp-quiz">
+        <div id="kpQuizPlay">
+          <div class="kp-qdots" id="kpQdots"></div>
+          <p class="kp-qtext" id="kpQtext"></p>
+          <div class="kp-qopts" id="kpQopts"></div>
+          <div class="kp-qfeed" id="kpQfeed"></div>
+          <button class="kp-qnext" id="kpQnext">السؤال التالي ←</button>
+        </div>
+        <div class="kp-qresult" id="kpQresult">
+          <div class="big" id="kpQemoji"></div>
+          <h3 id="kpQtitle"></h3>
+          <p id="kpQmsg"></p>
+          <div class="kp-qstars" id="kpQstars"></div>
+          <br>
+          <button class="kp-qnext show" id="kpQretry" style="position:static">العب مرة أخرى 🔄</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 6 · HIJRA STORY ═══ -->
+  <section class="kp-section" id="hijra-story" aria-labelledby="kpStoryH">
+    <div class="kp-wrap">
+      <div class="kp-story">
+        <h2 class="kp-h2" id="kpStoryH">📖 حكاية الهجرة</h2>
+        <p class="kp-sub">لماذا يُسمّى تقويمنا «الهجري»؟ اقلب صفحات القصة لتعرف!</p>
+        <div class="kp-story-card">
+          <div class="kp-story-scene" id="kpStoryScene"></div>
+          <h3 class="kp-story-title" id="kpStoryTitle"></h3>
+          <p class="kp-story-txt" id="kpStoryTxt"></p>
+          <div class="kp-story-nav">
+            <button class="kp-story-btn" id="kpStoryNext">التالي ←</button>
+            <div class="kp-story-dots" id="kpStoryDots"></div>
+            <button class="kp-story-btn" id="kpStoryPrev">→ السابق</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 7 · HIJRI BIRTHDAY ═══ -->
+  <section class="kp-section" id="my-hijri-birthday" aria-labelledby="kpBdayH">
+    <div class="kp-wrap">
+      <div class="kp-bday">
+        <h2 class="kp-h2" id="kpBdayH">🎂 عيد ميلادي الهجري</h2>
+        <p class="kp-sub">هل تعرف تاريخ ميلادك بالهجري؟ اكتشفه الآن!</p>
+        <div class="kp-bday-form">
+          <label for="kpBdayInput" style="font-weight:600">تاريخ ميلادك الميلادي:</label>
+          <input type="date" id="kpBdayInput">
+          <button class="kp-bday-btn" id="kpBdayBtn">اكتشف! ✨</button>
+        </div>
+        <div class="kp-bday-out" id="kpBdayOut" aria-live="polite"></div>
+        <p class="kp-bday-note">الحساب وفق تقويم أم القرى · جرّب أيضاً <a href="/age/">حاسبة العمر بالهجري</a> الكاملة</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ DID YOU KNOW ═══ -->
+  <section class="kp-section" id="fun-facts" aria-labelledby="kpFactsH" style="padding-top:0">
+    <div class="kp-wrap">
+      <h2 class="kp-h2" id="kpFactsH">🤔 هل تعلم؟</h2>
+      <p class="kp-sub">حقائق مدهشة عن التقويم الهجري</p>
+      <div class="kp-facts">
+        <div class="kp-fact"><span class="emj">🐪</span>بدأ التقويم الهجري من <strong>هجرة النبي محمد ﷺ</strong> من مكة إلى المدينة قبل أكثر من 1400 سنة!</div>
+        <div class="kp-fact"><span class="emj">📅</span>السنة الهجرية <strong>أقصر</strong> من الميلادية بحوالي 11 يوماً، لهذا يأتي رمضان كل سنة أبكر قليلاً.</div>
+        <div class="kp-fact"><span class="emj">👀</span>لا يبدأ الشهر الهجري إلا برؤية <strong>الهلال الصغير</strong> في السماء بعد غروب الشمس.</div>
+        <div class="kp-fact"><span class="emj">🌕</span>أيام 13 و14 و15 من كل شهر تُسمّى <strong>«الأيام البيض»</strong> لأن القمر يكون فيها بدراً منيراً.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ SEO PROSE ═══ -->
+  <section class="kp-section" style="padding-top:0">
+    <div class="kp-wrap">
+      <div class="kp-prose">
+        <h2>تعليم التقويم الهجري للأطفال</h2>
+        <p>صُمّمت هذه الصفحة لمساعدة الأطفال على فهم التقويم الهجري بطريقة تفاعلية ممتعة. يتعلّم الطفل كيف تتغيّر أطوار القمر من الهلال إلى البدر ثم المحاق خلال الشهر القمري، ويحفظ أسماء الأشهر الهجرية الاثني عشر ومعانيها — من محرم إلى ذي الحجة — عبر بطاقات مصوّرة ولعبة ترتيب الشهور، ويتدرّب على رصد الهلال في لعبة البحث عن الهلال كما يفعل الكبار ليلة 29 من كل شهر، ثم يختبر معلوماته في مسابقة قصيرة، ويقرأ قصة الهجرة النبوية المصوّرة ليعرف لماذا سُمّي التقويم «هجرياً»، ويكتشف تاريخ ميلاده الهجري وفق تقويم أم القرى. يمكن للآباء والمعلّمين استخدام هذه الأنشطة في المنزل أو الفصل الدراسي لتقريب مفهوم السنة القمرية والمناسبات الإسلامية مثل رمضان والعيدين إلى أذهان الصغار.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var $ = function(id){ return document.getElementById(id); };
+
+  /* ── Badges ─────────────────────────────────────── */
+  var badges = { moon:false, months:false, order:false, hunt:false, quiz:false, story:false, bday:false };
+  function winBadge(key){
+    if (badges[key]) return;
+    badges[key] = true;
+    var el = document.querySelector('.kp-badge[data-badge="' + key + '"]');
+    if (el) el.classList.add('won');
+    var all = Object.keys(badges).every(function(k){ return badges[k]; });
+    if (all){
+      $('kpTrophy').classList.add('show');
+      confetti(60);
+    }
+  }
+
+  /* ── Confetti ───────────────────────────────────── */
+  var CONF = ['🌙','⭐','✨','🎉','💚','🌟'];
+  function confetti(n){
+    for (var i = 0; i < n; i++){
+      var s = document.createElement('span');
+      s.className = 'kp-confetti';
+      s.textContent = CONF[Math.floor(Math.random() * CONF.length)];
+      s.style.left = (Math.random() * 100) + 'vw';
+      s.style.animationDuration = (2.2 + Math.random() * 2.5) + 's';
+      s.style.animationDelay = (Math.random() * .6) + 's';
+      s.style.fontSize = (16 + Math.random() * 18) + 'px';
+      document.body.appendChild(s);
+      (function(el){ setTimeout(function(){ el.remove(); }, 6000); })(s);
+    }
+  }
+
+  /* ── 1 · Moon lab ───────────────────────────────── */
+  function moonPath(p){
+    var r = 45, cx = 50, top = 5, bot = 95;
+    var w = Math.abs(r * Math.cos(2 * Math.PI * p));
+    if (p <= 0.01 || p >= 0.99) return '';
+    if (p <= 0.5){
+      var sw = (Math.cos(2 * Math.PI * p) > 0) ? 1 : 0;
+      return 'M ' + cx + ' ' + top + ' A ' + r + ' ' + r + ' 0 0 1 ' + cx + ' ' + bot +
+             ' A ' + w + ' ' + r + ' 0 0 ' + sw + ' ' + cx + ' ' + top + ' Z';
+    }
+    var sw2 = (Math.cos(2 * Math.PI * p) > 0) ? 0 : 1;
+    return 'M ' + cx + ' ' + top + ' A ' + r + ' ' + r + ' 0 0 0 ' + cx + ' ' + bot +
+           ' A ' + w + ' ' + r + ' 0 0 ' + sw2 + ' ' + cx + ' ' + top + ' Z';
+  }
+  function moonInfo(d){
+    if (d <= 2)  return ['🌒 هلال جديد', 'رأينا الهلال الصغير — الشهر الهجري بدأ! هذا أول ما نبحث عنه في السماء.'];
+    if (d <= 6)  return ['🌒 هلال متزايد', 'القمر يكبر شيئاً فشيئاً كل ليلة. راقبه بعد المغرب!'];
+    if (d <= 9)  return ['🌓 تربيع أول', 'نرى الآن نصف القمر مضيئاً — مرّ حوالي ربع الشهر.'];
+    if (d <= 12) return ['🌔 أحدب متزايد', 'اقتربنا من اكتمال القمر… يزداد نوره كل ليلة.'];
+    if (d <= 15) return ['🌕 بدر مكتمل!', 'القمر مكتمل ومنير — هذه هي «الأيام البيض» (13 و14 و15) التي يُستحب صيامها!'];
+    if (d <= 20) return ['🌖 أحدب متناقص', 'بدأ القمر يصغر الآن بعد اكتماله.'];
+    if (d <= 24) return ['🌗 تربيع أخير', 'عاد القمر نصفاً مضيئاً — لكن من الجهة الأخرى هذه المرة.'];
+    if (d <= 28) return ['🌘 هلال متناقص', 'القمر يختفي شيئاً فشيئاً… الشهر يقترب من نهايته.'];
+    return ['🌑 محاق', 'اختفى القمر تماماً! غداً أو بعد غد نبحث عن هلال الشهر الجديد.'];
+  }
+  var slider = $('kpMoonSlider'), moonMoves = 0;
+  function renderMoon(){
+    var d = parseInt(slider.value, 10);
+    var p = Math.min(d / 29.5, 1);
+    $('kpMoonLit').setAttribute('d', moonPath(p));
+    var info = moonInfo(d);
+    $('kpMoonDay').textContent = 'اليوم ' + d + ' من الشهر الهجري';
+    $('kpMoonName').innerHTML = '<strong>' + info[0] + '</strong><br>' + info[1];
+    $('kpMoonFace').setAttribute('opacity', (d >= 13 && d <= 15) ? '1' : '0');
+  }
+  slider.addEventListener('input', function(){
+    renderMoon();
+    if (++moonMoves >= 8) winBadge('moon');
+  });
+  renderMoon();
+
+  /* ── 2 · Months train ───────────────────────────── */
+  var MONTHS = [
+    ['محرم','🌙','أول شهور السنة الهجرية! وفيه يوم عاشوراء الذي نصومه.','#0d9488'],
+    ['صفر','🐪','قديماً كان العرب يسافرون فيه فتخلو («تَصفَر») بيوتهم.','#fb7185'],
+    ['ربيع الأول','💚','الشهر الذي وُلد فيه النبي محمد ﷺ.','#38bdf8'],
+    ['ربيع الآخر','🌸','سُمّي على فصل الربيع الجميل عند العرب.','#a78bfa'],
+    ['جمادى الأولى','❄️','سُمّي كذلك لأن الماء كان يتجمّد فيه من البرد.','#0d9488'],
+    ['جمادى الآخرة','🧊','آخر شهور البرد عند العرب قديماً.','#fb7185'],
+    ['رجب','✨','فيه كانت رحلة الإسراء والمعراج العجيبة!','#38bdf8'],
+    ['شعبان','🌤️','نستعدّ فيه لاستقبال شهر رمضان المبارك.','#a78bfa'],
+    ['رمضان','🌙','شهر الصيام! وفيه نزل القرآن الكريم وفيه ليلة القدر.','#0d9488'],
+    ['شوال','🎉','يبدأ بعيد الفطر السعيد… والعيدية طبعاً!','#fb7185'],
+    ['ذو القعدة','🕋','يستعدّ فيه الحجاج لرحلة الحج إلى مكة.','#38bdf8'],
+    ['ذو الحجة','🐑','شهر الحج وعيد الأضحى، وأيامه العشر الأولى مباركة.','#a78bfa']
+  ];
+  var grid = $('kpMonthsGrid'), flipped = 0;
+  MONTHS.forEach(function(m, i){
+    var b = document.createElement('button');
+    b.className = 'kp-mcard';
+    b.setAttribute('aria-label', 'شهر ' + m[0] + ' — اضغط لكشف البطاقة');
+    b.innerHTML =
+      '<span class="kp-mcard-in">' +
+        '<span class="kp-mface kp-mfront">' +
+          '<span class="num" style="background:' + m[3] + '">' + (i + 1) + '</span>' +
+          '<span class="nm">' + m[0] + '</span>' +
+          '<span class="tap">اضغط لتكشف السر 👆</span>' +
+        '</span>' +
+        '<span class="kp-mface kp-mback" style="background:' + m[3] + '">' +
+          '<span class="emj">' + m[1] + '</span>' + m[2] +
+        '</span>' +
+      '</span>';
+    b.addEventListener('click', function(){
+      var first = !b.classList.contains('flip') && !b.dataset.seen;
+      b.classList.toggle('flip');
+      if (first){ b.dataset.seen = '1'; if (++flipped >= 6) winBadge('months'); }
+    });
+    grid.appendChild(b);
+  });
+
+  /* ── 3 · Quiz ───────────────────────────────────── */
+  var QUIZ = [
+    ['كم عدد شهور السنة الهجرية؟', ['١٠ شهور','١٢ شهراً','١٤ شهراً'], 1],
+    ['ماذا نراقب في السماء لنعرف بداية الشهر الهجري؟', ['الشمس','النجوم','الهلال'], 2],
+    ['ما هو أول شهر في السنة الهجرية؟', ['محرم','رمضان','شوال'], 0],
+    ['في أي شهر يصوم المسلمون؟', ['رجب','رمضان','صفر'], 1],
+    ['ماذا نسمّي القمر عندما يكتمل ويضيء بالكامل؟', ['الهلال','المحاق','البدر'], 2],
+    ['أي عيد يأتي بعد شهر رمضان مباشرة؟', ['عيد الفطر','عيد الأضحى','رأس السنة'], 0],
+    ['في أي شهر يذهب الحجاج إلى مكة للحج؟', ['ذو القعدة','ذو الحجة','شعبان'], 1],
+    ['كم يوماً في الشهر الهجري تقريباً؟', ['٢٩ أو ٣٠ يوماً','٣١ يوماً','٤٠ يوماً'], 0]
+  ];
+  var qi = 0, score = 0, answered = false;
+  var CHEERS = ['أحسنت! 🎉','رائع! 🌟','ممتاز! 💚','عبقري! 🚀'];
+  function drawDots(){
+    var h = '';
+    for (var i = 0; i < QUIZ.length; i++){
+      var c = 'kp-qdot';
+      if (i === qi) c += ' cur';
+      if (QUIZ[i].res === true) c += ' ok';
+      if (QUIZ[i].res === false) c += ' bad';
+      h += '<span class="' + c + '"></span>';
+    }
+    $('kpQdots').innerHTML = h;
+  }
+  function showQ(){
+    answered = false;
+    drawDots();
+    var q = QUIZ[qi];
+    $('kpQtext').textContent = q[0];
+    $('kpQfeed').textContent = '';
+    $('kpQnext').classList.remove('show');
+    var box = $('kpQopts');
+    box.innerHTML = '';
+    q[1].forEach(function(opt, oi){
+      var b = document.createElement('button');
+      b.className = 'kp-qopt';
+      b.textContent = opt;
+      b.addEventListener('click', function(){ pick(oi, b); });
+      box.appendChild(b);
+    });
+  }
+  function pick(oi, btn){
+    if (answered) return;
+    answered = true;
+    var q = QUIZ[qi];
+    var ok = (oi === q[2]);
+    q.res = ok;
+    var opts = $('kpQopts').children;
+    for (var i = 0; i < opts.length; i++){
+      opts[i].disabled = true;
+      if (i === q[2]) opts[i].classList.add('right');
+    }
+    if (ok){
+      score++;
+      $('kpQfeed').textContent = CHEERS[Math.floor(Math.random() * CHEERS.length)];
+      $('kpQfeed').style.color = '#0a8f5b';
+      confetti(10);
+    } else {
+      btn.classList.add('wrong');
+      $('kpQfeed').textContent = 'ليست الإجابة الصحيحة — الصحيح باللون الأخضر 💚';
+      $('kpQfeed').style.color = '#d34b60';
+    }
+    drawDots();
+    $('kpQnext').textContent = (qi === QUIZ.length - 1) ? 'النتيجة! 🏁' : 'السؤال التالي ←';
+    $('kpQnext').classList.add('show');
+  }
+  $('kpQnext').addEventListener('click', function(){
+    if (qi < QUIZ.length - 1){ qi++; showQ(); }
+    else finishQuiz();
+  });
+  function finishQuiz(){
+    $('kpQuizPlay').style.display = 'none';
+    var r = $('kpQresult');
+    r.classList.add('show');
+    var stars = score >= 7 ? 3 : score >= 5 ? 2 : score >= 3 ? 1 : 0;
+    $('kpQemoji').textContent = stars === 3 ? '🏆' : stars === 2 ? '🎉' : stars === 1 ? '😊' : '💪';
+    $('kpQtitle').textContent = 'نتيجتك: ' + score + ' من ' + QUIZ.length;
+    $('kpQmsg').textContent =
+      stars === 3 ? 'مذهل! أنت نجم التقويم الهجري بلا منازع!' :
+      stars === 2 ? 'رائع جداً! تعرف الكثير عن الشهور والقمر!' :
+      stars === 1 ? 'بداية جميلة! جرّب مرة أخرى لتجمع نجوماً أكثر.' :
+      'لا بأس! العب في مختبر القمر وقطار الشهور ثم عُد للتحدي!';
+    $('kpQstars').textContent = '⭐'.repeat(Math.max(stars, 1));
+    if (stars >= 3) confetti(45);
+    winBadge('quiz');
+  }
+  $('kpQretry').addEventListener('click', function(){
+    qi = 0; score = 0;
+    QUIZ.forEach(function(q){ delete q.res; });
+    $('kpQresult').classList.remove('show');
+    $('kpQuizPlay').style.display = '';
+    showQ();
+  });
+  showQ();
+
+  /* ── 3b · Order the months game ─────────────────── */
+  var ordNext, ordTries;
+  function ordInit(){
+    ordNext = 0; ordTries = 0;
+    $('kpOrderMsg').textContent = '';
+    var slots = $('kpOrderSlots');
+    slots.innerHTML = '';
+    for (var i = 0; i < 12; i++){
+      var s = document.createElement('div');
+      s.className = 'kp-slot';
+      s.textContent = i + 1;
+      slots.appendChild(s);
+    }
+    var idx = MONTHS.map(function(_, i){ return i; });
+    for (var j = idx.length - 1; j > 0; j--){
+      var k = Math.floor(Math.random() * (j + 1));
+      var t = idx[j]; idx[j] = idx[k]; idx[k] = t;
+    }
+    var pool = $('kpOrderPool');
+    pool.innerHTML = '';
+    idx.forEach(function(mi){
+      var c = document.createElement('button');
+      c.className = 'kp-chip';
+      c.textContent = MONTHS[mi][0];
+      c.addEventListener('click', function(){ ordPick(mi, c); });
+      pool.appendChild(c);
+    });
+  }
+  function ordPick(mi, chip){
+    ordTries++;
+    if (mi === ordNext){
+      var slot = $('kpOrderSlots').children[mi];
+      slot.textContent = (mi + 1) + ' · ' + MONTHS[mi][0];
+      slot.style.background = MONTHS[mi][3];
+      slot.classList.add('done');
+      chip.remove();
+      ordNext++;
+      confetti(3);
+      if (ordNext === 12){
+        $('kpOrderMsg').textContent = '🎉 رائع! رتّبت السنة الهجرية كاملة في ' + ordTries + ' ضغطة!';
+        $('kpOrderMsg').style.color = '#0a8f5b';
+        confetti(35);
+        winBadge('order');
+      } else {
+        $('kpOrderMsg').textContent = 'أحسنت! ما هو الشهر رقم ' + (ordNext + 1) + '؟';
+        $('kpOrderMsg').style.color = '#0a8f5b';
+      }
+    } else {
+      chip.classList.add('no');
+      setTimeout(function(){ chip.classList.remove('no'); }, 450);
+      $('kpOrderMsg').textContent = 'ليس هذا — نبحث عن الشهر رقم ' + (ordNext + 1) + ' 🤔';
+      $('kpOrderMsg').style.color = '#d34b60';
+    }
+  }
+  $('kpOrderReset').addEventListener('click', ordInit);
+  ordInit();
+
+  /* ── 4b · Hilal hunt game ───────────────────────── */
+  var SVGNS = 'http://www.w3.org/2000/svg';
+  var huntRound = 0, huntDone = false;
+  var HUNT_R = [15, 11, 8];
+  function el(tag, attrs){
+    var e = document.createElementNS(SVGNS, tag);
+    for (var a in attrs) e.setAttribute(a, attrs[a]);
+    return e;
+  }
+  function crescentD(cx, cy, r){
+    return 'M ' + cx + ' ' + (cy - r) + ' A ' + r + ' ' + r + ' 0 0 1 ' + cx + ' ' + (cy + r) +
+           ' A ' + (r * 0.62) + ' ' + r + ' 0 0 1 ' + cx + ' ' + (cy - r) + ' Z';
+  }
+  function buildSky(){
+    var svg = $('kpHuntSky');
+    svg.innerHTML =
+      '<defs><linearGradient id="kpSkyG" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0" stop-color="#070d1f"/><stop offset="1" stop-color="#26335c"/>' +
+      '</linearGradient></defs>';
+    svg.appendChild(el('rect', { width:600, height:300, fill:'url(#kpSkyG)' }));
+    for (var i = 0; i < 55; i++){
+      svg.appendChild(el('circle', {
+        cx:(Math.random() * 600).toFixed(1), cy:(Math.random() * 245 + 6).toFixed(1),
+        r:(0.6 + Math.random() * 1.3).toFixed(2), fill:'#fff',
+        opacity:(0.25 + Math.random() * 0.65).toFixed(2)
+      }));
+    }
+    for (var c = 0; c < 3; c++){
+      var gx = 60 + Math.random() * 460, gy = 40 + Math.random() * 130;
+      var g = el('g', { fill:'#232f55', opacity:'0.9' });
+      g.appendChild(el('ellipse', { cx:gx, cy:gy, rx:46, ry:14 }));
+      g.appendChild(el('ellipse', { cx:gx + 26, cy:gy - 8, rx:30, ry:12 }));
+      g.appendChild(el('ellipse', { cx:gx - 28, cy:gy - 6, rx:26, ry:11 }));
+      svg.appendChild(g);
+    }
+    var sil = el('path', { fill:'#060b18', d:
+      'M0 300 V268 H70 V244 Q100 216 130 244 V268 H180 V226 H188 L192 210 L196 226 H204 V268 H260 V252 H330 V268 H380 V240 Q404 218 428 240 V268 H600 V300 Z' });
+    svg.appendChild(sil);
+    var r = HUNT_R[huntRound];
+    var hx = 40 + Math.random() * 520, hy = 40 + Math.random() * 150;
+    var hg = el('g', { 'class':'kp-hilal', transform:'rotate(' + (Math.random() * 60 - 30).toFixed(0) + ' ' + hx + ' ' + hy + ')' });
+    hg.appendChild(el('path', { d:crescentD(hx, hy, r), fill:'#ffedb0', opacity:'0.9' }));
+    hg.appendChild(el('circle', { cx:hx, cy:hy, r:r + 12, fill:'transparent' }));
+    hg.addEventListener('click', function(ev){
+      ev.stopPropagation();
+      if (huntDone) return;
+      confetti(12);
+      huntRound++;
+      if (huntRound >= 3){
+        huntDone = true;
+        $('kpHuntMsg').textContent = '🏆 ما شاء الله! وجدت الهلال ثلاث مرات — عين صقر!';
+        $('kpHuntRound').textContent = 'أكملت كل الجولات!';
+        $('kpHuntAgain').classList.add('show');
+        confetti(35);
+        winBadge('hunt');
+      } else {
+        $('kpHuntMsg').textContent = '🎉 وجدته! الجولة التالية أصعب…';
+        $('kpHuntRound').textContent = 'الجولة ' + (huntRound + 1) + ' من 3';
+        setTimeout(buildSky, 900);
+      }
+    });
+    svg.appendChild(hg);
+  }
+  $('kpHuntSky').addEventListener('click', function(){
+    if (huntDone) return;
+    $('kpHuntMsg').textContent = '🔍 ليس هنا… دقّق أكثر! (تلميح: الهلال أصفر رفيع)';
+  });
+  $('kpHuntAgain').addEventListener('click', function(){
+    huntRound = 0; huntDone = false;
+    $('kpHuntMsg').textContent = '';
+    $('kpHuntRound').textContent = 'الجولة 1 من 3';
+    $('kpHuntAgain').classList.remove('show');
+    buildSky();
+  });
+  buildSky();
+
+  /* ── 6b · Hijra story ───────────────────────────── */
+  var SKY_N = '<rect width="300" height="170" fill="#0b1226"/>' +
+    '<text x="30" y="30" font-size="11" fill="#fff" opacity=".8">✦</text>' +
+    '<text x="255" y="22" font-size="9" fill="#fff" opacity=".6">✦</text>' +
+    '<text x="200" y="45" font-size="7" fill="#fff" opacity=".7">✦</text>';
+  var STORY = [
+    { t:'في مكة المكرمة',
+      x:'في مكة وُلد النبي محمد ﷺ، ودعا الناس إلى عبادة الله وحده والصدق والرحمة. لكن بعض أهل مكة آذوه وآذوا أصحابه.',
+      s:'<svg viewBox="0 0 300 170" xmlns="http://www.w3.org/2000/svg">' + SKY_N +
+        '<circle cx="45" cy="32" r="13" fill="#ffedb0"/>' +
+        '<rect y="140" width="300" height="30" fill="#1d2742"/>' +
+        '<rect x="115" y="72" width="70" height="68" fill="#15151c" stroke="#3a3a4a" stroke-width="1.5"/>' +
+        '<rect x="115" y="88" width="70" height="10" fill="#d4af37"/></svg>' },
+    { t:'أمرُ الهجرة',
+      x:'أمر اللهُ نبيَّه ﷺ بالهجرة إلى المدينة. فخرج ليلاً مع صاحبه الوفيّ أبي بكر الصدّيق رضي الله عنه، وتركا مكة بهدوء.',
+      s:'<svg viewBox="0 0 300 170" xmlns="http://www.w3.org/2000/svg">' + SKY_N +
+        '<path d="M262 22 A16 16 0 0 1 262 54 A11 16 0 0 1 262 22 Z" fill="#ffedb0"/>' +
+        '<ellipse cx="80" cy="185" rx="170" ry="60" fill="#2a2340"/>' +
+        '<ellipse cx="250" cy="195" rx="180" ry="70" fill="#241d38"/>' +
+        '<ellipse cx="70" cy="140" rx="5" ry="3" fill="#4a3f68"/><ellipse cx="95" cy="132" rx="5" ry="3" fill="#4a3f68"/>' +
+        '<ellipse cx="122" cy="126" rx="5" ry="3" fill="#4a3f68"/><ellipse cx="150" cy="122" rx="5" ry="3" fill="#4a3f68"/>' +
+        '<ellipse cx="178" cy="120" rx="5" ry="3" fill="#4a3f68"/></svg>' },
+    { t:'في غار ثور',
+      x:'اختبأ النبي ﷺ وأبو بكر في غارٍ بجبل ثور ثلاث ليالٍ. اقترب المطاردون من الغار، لكنّ الله حفظهما، فلم يرهما أحد.',
+      s:'<svg viewBox="0 0 300 170" xmlns="http://www.w3.org/2000/svg">' + SKY_N +
+        '<rect y="145" width="300" height="25" fill="#241d38"/>' +
+        '<polygon points="55,148 150,34 248,148" fill="#43395f"/>' +
+        '<polygon points="100,148 150,66 205,148" fill="#372e52"/>' +
+        '<path d="M130 148 A22 26 0 0 1 172 148 Z" fill="#0b1226"/>' +
+        '<circle cx="40" cy="30" r="10" fill="#ffedb0"/></svg>' },
+    { t:'رحلة الصحراء',
+      x:'ثم ركبا الناقتين وسارا في الصحراء أياماً طويلة، في طريقٍ غير معروف حتى لا يجدهما أحد، ودليلُهما يعرف الدروب.',
+      s:'<svg viewBox="0 0 300 170" xmlns="http://www.w3.org/2000/svg">' +
+        '<rect width="300" height="170" fill="#f0a95c"/>' +
+        '<circle cx="250" cy="38" r="18" fill="#fff3c4"/>' +
+        '<ellipse cx="80" cy="190" rx="170" ry="60" fill="#d98e43"/>' +
+        '<ellipse cx="255" cy="200" rx="180" ry="70" fill="#c47f39"/>' +
+        '<g fill="#5a3d1e">' +
+        '<ellipse cx="140" cy="108" rx="32" ry="15"/>' +
+        '<circle cx="128" cy="95" r="11"/><circle cx="152" cy="95" r="11"/>' +
+        '<rect x="166" y="82" width="8" height="30" rx="4" transform="rotate(20 170 97)"/>' +
+        '<circle cx="180" cy="80" r="6"/>' +
+        '<rect x="118" y="116" width="5" height="26"/><rect x="132" y="118" width="5" height="26"/>' +
+        '<rect x="146" y="118" width="5" height="26"/><rect x="160" y="116" width="5" height="26"/></g></svg>' },
+    { t:'الوصول إلى المدينة',
+      x:'استقبل أهلُ المدينة النبيَّ ﷺ بفرحٍ عظيم، وصاروا إخوةً متحابّين، وبُني المسجد النبوي، وبدأت حياة جديدة.',
+      s:'<svg viewBox="0 0 300 170" xmlns="http://www.w3.org/2000/svg">' +
+        '<rect width="300" height="170" fill="#14324a"/>' +
+        '<text x="35" y="28" font-size="10" fill="#fff" opacity=".7">✦</text>' +
+        '<text x="260" y="35" font-size="8" fill="#fff" opacity=".6">✦</text>' +
+        '<rect y="145" width="300" height="25" fill="#0e2436"/>' +
+        '<rect x="112" y="100" width="76" height="45" fill="#efe6d8"/>' +
+        '<path d="M120 100 A30 30 0 0 1 180 100 Z" fill="#2e9d63"/>' +
+        '<rect x="196" y="62" width="10" height="83" fill="#efe6d8"/>' +
+        '<circle cx="201" cy="58" r="8" fill="#2e9d63"/>' +
+        '<rect x="144" y="120" width="14" height="25" fill="#8a6d4a"/>' +
+        '<rect x="58" y="102" width="6" height="43" fill="#6b4a2f"/>' +
+        '<path d="M61 102 q-20 -14 -34 -6 M61 102 q20 -14 34 -6 M61 102 q-12 -20 -2 -28 M61 102 q12 -18 24 -14" stroke="#2e7d4f" stroke-width="5" fill="none" stroke-linecap="round"/>' +
+        '<rect x="240" y="108" width="6" height="37" fill="#6b4a2f"/>' +
+        '<path d="M243 108 q-16 -12 -28 -5 M243 108 q16 -12 28 -5 M243 108 q-9 -17 -1 -23 M243 108 q10 -15 20 -12" stroke="#2e7d4f" stroke-width="4.5" fill="none" stroke-linecap="round"/></svg>' },
+    { t:'ولهذا نسمّيه «الهجري»!',
+      x:'بعد سنوات، أراد الخليفة عمر بن الخطاب رضي الله عنه تاريخاً يجمع المسلمين، فجعل سنةَ الهجرة بدايةَ التقويم. فكلّ سنة هجرية تُذكّرنا بهذه الرحلة العظيمة! 🌙',
+      s:'<svg viewBox="0 0 300 170" xmlns="http://www.w3.org/2000/svg">' + SKY_N +
+        '<rect x="90" y="28" width="120" height="120" rx="12" fill="#fff"/>' +
+        '<rect x="90" y="28" width="120" height="34" rx="12" fill="#0d9488"/>' +
+        '<rect x="90" y="48" width="120" height="14" fill="#0d9488"/>' +
+        '<text x="150" y="52" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold" font-family="inherit">محرم</text>' +
+        '<text x="150" y="116" font-size="44" fill="#0f2730" text-anchor="middle" font-weight="bold" font-family="inherit">١</text>' +
+        '<text x="150" y="140" font-size="12" fill="#5b7682" text-anchor="middle" font-family="inherit">السنة الهجرية ١</text>' +
+        '<path d="M248 60 A17 17 0 0 1 248 94 A11.5 17 0 0 1 248 60 Z" fill="#ffedb0"/></svg>' }
+  ];
+  var sIdx = 0, sMax = 0;
+  function drawStory(){
+    $('kpStoryScene').innerHTML = STORY[sIdx].s;
+    $('kpStoryTitle').textContent = (sIdx + 1) + ' · ' + STORY[sIdx].t;
+    $('kpStoryTxt').textContent = STORY[sIdx].x;
+    var dots = '';
+    for (var i = 0; i < STORY.length; i++){
+      dots += '<span class="kp-sdot' + (i === sIdx ? ' cur' : (i <= sMax ? ' seen' : '')) + '"></span>';
+    }
+    $('kpStoryDots').innerHTML = dots;
+    $('kpStoryPrev').disabled = (sIdx === 0);
+    $('kpStoryNext').disabled = (sIdx === STORY.length - 1);
+    if (sIdx === STORY.length - 1){
+      winBadge('story');
+      confetti(20);
+    }
+  }
+  $('kpStoryNext').addEventListener('click', function(){
+    if (sIdx < STORY.length - 1){ sIdx++; sMax = Math.max(sMax, sIdx); drawStory(); }
+  });
+  $('kpStoryPrev').addEventListener('click', function(){
+    if (sIdx > 0){ sIdx--; drawStory(); }
+  });
+  drawStory();
+
+  /* ── 7 · Hijri birthday (Umm al-Qura via Intl) ──── */
+  var bIn = $('kpBdayInput');
+  bIn.max = new Date().toISOString().slice(0, 10);
+  bIn.min = '1990-01-01';
+  function hijriParts(date){
+    var parts = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
+      weekday:'long', day:'numeric', month:'numeric', year:'numeric'
+    }).formatToParts(date);
+    var o = {};
+    parts.forEach(function(p){ o[p.type] = p.value; });
+    return o;
+  }
+  function toEnDigits(s){
+    return String(s).replace(/[٠-٩]/g, function(d){ return '٠١٢٣٤٥٦٧٨٩'.indexOf(d); });
+  }
+  $('kpBdayBtn').addEventListener('click', function(){
+    var out = $('kpBdayOut');
+    if (!bIn.value){
+      out.innerHTML = '👆 اختر تاريخ ميلادك أولاً!';
+      out.classList.add('show');
+      return;
+    }
+    var d = new Date(bIn.value + 'T12:00:00');
+    var full = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
+      weekday:'long', day:'numeric', month:'long', year:'numeric'
+    }).format(d);
+    var bp = hijriParts(d), tp = hijriParts(new Date());
+    var bm = parseInt(toEnDigits(bp.month), 10);
+    var by = parseInt(toEnDigits(bp.year), 10), ty = parseInt(toEnDigits(tp.year), 10);
+    var bd = parseInt(toEnDigits(bp.day), 10), td = parseInt(toEnDigits(tp.day), 10);
+    var tm = parseInt(toEnDigits(tp.month), 10);
+    var age = ty - by;
+    if (tm < bm || (tm === bm && td < bd)) age--;
+    var m = MONTHS[bm - 1];
+    out.innerHTML =
+      '🎂 وُلدت يوم: <span class="hij">' + full + '</span><br>' +
+      '🎈 عمرك بالهجري: <strong>' + age + ' سنة هجرية</strong> (السنة الهجرية أقصر، لذا قد يكون أكبر من عمرك الميلادي!)<br>' +
+      m[1] + ' شهر ميلادك هو <strong>' + m[0] + '</strong>: ' + m[2];
+    out.classList.add('show');
+    confetti(25);
+    winBadge('bday');
+  });
+})();
+</script>
+<!-- COPY TO HERE -->
+
+</body>
+</html>
