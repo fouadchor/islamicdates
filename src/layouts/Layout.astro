@@ -30,14 +30,14 @@ const _navDua = pick(lang, '/dua/', '/en/dua/', '/ur/dua/');
 const _navFasting = pick(lang, '/fasting/', '/en/fasting/', '/ur/fasting/');
 const _navAbout = pick(lang, '/about/', '/en/about/', '/ur/about/');
 const _labels = {
-  home:     pick(lang, 'الرئيسية', 'Home', 'ہوم'),
-  conv:     pick(lang, 'المحوّل', 'Converter', 'کنورٹر'),
-  prayer:   pick(lang, 'مواقيت الصلاة', 'Prayer Times', 'مواقیتِ نماز'),
-  zakat:    pick(lang, 'حاسبة الزكاة', 'Zakat Calculator', 'زکوٰۃ کیلکولیٹر'),
-  dua:      pick(lang, 'الدعاء', 'Duʿaʾ', 'دعا'),
-  fasting:  pick(lang, 'أيام الصيام', 'Fasting', 'روزے'),
-  occ:      pick(lang, 'المناسبات', 'Occasions', 'مناسبتیں'),
-  guide:    pick(lang, 'الدليل', 'Guide', 'رہنمائی'),
+  home: pick(lang, 'الرئيسية', 'Home', 'ہوم'),
+  conv: pick(lang, 'المحوّل', 'Converter', 'کنورٹر'),
+  prayer: pick(lang, 'مواقيت الصلاة', 'Prayer Times', 'مواقیتِ نماز'),
+  zakat: pick(lang, 'حاسبة الزكاة', 'Zakat Calculator', 'زکوٰۃ کیلکولیٹر'),
+  dua: pick(lang, 'الدعاء', 'Duʿaʾ', 'دعا'),
+  fasting: pick(lang, 'أيام الصيام', 'Fasting', 'روزے'),
+  occ: pick(lang, 'المناسبات', 'Occasions', 'مناسبتیں'),
+  guide: pick(lang, 'الدليل', 'Guide', 'رہنمائی'),
 };
 const navItems = [
   { h: _navHome, t: _labels.home },
@@ -56,9 +56,9 @@ const _themeLabel = pick(lang, 'تبديل الوضع الليلي', 'Toggle dar
 const _topLabel = pick(lang, 'العودة إلى الأعلى', 'Back to top', 'اوپر جائیں');
 
 // ——— Sitemap footer (language-aware, site-wide) ———
-const _navAge     = pick(lang, '/age/', '/en/age/', '/ur/age/');
-const _navPrint   = pick(lang, '/printable/', '/en/printable/', '/ur/printable/');
-const _navWidget  = pick(lang, '/widget/', '/en/widget/', '/ur/widget/');
+const _navAge = pick(lang, '/age/', '/en/age/', '/ur/age/');
+const _navPrint = pick(lang, '/printable/', '/en/printable/', '/ur/printable/');
+const _navWidget = pick(lang, '/widget/', '/en/widget/', '/ur/widget/');
 const _navPrivacy = pick(lang, '/privacy/', '/en/privacy/', '/ur/privacy/');
 const _navContact = pick(lang, '/contact/', '/en/contact/', '/ur/contact/');
 const _fBrand = pick(lang, 'التقويم الهجري', 'Hijri Calendar', 'ہجری کیلنڈر');
@@ -69,9 +69,9 @@ const _fTagline = pick(lang,
 const _fRights = pick(lang, 'الحساب وفق تقويم أم القرى', 'Calculated per the Umm al-Qura calendar', 'حساب اُمّ القریٰ تقویم کے مطابق');
 const _colQuick = pick(lang, 'روابط سريعة', 'Quick links', 'فوری روابط');
 const _colTools = pick(lang, 'الأدوات', 'Tools', 'ٹولز');
-const _colOcc   = pick(lang, 'المناسبات', 'Occasions', 'مناسبتیں');
-const _lblAge    = pick(lang, 'حاسبة العمر بالهجري', 'Hijri age calculator', 'ہجری عمر کیلکولیٹر');
-const _lblPrint  = pick(lang, 'تقويم هجري للطباعة', 'Printable calendar', 'پرنٹ کے قابل کیلنڈر');
+const _colOcc = pick(lang, 'المناسبات', 'Occasions', 'مناسبتیں');
+const _lblAge = pick(lang, 'حاسبة العمر بالهجري', 'Hijri age calculator', 'ہجری عمر کیلکولیٹر');
+const _lblPrint = pick(lang, 'تقويم هجري للطباعة', 'Printable calendar', 'پرنٹ کے قابل کیلنڈر');
 const _lblWidget = pick(lang, 'ويدجت لموقعك', 'Widget for your site', 'آپ کی سائٹ کے لیے ویجٹ');
 const _lblPrivacy = pick(lang, 'سياسة الخصوصية', 'Privacy Policy', 'رازداری پالیسی');
 const _lblContact = pick(lang, 'اتصل بنا', 'Contact', 'رابطہ');
@@ -201,7 +201,7 @@ const _footOcc = _footOccSlugs.map(_s => {
     [lang="ur"] { font-family: 'Noto Naskh Arabic', 'IBM Plex Sans Arabic', serif; }
 
     @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
-    @keyframes pop    { from { opacity:0; transform:scale(.96); } to { opacity:1; transform:none; } }
+    @keyframes pop { from { opacity:0; transform:scale(.96); } to { opacity:1; transform:none; } }
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
       *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
@@ -259,9 +259,9 @@ const _footOcc = _footOccSlugs.map(_s => {
       transition: background .2s, transform .2s;
     }
     .theme-toggle:hover { background: rgba(255,255,255,.26); transform: rotate(12deg); }
-    .theme-toggle .ic-sun  { display: none; }
+    .theme-toggle .ic-sun { display: none; }
     .theme-toggle .ic-moon { display: block; }
-    [data-theme="dark"] .theme-toggle .ic-sun  { display: block; }
+    [data-theme="dark"] .theme-toggle .ic-sun { display: block; }
     [data-theme="dark"] .theme-toggle .ic-moon { display: none; }
 
     .lang-switch { display: flex; align-items: center; gap: 2px; }
@@ -358,19 +358,19 @@ const _footOcc = _footOccSlugs.map(_s => {
     .quicklinks a:hover { background: var(--accent); color: var(--accent-contrast); border-color: var(--accent); }
     .section-h2 { margin: 0 0 8px; font-size: 19px; font-weight: 700; line-height: 1.3; }
     .section-h2::after { content: ''; display: block; width: 30px; height: 3px; margin-top: 7px; border-radius: 2px; background: linear-gradient(90deg, var(--gold), var(--accent)); opacity: .9; }
-    .section-p  { margin: 0; color: var(--muted); line-height: 1.85; font-size: 15px; text-wrap: pretty; }
+    .section-p { margin: 0; color: var(--muted); line-height: 1.85; font-size: 15px; text-wrap: pretty; }
 
     .months-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; margin-top: 14px; }
-    .month-item  { display: flex; gap: 11px; align-items: flex-start; padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface2); transition: border-color .2s, transform .2s, box-shadow .2s; }
+    .month-item { display: flex; gap: 11px; align-items: flex-start; padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface2); transition: border-color .2s, transform .2s, box-shadow .2s; }
     a.month-item:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow); }
     a.month-item:hover .month-name { color: var(--accent); }
-    .month-num   { flex: 0 0 auto; width: 27px; height: 27px; border-radius: 8px; background: var(--gold-soft); color: var(--gold-deep); font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; }
-    .month-name  { font-weight: 700; font-size: 14.5px; transition: color .2s; }
-    .month-note  { font-size: 12.5px; color: var(--muted); margin-top: 2px; line-height: 1.5; }
+    .month-num { flex: 0 0 auto; width: 27px; height: 27px; border-radius: 8px; background: var(--gold-soft); color: var(--gold-deep); font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; }
+    .month-name { font-weight: 700; font-size: 14.5px; transition: color .2s; }
+    .month-note { font-size: 12.5px; color: var(--muted); margin-top: 2px; line-height: 1.5; }
 
-    .faq-item    { padding: 13px 0; border-bottom: 1px solid var(--border); }
-    .faq-q       { margin: 0; font-weight: 700; font-size: 15.5px; }
-    .faq-a       { margin: 6px 0 0; color: var(--muted); line-height: 1.75; font-size: 14.5px; text-wrap: pretty; }
+    .faq-item { padding: 13px 0; border-bottom: 1px solid var(--border); }
+    .faq-q { margin: 0; font-weight: 700; font-size: 15.5px; }
+    .faq-a { margin: 6px 0 0; color: var(--muted); line-height: 1.75; font-size: 14.5px; text-wrap: pretty; }
 
     .ad-slot {
       border: 1px dashed var(--border); border-radius: var(--radius);
@@ -424,17 +424,27 @@ const _footOcc = _footOccSlugs.map(_s => {
     .back-top.show { opacity: 1; pointer-events: auto; transform: none; }
     .back-top:hover { background: var(--accent); color: var(--accent-contrast); }
 
-        .site-nav .nav-kids { align-self: center; margin: 0 4px; padding: 8px 16px; border-radius: 999px; border-bottom: none; opacity: 1; font-weight: 800; color: #4a2b00; background: linear-gradient(135deg, #fbbf24, #fb7185); box-shadow: 0 2px 10px rgba(0,0,0,.22); transition: transform .2s, box-shadow .2s, filter .2s; }
+    .site-nav .nav-kids { align-self: center; margin: 0 4px; padding: 8px 16px; border-radius: 999px; border-bottom: none; opacity: 1; font-weight: 800; color: #4a2b00; background: linear-gradient(135deg, #fbbf24, #fb7185); box-shadow: 0 2px 10px rgba(0,0,0,.22); transition: transform .2s, box-shadow .2s, filter .2s; }
     .site-nav .nav-kids:hover { opacity: 1; filter: brightness(1.07); transform: scale(1.05); box-shadow: 0 4px 14px rgba(0,0,0,.28); background: linear-gradient(135deg, #fcd34d, #fda4af); }
 
-/* ——— Mobile ——— */
+    /* ——— Mobile ——— */
     @media (max-width: 860px) {
       .sm-grid { grid-template-columns: 1fr 1fr; }
       .sm-brand { grid-column: 1 / -1; max-width: none; }
     }
     @media (max-width: 700px) {
-      .site-nav-inner { padding: 0 6px; }
-      .site-nav .nav-link { padding: 13px 12px; font-size: 13.5px; }
+      /* Show ALL nav sections on small screens: wrap into pill rows instead of a hidden horizontal scroller. */
+      .site-nav { position: static; }
+      .site-nav-inner { flex-wrap: wrap; align-items: center; padding: 9px 10px; gap: 8px; }
+      .nav-links { flex-wrap: wrap; overflow-x: visible; gap: 6px; }
+      .site-nav .nav-link {
+        padding: 7px 13px; font-size: 13px; opacity: 1;
+        border-bottom: none; border-radius: 999px;
+        background: rgba(255,255,255,.13);
+      }
+      .site-nav .nav-link.active { background: rgba(255,255,255,.95); color: var(--accent-strong); }
+      .site-nav .nav-kids { margin: 0; }
+      .nav-actions { padding: 0; margin-inline-start: auto; }
       .site-header { padding: 12px 14px; }
       .site-header .brand { font-size: 17px; }
       .site-header .logo-icon { width: 40px; height: 40px; font-size: 21px; }
@@ -459,7 +469,7 @@ const _footOcc = _footOccSlugs.map(_s => {
     <div class="site-nav-inner">
       <div class="nav-links">
         {navItems.map(it => <a class={`nav-link${_isActive(it.h) ? ' active' : ''}`} href={it.h} aria-current={_isActive(it.h) ? 'page' : undefined}>{it.t}</a>)}
-<a class="nav-link nav-kids" href="/kids/">🌙 {pick(lang, 'ركن الصغار', 'Kids Corner', 'بچوں کا گوشہ')}</a>
+        <a class="nav-link nav-kids" href="/kids/">🌙 {pick(lang, 'ركن الصغار', 'Kids Corner', 'بچوں کا گوشہ')}</a>
       </div>
       <div class="nav-actions">
         <button type="button" class="theme-toggle" id="theme-toggle" aria-label={_themeLabel} title={_themeLabel}>
