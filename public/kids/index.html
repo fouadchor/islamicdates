@@ -106,10 +106,10 @@
   /* ── Months train ─────────────────────────────────── */
   .kp-months-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px}
   .kp-mcard{perspective:900px;border:0;background:none;padding:0;height:190px}
-  .kp-mcard-in{position:relative;width:100%;height:100%;transition:transform .55s cubic-bezier(.4,.9,.4,1.1);
-    transform-style:preserve-3d}
+  .kp-mcard-in{position:relative;display:block;width:100%;height:100%;transition:transform .55s cubic-bezier(.4,.9,.4,1.1);
+    -webkit-transform-style:preserve-3d;transform-style:preserve-3d}
   .kp-mcard.flip .kp-mcard-in{transform:rotateY(180deg)}
-  .kp-mface{position:absolute;inset:0;backface-visibility:hidden;border-radius:18px;
+  .kp-mface{position:absolute;inset:0;-webkit-backface-visibility:hidden;backface-visibility:hidden;border-radius:18px;
     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:12px}
   .kp-mfront{background:var(--kp-card);border:2px solid #d9ece7;box-shadow:0 4px 14px rgba(13,148,136,.08)}
   .kp-mfront .num{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
@@ -267,7 +267,7 @@
     font-weight:700;font-size:15px;color:#5b7682}
   .kp-mem-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;max-width:600px;margin:0 auto}
   .kp-mem-card{perspective:800px;height:104px;border:0;background:none;padding:0}
-  .kp-mem-in{position:relative;display:block;width:100%;height:100%;transition:transform .45s cubic-bezier(.4,.9,.4,1.1);transform-style:preserve-3d}
+  .kp-mem-in{position:relative;display:block;width:100%;height:100%;transition:transform .45s cubic-bezier(.4,.9,.4,1.1);-webkit-transform-style:preserve-3d;transform-style:preserve-3d}
   .kp-mem-card.open .kp-mem-in,.kp-mem-card.match .kp-mem-in{transform:rotateY(180deg)}
   .kp-mem-front{background:linear-gradient(150deg,var(--kp-teal),var(--kp-teal-dark));color:#fff;
     font-size:34px;font-weight:700}
@@ -751,11 +751,11 @@
     var w = Math.abs(r * Math.cos(2 * Math.PI * p));
     if (p <= 0.01 || p >= 0.99) return '';
     if (p <= 0.5){
-      var sw = (Math.cos(2 * Math.PI * p) > 0) ? 1 : 0;
+      var sw = (Math.cos(2 * Math.PI * p) > 0) ? 0 : 1;
       return 'M ' + cx + ' ' + top + ' A ' + r + ' ' + r + ' 0 0 1 ' + cx + ' ' + bot +
              ' A ' + w + ' ' + r + ' 0 0 ' + sw + ' ' + cx + ' ' + top + ' Z';
     }
-    var sw2 = (Math.cos(2 * Math.PI * p) > 0) ? 0 : 1;
+    var sw2 = (Math.cos(2 * Math.PI * p) > 0) ? 1 : 0;
     return 'M ' + cx + ' ' + top + ' A ' + r + ' ' + r + ' 0 0 0 ' + cx + ' ' + bot +
            ' A ' + w + ' ' + r + ' 0 0 ' + sw2 + ' ' + cx + ' ' + top + ' Z';
   }
@@ -1173,16 +1173,14 @@
   var bIn = $('kpBdayInput');
   bIn.max = new Date().toISOString().slice(0, 10);
   bIn.min = '1990-01-01';
-  function hijriParts(date){
-    var parts = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
-      weekday:'long', day:'numeric', month:'numeric', year:'numeric'
+  function hijriNums(date){
+    // Latin-digit formatter: parseInt-safe on every browser (Safari included).
+    var parts = new Intl.DateTimeFormat('en-u-ca-islamic-umalqura', {
+      day:'numeric', month:'numeric', year:'numeric'
     }).formatToParts(date);
     var o = {};
-    parts.forEach(function(p){ o[p.type] = p.value; });
-    return o;
-  }
-  function toEnDigits(s){
-    return String(s).replace(/[٠-٩]/g, function(d){ return '٠١٢٣٤٥٦٧٨٩'.indexOf(d); });
+    parts.forEach(function(pt){ o[pt.type] = pt.value; });
+    return { d:parseInt(o.day, 10), m:parseInt(o.month, 10), y:parseInt(o.year, 10) };
   }
   $('kpBdayBtn').addEventListener('click', function(){
     var out = $('kpBdayOut');
@@ -1191,25 +1189,25 @@
       out.classList.add('show');
       return;
     }
-    var d = new Date(bIn.value + 'T12:00:00');
-    var full = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
-      weekday:'long', day:'numeric', month:'long', year:'numeric'
-    }).format(d);
-    var bp = hijriParts(d), tp = hijriParts(new Date());
-    var bm = parseInt(toEnDigits(bp.month), 10);
-    var by = parseInt(toEnDigits(bp.year), 10), ty = parseInt(toEnDigits(tp.year), 10);
-    var bd = parseInt(toEnDigits(bp.day), 10), td = parseInt(toEnDigits(tp.day), 10);
-    var tm = parseInt(toEnDigits(tp.month), 10);
-    var age = ty - by;
-    if (tm < bm || (tm === bm && td < bd)) age--;
-    var m = MONTHS[bm - 1];
-    out.innerHTML =
-      '🎂 وُلدت يوم: <span class="hij">' + full + '</span><br>' +
-      '🎈 عمرك بالهجري: <strong>' + age + ' سنة هجرية</strong> (السنة الهجرية أقصر، لذا قد يكون أكبر من عمرك الميلادي!)<br>' +
-      m[1] + ' شهر ميلادك هو <strong>' + m[0] + '</strong>: ' + m[2];
+    try {
+      var d = new Date(bIn.value + 'T12:00:00');
+      var full = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
+        weekday:'long', day:'numeric', month:'long', year:'numeric'
+      }).format(d);
+      var b = hijriNums(d), t = hijriNums(new Date());
+      var age = t.y - b.y;
+      if (t.m < b.m || (t.m === b.m && t.d < b.d)) age--;
+      var m = MONTHS[b.m - 1] || ['', '🌙', ''];
+      out.innerHTML =
+        '🎂 وُلدت يوم: <span class="hij">' + full + '</span><br>' +
+        '🎈 عمرك بالهجري: <strong>' + age + ' سنة هجرية</strong> (السنة الهجرية أقصر، لذا قد يكون أكبر من عمرك الميلادي!)<br>' +
+        m[1] + ' شهر ميلادك هو <strong>' + m[0] + '</strong>: ' + m[2];
+      confetti(25);
+      winBadge('bday');
+    } catch (err) {
+      out.innerHTML = '🌙 عذراً، تعذّر الحساب على هذا المتصفح — جرّب <a href="/age/" style="color:#fff">حاسبة العمر بالهجري</a>.';
+    }
     out.classList.add('show');
-    confetti(25);
-    winBadge('bday');
   });
 
   /* ── NEW · Memory match ─────────────────────────── */
