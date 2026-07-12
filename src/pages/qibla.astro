@@ -1,0 +1,94 @@
+---
+import Layout from '../layouts/Layout.astro';
+import QiblaIsland from '../components/QiblaIsland';
+
+const canonical = 'https://islamicdates.org/qibla/';
+const title = 'اتجاه القبلة من موقعك الآن · بوصلة القبلة بدقة عالية';
+const description = 'اعرف اتجاه القبلة من مكانك الآن بدقة: زاوية القبلة من الشمال، بوصلة حية على الجوال، والمسافة إلى الكعبة المشرفة. حساب فلكي دقيق يعمل في كل دول العالم مجاناً.';
+
+const faq = [
+  { q: 'كيف أعرف اتجاه القبلة من مكاني؟', a: 'اضغط زر «حدد اتجاه القبلة» واسمح للمتصفح بالوصول إلى موقعك، فتظهر لك زاوية القبلة بالدرجات من الشمال مع اسم الاتجاه (مثل الجنوب الشرقي) والمسافة إلى الكعبة. وعلى الجوال يمكنك تشغيل البوصلة الحية وتدوير هاتفك حتى تظهر علامة الكعبة في الأعلى فتكون باتجاه القبلة.' },
+  { q: 'ما مدى دقة تحديد اتجاه القبلة؟', a: 'تُحسب الزاوية فلكياً على أقصر مسار (الدائرة العظمى) بين موقعك وإحداثيات الكعبة المشرفة، وهي الطريقة نفسها المعتمدة في التطبيقات والمراصد، ودقتها عالية جداً. أما البوصلة الحية فتعتمد على حساس جهازك الذي يشير إلى الشمال المغناطيسي وقد ينحرف بضع درجات، لذا يُنصح بمعايرة الهاتف والابتعاد عن المعادن.' },
+  { q: 'ما الفرق بين الشمال الحقيقي والشمال المغناطيسي؟', a: 'الشمال الحقيقي هو اتجاه القطب الجغرافي الذي تُحسب منه زاوية القبلة، بينما تشير إبرة البوصلة إلى الشمال المغناطيسي الذي يبعد عنه بزاوية تسمى الانحراف المغناطيسي وتختلف حسب المنطقة (غالباً أقل من 5 درجات في العالم الإسلامي). للدقة القصوى استخدم الزاوية المعروضة مع خريطة أو بوصلة مصححة.' },
+  { q: 'كيف أتحقق من اتجاه القبلة بدون بوصلة؟', a: 'يمكنك التحقق بموقع الشمس: تتعامد الشمس فوق الكعبة مرتين في السنة (نحو 28 مايو و16 يوليو الساعة 12:18 ظهراً بتوقيت مكة)، وفي هذين الوقتين يشير ظل أي عمود عمودياً عكس اتجاه القبلة تماماً. كما يمكنك الاستدلال بمحاريب المساجد المجاورة أو بخرائط جوجل بتحديد موقعك وموقع الكعبة.' },
+  { q: 'هل يعمل تحديد القبلة في أي دولة؟', a: 'نعم، الحساب يعمل في أي مكان في العالم لأن المعادلة الفلكية عامة. كما توفر صفحات المدن لدينا اتجاه القبلة الجاهز لأكثر من 250 مدينة حول العالم مع مواقيت الصلاة.' },
+];
+
+const jsonLd = JSON.stringify([
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [
+    { '@type': 'ListItem', 'position': 1, 'name': 'الرئيسية', 'item': 'https://islamicdates.org/' },
+    { '@type': 'ListItem', 'position': 2, 'name': 'اتجاه القبلة', 'item': canonical },
+  ] },
+  { '@context': 'https://schema.org', '@type': 'WebApplication', 'name': 'اتجاه القبلة', 'alternateName': 'Qibla Direction Finder', 'url': canonical,
+    'description': description,
+    'applicationCategory': 'UtilitiesApplication', 'operatingSystem': 'Web', 'inLanguage': ['ar', 'en', 'ur'],
+    'offers': { '@type': 'Offer', 'price': '0', 'priceCurrency': 'USD' } },
+  { '@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': faq.map(f => ({ '@type': 'Question', 'name': f.q, 'acceptedAnswer': { '@type': 'Answer', 'text': f.a } })) },
+]);
+---
+<Layout title={title} description={description} canonical={canonical} lang="ar" jsonLd={jsonLd} arPath="/qibla/" enPath="/en/qibla/" urPath="/ur/qibla/">
+  <header class="site-header">
+    <div class="header-start">
+    <a href="/" class="logo" aria-label="الانتقال إلى الصفحة الرئيسية">
+      <div class="logo-icon">☾</div>
+      <div>
+        <div class="brand">التقويم الهجري</div>
+        <div class="tagline">اتجاه القبلة</div>
+      </div>
+    </a>
+      <a href="/" class="home-btn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+        <span>الرئيسية</span>
+      </a>
+    </div>
+  </header>
+
+  <div class="layout">
+    <main>
+      <section class="card section-card" style="order:1">
+        <h1 class="section-h2" style="font-size:25px">اتجاه القبلة من موقعك</h1>
+        <p class="section-p" style="margin-top:8px">تريد معرفة اتجاه القبلة الآن؟ حدد موقعك بضغطة واحدة لتظهر لك زاوية القبلة بالدرجات من الشمال والمسافة إلى الكعبة المشرفة، مع بوصلة حية على الجوال تدلّك على القبلة مباشرة. حساب فلكي دقيق يعمل في أي مدينة حول العالم.</p>
+      </section>
+
+      <QiblaIsland lang="ar" client:load />
+
+      <section class="card section-card" style="order:3">
+        <h2 class="section-h2">كيف تُحسب زاوية القبلة؟</h2>
+        <p class="section-p">القبلة هي اتجاه الكعبة المشرفة في المسجد الحرام بمكة المكرمة (خط العرض 21.4225° وخط الطول 39.8262°). ولأن الأرض كروية، يُحسب الاتجاه على أقصر مسار بين موقعك والكعبة، وهو ما يسمى قوس الدائرة العظمى، بمعادلة فلكية دقيقة تعطي الزاوية من الشمال الحقيقي باتجاه عقارب الساعة. هذه هي الطريقة العلمية المعتمدة نفسها في التطبيقات المتخصصة والهيئات الفلكية، ولذلك قد تبدو القبلة من أمريكا الشمالية مثلاً نحو الشمال الشرقي لا الجنوب الشرقي، لأن أقصر طريق على سطح الكرة يمر قريباً من القطب.</p>
+        <h2 class="section-h2" style="margin-top:22px">نصائح لدقة أعلى مع البوصلة</h2>
+        <p class="section-p">بوصلة الجوال تشير إلى الشمال المغناطيسي وقد تتأثر بما حولها، فللحصول على أدق نتيجة: عايِر الهاتف بتحريكه على شكل الرقم 8 قبل الاستخدام، وابتعد عن المعادن والمغناطيسات ومكبرات الصوت والسيارات، وأمسك الهاتف أفقياً بموازاة الأرض. وإذا أردت التأكد، قارن النتيجة بمحراب أقرب مسجد — يمكنك إيجاده عبر صفحة <a href="/mosques-near-me/" style="color:var(--accent)">الجوامع القريبة من مكاني</a> — أو بموقع الشمس يوم التعامد فوق الكعبة (نحو 28 مايو و16 يوليو).</p>
+        <h2 class="section-h2" style="margin-top:22px">القبلة ومواقيت الصلاة في مدينتك</h2>
+        <p class="section-p">إذا أردت اتجاه القبلة الجاهز لمدينتك دون تحديد الموقع، فكل صفحة من صفحات <a href="/prayer-times/" style="color:var(--accent)">مواقيت الصلاة حسب المدينة</a> تعرض زاوية القبلة والمسافة إلى الكعبة لأكثر من 250 مدينة حول العالم، مع مواقيت الصلوات الخمس وجدول شهري كامل.</p>
+      </section>
+
+      <section class="card section-card" style="order:4">
+        <h2 class="section-h2">أسئلة شائعة</h2>
+        {faq.map((f, i) => (
+          <div class="faq-item" style={i === faq.length - 1 ? 'border-bottom:none' : ''}>
+            <p class="faq-q">{f.q}</p>
+            <p class="faq-a">{f.a}</p>
+          </div>
+        ))}
+      </section>
+    </main>
+
+    <aside>
+      <div class="ad-slot"><span class="ad-label">مساحة إعلانية</span><span style="font-size:13px;opacity:.7">300 × 250</span></div>
+      <div class="card" style="padding:18px 20px">
+        <h3 style="margin:0 0 12px;font-size:15.5px;font-weight:700">أدوات ذات صلة</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:14.5px">
+          <a href="/prayer-times/" style="color:var(--accent);text-decoration:none">مواقيت الصلاة اليوم حسب موقعك</a>
+          <a href="/mosques-near-me/" style="color:var(--accent);text-decoration:none">الجوامع القريبة من مكاني</a>
+          <a href="/fasting/" style="color:var(--accent);text-decoration:none">الأيام البيض وأيام الصيام</a>
+          <a href="/" style="color:var(--accent);text-decoration:none">التقويم الهجري وتاريخ اليوم</a>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="site-footer">
+    الحساب على قوس الدائرة العظمى نحو الكعبة المشرفة · موقعك لا يُخزَّن لدينا
+    <span style="margin:0 8px;opacity:.4">·</span>
+    <a href="/privacy/" style="color:var(--muted);text-decoration:none;font-size:13px">سياسة الخصوصية</a>
+  </footer>
+</Layout>
