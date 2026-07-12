@@ -1,0 +1,94 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import QiblaIsland from '../../components/QiblaIsland';
+
+const canonical = 'https://islamicdates.org/en/qibla/';
+const title = 'Qibla Direction from My Location · Accurate Qibla Compass';
+const description = 'Find the Qibla direction from your location right now: the exact angle from north, a live compass on mobile, and your distance to the Kaaba. Accurate astronomical calculation, free, worldwide.';
+
+const faq = [
+  { q: 'How do I find the Qibla direction from my location?', a: 'Tap "Find Qibla direction" and allow location access. You will see the Qibla angle in degrees from north, the compass direction (e.g. southeast), and your distance to the Kaaba. On mobile you can start the live compass and rotate your phone until the Kaaba marker sits at the top — you are then facing the Qibla.' },
+  { q: 'How accurate is the Qibla direction?', a: 'The angle is computed astronomically along the great-circle (shortest) path between your position and the coordinates of the Kaaba — the same method used by specialist apps and observatories, and it is highly precise. The live compass relies on your device sensor, which points to magnetic north and can drift a few degrees, so calibrate your phone and keep it away from metal.' },
+  { q: 'What is the difference between true north and magnetic north?', a: 'True north is the geographic pole from which the Qibla angle is measured, while a compass needle points to magnetic north, offset by an angle called magnetic declination that varies by region (usually under 5 degrees in most Muslim-majority countries). For maximum precision, use the displayed angle with a map or a declination-corrected compass.' },
+  { q: 'How can I verify the Qibla without a compass?', a: 'Use the sun: twice a year the sun passes directly over the Kaaba (around May 28 and July 16 at 12:18 pm Makkah time). At those moments, the shadow of any vertical object points exactly away from the Qibla anywhere the sun is visible. You can also check the mihrab of a nearby mosque or compare your position with the Kaaba on Google Maps.' },
+  { q: 'Does this work in every country?', a: 'Yes — the astronomical formula works anywhere on Earth. Our city pages also show a ready-made Qibla direction and distance for more than 250 cities worldwide, together with prayer times.' },
+];
+
+const jsonLd = JSON.stringify([
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [
+    { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': 'https://islamicdates.org/en/' },
+    { '@type': 'ListItem', 'position': 2, 'name': 'Qibla Direction', 'item': canonical },
+  ] },
+  { '@context': 'https://schema.org', '@type': 'WebApplication', 'name': 'Qibla Direction Finder', 'url': canonical,
+    'description': description,
+    'applicationCategory': 'UtilitiesApplication', 'operatingSystem': 'Web', 'inLanguage': ['ar', 'en', 'ur'],
+    'offers': { '@type': 'Offer', 'price': '0', 'priceCurrency': 'USD' } },
+  { '@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': faq.map(f => ({ '@type': 'Question', 'name': f.q, 'acceptedAnswer': { '@type': 'Answer', 'text': f.a } })) },
+]);
+---
+<Layout title={title} description={description} canonical={canonical} lang="en" jsonLd={jsonLd} arPath="/qibla/" enPath="/en/qibla/" urPath="/ur/qibla/">
+  <header class="site-header">
+    <div class="header-start">
+    <a href="/en/" class="logo" aria-label="Go to homepage">
+      <div class="logo-icon">☾</div>
+      <div>
+        <div class="brand">Hijri Calendar</div>
+        <div class="tagline">Qibla Direction</div>
+      </div>
+    </a>
+      <a href="/en/" class="home-btn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+        <span>Home</span>
+      </a>
+    </div>
+  </header>
+
+  <div class="layout">
+    <main>
+      <section class="card section-card" style="order:1">
+        <h1 class="section-h2" style="font-size:25px">Qibla Direction from My Location</h1>
+        <p class="section-p" style="margin-top:8px">Need the Qibla right now? One tap locates you and shows the exact Qibla angle in degrees from north and your distance to the Kaaba, with a live compass on mobile that points you straight to it. Accurate astronomical calculation that works in any city worldwide.</p>
+      </section>
+
+      <QiblaIsland lang="en" client:load />
+
+      <section class="card section-card" style="order:3">
+        <h2 class="section-h2">How the Qibla angle is calculated</h2>
+        <p class="section-p">The Qibla is the direction of the Kaaba at the Sacred Mosque in Makkah (latitude 21.4225°, longitude 39.8262°). Because the Earth is a sphere, the direction is computed along the shortest path between you and the Kaaba — the great-circle arc — using a precise astronomical formula that returns the angle clockwise from true north. This is the same scientific method used by specialist apps and astronomical authorities. It is also why the Qibla from North America points northeast rather than southeast: the shortest route over the globe passes near the pole.</p>
+        <h2 class="section-h2" style="margin-top:22px">Tips for better compass accuracy</h2>
+        <p class="section-p">Phone compasses point to magnetic north and are affected by surroundings. For the best result: calibrate by moving your phone in a figure-8, keep away from metal, magnets, speakers and cars, and hold the phone flat. To double-check, compare with the mihrab of the nearest mosque — find one on our <a href="/en/mosques-near-me/" style="color:var(--accent)">Mosques Near Me</a> page — or with the sun on the days it stands directly above the Kaaba (around May 28 and July 16).</p>
+        <h2 class="section-h2" style="margin-top:22px">Qibla and prayer times for your city</h2>
+        <p class="section-p">Prefer a ready-made answer for your city without sharing your location? Every one of our <a href="/en/prayer-times/" style="color:var(--accent)">city prayer times pages</a> shows the Qibla angle and distance to the Kaaba for 250+ cities worldwide, along with the five daily prayers and a full monthly table.</p>
+      </section>
+
+      <section class="card section-card" style="order:4">
+        <h2 class="section-h2">Frequently asked questions</h2>
+        {faq.map((f, i) => (
+          <div class="faq-item" style={i === faq.length - 1 ? 'border-bottom:none' : ''}>
+            <p class="faq-q">{f.q}</p>
+            <p class="faq-a">{f.a}</p>
+          </div>
+        ))}
+      </section>
+    </main>
+
+    <aside>
+      <div class="ad-slot"><span class="ad-label">Ad space</span><span style="font-size:13px;opacity:.7">300 × 250</span></div>
+      <div class="card" style="padding:18px 20px">
+        <h3 style="margin:0 0 12px;font-size:15.5px;font-weight:700">Related tools</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:14.5px">
+          <a href="/en/prayer-times/" style="color:var(--accent);text-decoration:none">Today's prayer times for your location</a>
+          <a href="/en/mosques-near-me/" style="color:var(--accent);text-decoration:none">Mosques near me</a>
+          <a href="/en/fasting/" style="color:var(--accent);text-decoration:none">White days &amp; fasting calendar</a>
+          <a href="/en/" style="color:var(--accent);text-decoration:none">Hijri calendar &amp; today's date</a>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="site-footer">
+    Great-circle calculation to the Kaaba · your location is never stored
+    <span style="margin:0 8px;opacity:.4">·</span>
+    <a href="/en/privacy/" style="color:var(--muted);text-decoration:none;font-size:13px">Privacy policy</a>
+  </footer>
+</Layout>
