@@ -1,0 +1,94 @@
+---
+import Layout from '../layouts/Layout.astro';
+import NearbyMosquesIsland from '../components/NearbyMosquesIsland';
+
+const canonical = 'https://islamicdates.org/mosques-near-me/';
+const title = 'الجوامع القريبة من مكاني · اعثر على أقرب مسجد إليك مع الاتجاهات';
+const description = 'اعرف الجوامع والمساجد القريبة من موقعك الآن: حدد موقعك بضغطة واحدة لتظهر لك أقرب المساجد مرتّبة حسب المسافة مع رابط اتجاهات لكل مسجد. خدمة مجانية تعمل في كل دول العالم.';
+
+const faq = [
+  { q: 'كيف أجد الجوامع القريبة من مكاني؟', a: 'اضغط زر «اعرض الجوامع القريبة مني» واسمح للمتصفح بالوصول إلى موقعك، فتظهر لك خلال ثوانٍ أقرب المساجد إليك مرتّبة من الأقرب إلى الأبعد، مع المسافة ورابط اتجاهات يفتح خرائط جوجل للوصول إلى المسجد مشياً أو بالسيارة.' },
+  { q: 'هل الخدمة مجانية وهل تعمل في كل الدول؟', a: 'نعم، الخدمة مجانية بالكامل وتعمل في أي مكان في العالم: في الدول العربية وأوروبا وأمريكا وآسيا وغيرها، لأنها تعتمد على قاعدة بيانات خرائط OpenStreetMap العالمية التي تغطي ملايين المساجد حول العالم.' },
+  { q: 'لماذا لا يظهر مسجد أعرفه بالقرب مني؟', a: 'تعتمد الخدمة على بيانات خرائط OpenStreetMap المفتوحة، وقد لا يكون كل مسجد مسجّلاً فيها بعد، خصوصاً المساجد الصغيرة أو الحديثة. يمكنك توسيع نطاق البحث إلى 5 أو 10 كم، أو المساهمة بإضافة المسجد إلى الخريطة عبر موقع openstreetmap.org ليستفيد الجميع.' },
+  { q: 'هل يُخزَّن موقعي أو تُجمع بياناتي؟', a: 'لا. يُستخدم موقعك داخل متصفحك فقط لإرسال استعلام البحث إلى قاعدة بيانات الخرائط، ولا نخزّنه على خوادمنا ولا نشاركه مع أي جهة. يمكنك أيضاً رفض إذن الموقع والبحث يدوياً في خرائط جوجل.' },
+  { q: 'كيف أعرف مواقيت الصلاة في منطقتي؟', a: 'يوفر الموقع صفحة مواقيت الصلاة التي تعرض أوقات الصلوات الخمس والشروق حسب موقعك مع عدّ تنازلي للصلاة القادمة، وصفحات مخصصة لأكثر من 250 مدينة حول العالم بعدة طرق حساب منها تقويم أم القرى.' },
+];
+
+const jsonLd = JSON.stringify([
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [
+    { '@type': 'ListItem', 'position': 1, 'name': 'الرئيسية', 'item': 'https://islamicdates.org/' },
+    { '@type': 'ListItem', 'position': 2, 'name': 'الجوامع القريبة من مكاني', 'item': canonical },
+  ] },
+  { '@context': 'https://schema.org', '@type': 'WebApplication', 'name': 'الجوامع القريبة من مكاني', 'alternateName': 'Mosques Near Me', 'url': canonical,
+    'description': description,
+    'applicationCategory': 'UtilitiesApplication', 'operatingSystem': 'Web', 'inLanguage': ['ar', 'en', 'ur'],
+    'offers': { '@type': 'Offer', 'price': '0', 'priceCurrency': 'USD' } },
+  { '@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': faq.map(f => ({ '@type': 'Question', 'name': f.q, 'acceptedAnswer': { '@type': 'Answer', 'text': f.a } })) },
+]);
+---
+<Layout title={title} description={description} canonical={canonical} lang="ar" jsonLd={jsonLd} arPath="/mosques-near-me/" enPath="/en/mosques-near-me/" urPath="/ur/mosques-near-me/">
+  <header class="site-header">
+    <div class="header-start">
+    <a href="/" class="logo" aria-label="الانتقال إلى الصفحة الرئيسية">
+      <div class="logo-icon">☾</div>
+      <div>
+        <div class="brand">التقويم الهجري</div>
+        <div class="tagline">الجوامع القريبة</div>
+      </div>
+    </a>
+      <a href="/" class="home-btn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+        <span>الرئيسية</span>
+      </a>
+    </div>
+  </header>
+
+  <div class="layout">
+    <main>
+      <section class="card section-card" style="order:1">
+        <h1 class="section-h2" style="font-size:25px">الجوامع القريبة من مكاني</h1>
+        <p class="section-p" style="margin-top:8px">تبحث عن أقرب مسجد إليك؟ حدد موقعك بضغطة واحدة لتظهر لك الجوامع والمساجد القريبة منك مرتّبة حسب المسافة، مع رابط اتجاهات لكل مسجد يوصلك إليه مشياً أو بالسيارة. الخدمة مجانية وتعمل في أي مدينة حول العالم.</p>
+      </section>
+
+      <NearbyMosquesIsland lang="ar" client:load />
+
+      <section class="card section-card" style="order:3">
+        <h2 class="section-h2">كيف تجد أقرب مسجد إليك؟</h2>
+        <p class="section-p">الأمر لا يستغرق أكثر من ثوانٍ: <strong>أولاً</strong> اضغط زر «اعرض الجوامع القريبة مني» أعلاه واسمح للمتصفح بالوصول إلى موقعك. <strong>ثانياً</strong> ستظهر لك قائمة بأقرب المساجد مرتّبة من الأقرب إلى الأبعد مع المسافة بالمتر أو الكيلومتر. <strong>ثالثاً</strong> اضغط زر «الاتجاهات» بجانب المسجد الذي تريده لتفتح خرائط جوجل بمسار الوصول إليه. ويمكنك توسيع نطاق البحث من كيلومتر واحد حتى 10 كم إذا كنت في منطقة قليلة المساجد.</p>
+        <h2 class="section-h2" style="margin-top:22px">مصدر بيانات المساجد</h2>
+        <p class="section-p">تعتمد الخدمة على قاعدة بيانات خرائط OpenStreetMap العالمية المفتوحة، التي يساهم فيها ملايين المتطوعين حول العالم وتغطي المساجد في كل الدول: من مكة المكرمة والمدينة المنورة إلى لندن ونيويورك وجاكرتا. البيانات تتحدّث باستمرار، وإن لم تجد مسجداً تعرفه فيمكنك إضافته بنفسك عبر موقع openstreetmap.org ليظهر لاحقاً لكل الباحثين. موقعك يُستخدم داخل متصفحك فقط ولا يُخزَّن لدينا إطلاقاً.</p>
+        <h2 class="section-h2" style="margin-top:22px">مفيد لك أثناء السفر والتنقل</h2>
+        <p class="section-p">سواء كنت في رحلة عمل أو سياحة أو انتقلت إلى حيّ جديد، تساعدك هذه الخدمة على معرفة المساجد القريبة من الفندق أو المنزل أو مكان العمل لأداء الصلاة في وقتها. وبعد معرفة أقرب جامع، لا تنسَ الاطلاع على <a href="/prayer-times/" style="color:var(--accent)">مواقيت الصلاة حسب موقعك</a> لتصل قبل الإقامة.</p>
+      </section>
+
+      <section class="card section-card" style="order:4">
+        <h2 class="section-h2">أسئلة شائعة</h2>
+        {faq.map((f, i) => (
+          <div class="faq-item" style={i === faq.length - 1 ? 'border-bottom:none' : ''}>
+            <p class="faq-q">{f.q}</p>
+            <p class="faq-a">{f.a}</p>
+          </div>
+        ))}
+      </section>
+    </main>
+
+    <aside>
+      <div class="ad-slot"><span class="ad-label">مساحة إعلانية</span><span style="font-size:13px;opacity:.7">300 × 250</span></div>
+      <div class="card" style="padding:18px 20px">
+        <h3 style="margin:0 0 12px;font-size:15.5px;font-weight:700">أدوات ذات صلة</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:14.5px">
+          <a href="/prayer-times/" style="color:var(--accent);text-decoration:none">مواقيت الصلاة اليوم حسب موقعك</a>
+          <a href="/fasting/" style="color:var(--accent);text-decoration:none">الأيام البيض وأيام الصيام</a>
+          <a href="/dua/" style="color:var(--accent);text-decoration:none">أدعية من القرآن والسنة</a>
+          <a href="/" style="color:var(--accent);text-decoration:none">التقويم الهجري وتاريخ اليوم</a>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="site-footer">
+    بيانات المساجد من OpenStreetMap · موقعك لا يُخزَّن لدينا
+    <span style="margin:0 8px;opacity:.4">·</span>
+    <a href="/privacy/" style="color:var(--muted);text-decoration:none;font-size:13px">سياسة الخصوصية</a>
+  </footer>
+</Layout>
