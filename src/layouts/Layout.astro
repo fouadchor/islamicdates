@@ -18,7 +18,7 @@ const dir = lang === 'en' ? 'ltr' : 'rtl';
 const ogLocale = pick(lang, 'ar_AR', 'en_US', 'ur_PK');
 const base = 'https://islamicdates.org';
 const langs: { code: Lang; path: string; label: string }[] = [
-  { code: 'ar', path: arPath, label: 'ع' },
+  { code: 'ar', path: arPath, label: 'عربي' },
   { code: 'en', path: enPath, label: 'EN' },
   { code: 'ur', path: urPath, label: 'اردو' },
 ];
@@ -264,15 +264,28 @@ const _footOcc = _footOccSlugs.map(_s => {
     [data-theme="dark"] .theme-toggle .ic-sun { display: block; }
     [data-theme="dark"] .theme-toggle .ic-moon { display: none; }
 
-    .lang-switch { display: flex; align-items: center; gap: 2px; }
+    .lang-switch {
+      display: flex; align-items: center; gap: 3px;
+      background: rgba(255,255,255,.13);
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 999px; padding: 3px;
+    }
+    .lang-switch .lang-globe {
+      width: 14px; height: 14px; flex: 0 0 auto; opacity: .85;
+      color: var(--accent-contrast);
+      margin-inline-start: 8px; margin-inline-end: 3px;
+    }
     .lang-switch a {
       color: var(--accent-contrast); text-decoration: none;
-      font-weight: 700; font-size: 13px; line-height: 1;
-      padding: 8px 11px; border-radius: 999px; opacity: .82;
-      transition: background .2s, opacity .2s;
+      font-weight: 700; font-size: 12.5px; line-height: 1;
+      padding: 7px 12px; border-radius: 999px; opacity: .85;
+      transition: background .2s, opacity .2s, color .2s;
     }
-    .lang-switch a:hover { opacity: 1; background: rgba(255,255,255,.16); }
-    .lang-switch a.on { background: var(--accent-contrast); color: var(--accent); opacity: 1; }
+    .lang-switch a:hover { opacity: 1; background: rgba(255,255,255,.18); }
+    .lang-switch a.on {
+      background: var(--accent-contrast); color: var(--accent); opacity: 1;
+      box-shadow: 0 1px 5px rgba(0,0,0,.2);
+    }
 
     .site-header {
       position: relative; z-index: 1;
@@ -476,6 +489,7 @@ const _footOcc = _footOccSlugs.map(_s => {
           <svg class="ic-sun" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
         </button>
         <div class="lang-switch" role="group" aria-label={pick(lang, 'اللغة', 'Language', 'زبان')}>
+          <svg class="lang-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
           {langs.map(l => <a href={l.path} class={l.code === lang ? 'on' : ''} hreflang={l.code} lang={l.code} aria-current={l.code === lang ? 'true' : undefined}>{l.label}</a>)}
         </div>
       </div>
