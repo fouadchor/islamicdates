@@ -2,6 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import PrayerTimesIsland from '../../components/PrayerTimesIsland';
 import PrayerDirectory from '../../components/PrayerDirectory.astro';
+import NearbyMosquesIsland from '../../components/NearbyMosquesIsland';
 
 const canonical = 'https://islamicdates.org/en/prayer-times/';
 const title = 'Prayer Times Today by Your Location · Fajr, Dhuhr, Asr, Maghrib, Isha';
@@ -12,6 +13,7 @@ const faq = [
   { q: 'What is the difference between the calculation methods?', a: 'Methods differ mainly in the sun-depression angle used for Fajr and Isha. For example, Umm al-Qura uses 18.5° for Fajr and Isha 90 minutes after Maghrib, while the Muslim World League uses 18° for Fajr and 17° for Isha. Choose the method used in your country.' },
   { q: 'What is the difference between Standard and Hanafi Asr?', a: 'Asr begins when an object\'s shadow equals its length (Standard: Shafiʿi/Maliki/Hanbali) or twice its length (Hanafi), so Asr is slightly later in the Hanafi method. You can switch this in the settings.' },
   { q: 'Are the times exact?', a: 'Times are calculated with high astronomical precision, but may differ by a few minutes from official timetables due to elevation, atmospheric refraction and rounding. For precision, check your local official announcement.' },
+  { q: 'How do I find mosques near me?', a: 'In the “Mosques near me” section below the prayer times, tap “Show mosques near me” and allow location access in your browser. The closest mosques appear sorted by distance, each with a directions link. Data comes from OpenStreetMap and your location is never stored by us.' },
 ];
 
 const jsonLd = JSON.stringify([
@@ -50,6 +52,8 @@ const jsonLd = JSON.stringify([
       </section>
 
       <PrayerTimesIsland lang="en" client:load />
+
+      <NearbyMosquesIsland lang="en" client:visible />
 
       <PrayerDirectory lang="en" />
 
