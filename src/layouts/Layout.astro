@@ -31,6 +31,8 @@ const _navFasting = pick(lang, '/fasting/', '/en/fasting/', '/ur/fasting/');
 const _navAbout = pick(lang, '/about/', '/en/about/', '/ur/about/');
 const _navMosques = pick(lang, '/mosques-near-me/', '/en/mosques-near-me/', '/ur/mosques-near-me/');
 const _lblMosques = pick(lang, 'الجوامع القريبة من مكاني', 'Mosques Near Me', 'میرے قریب مساجد');
+const _navQibla = pick(lang, '/qibla/', '/en/qibla/', '/ur/qibla/');
+const _lblQibla = pick(lang, 'اتجاه القبلة', 'Qibla Direction', 'قبلہ کا رخ');
 const _labels = {
   home: pick(lang, 'الرئيسية', 'Home', 'ہوم'),
   conv: pick(lang, 'المحوّل', 'Converter', 'کنورٹر'),
@@ -524,6 +526,7 @@ const _footOcc = _footOccSlugs.map(_s => {
           <ul>
             <li><a href={_navPrayer}>{_labels.prayer}</a></li>
             <li><a href={_navMosques}>{_lblMosques}</a></li>
+            <li><a href={_navQibla}>{_lblQibla}</a></li>
             <li><a href={_navZakat}>{_labels.zakat}</a></li>
             <li><a href={_navAge}>{_lblAge}</a></li>
             <li><a href={_navFasting}>{_labels.fasting}</a></li>
