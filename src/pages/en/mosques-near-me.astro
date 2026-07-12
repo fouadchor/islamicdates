@@ -1,0 +1,94 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import NearbyMosquesIsland from '../../components/NearbyMosquesIsland';
+
+const canonical = 'https://islamicdates.org/en/mosques-near-me/';
+const title = 'Mosques Near Me · Find the Closest Mosque with Directions';
+const description = 'Find mosques near your location right now: one tap shows the closest mosques sorted by distance, each with a directions link. Free, worldwide, and your location is never stored.';
+
+const faq = [
+  { q: 'How do I find mosques near me?', a: 'Tap the "Show mosques near me" button and allow location access in your browser. Within seconds the closest mosques appear sorted from nearest to farthest, each with its distance and a directions link that opens Google Maps for walking or driving routes.' },
+  { q: 'Is this free, and does it work in every country?', a: 'Yes — the service is completely free and works anywhere in the world: the Middle East, Europe, the Americas, Asia and beyond. It relies on the global OpenStreetMap database, which covers millions of mosques worldwide.' },
+  { q: 'Why is a mosque I know missing from the results?', a: 'The service uses open OpenStreetMap data, and not every mosque has been added yet — especially small or recently built ones. Try widening the search radius to 5 or 10 km, or contribute by adding the mosque at openstreetmap.org so everyone can find it.' },
+  { q: 'Is my location stored or shared?', a: 'No. Your location is used only inside your browser to query the map database. We never store it on our servers or share it with anyone. You can also decline location access and search manually on Google Maps instead.' },
+  { q: 'How do I check prayer times for my area?', a: 'Use our Prayer Times page, which shows the five daily prayers and sunrise for your location with a countdown to the next prayer, plus dedicated pages for 250+ cities worldwide with several calculation methods including Umm al-Qura.' },
+];
+
+const jsonLd = JSON.stringify([
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [
+    { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': 'https://islamicdates.org/en/' },
+    { '@type': 'ListItem', 'position': 2, 'name': 'Mosques Near Me', 'item': canonical },
+  ] },
+  { '@context': 'https://schema.org', '@type': 'WebApplication', 'name': 'Mosques Near Me', 'url': canonical,
+    'description': description,
+    'applicationCategory': 'UtilitiesApplication', 'operatingSystem': 'Web', 'inLanguage': ['ar', 'en', 'ur'],
+    'offers': { '@type': 'Offer', 'price': '0', 'priceCurrency': 'USD' } },
+  { '@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': faq.map(f => ({ '@type': 'Question', 'name': f.q, 'acceptedAnswer': { '@type': 'Answer', 'text': f.a } })) },
+]);
+---
+<Layout title={title} description={description} canonical={canonical} lang="en" jsonLd={jsonLd} arPath="/mosques-near-me/" enPath="/en/mosques-near-me/" urPath="/ur/mosques-near-me/">
+  <header class="site-header">
+    <div class="header-start">
+    <a href="/en/" class="logo" aria-label="Go to homepage">
+      <div class="logo-icon">☾</div>
+      <div>
+        <div class="brand">Hijri Calendar</div>
+        <div class="tagline">Mosques Near Me</div>
+      </div>
+    </a>
+      <a href="/en/" class="home-btn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+        <span>Home</span>
+      </a>
+    </div>
+  </header>
+
+  <div class="layout">
+    <main>
+      <section class="card section-card" style="order:1">
+        <h1 class="section-h2" style="font-size:25px">Mosques Near Me</h1>
+        <p class="section-p" style="margin-top:8px">Looking for the closest mosque? One tap locates you and lists the nearby mosques sorted by distance, each with a directions link for walking or driving. Free, and it works in any city worldwide.</p>
+      </section>
+
+      <NearbyMosquesIsland lang="en" client:load />
+
+      <section class="card section-card" style="order:3">
+        <h2 class="section-h2">How to find the closest mosque</h2>
+        <p class="section-p">It takes just seconds: <strong>first</strong>, tap "Show mosques near me" above and allow location access. <strong>Second</strong>, a list of the nearest mosques appears, sorted from closest to farthest with distances in meters or kilometers. <strong>Third</strong>, tap "Directions" next to any mosque to open the route in Google Maps. If you are in an area with few mosques, widen the search radius from 1 km up to 10 km.</p>
+        <h2 class="section-h2" style="margin-top:22px">Where the mosque data comes from</h2>
+        <p class="section-p">The service is powered by the open, global OpenStreetMap database, maintained by millions of volunteers and covering mosques in every country — from Makkah and Madinah to London, New York and Jakarta. The data improves constantly; if a mosque you know is missing, you can add it yourself at openstreetmap.org so others can find it too. Your location is used only inside your browser and is never stored by us.</p>
+        <h2 class="section-h2" style="margin-top:22px">Handy when traveling</h2>
+        <p class="section-p">Whether you are on a business trip, on vacation, or have just moved to a new neighborhood, this tool helps you find mosques near your hotel, home or workplace so you can pray on time. Once you know the nearest mosque, check the <a href="/en/prayer-times/" style="color:var(--accent)">prayer times for your location</a> to arrive before iqamah.</p>
+      </section>
+
+      <section class="card section-card" style="order:4">
+        <h2 class="section-h2">Frequently asked questions</h2>
+        {faq.map((f, i) => (
+          <div class="faq-item" style={i === faq.length - 1 ? 'border-bottom:none' : ''}>
+            <p class="faq-q">{f.q}</p>
+            <p class="faq-a">{f.a}</p>
+          </div>
+        ))}
+      </section>
+    </main>
+
+    <aside>
+      <div class="ad-slot"><span class="ad-label">Ad space</span><span style="font-size:13px;opacity:.7">300 × 250</span></div>
+      <div class="card" style="padding:18px 20px">
+        <h3 style="margin:0 0 12px;font-size:15.5px;font-weight:700">Related tools</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:14.5px">
+          <a href="/en/prayer-times/" style="color:var(--accent);text-decoration:none">Today's prayer times for your location</a>
+          <a href="/en/fasting/" style="color:var(--accent);text-decoration:none">White days &amp; fasting calendar</a>
+          <a href="/en/dua/" style="color:var(--accent);text-decoration:none">Duas from the Quran and Sunnah</a>
+          <a href="/en/" style="color:var(--accent);text-decoration:none">Hijri calendar &amp; today's date</a>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="site-footer">
+    Mosque data from OpenStreetMap · your location is never stored
+    <span style="margin:0 8px;opacity:.4">·</span>
+    <a href="/en/privacy/" style="color:var(--muted);text-decoration:none;font-size:13px">Privacy policy</a>
+  </footer>
+</Layout>
