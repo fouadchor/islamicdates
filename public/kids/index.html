@@ -784,6 +784,14 @@
     renderMoon();
     if (++moonMoves >= 8) winBadge('moon');
   });
+  // Start on today's Hijri day (kid can still drag the slider freely).
+  try {
+    var kpTodayHijri = new Intl.DateTimeFormat('en-u-ca-islamic-umalqura', { day:'numeric' })
+      .formatToParts(new Date())
+      .filter(function(pt){ return pt.type === 'day'; })[0].value;
+    var kpHd = parseInt(kpTodayHijri, 10);
+    if (kpHd >= 1 && kpHd <= 30) slider.value = kpHd;
+  } catch (e) { /* keep default */ }
   renderMoon();
 
   /* ── 2 · Months train ───────────────────────────── */
