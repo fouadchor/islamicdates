@@ -1,0 +1,94 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import NearbyMosquesIsland from '../../components/NearbyMosquesIsland';
+
+const canonical = 'https://islamicdates.org/ur/mosques-near-me/';
+const title = 'میرے قریب مساجد · قریب ترین مسجد تلاش کریں راستے کے ساتھ';
+const description = 'ابھی اپنے مقام کے قریب مساجد تلاش کریں: ایک بٹن دبائیں اور قریب ترین مساجد فاصلے کے حساب سے ترتیب میں دیکھیں، ہر مسجد کے لیے راستے کے لنک کے ساتھ۔ مفت سروس، پوری دنیا میں کام کرتی ہے۔';
+
+const faq = [
+  { q: 'میرے قریب مساجد کیسے تلاش کروں؟', a: '«قریبی مساجد دکھائیں» کا بٹن دبائیں اور براؤزر کو مقام کی اجازت دیں۔ چند سیکنڈ میں قریب ترین مساجد قریب سے دور کی ترتیب میں نظر آئیں گی، ہر ایک کے ساتھ فاصلہ اور راستے کا لنک جو گوگل میپس میں پیدل یا گاڑی کا راستہ کھولتا ہے۔' },
+  { q: 'کیا یہ سروس مفت ہے اور کیا ہر ملک میں کام کرتی ہے؟', a: 'جی ہاں، یہ سروس مکمل طور پر مفت ہے اور دنیا میں کہیں بھی کام کرتی ہے: عرب ممالک، یورپ، امریکہ، ایشیا وغیرہ، کیونکہ یہ عالمی OpenStreetMap ڈیٹا بیس پر مبنی ہے جس میں دنیا بھر کی لاکھوں مساجد شامل ہیں۔' },
+  { q: 'میرے علم میں ایک قریبی مسجد نتائج میں کیوں نہیں آتی؟', a: 'سروس OpenStreetMap کے کھلے ڈیٹا پر انحصار کرتی ہے، اور ممکن ہے ہر مسجد ابھی درج نہ ہو، خاص طور پر چھوٹی یا نئی مساجد۔ تلاش کا دائرہ 5 یا 10 کلومیٹر تک بڑھائیں، یا openstreetmap.org پر مسجد خود شامل کر کے سب کی مدد کریں۔' },
+  { q: 'کیا میرا مقام محفوظ یا شیئر کیا جاتا ہے؟', a: 'نہیں۔ آپ کا مقام صرف آپ کے براؤزر کے اندر نقشے کے ڈیٹا بیس سے تلاش کے لیے استعمال ہوتا ہے۔ ہم اسے اپنے سرورز پر محفوظ نہیں کرتے اور نہ کسی سے شیئر کرتے ہیں۔ آپ اجازت نہ دے کر گوگل میپس پر دستی تلاش بھی کر سکتے ہیں۔' },
+  { q: 'اپنے علاقے کے اوقاتِ نماز کیسے معلوم کروں؟', a: 'ہماری مواقیتِ نماز کی صفحہ استعمال کریں، جو آپ کے مقام کے مطابق پانچوں نمازوں اور طلوعِ آفتاب کے اوقات اگلی نماز کے کاؤنٹ ڈاؤن کے ساتھ دکھاتی ہے، نیز دنیا کے 250 سے زائد شہروں کی مخصوص صفحات کئی طریقہ ہائے حساب کے ساتھ۔' },
+];
+
+const jsonLd = JSON.stringify([
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [
+    { '@type': 'ListItem', 'position': 1, 'name': 'ہوم', 'item': 'https://islamicdates.org/ur/' },
+    { '@type': 'ListItem', 'position': 2, 'name': 'میرے قریب مساجد', 'item': canonical },
+  ] },
+  { '@context': 'https://schema.org', '@type': 'WebApplication', 'name': 'میرے قریب مساجد', 'alternateName': 'Mosques Near Me', 'url': canonical,
+    'description': description,
+    'applicationCategory': 'UtilitiesApplication', 'operatingSystem': 'Web', 'inLanguage': ['ar', 'en', 'ur'],
+    'offers': { '@type': 'Offer', 'price': '0', 'priceCurrency': 'USD' } },
+  { '@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': faq.map(f => ({ '@type': 'Question', 'name': f.q, 'acceptedAnswer': { '@type': 'Answer', 'text': f.a } })) },
+]);
+---
+<Layout title={title} description={description} canonical={canonical} lang="ur" jsonLd={jsonLd} arPath="/mosques-near-me/" enPath="/en/mosques-near-me/" urPath="/ur/mosques-near-me/">
+  <header class="site-header">
+    <div class="header-start">
+    <a href="/ur/" class="logo" aria-label="ہوم پیج پر جائیں">
+      <div class="logo-icon">☾</div>
+      <div>
+        <div class="brand">ہجری تقویم</div>
+        <div class="tagline">قریبی مساجد</div>
+      </div>
+    </a>
+      <a href="/ur/" class="home-btn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+        <span>ہوم</span>
+      </a>
+    </div>
+  </header>
+
+  <div class="layout">
+    <main>
+      <section class="card section-card" style="order:1">
+        <h1 class="section-h2" style="font-size:25px">میرے قریب مساجد</h1>
+        <p class="section-p" style="margin-top:8px">قریب ترین مسجد تلاش کر رہے ہیں؟ ایک بٹن دبائیں: آپ کا مقام معلوم ہوتے ہی قریبی مساجد فاصلے کے حساب سے ترتیب میں نظر آئیں گی، ہر مسجد کے لیے پیدل یا گاڑی کے راستے کے لنک کے ساتھ۔ سروس مفت ہے اور دنیا کے کسی بھی شہر میں کام کرتی ہے۔</p>
+      </section>
+
+      <NearbyMosquesIsland lang="ur" client:load />
+
+      <section class="card section-card" style="order:3">
+        <h2 class="section-h2">قریب ترین مسجد کیسے تلاش کریں؟</h2>
+        <p class="section-p">صرف چند سیکنڈ لگتے ہیں: <strong>پہلے</strong> اوپر «قریبی مساجد دکھائیں» کا بٹن دبائیں اور مقام کی اجازت دیں۔ <strong>دوسرے</strong>، قریب ترین مساجد کی فہرست قریب سے دور کی ترتیب میں میٹر یا کلومیٹر کے فاصلے کے ساتھ ظاہر ہوگی۔ <strong>تیسرے</strong>، جس مسجد جانا ہو اس کے ساتھ «راستہ» کا بٹن دبائیں تاکہ گوگل میپس میں راستہ کھل جائے۔ اگر آپ کے علاقے میں مساجد کم ہیں تو تلاش کا دائرہ 1 سے 10 کلومیٹر تک بڑھا سکتے ہیں۔</p>
+        <h2 class="section-h2" style="margin-top:22px">مساجد کا ڈیٹا کہاں سے آتا ہے؟</h2>
+        <p class="section-p">یہ سروس عالمی اور کھلے OpenStreetMap ڈیٹا بیس پر مبنی ہے، جس میں دنیا بھر کے لاکھوں رضاکار حصہ ڈالتے ہیں اور جو ہر ملک کی مساجد کا احاطہ کرتا ہے — مکہ مکرمہ اور مدینہ منورہ سے لے کر لندن، نیویارک اور جکارتہ تک۔ ڈیٹا مسلسل بہتر ہوتا رہتا ہے؛ اگر کوئی مسجد نہ ملے تو آپ خود openstreetmap.org پر شامل کر سکتے ہیں۔ آپ کا مقام صرف آپ کے براؤزر میں استعمال ہوتا ہے اور ہمارے پاس کبھی محفوظ نہیں ہوتا۔</p>
+        <h2 class="section-h2" style="margin-top:22px">سفر میں نہایت مفید</h2>
+        <p class="section-p">کاروباری سفر ہو، سیاحت ہو یا نئے محلے میں منتقلی — یہ ٹول ہوٹل، گھر یا دفتر کے قریب مساجد تلاش کرنے میں مدد دیتا ہے تاکہ نماز وقت پر ادا ہو۔ قریب ترین مسجد معلوم ہونے کے بعد <a href="/ur/prayer-times/" style="color:var(--accent)">اپنے مقام کے اوقاتِ نماز</a> بھی دیکھ لیں تاکہ اقامت سے پہلے پہنچ جائیں۔</p>
+      </section>
+
+      <section class="card section-card" style="order:4">
+        <h2 class="section-h2">اکثر پوچھے گئے سوالات</h2>
+        {faq.map((f, i) => (
+          <div class="faq-item" style={i === faq.length - 1 ? 'border-bottom:none' : ''}>
+            <p class="faq-q">{f.q}</p>
+            <p class="faq-a">{f.a}</p>
+          </div>
+        ))}
+      </section>
+    </main>
+
+    <aside>
+      <div class="ad-slot"><span class="ad-label">اشتہار کی جگہ</span><span style="font-size:13px;opacity:.7">300 × 250</span></div>
+      <div class="card" style="padding:18px 20px">
+        <h3 style="margin:0 0 12px;font-size:15.5px;font-weight:700">متعلقہ ٹولز</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:14.5px">
+          <a href="/ur/prayer-times/" style="color:var(--accent);text-decoration:none">آج کے اوقاتِ نماز آپ کے مقام کے مطابق</a>
+          <a href="/ur/fasting/" style="color:var(--accent);text-decoration:none">ایامِ بیض اور روزوں کا کیلنڈر</a>
+          <a href="/ur/dua/" style="color:var(--accent);text-decoration:none">قرآن و سنت سے دعائیں</a>
+          <a href="/ur/" style="color:var(--accent);text-decoration:none">ہجری تقویم اور آج کی تاریخ</a>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="site-footer">
+    مساجد کا ڈیٹا OpenStreetMap سے · آپ کا مقام محفوظ نہیں ہوتا
+    <span style="margin:0 8px;opacity:.4">·</span>
+    <a href="/ur/privacy/" style="color:var(--muted);text-decoration:none;font-size:13px">پرائیویسی پالیسی</a>
+  </footer>
+</Layout>
