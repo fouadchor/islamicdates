@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import PrayerTimesIsland from '../components/PrayerTimesIsland';
 import PrayerDirectory from '../components/PrayerDirectory.astro';
+import NearbyMosquesIsland from '../components/NearbyMosquesIsland';
 
 const ar = true;
 const canonical = 'https://islamicdates.org/prayer-times/';
@@ -13,6 +14,7 @@ const faq = [
   { q: 'ما الفرق بين طرق الحساب المختلفة؟', a: 'تختلف الطرق في زاوية الشمس المعتمدة لحساب الفجر والعشاء. فمثلاً تعتمد أم القرى زاوية 18.5° للفجر والعشاء بعد المغرب بـ90 دقيقة، بينما تعتمد رابطة العالم الإسلامي 18° للفجر و17° للعشاء. اختر الطريقة المعتمدة في بلدك.' },
   { q: 'ما الفرق بين العصر عند الجمهور والحنفية؟', a: 'يبدأ وقت العصر عند جمهور الفقهاء عندما يصير ظل الشيء مثله، وعند الحنفية عندما يصير ظل الشيء مثليه، فيتأخر وقت العصر قليلاً في المذهب الحنفي. يمكنك اختيار المذهب من الإعدادات.' },
   { q: 'هل المواقيت دقيقة تماماً؟', a: 'المواقيت محسوبة بدقة فلكية عالية، لكنها قد تختلف بدقائق قليلة عن الجداول الرسمية بسبب اختلاف الارتفاع ودرجة الانكسار الجوي وطريقة التقريب. يُنصح بمراجعة الإعلان الرسمي في بلدك للاحتياط.' },
+  { q: 'كيف أجد الجوامع القريبة من مكاني؟', a: 'في قسم «الجوامع القريبة من مكاني» أسفل مواقيت الصلاة، اضغط زر «اعرض الجوامع القريبة مني» واسمح للمتصفح بالوصول إلى موقعك، فتظهر لك أقرب المساجد مرتّبة حسب المسافة مع رابط اتجاهات لكل مسجد. البيانات من خرائط OpenStreetMap ولا يُخزَّن موقعك لدينا.' },
 ];
 
 const jsonLd = JSON.stringify([
@@ -51,6 +53,8 @@ const jsonLd = JSON.stringify([
       </section>
 
       <PrayerTimesIsland lang="ar" client:load />
+
+      <NearbyMosquesIsland lang="ar" client:visible />
 
       <PrayerDirectory lang="ar" />
 
