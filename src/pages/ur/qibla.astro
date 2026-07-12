@@ -1,0 +1,94 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import QiblaIsland from '../../components/QiblaIsland';
+
+const canonical = 'https://islamicdates.org/ur/qibla/';
+const title = 'قبلہ کا رخ میرے مقام سے · درست قبلہ کمپاس';
+const description = 'ابھی اپنے مقام سے قبلہ کا رخ معلوم کریں: شمال سے درست زاویہ، موبائل پر لائیو کمپاس، اور کعبہ تک فاصلہ۔ درست فلکیاتی حساب، مفت، پوری دنیا میں۔';
+
+const faq = [
+  { q: 'اپنے مقام سے قبلہ کا رخ کیسے معلوم کروں؟', a: '«قبلہ کا رخ معلوم کریں» کا بٹن دبائیں اور مقام کی اجازت دیں۔ آپ کو شمال سے قبلہ کا زاویہ درجوں میں، سمت کا نام (مثلاً جنوب مغرب) اور کعبہ تک فاصلہ نظر آئے گا۔ موبائل پر لائیو کمپاس چلا کر فون کو گھمائیں یہاں تک کہ کعبہ کا نشان اوپر آ جائے — اب آپ قبلہ رخ ہیں۔' },
+  { q: 'قبلہ کا رخ کتنا درست ہوتا ہے؟', a: 'زاویہ آپ کے مقام اور کعبہ کے محلِ وقوع کے درمیان مختصر ترین راستے (عظیم دائرہ) پر فلکیاتی طریقے سے نکالا جاتا ہے — یہی طریقہ ماہر ایپس اور فلکیاتی ادارے استعمال کرتے ہیں اور یہ نہایت درست ہے۔ لائیو کمپاس آپ کی ڈیوائس کے سینسر پر منحصر ہے جو مقناطیسی شمال دکھاتا ہے اور چند درجے فرق ممکن ہے، اس لیے فون کیلیبریٹ کریں اور دھات سے دور رکھیں۔' },
+  { q: 'حقیقی شمال اور مقناطیسی شمال میں کیا فرق ہے؟', a: 'حقیقی شمال جغرافیائی قطب ہے جس سے قبلہ کا زاویہ ناپا جاتا ہے، جبکہ کمپاس کی سوئی مقناطیسی شمال کی طرف ہوتی ہے جو ایک زاویے (مقناطیسی انحراف) سے مختلف ہوتا ہے اور علاقے کے لحاظ سے بدلتا ہے (اکثر مسلم ممالک میں 5 درجے سے کم)۔ زیادہ درستگی کے لیے دکھایا گیا زاویہ نقشے یا درست شدہ کمپاس کے ساتھ استعمال کریں۔' },
+  { q: 'کمپاس کے بغیر قبلہ کی تصدیق کیسے کروں؟', a: 'سورج سے: سال میں دو بار سورج عین کعبہ کے اوپر ہوتا ہے (تقریباً 28 مئی اور 16 جولائی، مکہ کے وقت دوپہر 12:18)۔ ان لمحوں میں جہاں بھی سورج نظر آئے، کسی بھی سیدھی چیز کا سایہ بالکل قبلہ کے مخالف رخ ہوتا ہے۔ قریبی مسجد کے محراب سے یا گوگل میپس پر اپنے اور کعبہ کے مقام کا موازنہ کر کے بھی تصدیق ممکن ہے۔' },
+  { q: 'کیا یہ ہر ملک میں کام کرتا ہے؟', a: 'جی ہاں — فلکیاتی فارمولا زمین پر ہر جگہ کام کرتا ہے۔ ہماری شہر کی صفحات میں دنیا کے 250 سے زائد شہروں کے لیے قبلہ کا رخ اور فاصلہ اوقاتِ نماز کے ساتھ پہلے سے موجود ہے۔' },
+];
+
+const jsonLd = JSON.stringify([
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [
+    { '@type': 'ListItem', 'position': 1, 'name': 'ہوم', 'item': 'https://islamicdates.org/ur/' },
+    { '@type': 'ListItem', 'position': 2, 'name': 'قبلہ کا رخ', 'item': canonical },
+  ] },
+  { '@context': 'https://schema.org', '@type': 'WebApplication', 'name': 'قبلہ کا رخ', 'alternateName': 'Qibla Direction Finder', 'url': canonical,
+    'description': description,
+    'applicationCategory': 'UtilitiesApplication', 'operatingSystem': 'Web', 'inLanguage': ['ar', 'en', 'ur'],
+    'offers': { '@type': 'Offer', 'price': '0', 'priceCurrency': 'USD' } },
+  { '@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': faq.map(f => ({ '@type': 'Question', 'name': f.q, 'acceptedAnswer': { '@type': 'Answer', 'text': f.a } })) },
+]);
+---
+<Layout title={title} description={description} canonical={canonical} lang="ur" jsonLd={jsonLd} arPath="/qibla/" enPath="/en/qibla/" urPath="/ur/qibla/">
+  <header class="site-header">
+    <div class="header-start">
+    <a href="/ur/" class="logo" aria-label="ہوم پیج پر جائیں">
+      <div class="logo-icon">☾</div>
+      <div>
+        <div class="brand">ہجری تقویم</div>
+        <div class="tagline">قبلہ کا رخ</div>
+      </div>
+    </a>
+      <a href="/ur/" class="home-btn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+        <span>ہوم</span>
+      </a>
+    </div>
+  </header>
+
+  <div class="layout">
+    <main>
+      <section class="card section-card" style="order:1">
+        <h1 class="section-h2" style="font-size:25px">قبلہ کا رخ میرے مقام سے</h1>
+        <p class="section-p" style="margin-top:8px">ابھی قبلہ کا رخ جاننا ہے؟ ایک بٹن سے آپ کا مقام معلوم ہو کر شمال سے قبلہ کا درست زاویہ اور کعبہ تک فاصلہ نظر آتا ہے، اور موبائل پر لائیو کمپاس سیدھا قبلے کی طرف رہنمائی کرتا ہے۔ درست فلکیاتی حساب جو دنیا کے کسی بھی شہر میں کام کرتا ہے۔</p>
+      </section>
+
+      <QiblaIsland lang="ur" client:load />
+
+      <section class="card section-card" style="order:3">
+        <h2 class="section-h2">قبلہ کا زاویہ کیسے نکالا جاتا ہے؟</h2>
+        <p class="section-p">قبلہ مکہ مکرمہ میں مسجد الحرام کے اندر کعبہ کی سمت ہے (عرض بلد 21.4225°، طول بلد 39.8262°)۔ زمین کروی ہے، اس لیے رخ آپ اور کعبہ کے درمیان مختصر ترین راستے — عظیم دائرے کی قوس — پر ایک درست فلکیاتی فارمولے سے نکالا جاتا ہے جو حقیقی شمال سے گھڑی وار زاویہ دیتا ہے۔ یہی سائنسی طریقہ ماہر ایپس اور فلکیاتی ادارے استعمال کرتے ہیں۔ اسی وجہ سے شمالی امریکہ سے قبلہ جنوب مشرق کے بجائے شمال مشرق کی طرف نظر آتا ہے: کرۂ ارض پر مختصر ترین راستہ قطب کے قریب سے گزرتا ہے۔</p>
+        <h2 class="section-h2" style="margin-top:22px">کمپاس کی درستگی کے لیے مشورے</h2>
+        <p class="section-p">فون کا کمپاس مقناطیسی شمال دکھاتا ہے اور ماحول سے متاثر ہوتا ہے۔ بہترین نتیجے کے لیے: فون کو 8 کی شکل میں گھما کر کیلیبریٹ کریں، دھات، مقناطیس، اسپیکر اور گاڑیوں سے دور رہیں، اور فون کو زمین کے متوازی فلیٹ پکڑیں۔ تصدیق کے لیے قریب ترین مسجد کے محراب سے موازنہ کریں — <a href="/ur/mosques-near-me/" style="color:var(--accent)">میرے قریب مساجد</a> کی صفحہ سے مسجد تلاش کریں — یا ان دنوں سورج سے جب وہ عین کعبہ کے اوپر ہوتا ہے (تقریباً 28 مئی اور 16 جولائی)۔</p>
+        <h2 class="section-h2" style="margin-top:22px">آپ کے شہر کا قبلہ اور اوقاتِ نماز</h2>
+        <p class="section-p">مقام شیئر کیے بغیر اپنے شہر کا تیار جواب چاہیے؟ ہماری <a href="/ur/prayer-times/" style="color:var(--accent)">شہر کے اوقاتِ نماز کی صفحات</a> میں دنیا کے 250 سے زائد شہروں کے لیے قبلہ کا زاویہ اور کعبہ تک فاصلہ، پانچوں نمازوں کے اوقات اور مکمل ماہانہ جدول کے ساتھ موجود ہے۔</p>
+      </section>
+
+      <section class="card section-card" style="order:4">
+        <h2 class="section-h2">اکثر پوچھے گئے سوالات</h2>
+        {faq.map((f, i) => (
+          <div class="faq-item" style={i === faq.length - 1 ? 'border-bottom:none' : ''}>
+            <p class="faq-q">{f.q}</p>
+            <p class="faq-a">{f.a}</p>
+          </div>
+        ))}
+      </section>
+    </main>
+
+    <aside>
+      <div class="ad-slot"><span class="ad-label">اشتہار کی جگہ</span><span style="font-size:13px;opacity:.7">300 × 250</span></div>
+      <div class="card" style="padding:18px 20px">
+        <h3 style="margin:0 0 12px;font-size:15.5px;font-weight:700">متعلقہ ٹولز</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:14.5px">
+          <a href="/ur/prayer-times/" style="color:var(--accent);text-decoration:none">آج کے اوقاتِ نماز آپ کے مقام کے مطابق</a>
+          <a href="/ur/mosques-near-me/" style="color:var(--accent);text-decoration:none">میرے قریب مساجد</a>
+          <a href="/ur/fasting/" style="color:var(--accent);text-decoration:none">ایامِ بیض اور روزوں کا کیلنڈر</a>
+          <a href="/ur/" style="color:var(--accent);text-decoration:none">ہجری تقویم اور آج کی تاریخ</a>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="site-footer">
+    کعبہ کی طرف عظیم دائرے پر حساب · آپ کا مقام محفوظ نہیں ہوتا
+    <span style="margin:0 8px;opacity:.4">·</span>
+    <a href="/ur/privacy/" style="color:var(--muted);text-decoration:none;font-size:13px">پرائیویسی پالیسی</a>
+  </footer>
+</Layout>
