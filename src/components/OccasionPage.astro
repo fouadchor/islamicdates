@@ -354,7 +354,7 @@ const t = {
       if (!el || !targetIso) return;
       var target = new Date(targetIso + 'T00:00:00Z');
       var now = new Date();
-      var today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+      var today = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())); // local calendar day, consistent site-wide
       var diff = Math.round((target - today) / 86400000);
       if (diff > 0) el.textContent = lang === 'ar' ? ('باقٍ ' + diff + ' يوم') : lang === 'ur' ? (diff + ' دن باقی') : (diff + (diff === 1 ? ' day left' : ' days left'));
       else if (diff === 0) el.textContent = lang === 'ar' ? 'اليوم' : lang === 'ur' ? 'آج' : 'Today';
