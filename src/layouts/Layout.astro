@@ -1,7 +1,7 @@
 ---
 // redeploy marker 2026-06-29 — trilingual (ar / en / ur)
 import { type Lang, pick } from '../lib/data';
-import { OCCASIONS, occLoc, occBasePath, occurrencesInGYear } from '../lib/occasions';
+import { OCCASIONS, occLoc, occBasePath, occurrencesInGYear, fmtGShort, isoUTC } from '../lib/occasions';
 interface Props {
   title: string;
   description: string;
@@ -93,6 +93,29 @@ const _footOcc = _footOccSlugs.map(_s => {
   }
   return { name: occLoc(_o, lang).name, href: occBasePath(_s, _gy, lang) };
 }).filter(Boolean) as { name: string; href: string }[];
+
+// ——— Upcoming-occasion banner (site-wide, under the nav) ———
+// Build-time list of the next few occurrences; a tiny inline script re-picks the
+// first future one at view time (and fixes the countdown), so static pages never go stale.
+const _bnList = OCCASIONS.flatMap(o => {
+  const out: { s: string; n: string; gy: number; href: string; d: string; dt: string }[] = [];
+  for (let y = _footYear; y <= _footYear + 1; y++) {
+    for (const oc of occurrencesInGYear(o.hm, o.hd, y)) {
+      if (oc.date.getTime() >= _footNow - 86400000) {
+        out.push({ s: o.slug, n: occLoc(o, lang).name, gy: y, href: occBasePath(o.slug, y, lang), d: isoUTC(oc.date), dt: fmtGShort(oc.date, lang) });
+      }
+    }
+  }
+  return out;
+}).sort((a, b) => (a.d < b.d ? -1 : 1)).slice(0, 4);
+const _bn = _bnList[0];
+const _bnToday = Math.floor(_footNow / 86400000) * 86400000;
+const _bnDays = _bn ? Math.max(0, Math.round((Date.parse(_bn.d) - _bnToday) / 86400000)) : 0;
+const _bnCount = _bn ? pick(lang,
+  _bnDays === 0 ? 'اليوم' : `باقٍ ${_bnDays} يوم`,
+  _bnDays === 0 ? 'Today' : `${_bnDays} days left`,
+  _bnDays === 0 ? 'آج' : `${_bnDays} دن باقی`) : '';
+const _bnClose = pick(lang, 'إخفاء', 'Dismiss', 'چھپائیں');
 ---
 <!DOCTYPE html>
 <html lang={lang} dir={dir}>
@@ -429,6 +452,37 @@ const _footOcc = _footOccSlugs.map(_s => {
     .sm-legal a { color: #b7d1cc; font-size: 13.5px; }
     .sm-legal a:hover { color: #fff; }
 
+    /* ——— Upcoming-occasion banner ——— */
+    .occ-banner {
+      position: relative; z-index: 1;
+      display: flex; align-items: center; justify-content: center;
+      min-height: 40px; padding: 7px 46px;
+      background: var(--accent-soft);
+      border-bottom: 1px solid var(--border);
+      font-size: 14px; text-align: center;
+    }
+    .occ-banner > a {
+      display: inline-flex; align-items: center; gap: 9px; flex-wrap: wrap; justify-content: center;
+      color: var(--text); text-decoration: none; min-width: 0;
+    }
+    .occ-banner strong { color: var(--accent-strong); font-weight: 800; white-space: nowrap; }
+    .occ-banner > a:hover strong { text-decoration: underline; }
+    .occ-banner-count {
+      background: var(--accent); color: var(--accent-contrast);
+      border-radius: 999px; padding: 3px 11px;
+      font-weight: 700; font-size: 12.5px; white-space: nowrap;
+    }
+    .occ-banner-close {
+      position: absolute; inset-inline-end: 8px; top: 50%; transform: translateY(-50%);
+      width: 28px; height: 28px; border-radius: 999px; border: none;
+      background: transparent; color: var(--muted); font-size: 15px; line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .2s, color .2s;
+    }
+    .occ-banner-close:hover { background: rgba(0,0,0,.08); color: var(--text); }
+    [data-theme="dark"] .occ-banner-close:hover { background: rgba(255,255,255,.12); }
+    @media (max-width: 700px) { .occ-banner { font-size: 13px; padding: 6px 40px; } }
+
     .back-top {
       position: fixed; bottom: 22px; inset-inline-end: 22px; z-index: 50;
       width: 44px; height: 44px; border-radius: 999px; border: 1px solid var(--border);
@@ -476,7 +530,7 @@ const _footOcc = _footOccSlugs.map(_s => {
       .sm-bottom { justify-content: flex-start; }
     }
     @media print {
-      .site-nav, .back-top, .sm-footer { display: none !important; }
+      .site-nav, .back-top, .sm-footer, .occ-banner { display: none !important; }
     }
   </style>
 </head>
@@ -499,6 +553,45 @@ const _footOcc = _footOccSlugs.map(_s => {
       </div>
     </div>
   </nav>
+  {_bn && (
+    <div class="occ-banner" id="occ-banner">
+      <a href={_bn.href} id="occ-bn-link">
+        <span aria-hidden="true">🌙</span>
+        <strong id="occ-bn-name">{_bn.n} {_bn.gy}</strong>
+        <span id="occ-bn-date" style="color:var(--muted)">{_bn.dt}</span>
+        <span class="occ-banner-count" id="occ-bn-count">{_bnCount}</span>
+      </a>
+      <button type="button" class="occ-banner-close" id="occ-bn-close" aria-label={_bnClose} title={_bnClose}>✕</button>
+    </div>
+  )}
+  {_bn && (
+    <script is:inline define:vars={{ bnItems: _bnList, bnLang: lang }}>
+      (function () {
+        var el = document.getElementById('occ-banner');
+        if (!el) return;
+        try {
+          var now = new Date();
+          var today = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+          var item = null;
+          for (var i = 0; i < bnItems.length; i++) {
+            if (Date.parse(bnItems[i].d + 'T00:00:00Z') >= today) { item = bnItems[i]; break; }
+          }
+          if (!item || localStorage.getItem('occBannerHide') === item.s + item.gy) { el.style.display = 'none'; return; }
+          var days = Math.round((Date.parse(item.d + 'T00:00:00Z') - today) / 86400000);
+          document.getElementById('occ-bn-link').setAttribute('href', item.href);
+          document.getElementById('occ-bn-name').textContent = item.n + ' ' + item.gy;
+          document.getElementById('occ-bn-date').textContent = item.dt;
+          document.getElementById('occ-bn-count').textContent =
+            days === 0 ? (bnLang === 'ar' ? 'اليوم' : bnLang === 'ur' ? 'آج' : 'Today')
+            : (bnLang === 'ar' ? 'باقٍ ' + days + ' يوم' : bnLang === 'ur' ? days + ' دن باقی' : days + (days === 1 ? ' day left' : ' days left'));
+          document.getElementById('occ-bn-close').addEventListener('click', function () {
+            try { localStorage.setItem('occBannerHide', item.s + item.gy); } catch (e) {}
+            el.style.display = 'none';
+          });
+        } catch (e) {}
+      })();
+    </script>
+  )}
   <slot />
   <footer class="sm-footer" role="contentinfo">
     <div class="sm-inner">
