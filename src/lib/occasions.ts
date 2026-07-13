@@ -1,13 +1,30 @@
 // Occasion-by-year SEO page data. Build-time only.
 import { h2g } from './hijri';
 
+export interface OccFaq { q: string; a: string }
 export interface OccLoc {
   name: string;
+  /** Alternate name people commonly search for (e.g. "Eid Milad un-Nabi") — used in title/meta/H1. */
+  alias?: string;
   what: string;
   /** The occasion's virtue / significance — rendered as its own section. */
   virtues?: string;
   /** What Muslims traditionally do on it — rendered as its own section + FAQ answer. */
   practices?: string;
+  /** Historical background — rendered as its own section. */
+  history?: string;
+  /** Extra locale-specific FAQs appended to the generated ones (also emitted in the FAQ rich result). */
+  faq?: OccFaq[];
+}
+/** Country-by-country observance row. Names are localized as [ar, en, ur]. */
+export interface OccCountry {
+  names: [string, string, string];
+  /** Expected day offset from the Umm al-Qura date (1 = usually observed the next day). */
+  shift: 0 | 1;
+  /** Relies on local moon sighting — the actual date may move by about a day. */
+  sighting: boolean;
+  /** Official public holiday in that country. */
+  holiday: boolean;
 }
 export interface OccDef {
   slug: string;          // url slug base (english, shared across langs)
@@ -16,6 +33,8 @@ export interface OccDef {
   ar: OccLoc;
   en: OccLoc;
   ur: OccLoc;
+  /** Optional country-by-country date & public-holiday table (year-agnostic: dates derived at build time). */
+  countries?: OccCountry[];
 }
 
 // Major Islamic occasions people search for by Gregorian year.
@@ -127,23 +146,57 @@ export const OCCASIONS: OccDef[] = [
   },
   {
     slug: 'mawlid-al-nabi', hm: 3, hd: 12,
+    countries: [
+      { names: ['السعودية', 'Saudi Arabia', 'سعودی عرب'], shift: 0, sighting: false, holiday: false },
+      { names: ['الإمارات', 'UAE', 'متحدہ عرب امارات'], shift: 0, sighting: false, holiday: true },
+      { names: ['مصر', 'Egypt', 'مصر'], shift: 0, sighting: true, holiday: true },
+      { names: ['باكستان', 'Pakistan', 'پاکستان'], shift: 0, sighting: true, holiday: true },
+      { names: ['الهند', 'India', 'بھارت'], shift: 1, sighting: true, holiday: true },
+      { names: ['بنغلاديش', 'Bangladesh', 'بنگلہ دیش'], shift: 1, sighting: true, holiday: true },
+      { names: ['إندونيسيا', 'Indonesia', 'انڈونیشیا'], shift: 0, sighting: false, holiday: true },
+      { names: ['المغرب', 'Morocco', 'مراکش'], shift: 1, sighting: true, holiday: true },
+      { names: ['الأردن', 'Jordan', 'اردن'], shift: 0, sighting: true, holiday: true },
+      { names: ['تركيا', 'Türkiye', 'ترکی'], shift: 0, sighting: false, holiday: false },
+    ],
     ar: {
       name: 'المولد النبوي الشريف',
+      alias: 'مولد الرسول ﷺ',
       what: 'المولد النبوي الشريف يوافق الثاني عشر من ربيع الأول، وفيه يحيي كثير من المسلمين ذكرى مولد النبي محمد ﷺ. وتتنوع مظاهر إحيائه بين الدول، من ذكر سيرته وشمائله إلى الدروس والاحتفالات.',
       virtues: 'هو ذكرى مولد خير الخلق ﷺ الذي أرسله الله رحمةً للعالمين، وقد قال ﷺ عن صيام الاثنين: «ذاك يوم وُلدت فيه». فالمناسبة تذكيرٌ بعظيم نعمة الله على البشرية ببعثته ﷺ.',
       practices: 'يحييه كثيرون بقراءة السيرة النبوية ومجالس المدائح والذكر والصدقة وإطعام الطعام، وتُقام الدروس عن شمائله ﷺ وأخلاقه. وتختلف مظاهره بين البلدان، ويرى بعض أهل العلم الاقتصار على اتباع سنته ﷺ دون تخصيص احتفال، فالأمر واسع بين المسلمين.',
+      history: 'وُلد النبي محمد ﷺ في مكة عام الفيل (نحو 571م) يوم الاثنين باتفاق أهل السير، والمشهور عند الجمهور أنه في الثاني عشر من ربيع الأول، مع أقوال أخرى في الثاني والثامن والتاسع والعاشر. وأول ما عُرفت الاحتفالات العامة بالمولد في مصر في العهد الفاطمي، ثم اشتهرت في القرن السادس الهجري بمواكب الملك المظفّر كوكبري صاحب إربل، وانتشرت بعد ذلك في أنحاء العالم الإسلامي بمظاهر تختلف من بلد إلى آخر، مع بقاء المسألة محلّ نظر واجتهاد بين أهل العلم.',
+      faq: [
+        { q: 'هل وُلد النبي ﷺ في 12 ربيع الأول فعلاً؟', a: 'المتفق عليه أنه ﷺ وُلد يوم الاثنين في عام الفيل، لقوله ﷺ عن صيام الاثنين: «ذاك يوم وُلدت فيه». أما تحديد اليوم من الشهر فمختلف فيه بين أهل السير، فقيل الثاني والثامن والتاسع والعاشر والثاني عشر من ربيع الأول، والأخير هو الأشهر.' },
+        { q: 'هل المولد النبوي إجازة رسمية في السعودية؟', a: 'لا، ليس المولد النبوي إجازة رسمية في السعودية. بينما هو إجازة رسمية في دول عدة منها مصر وباكستان والإمارات والمغرب والأردن وإندونيسيا والهند وبنغلاديش.' },
+        { q: 'لماذا يحيي بعض المسلمين الذكرى في 17 ربيع الأول؟', a: 'يرى كثير من علماء الشيعة أن المولد كان في السابع عشر من ربيع الأول، ولذلك تحييه إيران وبعض المجتمعات في هذا اليوم، وتُعرف الأيام بين 12 و17 ربيع الأول هناك بأسبوع الوحدة الإسلامية.' },
+      ],
     },
     en: {
       name: 'Mawlid al-Nabi',
+      alias: 'Eid Milad un-Nabi',
       what: 'Mawlid al-Nabi falls on the 12th of Rabiʿ al-Awwal, when many Muslims commemorate the birth of Prophet Muhammad ﷺ. Observances vary across countries, from recounting his life and character to lessons and gatherings.',
       virtues: 'It marks the birth of the best of creation ﷺ, sent by Allah as a mercy to the worlds. About fasting Mondays the Prophet ﷺ said: "That is the day I was born" — so the occasion is above all a reminder of Allah’s immense favour to humanity through his mission.',
       practices: 'Many observe it with readings of the Prophet’s biography, gatherings of praise and remembrance, charity and feeding others, and lessons on his character. Practice differs between countries, and some scholars prefer devotion through simply following his Sunnah without a designated celebration — a matter of accepted difference among Muslims.',
+      history: 'The Prophet Muhammad ﷺ was born in Mecca in the Year of the Elephant (c. 571 CE) on a Monday — a point the early biographers agree on. The 12th of Rabi al-Awwal is the most widely cited day, though the 2nd, 8th, 9th and 10th are also reported. Large public Mawlid festivities are first recorded in Fatimid Egypt, and the observance became famous through the celebrations of Muzaffar al-Din Gökböri, ruler of Erbil, in the 6th century AH. From there it spread across the Muslim world, with customs differing by region and a well-known scholarly discussion about the celebration itself.',
+      faq: [
+        { q: 'Was the Prophet ﷺ really born on 12 Rabi al-Awwal?', a: 'What is agreed upon is that he ﷺ was born on a Monday in the Year of the Elephant — about fasting Mondays he said: “That is the day I was born.” The exact day of the month is debated among the early biographers: the 2nd, 8th, 9th, 10th and 12th of Rabi al-Awwal are all reported, the 12th being the most famous.' },
+        { q: 'Is Mawlid al-Nabi a public holiday in Saudi Arabia?', a: 'No — Mawlid is not an official public holiday in Saudi Arabia. It is, however, a public holiday in many countries, including Egypt, Pakistan, the UAE, Morocco, Jordan, Indonesia, India and Bangladesh.' },
+        { q: 'Are Mawlid al-Nabi and Eid Milad un-Nabi the same occasion?', a: 'Yes. Eid Milad un-Nabi (also written Eid-e-Milad) is the name commonly used in Pakistan, India and Bangladesh for Mawlid al-Nabi — the same commemoration of the Prophet’s ﷺ birth on 12 Rabi al-Awwal.' },
+        { q: 'Why do some Muslims observe it on 17 Rabi al-Awwal?', a: 'Most Shia scholars hold that the Prophet ﷺ was born on the 17th of Rabi al-Awwal, so Iran and some communities observe it then; the days between the 12th and the 17th are marked in Iran as Islamic Unity Week.' },
+      ],
     },
     ur: {
       name: 'میلاد النبی ﷺ',
+      alias: 'عید میلاد النبی',
       what: 'میلاد النبی ﷺ ربیع الاول کی بارہویں تاریخ کو ہوتا ہے، جب بہت سے مسلمان نبی کریم محمد ﷺ کی ولادت کی یاد مناتے ہیں۔ اس کے مظاہر مختلف ممالک میں مختلف ہیں، سیرت و شمائل کے تذکرے سے لے کر دروس اور محافل تک۔',
       virtues: 'یہ خیر الخلق ﷺ کی ولادت کی یاد ہے جنہیں اللہ نے تمام جہانوں کے لیے رحمت بنا کر بھیجا۔ پیر کے روزے کے بارے میں آپ ﷺ نے فرمایا: «یہ وہ دن ہے جس میں میری ولادت ہوئی» — پس یہ مناسبت سب سے بڑھ کر اللہ کے اُس عظیم احسان کی یاد دہانی ہے جو آپ ﷺ کی بعثت کی صورت میں انسانیت پر ہوا۔',
       practices: 'بہت سے لوگ اسے سیرتِ نبوی کی قراءت، نعت و ذکر کی محافل، صدقہ اور کھانا کھلانے سے مناتے ہیں، اور آپ ﷺ کے اخلاق و شمائل پر دروس ہوتے ہیں۔ اس کے انداز ملکوں میں مختلف ہیں، اور بعض اہلِ علم کسی مخصوص جشن کے بجائے صرف اتباعِ سنت کو ترجیح دیتے ہیں — یہ مسلمانوں میں معروف وسعت کا معاملہ ہے۔',
+      history: 'نبی کریم ﷺ مکہ میں عام الفیل (تقریباً 571ء) میں پیر کے دن پیدا ہوئے — اس پر اہلِ سیرت کا اتفاق ہے۔ مہینے کی تاریخ میں اختلاف ہے: 2، 8، 9، 10 اور 12 ربیع الاول کے اقوال ملتے ہیں، اور 12 ربیع الاول سب سے مشہور ہے۔ میلاد کی بڑی عوامی تقریبات کا آغاز فاطمی دورِ مصر سے ملتا ہے، پھر چھٹی صدی ہجری میں اربل کے حکمران مظفر الدین کوکبری کے اہتمام سے یہ سلسلہ مشہور ہوا اور رفتہ رفتہ عالمِ اسلام میں پھیل گیا — ہر خطے کے اپنے انداز کے ساتھ، اور علماء کے درمیان اس پر معروف علمی بحث بھی رہی ہے۔',
+      faq: [
+        { q: 'کیا نبی کریم ﷺ واقعی 12 ربیع الاول کو پیدا ہوئے؟', a: 'متفقہ بات یہ ہے کہ آپ ﷺ پیر کے دن عام الفیل میں پیدا ہوئے — پیر کے روزے کے بارے میں فرمایا: «یہ وہ دن ہے جس میں میری ولادت ہوئی»۔ مہینے کی تاریخ میں سیرت نگاروں کا اختلاف ہے: 2، 8، 9، 10 اور 12 ربیع الاول کے اقوال ہیں، اور 12 ربیع الاول سب سے مشہور قول ہے۔' },
+        { q: 'کیا 12 ربیع الاول کو پاکستان میں سرکاری چھٹی ہوتی ہے؟', a: 'جی ہاں، عید میلاد النبی ﷺ پاکستان میں سرکاری تعطیل ہے، اور بھارت و بنگلہ دیش میں بھی چھٹی ہوتی ہے۔ سعودی عرب میں یہ سرکاری تعطیل نہیں۔ پاکستان میں حتمی تاریخ مرکزی رؤیتِ ہلال کمیٹی کے اعلان سے طے ہوتی ہے۔' },
+        { q: 'بعض مسلمان 17 ربیع الاول کو کیوں مناتے ہیں؟', a: 'اکثر شیعہ علماء کے نزدیک ولادتِ نبوی 17 ربیع الاول کو ہوئی؛ ایران اور بعض کمیونٹیز اسی دن مناتی ہیں، اور ایران میں 12 تا 17 ربیع الاول کو ہفتۂ وحدت کہا جاتا ہے۔' },
+      ],
     },
   },
   {
