@@ -571,7 +571,7 @@ const _bnClose = pick(lang, 'إخفاء', 'Dismiss', 'چھپائیں');
         if (!el) return;
         try {
           var now = new Date();
-          var today = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+          var today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()); // local calendar day, matching the homepage countdown
           var item = null;
           for (var i = 0; i < bnItems.length; i++) {
             if (Date.parse(bnItems[i].d + 'T00:00:00Z') >= today) { item = bnItems[i]; break; }
