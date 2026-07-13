@@ -36,6 +36,14 @@ const first = occs[0];
 // Hijri-day alias (e.g. "10 محرم" / "10 Muharram") — many people search by this.
 const hijriDay = `${occ.hd} ${hMonArr(lang)[occ.hm - 1]}`;
 
+// Country-by-country table rows — expected dates derived from the Umm al-Qura date + per-country shift.
+const countryRows = (occ.countries && first) ? occ.countries.map(c => ({
+  name: pick(lang, c.names[0], c.names[1], c.names[2]),
+  date: new Date(first.date.getTime() + c.shift * 86400000),
+  sighting: c.sighting,
+  holiday: c.holiday,
+})) : [];
+
 // Country-context FAQ (captures "...in saudi arabia / pakistan / egypt" queries) + FAQ rich result.
 const faqItems = first ? pick<{ q: string; a: string }[]>(lang, [
   { q: `متى ${loc.name} ${gYear}؟`, a: `${loc.name} ${gYear} يوافق ${fmtG(first.date, lang)}، أي ${fmtH(first.hy, occ.hm, occ.hd, lang)} (${hijriDay}) وفق تقويم أم القرى.` },
@@ -56,6 +64,9 @@ if (first && loc.practices) {
   });
 }
 
+// Occasion-specific FAQs curated in the data file (also emitted in the FAQ rich result).
+if (first && loc.faq) faqItems.push(...loc.faq);
+
 // Same occasion across all years (for internal-link table)
 const yearRows = gYears().map(y => {
   const list = occurrencesInGYear(occ.hm, occ.hd, y);
@@ -72,14 +83,20 @@ const otherOcc = OCCASIONS.filter(o => o.slug !== slug)
 
 const canonical = `https://islamicdates.org${occBasePath(slug, gYear, lang)}`;
 
-const title = pick(lang,
-  `متى ${loc.name} ${gYear}؟ (${hijriDay}) التاريخ الهجري والميلادي`,
-  `When is ${loc.name} ${gYear}? (${hijriDay}) Hijri & Gregorian date`,
-  `${loc.name} ${gYear} کب ہے؟ (${hijriDay}) ہجری و عیسوی تاریخ`);
+const title = loc.alias
+  ? pick(lang,
+    `متى ${loc.name} ${gYear}؟ (${hijriDay}) موعده في السعودية ومصر وباكستان`,
+    `When is ${loc.name} ${gYear}? ${loc.alias} Date (${hijriDay})`,
+    `${loc.name} ${gYear} کب ہے؟ ${loc.alias} کی تاریخ (${hijriDay})`)
+  : pick(lang,
+    `متى ${loc.name} ${gYear}؟ (${hijriDay}) التاريخ الهجري والميلادي`,
+    `When is ${loc.name} ${gYear}? (${hijriDay}) Hijri & Gregorian date`,
+    `${loc.name} ${gYear} کب ہے؟ (${hijriDay}) ہجری و عیسوی تاریخ`);
+const nameAlias = loc.alias ? `${loc.name} (${loc.alias})` : loc.name;
 const description = pick(lang,
-  `${loc.name} ${gYear} (${hijriDay}): ${first ? fmtG(first.date, lang) + ' الموافق ' + fmtH(first.hy, occ.hm, occ.hd, lang) : ''} وفق تقويم أم القرى. التاريخ في السعودية ومصر وباكستان وبقية الدول مع العدّ التنازلي.`,
-  `${loc.name} ${gYear} (${hijriDay}): ${first ? fmtG(first.date, lang) + ', corresponding to ' + fmtH(first.hy, occ.hm, occ.hd, lang) : ''} per the Umm al-Qura calendar. Date in Saudi Arabia, Pakistan, Egypt and worldwide, with a countdown.`,
-  `${loc.name} ${gYear} (${hijriDay}): ${first ? fmtG(first.date, lang) + ' بمطابق ' + fmtH(first.hy, occ.hm, occ.hd, lang) : ''} اُمّ القریٰ تقویم کے مطابق۔ سعودی عرب، پاکستان، مصر اور دنیا بھر میں تاریخ، عددِ معکوس کے ساتھ۔`);
+  `${nameAlias} ${gYear} (${hijriDay}): ${first ? fmtG(first.date, lang) + ' الموافق ' + fmtH(first.hy, occ.hm, occ.hd, lang) : ''} وفق تقويم أم القرى. التاريخ في السعودية ومصر وباكستان وبقية الدول مع العدّ التنازلي.`,
+  `${nameAlias} ${gYear} (${hijriDay}): ${first ? fmtG(first.date, lang) + ', corresponding to ' + fmtH(first.hy, occ.hm, occ.hd, lang) : ''} per the Umm al-Qura calendar. Date in Saudi Arabia, Pakistan, Egypt and worldwide, with a countdown.`,
+  `${nameAlias} ${gYear} (${hijriDay}): ${first ? fmtG(first.date, lang) + ' بمطابق ' + fmtH(first.hy, occ.hm, occ.hd, lang) : ''} اُمّ القریٰ تقویم کے مطابق۔ سعودی عرب، پاکستان، مصر اور دنیا بھر میں تاریخ، عددِ معکوس کے ساتھ۔`);
 
 const breadcrumb = {
   "@context": "https://schema.org", "@type": "BreadcrumbList",
@@ -143,6 +160,15 @@ const t = {
   footer: pick(lang, 'الحساب وفق تقويم أم القرى', 'Dates based on the Umm al-Qura calendar · for reference', 'حساب اُمّ القریٰ تقویم کے مطابق'),
   privacy: pick(lang, 'سياسة الخصوصية', 'Privacy Policy', 'رازداری پالیسی'),
   twiceJoin: pick(lang, ' و ', ' and ', ' اور '),
+  aliasKnown: loc.alias ? pick(lang, `ويُعرف أيضاً باسم «${loc.alias}»`, `Also known as ${loc.alias}`, `${loc.alias} کے نام سے بھی معروف`) : '',
+  historyTitle: pick(lang, 'لمحة تاريخية', 'A brief history', 'مختصر تاریخی پس منظر'),
+  countriesTitle: pick(lang, `موعد ${loc.name} ${gYear} حسب الدولة`, `${loc.name} ${gYear} date by country`, `${loc.name} ${gYear}: ملک بہ ملک تاریخ`),
+  th_country: pick(lang, 'الدولة', 'Country', 'ملک'),
+  th_expected: pick(lang, 'التاريخ المتوقع', 'Expected date', 'متوقع تاریخ'),
+  th_holiday: pick(lang, 'إجازة رسمية؟', 'Public holiday?', 'سرکاری چھٹی؟'),
+  yesTxt: pick(lang, 'نعم', 'Yes', 'ہاں'),
+  noTxt: pick(lang, 'لا', 'No', 'نہیں'),
+  sightNote: pick(lang, 'الدول المعلَّمة بنجمة تعتمد رؤية الهلال المحلية، فقد يتقدّم التاريخ الفعلي أو يتأخّر يوماً واحداً.', 'Countries marked with an asterisk rely on local moon sighting; the actual date may shift by about one day.', 'ستارے (*) والے ممالک مقامی رؤیتِ ہلال پر انحصار کرتے ہیں؛ اصل تاریخ تقریباً ایک دن آگے پیچھے ہو سکتی ہے۔'),
 };
 ---
 <Layout title={title} description={description} canonical={canonical} lang={lang} jsonLd={jsonLd}
@@ -165,6 +191,7 @@ const t = {
     <main>
       <section class="card section-card" style="order:1">
         <h1 class="section-h2" style="font-size:25px">{t.h1}</h1>
+        {loc.alias && <div style="margin-top:4px;font-size:14.5px;color:var(--muted);font-weight:600">{t.aliasKnown}</div>}
         {first ? (
           <>
             <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:18px;align-items:baseline">
@@ -211,9 +238,42 @@ const t = {
             <p class="section-p">{loc.practices}</p>
           </>
         )}
+        {loc.history && (
+          <>
+            <h2 class="section-h2" style="margin-top:22px">{t.historyTitle}</h2>
+            <p class="section-p">{loc.history}</p>
+          </>
+        )}
         <h2 class="section-h2" style="margin-top:22px">{t.howTitle}</h2>
         <p class="section-p">{t.howBody}</p>
       </section>
+
+      {countryRows.length > 0 && (
+        <section class="card section-card" style="order:3">
+          <h2 class="section-h2">{t.countriesTitle}</h2>
+          <div style="overflow-x:auto;margin-top:12px">
+            <table style="width:100%;border-collapse:collapse;font-size:14.5px">
+              <thead>
+                <tr style="text-align:start;color:var(--muted)">
+                  <th style="text-align:start;padding:8px 10px;border-bottom:1px solid var(--border);font-weight:600">{t.th_country}</th>
+                  <th style="text-align:start;padding:8px 10px;border-bottom:1px solid var(--border);font-weight:600">{t.th_expected}</th>
+                  <th style="text-align:start;padding:8px 10px;border-bottom:1px solid var(--border);font-weight:600">{t.th_holiday}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {countryRows.map(r => (
+                  <tr>
+                    <td style="padding:8px 10px;border-bottom:1px solid var(--border);font-weight:700">{r.name}</td>
+                    <td style="padding:8px 10px;border-bottom:1px solid var(--border)">{fmtGShort(r.date, lang)}{r.sighting ? ' *' : ''}</td>
+                    <td style="padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted)">{r.holiday ? t.yesTxt : t.noTxt}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p class="section-p" style="margin-top:10px;font-size:13.5px;color:var(--muted)">{t.sightNote}</p>
+        </section>
+      )}
 
       {faqItems.length > 0 && (
         <section class="card section-card" style="order:3">
