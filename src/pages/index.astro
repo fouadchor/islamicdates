@@ -11,6 +11,18 @@ import { HADITHS, hadithOfDay } from '../lib/hadiths';
 import { OCCASIONS, occurrencesInGYear, occBasePath, fmtGShort } from '../lib/occasions';
 import { g2h, todayUTC } from '../lib/hijri';
 import { monthBasePath, monthName, H_YEAR_START, H_YEAR_END } from '../lib/months';
+
+// --- Request-time SSR + fresh CDN cache (fixes stale build-time date) ---
+export const prerender = false;
+// Keep the edge copy fresh: expires at the next Riyadh midnight, capped to 1h,
+// so the server-rendered date can never sit a day behind.
+const _tParts = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Riyadh', hourCycle: 'h23', hour: '2-digit', minute: '2-digit', second: '2-digit' }).formatToParts(new Date());
+const _tp = (t: string) => Number(_tParts.find(p => p.type === t)?.value ?? 0);
+const _secsToMidnight = 86400 - (_tp('hour') * 3600 + _tp('minute') * 60 + _tp('second'));
+const _ttl = Math.max(60, Math.min(_secsToMidnight, 3600));
+Astro.response.headers.set('Cache-Control', `public, max-age=0, s-maxage=${_ttl}, stale-while-revalidate=86400`);
+// ------------------------------------------------------------------------
+
 const _curHy = Math.min(Math.max(g2h(todayUTC()).y, H_YEAR_START), H_YEAR_END);
 const _monthLinks = Array.from({ length: 12 }, (_, i) => ({ name: monthName(i + 1, true), href: monthBasePath(_curHy, i + 1, true) }));
 const _monthNotesShort = ['مفتتح العام الهجري وأحد الأشهر الحُرم، يزيّنه صيام عاشوراء','سُمِّي بالصَّفَر لخلوّ ديار العرب وقت الأسفار والغزو','شهر مولد النبي ﷺ، تتعطّر فيه القلوب بذكر سيرته','رابع الشهور، تمام فصل الربيع في تسمية العرب','سُمِّيت جُمادى لتجمُّد الماء فيها زمن البرد','خاتمة الجُمادَيَيْن، تسبق دخول الأشهر الحُرم','من الأشهر الحُرم، وفيه ذكرى الإسراء والمعراج','تُرفع فيه الأعمال، ويكثر فيه الصيام استعدادًا لرمضان','شهر الصيام ونزول القرآن، وفيه ليلة القدر','يُستهلّ بعيد الفطر، ويُستحبّ صيام ستٍّ من أيامه','من الأشهر الحُرم، وفيه يتجهّز الحجيج لموسم الحج','موسم الحج وعيد الأضحى، وعشره الأوائل أفضل الأيام'];

@@ -78,9 +78,35 @@ export function dotColor(cat: OccCat): string {
   return cat === 'eid' ? 'var(--gold)' : cat === 'holy' ? 'var(--holy)' : 'var(--accent)';
 }
 
+// Civil (Y/M/D) date within a given IANA timezone, represented as a UTC-midnight
+// Date so that all downstream getUTC* formatting stays consistent.
+function civilDateInTZ(instant: Date, timeZone: string): Date {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone, year: 'numeric', month: 'numeric', day: 'numeric',
+  }).formatToParts(instant);
+  let y = 0, m = 0, d = 0;
+  for (const p of parts) {
+    if (p.type === 'year') y = +p.value;
+    else if (p.type === 'month') m = +p.value;
+    else if (p.type === 'day') d = +p.value;
+  }
+  return new Date(Date.UTC(y, m - 1, d));
+}
+
+// "Today" reference.
+//  - On the CLIENT we use the visitor's own local timezone, so the displayed
+//    date always matches where they actually are.
+//  - On the SERVER (SSR, evaluated at request time) there is no visitor
+//    timezone, so we anchor the initial HTML to Asia/Riyadh, the official
+//    Umm al-Qura reference. This keeps the crawler / first-paint snapshot
+//    canonical and, above all, always current (never frozen at build time).
+//    The client re-renders to the visitor's local date on hydration.
 export function todayUTC(): Date {
-  const n = new Date();
-  return new Date(Date.UTC(n.getFullYear(), n.getMonth(), n.getDate()));
+  const now = new Date();
+  if (typeof window === 'undefined') {
+    return civilDateInTZ(now, 'Asia/Riyadh');
+  }
+  return new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
 }
 
 export function toInputVal(d: Date): string {
