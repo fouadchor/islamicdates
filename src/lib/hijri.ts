@@ -36,7 +36,10 @@ export function h2g(hy: number, hm: number, hd: number): Date {
     if (cur === tgt) break;
     d2 = new Date(d2.getTime() + (cur < tgt ? 86400000 : -86400000));
   }
-  return d2;
+  // Normalize to exact UTC midnight: the seed estimate carries a fractional
+  // time-of-day that survives the whole-day refinement steps, which would make
+  // date subtractions (e.g. daysInHMonth) round to the wrong day count.
+  return new Date(Date.UTC(d2.getUTCFullYear(), d2.getUTCMonth(), d2.getUTCDate()));
 }
 
 export function daysInHMonth(hy: number, hm: number): number {
