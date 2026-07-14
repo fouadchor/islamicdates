@@ -69,7 +69,10 @@ export default function CalendarIsland({ lang }: Props) {
   const goToday = () => {
     setFading(true);
     if (timerRef.current) clearTimeout(timerRef.current);
-    const th = g2h(todayUTC());
+    const t = todayUTC();
+    const th = g2h(t);
+    navedRef.current = false;
+    setSelDate(t); // move the selected square (and detail card) back to today
     timerRef.current = setTimeout(() => { setViewY(th.y); setViewM(th.m); setFading(false); }, 150);
   };
 
