@@ -1,0 +1,114 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { mosqueCountries, mosqueCitiesOfCountry, mosqueCityPath, mosqueCountryPath, mosqueBase } from '../lib/mosque-cities';
+import { type Lang, pick } from '../lib/data';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+
+const countries = mosqueCountries();
+const cityCount = countries.reduce((n, c) => n + mosqueCitiesOfCountry(c.code).length, 0);
+const canonical = `https://islamicdates.org${mosqueBase(lang)}`;
+const homeHref  = pick(lang, '/', '/en/', '/ur/');
+
+const title = pick(lang,
+  `دليل المساجد حسب المدينة · أقرب مسجد في مدن العالم`,
+  `Mosque Directory by City · Find the Nearest Mosque Worldwide`,
+  `شہر کے حساب سے مساجد کی فہرست · دنیا بھر میں قریب ترین مسجد`);
+
+const description = pick(lang,
+  `دليل المساجد حسب المدينة: تصفّح أبرز المساجد والجوامع في ${cityCount} مدينة حول العالم مع اتجاهات لكل مسجد، وأداة تعرض أقرب مسجد إلى موقعك أينما كنت.`,
+  `Mosque directory by city: browse notable mosques in ${cityCount} cities worldwide with directions to each, plus a tool that shows the mosque nearest to your location wherever you are.`,
+  `شہر کے حساب سے مساجد کی فہرست: دنیا بھر کے ${cityCount} شہروں کی نمایاں مساجد، ہر ایک تک راستہ، اور آپ کے قریب ترین مسجد دکھانے والا ٹول۔`);
+
+const jsonLd = JSON.stringify([
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [
+    { '@type': 'ListItem', 'position': 1, 'name': pick(lang, 'الرئيسية', 'Home', 'ہوم'), 'item': `https://islamicdates.org${homeHref}` },
+    { '@type': 'ListItem', 'position': 2, 'name': pick(lang, 'دليل المساجد', 'Mosque Directory', 'مساجد کی فہرست'), 'item': canonical },
+  ] },
+]);
+
+const t = {
+  brand:    pick(lang, 'التقويم الهجري', 'Hijri Calendar', 'ہجری کیلنڈر'),
+  tagline:  pick(lang, 'دليل المساجد', 'Mosque Directory', 'مساجد کی فہرست'),
+  home:     pick(lang, 'الرئيسية', 'Home', 'ہوم'),
+  homeAria: pick(lang, 'الانتقال إلى الصفحة الرئيسية', 'Go to homepage', 'ہوم پیج پر جائیں'),
+  h1:       pick(lang, 'دليل المساجد حسب المدينة', 'Mosque Directory by City', 'شہر کے حساب سے مساجد'),
+  intro:    pick(lang,
+    `تبحث عن مسجد في مدينة معيّنة؟ اختر الدولة ثم المدينة لعرض أبرز المساجد والجوامع فيها مع رابط اتجاهات لكل مسجد. أو استخدم أداة «المساجد القريبة مني» لتحديد أقرب مسجد إلى موقعك مباشرةً.`,
+    `Looking for a mosque in a specific city? Choose a country then a city to see its notable mosques with directions to each. Or use the "Mosques near me" tool to pinpoint the mosque closest to your current location.`,
+    `کسی خاص شہر میں مسجد تلاش کر رہے ہیں؟ ملک پھر شہر منتخب کریں تاکہ نمایاں مساجد اور ہر ایک تک راستہ دیکھ سکیں۔ یا «میرے قریب مساجد» ٹول سے اپنے قریب ترین مسجد تلاش کریں۔`),
+  findNear: pick(lang, 'المساجد القريبة مني الآن ←', 'Mosques near me now →', 'ابھی میرے قریب مساجد ←'),
+  tools:    pick(lang, 'أدوات ذات صلة', 'Related tools', 'متعلقہ اوزار'),
+  mainTool: pick(lang, 'المساجد القريبة من موقعك', 'Mosques near your location', 'آپ کے قریب مساجد'),
+  ptTool:   pick(lang, 'مواقيت الصلاة حسب موقعك', 'Prayer times for your location', 'آپ کے مقام کے اوقاتِ نماز'),
+  fullCal:  pick(lang, 'التقويم الهجري وتاريخ اليوم', "Hijri calendar & today's date", 'ہجری کیلنڈر اور آج کی تاریخ'),
+  ad:       pick(lang, 'مساحة إعلانية', 'Advertisement', 'اشتہار'),
+  footer:   pick(lang, 'بيانات المساجد من OpenStreetMap · موقعك لا يُخزَّن لدينا', 'Mosque data from OpenStreetMap · your location is never stored', 'مساجد کا ڈیٹا OpenStreetMap سے · آپ کا مقام محفوظ نہیں'),
+  privacy:  pick(lang, 'سياسة الخصوصية', 'Privacy Policy', 'رازداری پالیسی'),
+  ptHref:   pick(lang, '/prayer-times/', '/en/prayer-times/', '/ur/prayer-times/'),
+  nearHref: pick(lang, '/mosques-near-me/', '/en/mosques-near-me/', '/ur/mosques-near-me/'),
+};
+---
+<Layout title={title} description={description} canonical={canonical} lang={lang} jsonLd={jsonLd}
+  arPath={mosqueBase('ar')} enPath={mosqueBase('en')} urPath={mosqueBase('ur')}>
+  <header class="site-header">
+    <div class="header-start">
+      <a href={homeHref} class="logo" aria-label={t.homeAria}>
+        <div class="logo-icon">☾</div>
+        <div>
+          <div class="brand">{t.brand}</div>
+          <div class="tagline">{t.tagline}</div>
+        </div>
+      </a>
+      <a href={homeHref} class="home-btn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+        <span>{t.home}</span>
+      </a>
+    </div>
+  </header>
+
+  <div class="layout">
+    <main>
+      <section class="card section-card">
+        <h1 class="section-h2" style="font-size:24px">{t.h1}</h1>
+        <p class="section-p" style="margin-top:8px">{t.intro}</p>
+        <a href={t.nearHref} style="margin-top:14px;display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:11px;background:var(--accent);color:var(--accent-contrast);font-weight:700;font-size:14px;text-decoration:none">{t.findNear}</a>
+      </section>
+
+      {countries.map(country => (
+        <section class="card section-card">
+          <h2 class="section-h2">
+            <a href={mosqueCountryPath(country.slug, lang)} style="color:inherit;text-decoration:none">{pick(lang, country.ar, country.en, country.ur)}</a>
+          </h2>
+          <div style="display:flex;flex-wrap:wrap;gap:9px;margin-top:12px">
+            {mosqueCitiesOfCountry(country.code).map(c => (
+              <a href={mosqueCityPath(country.slug, c.slug, lang)}
+                style="padding:8px 14px;border-radius:999px;border:1px solid var(--border);background:var(--surface2);color:var(--text);text-decoration:none;font-size:13.5px;font-weight:600">
+                {pick(lang, c.ar, c.en, c.ur)}
+              </a>
+            ))}
+          </div>
+        </section>
+      ))}
+    </main>
+
+    <aside>
+      <div class="ad-slot"><span class="ad-label">{t.ad}</span><span style="font-size:13px;opacity:.7">300 × 250</span></div>
+      <div class="card" style="padding:18px 20px">
+        <h3 style="margin:0 0 12px;font-size:15.5px;font-weight:700">{t.tools}</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:14.5px">
+          <a href={t.nearHref} style="color:var(--accent);text-decoration:none">{t.mainTool}</a>
+          <a href={t.ptHref} style="color:var(--accent);text-decoration:none">{t.ptTool}</a>
+          <a href={homeHref} style="color:var(--accent);text-decoration:none">{t.fullCal}</a>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="site-footer">
+    {t.footer}
+    <span style="margin:0 8px;opacity:.4">·</span>
+    <a href={pick(lang, '/privacy/', '/en/privacy/', '/ur/privacy/')} style="color:var(--muted);text-decoration:none;font-size:13px">{t.privacy}</a>
+  </footer>
+</Layout>
