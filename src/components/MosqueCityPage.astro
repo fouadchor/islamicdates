@@ -1,0 +1,230 @@
+---
+import Layout from '../layouts/Layout.astro';
+import NearbyMosquesIsland from './NearbyMosquesIsland';
+import { type PtCity, type PtCountry, cityPath } from '../lib/cities';
+import { mosquesFor, mosqueCitiesOfCountry, mosqueCityPath, mosqueCountryPath, mosqueBase, mapsDir } from '../lib/mosque-cities';
+import { qiblaBearing, qiblaDistanceKm } from '../lib/qibla';
+import { type Lang, pick } from '../lib/data';
+
+interface Props { lang: Lang; country: PtCountry; city: PtCity }
+const { lang, country, city } = Astro.props;
+
+const cityName    = pick(lang, city.ar, city.en, city.ur);
+const countryName = pick(lang, country.ar, country.en, country.ur);
+const data        = mosquesFor(city.slug);
+const list        = data.list;
+const listed      = list.length;
+const total       = Math.max(data.count, listed);
+const bearing     = qiblaBearing(city.lat, city.lng).toFixed(1);
+const distKm      = qiblaDistanceKm(city.lat, city.lng);
+
+// Display name / area for a mosque in the current language.
+const mName = (m: { n: string; na: string; u: string }) =>
+  pick(lang, m.na || m.n, m.n || m.na, m.u || m.n || m.na) || pick(lang, 'مسجد', 'Mosque', 'مسجد');
+const mAlt = (m: { n: string; na: string }) => {
+  const primary = pick(lang, m.na || m.n, m.n || m.na, m.n || m.na);
+  const other = pick(lang, m.n, m.na, m.na);
+  return other && other !== primary ? other : '';
+};
+
+const canonical = `https://islamicdates.org${mosqueCityPath(country.slug, city.slug, lang)}`;
+const nearby = mosqueCitiesOfCountry(country.code).filter(c => c.slug !== city.slug);
+const homeHref = pick(lang, '/', '/en/', '/ur/');
+
+const title = pick(lang,
+  `مساجد ${cityName} · دليل أقرب المساجد والجوامع في ${cityName}، ${countryName}`,
+  `Mosques in ${cityName} · Find the Nearest Mosque in ${cityName}, ${countryName}`,
+  `${cityName} کی مساجد · ${cityName}، ${countryName} میں قریبی مسجد تلاش کریں`);
+
+const description = pick(lang,
+  `دليل مساجد ${cityName}، ${countryName}: قائمة بأبرز المساجد والجوامع مع رابط اتجاهات لكل مسجد، وأداة تعرض أقرب مسجد إلى موقعك، إضافةً إلى مواقيت الصلاة واتجاه القبلة في ${cityName}. بيانات المساجد من خرائط OpenStreetMap.`,
+  `Mosque directory for ${cityName}, ${countryName}: a list of notable mosques with directions to each, a tool that shows the mosque nearest to your location, plus prayer times and the Qibla direction in ${cityName}. Mosque data from OpenStreetMap.`,
+  `${cityName}، ${countryName} کی مساجد کی فہرست: نمایاں مساجد، ہر مسجد تک راستہ، آپ کے قریب ترین مسجد دکھانے والا ٹول، اور ${cityName} میں اوقاتِ نماز و قبلہ کا رخ۔ مساجد کا ڈیٹا OpenStreetMap سے۔`);
+
+const faq = [
+  {
+    q: pick(lang, `كيف أجد أقرب مسجد إليّ في ${cityName}؟`, `How do I find the nearest mosque in ${cityName}?`, `${cityName} میں قریب ترین مسجد کیسے تلاش کروں؟`),
+    a: pick(lang,
+      `اضغط زر «اعرض المساجد القريبة مني» في أعلى الصفحة واسمح للمتصفح بمعرفة موقعك، فتظهر لك مساجد ${cityName} الأقرب إليك مرتّبة حسب المسافة مع رابط اتجاهات لكل مسجد. كما تجد أسفل الصفحة قائمة بأبرز مساجد المدينة.`,
+      `Press the "Show mosques near me" button at the top of the page and allow location access; the mosques in ${cityName} closest to you appear, sorted by distance, each with a directions link. You can also browse the list of notable mosques below.`,
+      `صفحے کے اوپر «میرے قریب مساجد دکھائیں» کا بٹن دبائیں اور مقام کی اجازت دیں؛ ${cityName} کی قریب ترین مساجد فاصلے کے مطابق ظاہر ہوں گی، ہر ایک کے ساتھ راستہ۔ نیچے نمایاں مساجد کی فہرست بھی ہے۔`),
+  },
+  {
+    q: pick(lang, `من أين تأتي بيانات مساجد ${cityName}؟`, `Where does the ${cityName} mosque data come from?`, `${cityName} کی مساجد کا ڈیٹا کہاں سے آتا ہے؟`),
+    a: pick(lang,
+      `تعتمد القائمة وأداة البحث على خرائط OpenStreetMap المفتوحة التي يساهم فيها متطوعون حول العالم. قد لا يكون كل مسجد صغير مسجّلاً بعد؛ إن لم تجد مسجداً تعرفه يمكنك إضافته عبر openstreetmap.org ليظهر للجميع.`,
+      `The list and the finder rely on the open OpenStreetMap database, maintained by volunteers worldwide. Some smaller mosques may not be mapped yet; if a mosque you know is missing, you can add it at openstreetmap.org so everyone benefits.`,
+      `فہرست اور تلاش کا ٹول کھلے OpenStreetMap ڈیٹا پر مبنی ہے جسے دنیا بھر کے رضاکار برقرار رکھتے ہیں۔ ممکن ہے کچھ چھوٹی مساجد ابھی درج نہ ہوں؛ اگر کوئی مسجد موجود نہیں تو آپ openstreetmap.org پر شامل کر سکتے ہیں۔`),
+  },
+  {
+    q: pick(lang, `ما مواقيت الصلاة واتجاه القبلة في ${cityName}؟`, `What are the prayer times and Qibla direction in ${cityName}?`, `${cityName} میں اوقاتِ نماز اور قبلہ کا رخ کیا ہے؟`),
+    a: pick(lang,
+      `اتجاه القبلة من ${cityName} نحو ${bearing}° من الشمال الحقيقي، والمسافة إلى الكعبة المشرفة قرابة ${distKm} كم. ولمعرفة مواقيت الصلاة الخمس اليوم في ${cityName} يمكنك زيارة صفحة مواقيت الصلاة الخاصة بالمدينة.`,
+      `The Qibla from ${cityName} is about ${bearing}° from true north, and the Kaaba is roughly ${distKm} km away. For today's five daily prayer times in ${cityName}, visit the city's prayer-times page.`,
+      `${cityName} سے قبلہ حقیقی شمال سے تقریباً ${bearing}° پر ہے، اور کعبہ شریف تقریباً ${distKm} کلومیٹر دور ہے۔ ${cityName} میں آج کے اوقاتِ نماز کے لیے شہر کا اوقاتِ نماز صفحہ دیکھیں۔`),
+  },
+];
+
+const jsonLd = JSON.stringify([
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [
+    { '@type': 'ListItem', 'position': 1, 'name': pick(lang, 'الرئيسية', 'Home', 'ہوم'), 'item': `https://islamicdates.org${homeHref}` },
+    { '@type': 'ListItem', 'position': 2, 'name': pick(lang, 'المساجد القريبة', 'Mosques', 'مساجد'), 'item': `https://islamicdates.org${mosqueBase(lang)}` },
+    { '@type': 'ListItem', 'position': 3, 'name': countryName, 'item': `https://islamicdates.org${mosqueCountryPath(country.slug, lang)}` },
+    { '@type': 'ListItem', 'position': 4, 'name': cityName, 'item': canonical },
+  ] },
+  { '@context': 'https://schema.org', '@type': 'ItemList', 'name': pick(lang, `مساجد ${cityName}`, `Mosques in ${cityName}`, `${cityName} کی مساجد`),
+    'itemListElement': list.map((m, i) => ({ '@type': 'ListItem', 'position': i + 1, 'name': mName(m) })) },
+  { '@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': faq.map(f => ({ '@type': 'Question', 'name': f.q, 'acceptedAnswer': { '@type': 'Answer', 'text': f.a } })) },
+]);
+
+const t = {
+  brand:    pick(lang, 'التقويم الهجري', 'Hijri Calendar', 'ہجری کیلنڈر'),
+  tagline:  pick(lang, 'المساجد القريبة', 'Mosques Near Me', 'قریبی مساجد'),
+  home:     pick(lang, 'الرئيسية', 'Home', 'ہوم'),
+  homeAria: pick(lang, 'الانتقال إلى الصفحة الرئيسية', 'Go to homepage', 'ہوم پیج پر جائیں'),
+  crumbDir: pick(lang, 'المساجد', 'Mosques', 'مساجد'),
+  h1:       pick(lang, `مساجد ${cityName}`, `Mosques in ${cityName}`, `${cityName} کی مساجد`),
+  intro: total > listed
+    ? pick(lang,
+        `تضم ${cityName} مئات المساجد والجوامع. في ما يلي أبرز ${listed} مسجداً مسجّلة على خرائط OpenStreetMap (من بين أكثر من ${total} مسجداً موثّقاً في المدينة وجوارها)، مع رابط اتجاهات لكل مسجد. ولمعرفة الأقرب إلى مكانك الآن استخدم أداة البحث بالأسفل.`,
+        `${cityName} is home to hundreds of mosques. Below are ${listed} notable ones mapped on OpenStreetMap (out of ${total}+ recorded in and around the city), each with a directions link. To find the closest to you right now, use the finder below.`,
+        `${cityName} میں سینکڑوں مساجد ہیں۔ ذیل میں OpenStreetMap پر درج ${listed} نمایاں مساجد ہیں (شہر اور گرد و نواح میں ${total}+ میں سے)، ہر ایک تک راستہ۔ ابھی اپنے قریب ترین کے لیے نیچے دیا ٹول استعمال کریں۔`)
+    : pick(lang,
+        `في ما يلي مساجد ${cityName} المسجّلة على خرائط OpenStreetMap مع رابط اتجاهات لكل مسجد. ولمعرفة الأقرب إلى مكانك الآن استخدم أداة البحث بالأسفل.`,
+        `Below are the mosques in ${cityName} mapped on OpenStreetMap, each with a directions link. To find the closest to you right now, use the finder below.`,
+        `ذیل میں ${cityName} کی وہ مساجد ہیں جو OpenStreetMap پر درج ہیں، ہر ایک تک راستہ۔ ابھی قریب ترین کے لیے نیچے دیا ٹول استعمال کریں۔`),
+  listTitle: pick(lang, `أبرز مساجد ${cityName}`, `Notable mosques in ${cityName}`, `${cityName} کی نمایاں مساجد`),
+  directions: pick(lang, 'الاتجاهات', 'Directions', 'راستہ'),
+  crossTitle: pick(lang, `مواقيت الصلاة والقبلة في ${cityName}`, `Prayer times & Qibla in ${cityName}`, `${cityName} میں اوقاتِ نماز و قبلہ`),
+  crossP: pick(lang,
+    `اعرف مواقيت الصلاة الخمس اليوم في ${cityName} مع العدّ التنازلي للصلاة القادمة، واتجاه القبلة الدقيق (${bearing}° والمسافة نحو ${distKm} كم إلى الكعبة).`,
+    `See today's five prayer times in ${cityName} with a countdown to the next prayer, and the precise Qibla direction (${bearing}°, about ${distKm} km to the Kaaba).`,
+    `${cityName} میں آج کے پانچ اوقاتِ نماز، اگلی نماز کی الٹی گنتی، اور درست قبلہ کا رخ (${bearing}°، کعبہ تقریباً ${distKm} کلومیٹر) دیکھیں۔`),
+  ptLink: pick(lang, `مواقيت الصلاة في ${cityName} ←`, `Prayer times in ${cityName} →`, `${cityName} میں اوقاتِ نماز ←`),
+  qiblaLink: pick(lang, 'اتجاه القبلة والبوصلة ←', 'Qibla direction & compass →', 'قبلہ کا رخ اور قطب نما ←'),
+  nearby:   pick(lang, `مساجد مدن أخرى في ${countryName}`, `Mosques in other cities in ${countryName}`, `${countryName} کے دیگر شہروں کی مساجد`),
+  allCities: pick(lang, `كل مدن ${countryName} ←`, `All cities in ${countryName} →`, `${countryName} کے تمام شہر ←`),
+  faqTitle: pick(lang, 'أسئلة شائعة', 'FAQ', 'عام سوالات'),
+  tools:    pick(lang, 'أدوات ذات صلة', 'Related tools', 'متعلقہ اوزار'),
+  mainTool: pick(lang, 'المساجد القريبة من موقعك', 'Mosques near your location', 'آپ کے قریب مساجد'),
+  ptTool:   pick(lang, `مواقيت الصلاة في ${cityName}`, `Prayer times in ${cityName}`, `${cityName} میں اوقاتِ نماز`),
+  fullCal:  pick(lang, 'التقويم الهجري وتاريخ اليوم', "Hijri calendar & today's date", 'ہجری کیلنڈر اور آج کی تاریخ'),
+  ad:       pick(lang, 'مساحة إعلانية', 'Advertisement', 'اشتہار'),
+  footer:   pick(lang, 'بيانات المساجد من OpenStreetMap · موقعك لا يُخزَّن لدينا', 'Mosque data from OpenStreetMap · your location is never stored', 'مساجد کا ڈیٹا OpenStreetMap سے · آپ کا مقام محفوظ نہیں کیا جاتا'),
+  privacy:  pick(lang, 'سياسة الخصوصية', 'Privacy Policy', 'رازداری پالیسی'),
+};
+---
+<Layout title={title} description={description} canonical={canonical} lang={lang} jsonLd={jsonLd}
+  arPath={mosqueCityPath(country.slug, city.slug, 'ar')} enPath={mosqueCityPath(country.slug, city.slug, 'en')} urPath={mosqueCityPath(country.slug, city.slug, 'ur')}>
+  <header class="site-header">
+    <div class="header-start">
+      <a href={homeHref} class="logo" aria-label={t.homeAria}>
+        <div class="logo-icon">☾</div>
+        <div>
+          <div class="brand">{t.brand}</div>
+          <div class="tagline">{t.tagline}</div>
+        </div>
+      </a>
+      <a href={homeHref} class="home-btn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+        <span>{t.home}</span>
+      </a>
+    </div>
+  </header>
+
+  <div class="layout">
+    <main>
+      <nav aria-label="breadcrumb" style="font-size:13px;color:var(--muted);margin-bottom:12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+        <a href={mosqueBase(lang)} style="color:var(--accent);text-decoration:none">{t.crumbDir}</a>
+        <span aria-hidden="true">›</span>
+        <a href={mosqueCountryPath(country.slug, lang)} style="color:var(--accent);text-decoration:none">{countryName}</a>
+        <span aria-hidden="true">›</span>
+        <span>{cityName}</span>
+      </nav>
+
+      <section class="card section-card">
+        <h1 class="section-h2" style="font-size:24px">{t.h1}</h1>
+        <p class="section-p" style="margin-top:8px">{t.intro}</p>
+      </section>
+
+      <NearbyMosquesIsland lang={lang} client:load />
+
+      {list.length > 0 && (
+        <section class="card section-card">
+          <h2 class="section-h2">{t.listTitle}</h2>
+          <div style="display:flex;flex-direction:column;gap:2px;margin-top:10px">
+            {list.map((m, i) => (
+              <div style={`display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 2px;${i === list.length - 1 ? '' : 'border-bottom:1px solid var(--border)'}`}>
+                <div style="min-width:0">
+                  <div style="font-weight:700;font-size:15px;color:var(--text)">{mName(m)}</div>
+                  <div style="font-size:12.5px;color:var(--muted);margin-top:2px">
+                    {[mAlt(m), m.a].filter(Boolean).join(pick(lang, ' · ', ' · ', ' · '))}
+                  </div>
+                </div>
+                <a href={mapsDir(m.lat, m.lng)} target="_blank" rel="noopener"
+                  style="flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;padding:8px 13px;border-radius:10px;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:12.5px;text-decoration:none">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                  {t.directions}
+                </a>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <section class="card section-card" style="border-inline-start:4px solid var(--accent)">
+        <h2 class="section-h2">{t.crossTitle}</h2>
+        <p class="section-p" style="margin-top:8px">{t.crossP}</p>
+        <div style="display:flex;flex-wrap:wrap;gap:9px;margin-top:12px">
+          <a href={cityPath(country.slug, city.slug, lang)} style="padding:10px 16px;border-radius:11px;background:var(--accent);color:var(--accent-contrast);font-weight:700;font-size:13.5px;text-decoration:none">{t.ptLink}</a>
+          <a href={pick(lang, '/qibla/', '/en/qibla/', '/ur/qibla/')} style="padding:10px 16px;border-radius:11px;background:var(--surface2);border:1px solid var(--border);color:var(--accent);font-weight:700;font-size:13.5px;text-decoration:none">{t.qiblaLink}</a>
+        </div>
+      </section>
+
+      {nearby.length > 0 && (
+        <section class="card section-card">
+          <h2 class="section-h2">{t.nearby}</h2>
+          <div style="display:flex;flex-wrap:wrap;gap:9px;margin-top:12px">
+            {nearby.map(c => (
+              <a href={mosqueCityPath(country.slug, c.slug, lang)}
+                style="padding:8px 14px;border-radius:999px;border:1px solid var(--border);background:var(--surface2);color:var(--text);text-decoration:none;font-size:13.5px;font-weight:600">
+                {pick(lang, c.ar, c.en, c.ur)}
+              </a>
+            ))}
+          </div>
+          <div style="margin-top:14px">
+            <a href={mosqueCountryPath(country.slug, lang)} style="color:var(--accent);text-decoration:none;font-size:14px;font-weight:700">{t.allCities}</a>
+          </div>
+        </section>
+      )}
+
+      <section class="card section-card">
+        <h2 class="section-h2">{t.faqTitle}</h2>
+        {faq.map((f, i) => (
+          <div class="faq-item" style={i === faq.length - 1 ? 'border-bottom:none' : ''}>
+            <p class="faq-q">{f.q}</p>
+            <p class="faq-a">{f.a}</p>
+          </div>
+        ))}
+      </section>
+    </main>
+
+    <aside>
+      <div class="ad-slot"><span class="ad-label">{t.ad}</span><span style="font-size:13px;opacity:.7">300 × 250</span></div>
+      <div class="card" style="padding:18px 20px">
+        <h3 style="margin:0 0 12px;font-size:15.5px;font-weight:700">{t.tools}</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:14.5px">
+          <a href={mosqueBase(lang)} style="color:var(--accent);text-decoration:none">{t.mainTool}</a>
+          <a href={cityPath(country.slug, city.slug, lang)} style="color:var(--accent);text-decoration:none">{t.ptTool}</a>
+          <a href={homeHref} style="color:var(--accent);text-decoration:none">{t.fullCal}</a>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="site-footer">
+    {t.footer}
+    <span style="margin:0 8px;opacity:.4">·</span>
+    <a href={pick(lang, '/privacy/', '/en/privacy/', '/ur/privacy/')} style="color:var(--muted);text-decoration:none;font-size:13px">{t.privacy}</a>
+  </footer>
+</Layout>

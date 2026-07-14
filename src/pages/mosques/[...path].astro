@@ -1,0 +1,22 @@
+---
+import MosqueDirectoryPage from '../../components/MosqueDirectoryPage.astro';
+import MosqueCountryPage from '../../components/MosqueCountryPage.astro';
+import MosqueCityPage from '../../components/MosqueCityPage.astro';
+import { PT_COUNTRIES } from '../../lib/cities';
+import { mosqueCountries, mosqueCitiesOfCountry } from '../../lib/mosque-cities';
+
+export function getStaticPaths() {
+  const paths: any[] = [{ params: { path: undefined }, props: { kind: 'dir' } }];
+  for (const country of mosqueCountries()) {
+    paths.push({ params: { path: country.slug }, props: { kind: 'country', country } });
+    for (const city of mosqueCitiesOfCountry(country.code)) {
+      paths.push({ params: { path: `${country.slug}/${city.slug}` }, props: { kind: 'city', country, city } });
+    }
+  }
+  return paths;
+}
+const { kind, country, city } = Astro.props as any;
+---
+{kind === 'city' && <MosqueCityPage lang="ar" country={country} city={city} />}
+{kind === 'country' && <MosqueCountryPage lang="ar" country={country} />}
+{kind === 'dir' && <MosqueDirectoryPage lang="ar" />}
