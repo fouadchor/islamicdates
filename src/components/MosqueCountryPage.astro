@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { type PtCountry } from '../lib/cities';
-import { mosqueCitiesOfCountry, mosqueCityPath, mosqueCountryPath, mosqueBase, mosquesFor } from '../lib/mosque-cities';
+import { mosqueCitiesOfCountry, mosqueCityPath, mosqueCountryPath, mosqueBase, curatedMosquesFor } from '../lib/mosque-cities';
 import { type Lang, pick } from '../lib/data';
 
 interface Props { lang: Lang; country: PtCountry }
@@ -91,7 +91,7 @@ const t = {
             <a href={mosqueCityPath(country.slug, c.slug, lang)} class="month-item" style="text-decoration:none;color:inherit">
               <div>
                 <div class="month-name">{pick(lang, c.ar, c.en, c.ur)}</div>
-                <div class="month-note">{pick(lang, `${mosquesFor(c.slug).list.length} مسجد`, `${mosquesFor(c.slug).list.length} mosques`, `${mosquesFor(c.slug).list.length} مساجد`)}</div>
+                <div class="month-note">{pick(lang, `${curatedMosquesFor(c.slug).length} مسجد`, `${curatedMosquesFor(c.slug).length} mosques`, `${curatedMosquesFor(c.slug).length} مساجد`)}</div>
               </div>
             </a>
           ))}
