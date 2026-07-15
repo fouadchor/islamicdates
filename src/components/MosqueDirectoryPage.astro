@@ -1,6 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { mosqueCountries, mosqueCitiesOfCountry, mosqueCityPath, mosqueCountryPath, mosqueBase } from '../lib/mosque-cities';
+import { mosqueCountries, mosqueCitiesOfCountry, mosqueCityPath, mosqueCountryPath, mosqueBase, landmarkNamesFor } from '../lib/mosque-cities';
 import { type Lang, pick } from '../lib/data';
 
 interface Props { lang: Lang }
@@ -10,6 +10,13 @@ const countries = mosqueCountries();
 const cityCount = countries.reduce((n, c) => n + mosqueCitiesOfCountry(c.code).length, 0);
 const canonical = `https://islamicdates.org${mosqueBase(lang)}`;
 const homeHref  = pick(lang, '/', '/en/', '/ur/');
+const famousOf = (code: string): string[] => {
+  const out: string[] = [];
+  for (const c of mosqueCitiesOfCountry(code)) { for (const n of landmarkNamesFor(c.slug, lang, 1)) if (out.length < 3) out.push(n); }
+  return out;
+};
+const locNote = pick(lang, 'حسب موقعك — بلدك في الأعلى', 'Based on your location — your country is shown first', 'آپ کے مقام کے مطابق — آپ کا ملک سب سے اوپر');
+const famousLabel = pick(lang, 'من أبرز مساجدها:', 'Famous mosques:', 'نمایاں مساجد:');
 
 const title = pick(lang,
   `دليل المساجد حسب المدينة · أقرب مسجد في مدن العالم`,
@@ -76,11 +83,16 @@ const t = {
         <a href={t.nearHref} style="margin-top:14px;display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:11px;background:var(--accent);color:var(--accent-contrast);font-weight:700;font-size:14px;text-decoration:none">{t.findNear}</a>
       </section>
 
+      <div id="mosque-country-list" style="display:flex;flex-direction:column;gap:20px">
       {countries.map(country => (
-        <section class="card section-card">
-          <h2 class="section-h2">
+        <section class="card section-card mosque-country" data-cc={country.code}>
+          <span class="cc-here-badge" hidden style="display:inline-flex;align-items:center;gap:6px;margin-bottom:10px;font-size:12px;font-weight:700;color:var(--accent);background:var(--accent-soft);border-radius:999px;padding:4px 12px">📍 {locNote}</span>
+          <h2 class="section-h2" style="margin:0">
             <a href={mosqueCountryPath(country.slug, lang)} style="color:inherit;text-decoration:none">{pick(lang, country.ar, country.en, country.ur)}</a>
           </h2>
+          {famousOf(country.code).length > 0 && (
+            <p style="margin:8px 0 0;font-size:13px;color:var(--muted)"><span style="font-weight:700">{famousLabel}</span> {famousOf(country.code).join(pick(lang, ' · ', ' · ', ' · '))}</p>
+          )}
           <div style="display:flex;flex-wrap:wrap;gap:9px;margin-top:12px">
             {mosqueCitiesOfCountry(country.code).map(c => (
               <a href={mosqueCityPath(country.slug, c.slug, lang)}
@@ -91,6 +103,30 @@ const t = {
           </div>
         </section>
       ))}
+      </div>
+
+      <script is:inline>
+        (function () {
+          try {
+            var wrap = document.getElementById('mosque-country-list');
+            if (!wrap) return;
+            fetch('/cdn-cgi/trace', { cache: 'no-store' })
+              .then(function (r) { return r.text(); })
+              .then(function (txt) {
+                var m = /(^|\n)loc=([A-Z]{2})/.exec(txt);
+                if (!m) return;
+                var cc = m[2].toLowerCase();
+                var sec = wrap.querySelector('.mosque-country[data-cc="' + cc + '"]');
+                if (!sec || sec === wrap.firstElementChild) return;
+                wrap.insertBefore(sec, wrap.firstElementChild);
+                var badge = sec.querySelector('.cc-here-badge');
+                if (badge) badge.hidden = false;
+                sec.style.borderColor = 'var(--accent)';
+              })
+              .catch(function () {});
+          } catch (e) {}
+        })();
+      </script>
     </main>
 
     <aside>
