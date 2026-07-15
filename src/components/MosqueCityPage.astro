@@ -2,7 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import NearbyMosquesIsland from './NearbyMosquesIsland';
 import { type PtCity, type PtCountry, cityPath } from '../lib/cities';
-import { mosquesFor, mosqueCitiesOfCountry, mosqueCityPath, mosqueCountryPath, mosqueBase, mapsDir } from '../lib/mosque-cities';
+import { curatedMosquesFor, cityMosqueTotal, mosqueCitiesOfCountry, mosqueCityPath, mosqueCountryPath, mosqueBase, mapsDir } from '../lib/mosque-cities';
 import { qiblaBearing, qiblaDistanceKm } from '../lib/qibla';
 import { type Lang, pick } from '../lib/data';
 
@@ -11,10 +11,9 @@ const { lang, country, city } = Astro.props;
 
 const cityName    = pick(lang, city.ar, city.en, city.ur);
 const countryName = pick(lang, country.ar, country.en, country.ur);
-const data        = mosquesFor(city.slug);
-const list        = data.list;
+const list        = curatedMosquesFor(city.slug);
 const listed      = list.length;
-const total       = Math.max(data.count, listed);
+const total       = cityMosqueTotal(city.slug);
 const bearing     = qiblaBearing(city.lat, city.lng).toFixed(1);
 const distKm      = qiblaDistanceKm(city.lat, city.lng);
 
@@ -156,7 +155,10 @@ const t = {
             {list.map((m, i) => (
               <div style={`display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 2px;${i === list.length - 1 ? '' : 'border-bottom:1px solid var(--border)'}`}>
                 <div style="min-width:0">
-                  <div style="font-weight:700;font-size:15px;color:var(--text)">{mName(m)}</div>
+                  <div style="font-weight:700;font-size:15px;color:var(--text)">
+                    {mName(m)}
+                    {m.landmark && <span style="margin-inline-start:7px;font-size:11px;font-weight:700;color:var(--gold-deep);background:var(--gold-soft);border-radius:999px;padding:2px 9px;vertical-align:middle">{pick(lang, 'معلم بارز', 'Landmark', 'نمایاں')}</span>}
+                  </div>
                   <div style="font-size:12.5px;color:var(--muted);margin-top:2px">
                     {[mAlt(m), m.a].filter(Boolean).join(pick(lang, ' · ', ' · ', ' · '))}
                   </div>
