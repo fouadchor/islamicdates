@@ -51,8 +51,14 @@ export default function ConverterIsland({ lang }: Props) {
     yr: pick(lang, 'سنة', 'years', 'سال'),
     mo: pick(lang, 'شهر', 'months', 'ماہ'),
     dy: pick(lang, 'يوم', 'days', 'دن'),
-    bornLabel: pick(lang, 'تاريخ ميلادك بالهجري', 'Your birth date in Hijri', 'ہجری میں آپ کی تاریخِ پیدائش'),
+    totalDays: pick(lang, 'إجمالي الأيام التي عشتها', 'Total days you have lived', 'آپ نے کل اتنے دن گزارے'),
+    daysWord: pick(lang, 'يوم', 'days', 'دن'),
+    bornLabel: pick(lang, 'تاريخ ميلادك', 'Your birth date', 'آپ کی تاریخِ پیدائش'),
     bornOn: pick(lang, 'وُلدت يوم', 'You were born on', 'آپ پیدا ہوئے بروز'),
+    nextHijri: pick(lang, 'عيد ميلادك القادم (هجري)', 'Your next Hijri birthday', 'آپ کی اگلی ہجری سالگرہ'),
+    nextGreg: pick(lang, 'عيد ميلادك القادم (ميلادي)', 'Your next Gregorian birthday', 'آپ کی اگلی عیسوی سالگرہ'),
+    todayWord: pick(lang, 'اليوم! 🎉', 'Today! 🎉', 'آج! 🎉'),
+    left: (n: number) => pick(lang, `باقٍ ${n} يوم`, `${n} days left`, `${n} دن باقی`),
     fullAge: pick(lang, 'الصفحة الكاملة لحاسبة العمر', 'Open the full age calculator', 'مکمل عمر کیلکولیٹر کھولیں'),
   };
 
@@ -60,6 +66,8 @@ export default function ConverterIsland({ lang }: Props) {
 
   const fmtH = (d: Date) => { const h = g2h(d); return `${wd[d.getUTCDay()]}${sep}${h.d} ${hMon[h.m - 1]} ${h.y} ${hijriEra(lang)}`; };
   const fmtG = (d: Date) => `${wd[d.getUTCDay()]}${sep}${d.getUTCDate()} ${gMon[d.getUTCMonth()]} ${d.getUTCFullYear()} ${gregEra(lang)}`;
+  const fmtHShort = (d: Date) => { const h = g2h(d); return `${h.d} ${hMon[h.m - 1]} ${h.y} ${hijriEra(lang)}`; };
+  const fmtGWd = (d: Date) => `${wd[d.getUTCDay()]}${sep}${d.getUTCDate()} ${gMon[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
 
   // ---- Converter values ----
   const curGY = today.getUTCFullYear();
@@ -100,7 +108,8 @@ export default function ConverterIsland({ lang }: Props) {
   };
   const fmtYMD = (a: YMD) => [`${a.y} ${t.yr}`, `${a.m} ${t.mo}`, `${a.d} ${t.dy}`].join(sep);
 
-  let hijriAge = '', gregAge = '', bornHijri = '', bornGreg = '', bornWd = '';
+  let hijriAge = '', gregAge = '', bornHijri = '', bornGreg = '', bornWd = '', totalDays = 0;
+  let nextHDate: Date | null = null, nextGDate: Date | null = null, nextHDays = 0, nextGDays = 0;
   if (birthValid && birth) {
     const bgY = { y: birth.getUTCFullYear(), m: birth.getUTCMonth() + 1, d: birth.getUTCDate() };
     const tgY = { y: today.getUTCFullYear(), m: today.getUTCMonth() + 1, d: today.getUTCDate() };
@@ -110,6 +119,17 @@ export default function ConverterIsland({ lang }: Props) {
     bornHijri = `${bh.d} ${hMon[bh.m - 1]} ${bh.y} ${hijriEra(lang)}`;
     bornGreg = `${birth.getUTCDate()} ${gMon[birth.getUTCMonth()]} ${birth.getUTCFullYear()} ${gregEra(lang)}`;
     bornWd = wd[birth.getUTCDay()];
+    totalDays = Math.floor((today.getTime() - birth.getTime()) / 86400000);
+
+    // next gregorian birthday
+    let ng = new Date(Date.UTC(today.getUTCFullYear(), birth.getUTCMonth(), birth.getUTCDate()));
+    if (ng.getTime() < today.getTime()) ng = new Date(Date.UTC(today.getUTCFullYear() + 1, birth.getUTCMonth(), birth.getUTCDate()));
+    nextGDate = ng; nextGDays = Math.round((ng.getTime() - today.getTime()) / 86400000);
+
+    // next hijri birthday
+    let nh = h2g(th.y, bh.m, bh.d);
+    if (nh.getTime() < today.getTime()) nh = h2g(th.y + 1, bh.m, bh.d);
+    nextHDate = nh; nextHDays = Math.round((nh.getTime() - today.getTime()) / 86400000);
   }
 
   // ---- Styles ----
@@ -122,6 +142,7 @@ export default function ConverterIsland({ lang }: Props) {
   });
   const inputStyle: React.CSSProperties = { padding: '11px 13px', borderRadius: 11, border: '1px solid var(--border)', background: 'var(--surface2)', color: 'var(--text)', fontSize: 15 };
   const selLabel: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12.5, color: 'var(--muted)' };
+  const miniCard: React.CSSProperties = { padding: '14px 16px', borderRadius: 12, background: 'var(--surface2)', border: '1px solid var(--border)' };
 
   const dmySelects = (
     dVal: number, dOpts: number, onD: (n: number) => void,
@@ -195,15 +216,35 @@ export default function ConverterIsland({ lang }: Props) {
                 <div style={{ fontSize: 12, color: 'var(--accent)', fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', marginBottom: 7 }}>{t.ageHijri}</div>
                 <div style={{ fontWeight: 700, fontSize: 'clamp(18px,3.2vw,25px)', lineHeight: 1.25 }}>{hijriAge}</div>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 12 }}>
-                <div style={{ padding: '14px 16px', borderRadius: 12, background: 'var(--surface2)', border: '1px solid var(--border)' }}>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 12 }}>
+                <div style={miniCard}>
                   <div style={{ fontSize: 12.5, color: 'var(--muted)', fontWeight: 600 }}>{t.ageGreg}</div>
                   <div style={{ fontWeight: 700, fontSize: 16, marginTop: 4 }}>{gregAge}</div>
                 </div>
-                <div style={{ padding: '14px 16px', borderRadius: 12, background: 'var(--gold-soft)', border: '1px solid var(--gold-soft)' }}>
-                  <div style={{ fontSize: 12.5, color: 'var(--gold-deep)', fontWeight: 700 }}>{t.bornLabel}</div>
-                  <div style={{ fontWeight: 700, fontSize: 15, marginTop: 4, color: 'var(--text)' }}>{bornHijri}</div>
-                  <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 2 }}>{bornGreg} · {t.bornOn} <strong style={{ color: 'var(--text)' }}>{bornWd}</strong></div>
+                <div style={miniCard}>
+                  <div style={{ fontSize: 12.5, color: 'var(--muted)', fontWeight: 600 }}>{t.totalDays}</div>
+                  <div style={{ fontWeight: 700, fontSize: 16, marginTop: 4 }}>{totalDays.toLocaleString('en-US')} {t.daysWord}</div>
+                </div>
+              </div>
+
+              <div style={{ padding: '14px 16px', borderRadius: 12, background: 'var(--gold-soft)', border: '1px solid var(--gold-soft)' }}>
+                <div style={{ fontSize: 12.5, color: 'var(--gold-deep)', fontWeight: 700 }}>{t.bornLabel}</div>
+                <div style={{ fontWeight: 700, fontSize: 15.5, marginTop: 4, color: 'var(--text)' }}>{bornHijri}</div>
+                <div style={{ fontSize: 14, color: 'var(--muted)', marginTop: 2 }}>{bornGreg}</div>
+                <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 6 }}>{t.bornOn} <strong style={{ color: 'var(--text)' }}>{bornWd}</strong></div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 12 }}>
+                <div style={miniCard}>
+                  <div style={{ fontSize: 12.5, color: 'var(--accent)', fontWeight: 700 }}>{t.nextHijri}</div>
+                  <div style={{ fontWeight: 700, fontSize: 14.5, marginTop: 4 }}>{nextHDate && fmtHShort(nextHDate)}</div>
+                  <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 2 }}>{nextHDays === 0 ? t.todayWord : t.left(nextHDays)}</div>
+                </div>
+                <div style={miniCard}>
+                  <div style={{ fontSize: 12.5, color: 'var(--accent)', fontWeight: 700 }}>{t.nextGreg}</div>
+                  <div style={{ fontWeight: 700, fontSize: 14.5, marginTop: 4 }}>{nextGDate && fmtGWd(nextGDate)}</div>
+                  <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 2 }}>{nextGDays === 0 ? t.todayWord : t.left(nextGDays)}</div>
                 </div>
               </div>
             </div>
