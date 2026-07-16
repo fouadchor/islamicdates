@@ -11,7 +11,7 @@ import { HADITHS, hadithOfDay } from '../lib/hadiths';
 import { OCCASIONS, occurrencesInGYear, occBasePath, fmtGShort } from '../lib/occasions';
 import { g2h, todayUTC } from '../lib/hijri';
 import { monthBasePath, monthName, H_YEAR_START, H_YEAR_END } from '../lib/months';
-import { eventForDay, otdPath, fmtHDay, whatsappHref } from '../lib/onthisday';
+import { eventForDay, eventsOfMonth, otdPath, fmtHDay, whatsappHref } from '../lib/onthisday';
 
 // --- Request-time SSR + fresh CDN cache (fixes stale build-time date) ---
 export const prerender = false;
@@ -32,10 +32,30 @@ const lang = 'ar';
 const L = getL(true);
 const _h = hadithOfDay(new Date());
 
-// «في مثل هذا اليوم الهجري» — حدث اليوم (SSR عند كل طلب)
+// «في مثل هذا اليوم الهجري» — حدث اليوم (SSR عند كل طلب) + شريط أحداث الشهر التفاعلي
 const _otdH = g2h(todayUTC());
 const _otd = eventForDay(_otdH.m, _otdH.d, new Date().getUTCFullYear());
+const _otdIcon = (t: string): string => {
+  if (/الإمام|الحافظ|شيخ الإسلام|الفيلسوف|مكتشف|صاحب/.test(t)) return '📚';
+  if (/غزوة|معركة|حصار|وقعة|صفّين|الخندق/.test(t)) return '⚔️';
+  if (/فتح|استرداد|تحرير/.test(t)) return '🕌';
+  if (/وفاة|استشهاد|مقتل|طعن/.test(t)) return '🕯️';
+  if (/مولد|ولادة/.test(t)) return '🌟';
+  if (/بيعة|خلافة|دولة|سلطان|تقويم/.test(t)) return '👑';
+  return '📜';
+};
+const _otdAgo = (y: string): number | null => {
+  const m = y.match(/^(\d+)\s*هـ/);
+  return m ? _otdH.y - parseInt(m[1], 10) : null;
+};
+const _otdMonthEvents = eventsOfMonth(_otdH.m).map(e => ({
+  slug: e.slug, hd: e.hd, title: e.title, year: e.year, summary: e.summary,
+  source: e.source, disputed: e.disputed || '', icon: _otdIcon(e.title),
+  ago: _otdAgo(e.year), path: otdPath(e.slug), hDate: fmtHDay(e.hm, e.hd),
+}));
+const _otdCur = _otdMonthEvents.find(e => e.slug === _otd.ev.slug) || _otdMonthEvents[0];
 const _otdWa = whatsappHref(_otd.ev);
+const _otdMonthName = H_MON_AR[_otdH.m - 1];
 
 const _featured = OCCASIONS.map(o => o.slug); // all occasions, ordered by date below
 const _homeYears = (() => { const y = new Date().getUTCFullYear(); return [y, y+1]; })();
@@ -132,34 +152,109 @@ const jsonLd = JSON.stringify([
         </div>
       </section>
 
-      <!-- On this day in Hijri history (في مثل هذا اليوم الهجري) -->
-      <section class="card section-card" style="order:6;border-color:var(--accent)">
-        <div style="display:flex;align-items:center;gap:9px;margin-bottom:10px">
-          <span aria-hidden="true" style="font-size:22px;line-height:1">📜</span>
-          <h2 class="section-h2" style="margin:0">في مثل هذا اليوم الهجري</h2>
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
-          <span style="display:inline-flex;align-items:center;gap:6px;padding:5px 13px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:13px">☾ {fmtHDay(_otd.ev.hm, _otd.ev.hd)}</span>
-          <span style="display:inline-flex;align-items:center;padding:5px 13px;border-radius:999px;background:var(--gold-soft);color:var(--gold-deep);font-weight:700;font-size:13px">{_otd.ev.year}</span>
-          {!_otd.exact && <span style="display:inline-flex;align-items:center;padding:5px 13px;border-radius:999px;background:var(--accent-soft);color:var(--muted);font-weight:600;font-size:12px">من أبرز أحداث شهر {H_MON_AR[_otd.ev.hm - 1]}</span>}
-        </div>
-        <h3 style="margin:0 0 8px;font-size:clamp(17px,2.6vw,21px);font-weight:700;line-height:1.6">
-          <a href={otdPath(_otd.ev.slug)} style="color:inherit;text-decoration:none">{_otd.ev.title}</a>
-        </h3>
-        <p class="section-p">{_otd.ev.summary}</p>
-        {_otd.ev.disputed && (
-          <p style="margin:12px 0 0;display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:1.8;color:var(--muted)"><span aria-hidden="true">⚠️</span><span><strong>اختلاف الروايات:</strong> {_otd.ev.disputed}</span></p>
-        )}
-        <p style="margin:10px 0 0;font-size:12.5px;color:var(--muted)">📚 المصدر: {_otd.ev.source}</p>
-        <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-          <a href={otdPath(_otd.ev.slug)} style="display:inline-flex;align-items:center;gap:7px;padding:11px 20px;border-radius:11px;background:var(--accent);color:var(--accent-contrast);font-weight:700;font-size:14px;text-decoration:none">اقرأ القصة ›</a>
-          <a href={_otdWa} target="_blank" rel="noopener" aria-label="مشاركة الحدث على واتساب" style="display:inline-flex;align-items:center;gap:7px;padding:11px 20px;border-radius:11px;background:#25D366;color:#fff;font-weight:700;font-size:14px;text-decoration:none">
-            <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.174.198-.298.297-.497.1-.198.05-.371-.025-.52-.074-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
-            شارك على واتساب
-          </a>
-          <a href="/on-this-day/" style="font-size:13.5px;font-weight:700;color:var(--accent);text-decoration:none">كل الأحداث ›</a>
+      <!-- On this day in Hijri history (في مثل هذا اليوم الهجري) — manuscript card + interactive month strip -->
+      <section class="card section-card" style="order:6;position:relative;overflow:hidden;background:linear-gradient(140deg,#10312f 0%,#0c4a44 55%,#0a5a54 100%);border-color:transparent;color:#eafaf6">
+        <span aria-hidden="true" style="position:absolute;top:-24px;inset-inline-end:-10px;font-size:110px;opacity:.09;transform:rotate(12deg);color:#fbbf24">✦</span>
+        <span aria-hidden="true" style="position:absolute;bottom:-34px;inset-inline-start:-12px;font-size:120px;opacity:.09;color:#fbbf24">☾</span>
+        <span id="otd-ghost" aria-hidden="true" style="position:absolute;bottom:-38px;inset-inline-end:6px;font-size:clamp(80px,14vw,150px);font-weight:800;line-height:1;color:rgba(251,191,36,.10);pointer-events:none;font-variant-numeric:tabular-nums">{_otdCur.year.replace(' هـ','')}</span>
+
+        <div style="position:relative">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px">
+            <h2 class="section-h2" style="margin:0;color:#fff">📜 في مثل هذا اليوم الهجري</h2>
+            <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);font-weight:700;font-size:12.5px;color:#d5efe9">☾ اليوم {_otdH.d} {_otdMonthName} {_otdH.y} هـ</span>
+          </div>
+          <p style="margin:0 0 16px;font-size:13px;color:#9fd4c9">صفحة من ذاكرة الأمة تُقلَّب كل يوم — انقر على أيام الشهر لتصفح أحداثه</p>
+
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+            <span id="otd-ago" style={`display:${_otdCur.ago !== null ? 'inline-flex' : 'none'};align-items:center;gap:6px;padding:6px 15px;border-radius:999px;background:#fbbf24;color:#4a2b00;font-weight:800;font-size:13.5px;box-shadow:0 3px 10px rgba(0,0,0,.25)`}>⏳ قبل {_otdCur.ago} سنة</span>
+            <span id="otd-year" style="display:inline-flex;align-items:center;padding:6px 14px;border-radius:999px;background:rgba(255,255,255,.14);border:1px solid rgba(251,191,36,.5);color:#ffd97a;font-weight:700;font-size:13px">{_otdCur.year}</span>
+            <span id="otd-day" style="display:inline-flex;align-items:center;padding:6px 14px;border-radius:999px;background:rgba(255,255,255,.12);color:#d5efe9;font-weight:700;font-size:13px">{_otdCur.hDate}</span>
+            <span id="otd-flag" style="display:inline-flex;align-items:center;padding:6px 14px;border-radius:999px;background:rgba(94,234,212,.16);color:#8ff5e2;font-weight:700;font-size:12.5px">{_otdCur.hd === _otdH.d ? '✨ حدث هذا اليوم نفسه' : `من أبرز أحداث شهر ${_otdMonthName}`}</span>
+          </div>
+
+          <div style="display:flex;gap:14px;align-items:flex-start">
+            <span id="otd-icon" aria-hidden="true" style="font-size:44px;line-height:1.2;flex:0 0 auto;filter:drop-shadow(0 4px 10px rgba(0,0,0,.35))">{_otdCur.icon}</span>
+            <div style="flex:1 1 auto;min-width:0">
+              <h3 style="margin:0 0 8px;font-size:clamp(18px,2.8vw,23px);font-weight:800;line-height:1.6">
+                <a id="otd-title" href={_otdCur.path} style="color:#fff;text-decoration:none">{_otdCur.title}</a>
+              </h3>
+              <p id="otd-summary" class="section-p" style="color:#d9efe9;margin:0">{_otdCur.summary}</p>
+            </div>
+          </div>
+
+          <div id="otd-disp" style={`margin-top:14px;display:${_otdCur.disputed ? 'flex' : 'none'};gap:9px;align-items:flex-start;padding:11px 14px;border-radius:12px;background:rgba(251,191,36,.13);border:1px solid rgba(251,191,36,.4)`}>
+            <span aria-hidden="true" style="font-size:16px;line-height:1.5">⚠️</span>
+            <p style="margin:0;font-size:12.5px;line-height:1.9;color:#ffe9b3"><strong>اختلاف الروايات:</strong> <span id="otd-disp-txt">{_otdCur.disputed}</span></p>
+          </div>
+          <p style="margin:12px 0 0;font-size:12.5px;color:#9fd4c9">📚 المصدر: <span id="otd-src">{_otdCur.source}</span></p>
+
+          <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+            <a id="otd-read" href={_otdCur.path} style="display:inline-flex;align-items:center;gap:7px;padding:11px 22px;border-radius:999px;background:#fbbf24;color:#4a2b00;font-weight:800;font-size:14px;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.25)">اقرأ القصة كاملة ›</a>
+            <a id="otd-wa" href={_otdWa} target="_blank" rel="noopener" aria-label="مشاركة الحدث على واتساب" style="display:inline-flex;align-items:center;gap:7px;padding:11px 20px;border-radius:999px;background:#25D366;color:#fff;font-weight:700;font-size:14px;text-decoration:none">
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.174.198-.298.297-.497.1-.198.05-.371-.025-.52-.074-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+              شارك على واتساب
+            </a>
+            <a href="/on-this-day/" style="font-size:13.5px;font-weight:700;color:#8ff5e2;text-decoration:none">أرشيف الأحداث كاملاً ›</a>
+          </div>
+
+          <div style="margin-top:18px;padding-top:14px;border-top:1px dashed rgba(255,255,255,.25)">
+            <div style="font-size:12.5px;font-weight:700;color:#9fd4c9;margin-bottom:9px">أحداث شهر {_otdMonthName} — انقر يوماً لتقرأ حدثه:</div>
+            <div id="otd-strip" style="display:flex;gap:7px;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin">
+              {_otdMonthEvents.map(e => (
+                <button
+                  type="button"
+                  class="otd-chip"
+                  data-slug={e.slug}
+                  title={e.title}
+                  aria-label={`${e.hDate}: ${e.title}`}
+                  style={`flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;border:1.5px solid ${e.slug === _otdCur.slug ? '#fbbf24' : 'rgba(255,255,255,.3)'};background:${e.slug === _otdCur.slug ? '#fbbf24' : 'rgba(255,255,255,.08)'};color:${e.slug === _otdCur.slug ? '#4a2b00' : '#eafaf6'};font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;white-space:nowrap;transition:background .2s,border-color .2s`}
+                >{e.icon} {e.hd}{e.hd === _otdH.d ? ' ●' : ''}</button>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
+      <script define:vars={{ otdEvs: _otdMonthEvents, otdTodayHd: _otdH.d, otdMonthName: _otdMonthName }}>
+        (function () {
+          var strip = document.getElementById('otd-strip');
+          if (!strip) return;
+          function waLink(e) {
+            var t = '🌙 في مثل هذا اليوم الهجري (' + e.hDate + ')\n*' + e.title + '* — ' + e.year + '\n\n' + e.summary + '\n\nاقرأ القصة كاملة:\nhttps://islamicdates.org' + e.path;
+            return 'https://wa.me/?text=' + encodeURIComponent(t);
+          }
+          function show(slug) {
+            var e = otdEvs.find(function (x) { return x.slug === slug; });
+            if (!e) return;
+            document.getElementById('otd-icon').textContent = e.icon;
+            var title = document.getElementById('otd-title');
+            title.textContent = e.title; title.href = e.path;
+            document.getElementById('otd-summary').textContent = e.summary;
+            document.getElementById('otd-year').textContent = e.year;
+            document.getElementById('otd-day').textContent = e.hDate;
+            document.getElementById('otd-src').textContent = e.source;
+            document.getElementById('otd-ghost').textContent = e.year.replace(' هـ', '');
+            var ago = document.getElementById('otd-ago');
+            if (e.ago !== null && e.ago !== undefined) { ago.style.display = 'inline-flex'; ago.textContent = '⏳ قبل ' + e.ago + ' سنة'; }
+            else ago.style.display = 'none';
+            var disp = document.getElementById('otd-disp');
+            if (e.disputed) { disp.style.display = 'flex'; document.getElementById('otd-disp-txt').textContent = e.disputed; }
+            else disp.style.display = 'none';
+            document.getElementById('otd-flag').textContent = e.hd === otdTodayHd ? '✨ حدث هذا اليوم نفسه' : 'من أبرز أحداث شهر ' + otdMonthName;
+            document.getElementById('otd-read').href = e.path;
+            document.getElementById('otd-wa').href = waLink(e);
+            strip.querySelectorAll('.otd-chip').forEach(function (c) {
+              var on = c.dataset.slug === slug;
+              c.style.background = on ? '#fbbf24' : 'rgba(255,255,255,.08)';
+              c.style.borderColor = on ? '#fbbf24' : 'rgba(255,255,255,.3)';
+              c.style.color = on ? '#4a2b00' : '#eafaf6';
+            });
+          }
+          strip.addEventListener('click', function (ev) {
+            var chip = ev.target.closest('.otd-chip');
+            if (chip) show(chip.dataset.slug);
+          });
+        })();
+      </script>
 
       <!-- Kids corner (ركن الصغار) -->
 <section class="card section-card" style="order:6;background:linear-gradient(135deg,#7c5cd6 0%,#a78bfa 55%,#fb7185 130%);border-color:transparent;color:#fff;position:relative;overflow:hidden">
