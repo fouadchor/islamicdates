@@ -132,8 +132,7 @@ const yearMonths = Array.from({ length: 12 }, (_, i) => ({
           ))}
           {Array.from({ length: grid[0].col }).map(() => <div></div>)}
           {grid.map(d => {
-            const showMon = d.hd === 1 || d.date.getUTCDate() === 1;
-            const gLabel = showMon ? `${d.date.getUTCDate()} ${gShort[d.date.getUTCMonth()]}` : `${d.date.getUTCDate()}`;
+            const gLabel = `${d.date.getUTCDate()} ${gShort[d.date.getUTCMonth()]}`;
             return (
               <div style={`border:1px solid var(--border);border-radius:10px;padding:7px 4px;text-align:center;min-height:58px;display:flex;flex-direction:column;justify-content:center;gap:2px;${d.occ ? 'background:var(--accent-soft);border-color:var(--accent)' : 'background:var(--surface2)'}`}>
                 <div style="font-size:16px;font-weight:800;line-height:1">{d.hd}</div>
