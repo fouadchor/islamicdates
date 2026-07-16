@@ -12,8 +12,10 @@ interface Props {
   arPath?: string;
   enPath?: string;
   urPath?: string;
+  /** false = صفحة عربية فقط: لا تُصدر hreflang لنسخ لغوية غير موجودة. */
+  altLangs?: boolean;
 }
-const { title, description, canonical, lang, jsonLd, arPath = '/', enPath = '/en/', urPath = '/ur/' } = Astro.props;
+const { title, description, canonical, lang, jsonLd, arPath = '/', enPath = '/en/', urPath = '/ur/', altLangs = true } = Astro.props;
 const dir = lang === 'en' ? 'ltr' : 'rtl';
 const ogLocale = pick(lang, 'ar_AR', 'en_US', 'ur_PK');
 const base = 'https://islamicdates.org';
@@ -127,7 +129,8 @@ const _bnClose = pick(lang, 'إخفاء', 'Dismiss', 'چھپائیں');
   <meta name="robots" content="index, follow, max-image-preview:large" />
   <meta name="theme-color" content="#0d9488" />
   <link rel="canonical" href={canonical} />
-  {langs.map(l => <link rel="alternate" hreflang={l.code} href={`${base}${l.path}`} />)}
+  {altLangs && langs.map(l => <link rel="alternate" hreflang={l.code} href={`${base}${l.path}`} />)}
+  {!altLangs && <link rel="alternate" hreflang="ar" href={`${base}${arPath}`} />}
   <link rel="alternate" hreflang="x-default" href={`${base}${arPath}`} />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <meta property="og:type" content="website" />
