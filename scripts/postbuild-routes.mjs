@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 
 const routes = {
   version: 1,
-  include: ['/', '/en', '/en/', '/ur', '/ur/'],
+  include: ['/', '/en', '/en/', '/ur', '/ur/', '/on-this-day', '/on-this-day/'],
   exclude: [],
 };
 
