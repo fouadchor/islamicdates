@@ -1,10 +1,17 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import NearbyMosquesIsland from '../components/NearbyMosquesIsland';
+import { mosqueCountries, mosqueCitiesOfCountry, mosqueCityPath } from '../lib/mosque-cities';
 
 const canonical = 'https://islamicdates.org/mosques-near-me/';
 const title = 'الجوامع القريبة من مكاني · اعثر على أقرب مسجد إليك مع الاتجاهات';
 const description = 'اعرف الجوامع والمساجد القريبة من موقعك الآن: حدد موقعك بضغطة واحدة لتظهر لك أقرب المساجد مرتّبة حسب المسافة مع رابط اتجاهات لكل مسجد. خدمة مجانية تعمل في كل دول العالم.';
+
+// Full city list (Arabic) for the directory search box below.
+const dirCities = mosqueCountries()
+  .flatMap(country => mosqueCitiesOfCountry(country.code).map(c => ({ label: c.ar, href: mosqueCityPath(country.slug, c.slug, 'ar') })))
+  .sort((a, b) => a.label.localeCompare(b.label, 'ar'));
+const cityMap = Object.fromEntries(dirCities.map(c => [c.label, c.href]));
 
 const faq = [
   { q: 'كيف أجد الجوامع القريبة من مكاني؟', a: 'اضغط زر «اعرض الجوامع القريبة مني» واسمح للمتصفح بالوصول إلى موقعك، فتظهر لك خلال ثوانٍ أقرب المساجد إليك مرتّبة من الأقرب إلى الأبعد، مع المسافة ورابط اتجاهات يفتح خرائط جوجل للوصول إلى المسجد مشياً أو بالسيارة.' },
@@ -53,9 +60,18 @@ const jsonLd = JSON.stringify([
       <NearbyMosquesIsland lang="ar" client:load />
 
       <section class="card section-card" style="order:2">
-        <h2 class="section-h2">تصفّح المساجد حسب المدينة</h2>
-        <p class="section-p" style="margin-top:8px">لا تريد تحديد موقعك؟ تصفّح دليل المساجد واختر مدينتك لعرض أبرز مساجدها مع رابط اتجاهات لكل مسجد.</p>
-        <div style="display:flex;flex-wrap:wrap;gap:9px;margin-top:12px">
+        <h2 class="section-h2">دليل المساجد</h2>
+        <p class="section-p" style="margin-top:8px">لا تريد تحديد موقعك؟ ابحث عن مدينتك أو اخترها من القائمة لعرض أبرز مساجدها مع رابط اتجاهات لكل مسجد.</p>
+        <div style="margin-top:14px;max-width:440px">
+          <input id="mosque-city-search" type="search" list="mosque-city-options" autocomplete="off" enterkeyhint="go"
+            placeholder="🔍 ابحث عن مدينتك…" aria-label="ابحث عن مدينة لعرض مساجدها"
+            style="width:100%;box-sizing:border-box;padding:12px 15px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:14.5px" />
+          <datalist id="mosque-city-options">
+            {dirCities.map(c => <option value={c.label} />)}
+          </datalist>
+        </div>
+        <p class="section-p" style="margin:16px 0 0;font-size:13px;color:var(--muted)">أو اختر مدينة شائعة:</p>
+        <div style="display:flex;flex-wrap:wrap;gap:9px;margin-top:10px">
           <a href="/mosques/saudi-arabia/makkah/" style="padding:8px 14px;border-radius:999px;border:1px solid var(--border);background:var(--surface2);color:var(--text);text-decoration:none;font-size:13.5px;font-weight:600">مكة</a>
           <a href="/mosques/egypt/cairo/" style="padding:8px 14px;border-radius:999px;border:1px solid var(--border);background:var(--surface2);color:var(--text);text-decoration:none;font-size:13.5px;font-weight:600">القاهرة</a>
           <a href="/mosques/united-arab-emirates/dubai/" style="padding:8px 14px;border-radius:999px;border:1px solid var(--border);background:var(--surface2);color:var(--text);text-decoration:none;font-size:13.5px;font-weight:600">دبي</a>
@@ -67,6 +83,19 @@ const jsonLd = JSON.stringify([
           <a href="/mosques/" style="color:var(--accent);text-decoration:none;font-size:14px;font-weight:700">كل المدن ←</a>
         </div>
       </section>
+
+      <script define:vars={{ cityMap }}>
+        (function () {
+          var input = document.getElementById('mosque-city-search');
+          if (!input) return;
+          function go() {
+            var href = cityMap[(input.value || '').trim()];
+            if (href) window.location.href = href;
+          }
+          input.addEventListener('input', go);
+          input.addEventListener('change', go);
+        })();
+      </script>
 
       <section class="card section-card" style="order:3">
         <h2 class="section-h2">كيف تجد أقرب مسجد إليك؟</h2>
