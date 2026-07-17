@@ -52,7 +52,7 @@ const jsonLd = JSON.stringify([
           <span aria-hidden="true" style="font-size:22px;line-height:1;color:var(--accent)">📜</span>
           <h1 class="section-h2" style="margin:0;font-size:22px">في مثل هذا اليوم الهجري</h1>
         </div>
-        <p class="section-p" style="margin-bottom:16px">اليوم <strong>{todayHStr}</strong> وفق تقويم أم القرى.</p>
+        <p class="section-p" style="margin-bottom:16px">اليوم <strong>{todayHStr}</strong> وفق تقويم أم القرى.{!exact && ' لم يثبت حدثٌ بعينه بتاريخ اليوم، وهذا من أبرز أحداث الشهر.'}</p>
 
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
           <span style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:13.5px">☾ {fmtHDay(ev.hm, ev.hd)}</span>
