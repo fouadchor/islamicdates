@@ -31,6 +31,8 @@ const _navZakat = pick(lang, '/zakat/', '/en/zakat/', '/ur/zakat/');
 const _navDua = pick(lang, '/dua/', '/en/dua/', '/ur/dua/');
 const _navFasting = pick(lang, '/fasting/', '/en/fasting/', '/ur/fasting/');
 const _navAbout = pick(lang, '/about/', '/en/about/', '/ur/about/');
+const _navOtd = pick(lang, '/on-this-day/', '/en/on-this-day/', '/ur/on-this-day/');
+const _lblOtd = pick(lang, 'في مثل هذا اليوم الهجري', 'On this day in Hijri history', 'اِسی ہجری دن');
 const _navMosques = pick(lang, '/mosques-near-me/', '/en/mosques-near-me/', '/ur/mosques-near-me/');
 const _lblMosques = pick(lang, 'الجوامع القريبة من مكاني', 'Mosques Near Me', 'میرے قریب مساجد');
 const _navQibla = pick(lang, '/qibla/', '/en/qibla/', '/ur/qibla/');
@@ -613,6 +615,7 @@ const _bnClose = pick(lang, 'إخفاء', 'Dismiss', 'چھپائیں');
             <li><a href={_navHome}>{_labels.home}</a></li>
             <li><a href={_navHome + '#converter'}>{_labels.conv}</a></li>
             <li><a href={_navHome + '#occasions'}>{_labels.occ}</a></li>
+            <li><a href={_navOtd}>{_lblOtd}</a></li>
             <li><a href={_navAbout}>{_labels.guide}</a></li>
           </ul>
         </nav>
