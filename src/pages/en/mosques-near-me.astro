@@ -1,10 +1,17 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import NearbyMosquesIsland from '../../components/NearbyMosquesIsland';
+import { mosqueCountries, mosqueCitiesOfCountry, mosqueCityPath } from '../../lib/mosque-cities';
 
 const canonical = 'https://islamicdates.org/en/mosques-near-me/';
 const title = 'Mosques Near Me · Find the Closest Mosque with Directions';
 const description = 'Find mosques near your location right now: one tap shows the closest mosques sorted by distance, each with a directions link. Free, worldwide, and your location is never stored.';
+
+// Full city list (English) for the directory search box below.
+const dirCities = mosqueCountries()
+  .flatMap(country => mosqueCitiesOfCountry(country.code).map(c => ({ label: c.en, href: mosqueCityPath(country.slug, c.slug, 'en') })))
+  .sort((a, b) => a.label.localeCompare(b.label, 'en'));
+const cityMap = Object.fromEntries(dirCities.map(c => [c.label, c.href]));
 
 const faq = [
   { q: 'How do I find mosques near me?', a: 'Tap the "Show mosques near me" button and allow location access in your browser. Within seconds the closest mosques appear sorted from nearest to farthest, each with its distance and a directions link that opens Google Maps for walking or driving routes.' },
@@ -53,9 +60,18 @@ const jsonLd = JSON.stringify([
       <NearbyMosquesIsland lang="en" client:load />
 
       <section class="card section-card" style="order:2">
-        <h2 class="section-h2">Browse mosques by city</h2>
-        <p class="section-p" style="margin-top:8px">Don't want to share your location? Browse the mosque directory and pick your city to see its notable mosques with directions.</p>
-        <div style="display:flex;flex-wrap:wrap;gap:9px;margin-top:12px">
+        <h2 class="section-h2">Mosque Directory</h2>
+        <p class="section-p" style="margin-top:8px">Don't want to share your location? Search for your city or pick it from the list to see its notable mosques with directions.</p>
+        <div style="margin-top:14px;max-width:440px">
+          <input id="mosque-city-search" type="search" list="mosque-city-options" autocomplete="off" enterkeyhint="go"
+            placeholder="🔍 Search for your city…" aria-label="Search for a city to see its mosques"
+            style="width:100%;box-sizing:border-box;padding:12px 15px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:14.5px" />
+          <datalist id="mosque-city-options">
+            {dirCities.map(c => <option value={c.label} />)}
+          </datalist>
+        </div>
+        <p class="section-p" style="margin:16px 0 0;font-size:13px;color:var(--muted)">Or pick a popular city:</p>
+        <div style="display:flex;flex-wrap:wrap;gap:9px;margin-top:10px">
           <a href="/en/mosques/saudi-arabia/makkah/" style="padding:8px 14px;border-radius:999px;border:1px solid var(--border);background:var(--surface2);color:var(--text);text-decoration:none;font-size:13.5px;font-weight:600">Makkah</a>
           <a href="/en/mosques/egypt/cairo/" style="padding:8px 14px;border-radius:999px;border:1px solid var(--border);background:var(--surface2);color:var(--text);text-decoration:none;font-size:13.5px;font-weight:600">Cairo</a>
           <a href="/en/mosques/united-arab-emirates/dubai/" style="padding:8px 14px;border-radius:999px;border:1px solid var(--border);background:var(--surface2);color:var(--text);text-decoration:none;font-size:13.5px;font-weight:600">Dubai</a>
@@ -67,6 +83,19 @@ const jsonLd = JSON.stringify([
           <a href="/en/mosques/" style="color:var(--accent);text-decoration:none;font-size:14px;font-weight:700">All cities →</a>
         </div>
       </section>
+
+      <script define:vars={{ cityMap }}>
+        (function () {
+          var input = document.getElementById('mosque-city-search');
+          if (!input) return;
+          function go() {
+            var href = cityMap[(input.value || '').trim()];
+            if (href) window.location.href = href;
+          }
+          input.addEventListener('input', go);
+          input.addEventListener('change', go);
+        })();
+      </script>
 
       <section class="card section-card" style="order:3">
         <h2 class="section-h2">How to find the closest mosque</h2>
