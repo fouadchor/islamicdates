@@ -1,10 +1,17 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import NearbyMosquesIsland from '../../components/NearbyMosquesIsland';
+import { mosqueCountries, mosqueCitiesOfCountry, mosqueCityPath } from '../../lib/mosque-cities';
 
 const canonical = 'https://islamicdates.org/ur/mosques-near-me/';
 const title = 'میرے قریب مساجد · قریب ترین مسجد تلاش کریں راستے کے ساتھ';
 const description = 'ابھی اپنے مقام کے قریب مساجد تلاش کریں: ایک بٹن دبائیں اور قریب ترین مساجد فاصلے کے حساب سے ترتیب میں دیکھیں، ہر مسجد کے لیے راستے کے لنک کے ساتھ۔ مفت سروس، پوری دنیا میں کام کرتی ہے۔';
+
+// Full city list (Urdu) for the directory search box below.
+const dirCities = mosqueCountries()
+  .flatMap(country => mosqueCitiesOfCountry(country.code).map(c => ({ label: c.ur, href: mosqueCityPath(country.slug, c.slug, 'ur') })))
+  .sort((a, b) => a.label.localeCompare(b.label, 'ur'));
+const cityMap = Object.fromEntries(dirCities.map(c => [c.label, c.href]));
 
 const faq = [
   { q: 'میرے قریب مساجد کیسے تلاش کروں؟', a: '«قریبی مساجد دکھائیں» کا بٹن دبائیں اور براؤزر کو مقام کی اجازت دیں۔ چند سیکنڈ میں قریب ترین مساجد قریب سے دور کی ترتیب میں نظر آئیں گی، ہر ایک کے ساتھ فاصلہ اور راستے کا لنک جو گوگل میپس میں پیدل یا گاڑی کا راستہ کھولتا ہے۔' },
@@ -53,9 +60,18 @@ const jsonLd = JSON.stringify([
       <NearbyMosquesIsland lang="ur" client:load />
 
       <section class="card section-card" style="order:2">
-        <h2 class="section-h2">شہر کے حساب سے مساجد دیکھیں</h2>
-        <p class="section-p" style="margin-top:8px">مقام نہیں بتانا چاہتے؟ مساجد کی فہرست دیکھیں اور اپنا شہر منتخب کریں تاکہ نمایاں مساجد اور راستے دیکھ سکیں۔</p>
-        <div style="display:flex;flex-wrap:wrap;gap:9px;margin-top:12px">
+        <h2 class="section-h2">مساجد کی فہرست</h2>
+        <p class="section-p" style="margin-top:8px">مقام نہیں بتانا چاہتے؟ اپنا شہر تلاش کریں یا فہرست سے منتخب کریں تاکہ نمایاں مساجد اور راستے دیکھ سکیں۔</p>
+        <div style="margin-top:14px;max-width:440px">
+          <input id="mosque-city-search" type="search" list="mosque-city-options" autocomplete="off" enterkeyhint="go"
+            placeholder="🔍 اپنا شہر تلاش کریں…" aria-label="مساجد دیکھنے کے لیے شہر تلاش کریں"
+            style="width:100%;box-sizing:border-box;padding:12px 15px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:14.5px" />
+          <datalist id="mosque-city-options">
+            {dirCities.map(c => <option value={c.label} />)}
+          </datalist>
+        </div>
+        <p class="section-p" style="margin:16px 0 0;font-size:13px;color:var(--muted)">یا کوئی مقبول شہر منتخب کریں:</p>
+        <div style="display:flex;flex-wrap:wrap;gap:9px;margin-top:10px">
           <a href="/ur/mosques/saudi-arabia/makkah/" style="padding:8px 14px;border-radius:999px;border:1px solid var(--border);background:var(--surface2);color:var(--text);text-decoration:none;font-size:13.5px;font-weight:600">مکہ</a>
           <a href="/ur/mosques/egypt/cairo/" style="padding:8px 14px;border-radius:999px;border:1px solid var(--border);background:var(--surface2);color:var(--text);text-decoration:none;font-size:13.5px;font-weight:600">قاہرہ</a>
           <a href="/ur/mosques/united-arab-emirates/dubai/" style="padding:8px 14px;border-radius:999px;border:1px solid var(--border);background:var(--surface2);color:var(--text);text-decoration:none;font-size:13.5px;font-weight:600">دبئی</a>
@@ -67,6 +83,19 @@ const jsonLd = JSON.stringify([
           <a href="/ur/mosques/" style="color:var(--accent);text-decoration:none;font-size:14px;font-weight:700">تمام شہر ←</a>
         </div>
       </section>
+
+      <script define:vars={{ cityMap }}>
+        (function () {
+          var input = document.getElementById('mosque-city-search');
+          if (!input) return;
+          function go() {
+            var href = cityMap[(input.value || '').trim()];
+            if (href) window.location.href = href;
+          }
+          input.addEventListener('input', go);
+          input.addEventListener('change', go);
+        })();
+      </script>
 
       <section class="card section-card" style="order:3">
         <h2 class="section-h2">قریب ترین مسجد کیسے تلاش کریں؟</h2>
