@@ -40,7 +40,7 @@ const jsonLd = JSON.stringify([
 ]);
 ---
 <Layout title={title} description={description} canonical={canonical} lang="ar" jsonLd={jsonLd}
-  arPath={otdPath(ev.slug)} altLangs={false}>
+  arPath={otdPath(ev.slug)} enPath={`/en/on-this-day/${ev.slug}/`} urPath={`/ur/on-this-day/${ev.slug}/`}>
   <header class="site-header">
     <div class="header-start">
       <a href="/" class="logo" aria-label="الانتقال إلى الصفحة الرئيسية">
