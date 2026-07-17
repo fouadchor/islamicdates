@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://islamicdates.org/sitemap.xml
+Sitemap: https://islamicdates.org/sitemap-index.xml
