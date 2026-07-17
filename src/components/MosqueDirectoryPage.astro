@@ -15,7 +15,7 @@ const famousOf = (code: string): string[] => {
   for (const c of mosqueCitiesOfCountry(code)) { for (const n of landmarkNamesFor(c.slug, lang, 1)) if (out.length < 3) out.push(n); }
   return out;
 };
-const locNote = pick(lang, 'حسب موقعك — بلدك في الأعلى', 'Based on your location — your country is shown first', 'آپ کے مقام کے مطابق — آپ کا ملک سب سے اوپر');
+const locNote = pick(lang, 'حسب موقعك', 'Based on your location', 'آپ کے مقام کے مطابق');
 const famousLabel = pick(lang, 'من أبرز مساجدها:', 'Famous mosques:', 'نمایاں مساجد:');
 
 const title = pick(lang,
