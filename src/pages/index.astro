@@ -110,8 +110,8 @@ const jsonLd = JSON.stringify([
       <!-- Converter (client island) -->
       <div id="converter" style="scroll-margin-top:64px"><ConverterIsland lang="ar" client:visible /></div>
 
-      <!-- Upcoming occasions (client island) -->
-      <UpcomingIsland lang="ar" client:visible />
+      <!-- Upcoming occasions (client island) — order:3 so the OTD card sits above it -->
+      <div style="order:3"><UpcomingIsland lang="ar" client:visible /></div>
 
       <!-- Decorative section divider -->
       <img src="/images/divider-ornament.svg" alt="" role="presentation" width="1200" height="70"
@@ -152,8 +152,8 @@ const jsonLd = JSON.stringify([
         </div>
       </section>
 
-      <!-- On this day in Hijri history (في مثل هذا اليوم الهجري) — manuscript card + interactive month strip -->
-      <section class="card section-card" style="order:6;position:relative;overflow:hidden;background:linear-gradient(140deg,#10312f 0%,#0c4a44 55%,#0a5a54 100%);border-color:transparent;color:#eafaf6">
+      <!-- On this day in Hijri history (في مثل هذا اليوم الهجري) — manuscript card (order:2 → right after the converter, before upcoming occasions) -->
+      <section class="card section-card" style="order:2;position:relative;overflow:hidden;background:linear-gradient(140deg,#10312f 0%,#0c4a44 55%,#0a5a54 100%);border-color:transparent;color:#eafaf6">
         <span aria-hidden="true" style="position:absolute;top:-24px;inset-inline-end:-10px;font-size:110px;opacity:.09;transform:rotate(12deg);color:#fbbf24">✦</span>
         <span aria-hidden="true" style="position:absolute;bottom:-34px;inset-inline-start:-12px;font-size:120px;opacity:.09;color:#fbbf24">☾</span>
         <span id="otd-ghost" aria-hidden="true" style="position:absolute;bottom:-38px;inset-inline-end:6px;font-size:clamp(80px,14vw,150px);font-weight:800;line-height:1;color:rgba(251,191,36,.10);pointer-events:none;font-variant-numeric:tabular-nums">{_otdCur.year.replace(' هـ','')}</span>
@@ -163,7 +163,7 @@ const jsonLd = JSON.stringify([
             <h2 class="section-h2" style="margin:0;color:#fff">📜 في مثل هذا اليوم الهجري</h2>
             <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);font-weight:700;font-size:12.5px;color:#d5efe9">☾ اليوم {_otdH.d} {_otdMonthName} {_otdH.y} هـ</span>
           </div>
-          <p style="margin:0 0 16px;font-size:13px;color:#9fd4c9">صفحة من ذاكرة الأمة تُقلَّب كل يوم — انقر على أيام الشهر لتصفح أحداثه</p>
+          <p style="margin:0 0 16px;font-size:13px;color:#9fd4c9">صفحة من ذاكرة الأمة تُقلَّب كل يوم — حدثٌ من تاريخ أمّتنا الإسلامي في مثل هذا اليوم الهجري</p>
 
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
             <span id="otd-ago" style={`display:${_otdCur.ago !== null ? 'inline-flex' : 'none'};align-items:center;gap:6px;padding:6px 15px;border-radius:999px;background:#fbbf24;color:#4a2b00;font-weight:800;font-size:13.5px;box-shadow:0 3px 10px rgba(0,0,0,.25)`}>⏳ قبل {_otdCur.ago} سنة</span>
@@ -196,65 +196,8 @@ const jsonLd = JSON.stringify([
             </a>
             <a href="/on-this-day/" style="font-size:13.5px;font-weight:700;color:#8ff5e2;text-decoration:none">أرشيف الأحداث كاملاً ›</a>
           </div>
-
-          <div style="margin-top:18px;padding-top:14px;border-top:1px dashed rgba(255,255,255,.25)">
-            <div style="font-size:12.5px;font-weight:700;color:#9fd4c9;margin-bottom:9px">أحداث شهر {_otdMonthName} — انقر يوماً لتقرأ حدثه:</div>
-            <div id="otd-strip" style="display:flex;gap:7px;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin">
-              {_otdMonthEvents.map(e => (
-                <button
-                  type="button"
-                  class="otd-chip"
-                  data-slug={e.slug}
-                  title={e.title}
-                  aria-label={`${e.hDate}: ${e.title}`}
-                  style={`flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;border:1.5px solid ${e.slug === _otdCur.slug ? '#fbbf24' : 'rgba(255,255,255,.3)'};background:${e.slug === _otdCur.slug ? '#fbbf24' : 'rgba(255,255,255,.08)'};color:${e.slug === _otdCur.slug ? '#4a2b00' : '#eafaf6'};font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;white-space:nowrap;transition:background .2s,border-color .2s`}
-                >{e.icon} {e.hd}{e.hd === _otdH.d ? ' ●' : ''}</button>
-              ))}
-            </div>
-          </div>
         </div>
       </section>
-      <script define:vars={{ otdEvs: _otdMonthEvents, otdTodayHd: _otdH.d, otdMonthName: _otdMonthName }}>
-        (function () {
-          var strip = document.getElementById('otd-strip');
-          if (!strip) return;
-          function waLink(e) {
-            var t = '🌙 في مثل هذا اليوم الهجري (' + e.hDate + ')\n*' + e.title + '* — ' + e.year + '\n\n' + e.summary + '\n\nاقرأ القصة كاملة:\nhttps://islamicdates.org' + e.path;
-            return 'https://wa.me/?text=' + encodeURIComponent(t);
-          }
-          function show(slug) {
-            var e = otdEvs.find(function (x) { return x.slug === slug; });
-            if (!e) return;
-            document.getElementById('otd-icon').textContent = e.icon;
-            var title = document.getElementById('otd-title');
-            title.textContent = e.title; title.href = e.path;
-            document.getElementById('otd-summary').textContent = e.summary;
-            document.getElementById('otd-year').textContent = e.year;
-            document.getElementById('otd-day').textContent = e.hDate;
-            document.getElementById('otd-src').textContent = e.source;
-            document.getElementById('otd-ghost').textContent = e.year.replace(' هـ', '');
-            var ago = document.getElementById('otd-ago');
-            if (e.ago !== null && e.ago !== undefined) { ago.style.display = 'inline-flex'; ago.textContent = '⏳ قبل ' + e.ago + ' سنة'; }
-            else ago.style.display = 'none';
-            var disp = document.getElementById('otd-disp');
-            if (e.disputed) { disp.style.display = 'flex'; document.getElementById('otd-disp-txt').textContent = e.disputed; }
-            else disp.style.display = 'none';
-            document.getElementById('otd-flag').textContent = e.hd === otdTodayHd ? '✨ حدث هذا اليوم نفسه' : 'من أبرز أحداث شهر ' + otdMonthName;
-            document.getElementById('otd-read').href = e.path;
-            document.getElementById('otd-wa').href = waLink(e);
-            strip.querySelectorAll('.otd-chip').forEach(function (c) {
-              var on = c.dataset.slug === slug;
-              c.style.background = on ? '#fbbf24' : 'rgba(255,255,255,.08)';
-              c.style.borderColor = on ? '#fbbf24' : 'rgba(255,255,255,.3)';
-              c.style.color = on ? '#4a2b00' : '#eafaf6';
-            });
-          }
-          strip.addEventListener('click', function (ev) {
-            var chip = ev.target.closest('.otd-chip');
-            if (chip) show(chip.dataset.slug);
-          });
-        })();
-      </script>
 
       <!-- Kids corner (ركن الصغار) -->
 <section class="card section-card" style="order:6;background:linear-gradient(135deg,#7c5cd6 0%,#a78bfa 55%,#fb7185 130%);border-color:transparent;color:#fff;position:relative;overflow:hidden">
