@@ -8,7 +8,7 @@ import SidebarExtras from '../components/SidebarExtras.astro';
 import { H_MON_AR, MONTHS_NOTES_AR } from '../lib/data';
 import { getL } from '../lib/data';
 import { HADITHS, hadithOfDay } from '../lib/hadiths';
-import { OCCASIONS, occurrencesInGYear, occBasePath, fmtGShort } from '../lib/occasions';
+import { OCCASIONS, occurrencesInGYear, occBasePath, fmtGShort, isoUTC } from '../lib/occasions';
 import { g2h, todayUTC } from '../lib/hijri';
 import { monthBasePath, monthName, H_YEAR_START, H_YEAR_END } from '../lib/months';
 import { eventForDay, eventsOfMonth, otdPath, fmtHDay, whatsappHref } from '../lib/onthisday';
@@ -65,10 +65,37 @@ for (const _y of _homeYears) {
     const _o = OCCASIONS.find(x => x.slug === _slug);
     if (!_o) continue;
     const _occ = occurrencesInGYear(_o.hm, _o.hd, _y)[0];
-    if (_occ) occLinks.push({ name: (true ? _o.ar : _o.en).name, year: _y, href: occBasePath(_slug, _y, true), date: _occ.date });
+    if (_occ) occLinks.push({ slug: _slug, name: _o.ar.name, year: _y, href: occBasePath(_slug, _y, true), date: _occ.date });
   }
 }
 occLinks.sort((a, b) => a.year - b.year || a.date.getTime() - b.date.getTime());
+
+// —— Event structured data for every occasion rendered on this page ——
+// Dates are the Umm al-Qura (Saudi) dates the page itself displays, so the markup
+// always matches the visible content. One node per occasion per listed year.
+const _occEvents = occLinks.map(o => {
+  const _def = OCCASIONS.find(x => x.slug === o.slug);
+  const _what = _def ? _def.ar.what : '';
+  const _desc = _what ? _what.split('.')[0].trim() + '.' : '';
+  return {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    "name": `${o.name} ${o.year}`,
+    "startDate": isoUTC(o.date),
+    "eventStatus": "https://schema.org/EventScheduled",
+    "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+    "isAccessibleForFree": true,
+    "inLanguage": "ar",
+    "url": `https://islamicdates.org${o.href}`,
+    "image": ["https://islamicdates.org/og-image.png"],
+    "description": _desc,
+    "location": {
+      "@type": "Place",
+      "name": "المملكة العربية السعودية",
+      "address": { "@type": "PostalAddress", "addressCountry": "SA" }
+    }
+  };
+});
 
 const jsonLd = JSON.stringify([
   {
@@ -78,7 +105,8 @@ const jsonLd = JSON.stringify([
     "description":"التقويم الهجري اليوم بالتاريخ الميلادي للمقارنة، مع تصفّح الأشهر الهجرية ومحوّل سريع بين الهجري والميلادي والمناسبات الإسلامية وفق تقويم أم القرى.",
     "applicationCategory":"UtilitiesApplication","operatingSystem":"Web",
     "inLanguage":["ar","en"],"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}
-  }
+  },
+  ..._occEvents
 ]);
 ---
 
