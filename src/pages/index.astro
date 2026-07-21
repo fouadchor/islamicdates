@@ -99,7 +99,24 @@ const _occEvents = occLinks.map(o => {
 
 const jsonLd = JSON.stringify([
   {
+    "@context":"https://schema.org","@type":"WebSite",
+    "@id":"https://islamicdates.org/#website",
+    "name":"التقويم الهجري","alternateName":["Hijri Calendar","Islamic Dates","islamicdates.org"],
+    "url":"https://islamicdates.org/","inLanguage":["ar","en","ur"],
+    "publisher":{"@id":"https://islamicdates.org/#organization"}
+  },
+  {
+    "@context":"https://schema.org","@type":"Organization",
+    "@id":"https://islamicdates.org/#organization",
+    "name":"التقويم الهجري","alternateName":"Hijri Calendar · islamicdates.org",
+    "url":"https://islamicdates.org/",
+    "logo":{"@type":"ImageObject","url":"https://islamicdates.org/og-image.png","width":1200,"height":630},
+    "image":"https://islamicdates.org/og-image.png",
+    "description":"موقع التقويم الهجري يعرض التاريخ الهجري اليوم وفق تقويم أم القرى، مع محوّل بين الهجري والميلادي والمناسبات الإسلامية ومواقيت الصلاة وحاسبة الزكاة."
+  },
+  {
     "@context":"https://schema.org","@type":"WebApplication",
+    "@id":"https://islamicdates.org/#webapp",
     "name":"التقويم الهجري","alternateName":"Hijri Calendar",
     "url":"https://islamicdates.org/",
     "description":"التقويم الهجري اليوم بالتاريخ الميلادي للمقارنة، مع تصفّح الأشهر الهجرية ومحوّل سريع بين الهجري والميلادي والمناسبات الإسلامية وفق تقويم أم القرى.",
