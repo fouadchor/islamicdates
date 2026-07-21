@@ -5,12 +5,12 @@ import CalendarIsland from '../components/CalendarIsland';
 import ConverterIsland from '../components/ConverterIsland';
 import UpcomingIsland from '../components/UpcomingIsland';
 import SidebarExtras from '../components/SidebarExtras.astro';
-import { H_MON_AR, MONTHS_NOTES_AR } from '../lib/data';
+import { H_MON_AR, MONTHS_NOTES_AR, G_MON_AR } from '../lib/data';
 import { getL } from '../lib/data';
 import { HADITHS, hadithOfDay } from '../lib/hadiths';
 import { OCCASIONS, occurrencesInGYear, occBasePath, fmtGShort, isoUTC } from '../lib/occasions';
-import { g2h, todayUTC } from '../lib/hijri';
-import { monthBasePath, monthName, H_YEAR_START, H_YEAR_END } from '../lib/months';
+import { g2h, h2g, todayUTC } from '../lib/hijri';
+import { monthBasePath, monthName, monthSlug, H_YEAR_START, H_YEAR_END } from '../lib/months';
 import { eventForDay, eventsOfMonth, otdPath, fmtHDay, whatsappHref } from '../lib/onthisday';
 
 // --- Request-time SSR + fresh CDN cache (fixes stale build-time date) ---
@@ -96,6 +96,36 @@ const _occEvents = occLinks.map(o => {
     }
   };
 });
+
+// —— Internal-linking depth: Gregorian spans on month cards + cross-year month funnel ——
+const _gSpan = (hy: number, hm: number): string => {
+  const _s = h2g(hy, hm, 1);
+  const _n = hm < 12 ? h2g(hy, hm + 1, 1) : h2g(hy + 1, 1, 1);
+  const _e = new Date(_n.getTime() - 86400000);
+  const sM = _s.getUTCMonth(), sY = _s.getUTCFullYear();
+  const eM = _e.getUTCMonth(), eY = _e.getUTCFullYear();
+  if (sM === eM && sY === eY) return `${G_MON_AR[sM]} ${sY}`;
+  if (sY === eY) return `${G_MON_AR[sM]} – ${G_MON_AR[eM]} ${sY}`;
+  return `${G_MON_AR[sM]} ${sY} – ${G_MON_AR[eM]} ${eY}`;
+};
+const _monthGreg = Array.from({ length: 12 }, (_, i) => _gSpan(_curHy, i + 1));
+const _keyMonths = [
+  { hm: 1, note: 'عاشوراء ورأس السنة الهجرية' },
+  { hm: 7, note: 'الإسراء والمعراج' },
+  { hm: 8, note: 'ليلة النصف من شعبان' },
+  { hm: 9, note: 'الصيام وليلة القدر' },
+  { hm: 10, note: 'عيد الفطر' },
+  { hm: 12, note: 'الحج وعيد الأضحى' },
+];
+const _yStart = Math.max(H_YEAR_START, _curHy - 3);
+const _yEnd = Math.min(H_YEAR_END, _curHy + 3);
+const _keyMonthRows = _keyMonths.map(k => ({
+  name: monthName(k.hm, true), note: k.note, slug: monthSlug(k.hm),
+  years: Array.from({ length: _yEnd - _yStart + 1 }, (_, j) => {
+    const _y = _yStart + j;
+    return { hy: _y, gy: h2g(_y, k.hm, 1).getUTCFullYear(), href: monthBasePath(_y, k.hm, true) };
+  }),
+}));
 
 const jsonLd = JSON.stringify([
   {
@@ -191,10 +221,40 @@ const jsonLd = JSON.stringify([
           {_monthLinks.map((m, i) => (
             <a href={m.href} class="month-item" style="text-decoration:none;color:inherit">
               <span class="month-num">{i + 1}</span>
-              <div><div class="month-name">{m.name}</div><div class="month-note">{_monthNotesShort[i]}</div></div>
+              <div><div class="month-name">{m.name}</div><div class="month-note">{_monthNotesShort[i]}</div><div style="font-size:12px;color:var(--accent);font-weight:600;margin-top:3px">{_monthGreg[i]}</div></div>
             </a>
           ))}
         </div>
+      </section>
+
+            <!-- Key months across Hijri years (SEO internal links to month pages) -->
+      <section class="card section-card" style="order:5">
+        <h2 class="section-h2">أشهر بارزة عبر السنوات الهجرية</h2>
+        <p class="section-p" style="margin-bottom:16px">انتقل مباشرةً إلى شهر المناسبة في أي سنة هجرية تريدها — مع تاريخه الميلادي المقابل</p>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          {_keyMonthRows.map(row => (
+            <div>
+              <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:9px">
+                <span style="font-weight:700;font-size:15.5px">{row.name}</span>
+                <span style="font-size:12.5px;color:var(--muted)">{row.note}</span>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                {row.years.map(y => (
+                  <a href={y.href} class="yr-chip" aria-label={`${row.name} ${y.hy} هـ`}>
+                    <span class="yc-h">{y.hy} هـ</span>
+                    <span class="yc-g">{y.gy}</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+        <style>
+          .yr-chip { display:inline-flex; flex-direction:column; align-items:center; gap:1px; padding:7px 14px; border-radius:11px; background:var(--surface2); border:1px solid var(--border); text-decoration:none; transition:border-color .2s, transform .2s, box-shadow .2s; }
+          .yr-chip:hover { border-color:var(--accent); transform:translateY(-1px); box-shadow:var(--shadow); }
+          .yr-chip .yc-h { font-weight:700; font-size:13.5px; color:var(--accent); }
+          .yr-chip .yc-g { font-size:11.5px; color:var(--muted); }
+        </style>
       </section>
 
       <!-- On this day in Hijri history (في مثل هذا اليوم الهجري) — manuscript card (order:2 → right after the converter, before upcoming occasions) -->
