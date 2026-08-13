@@ -1,6 +1,7 @@
 // Shareable Hijri→Gregorian converter page helpers. Build-time only.
-import { g2h, h2g } from './hijri';
+import { g2h, h2g, todayUTC } from './hijri';
 import { type LangLike, toLang, hMonArr, gMonArr, wdArr, hijriEra } from './data';
+import { OCCASIONS } from './occasions';
 
 // Years to generate converter pages for (AH 1445–1450, ~2024–2029)
 export const CONV_HY_START = 1445;
@@ -10,6 +11,29 @@ export function convYears(): number[] {
   const a: number[] = [];
   for (let y = CONV_HY_START; y <= CONV_HY_END; y++) a.push(y);
   return a;
+}
+
+// ---- Index curation -----------------------------------------------------------
+// Search Console showed 1,220 URLs in "Crawled - currently not indexed", dominated
+// by /convert/. Every converter page that actually earned impressions sat within
+// one Hijri year of today, so the thin long tail is kept live and internally
+// linked but marked noindex,follow. A page stays indexable when it is:
+//   1. within CONV_INDEX_SPAN Hijri years of today (where the demand is),
+//   2. the 1st of a month (month-start queries), or
+//   3. the date of a named Islamic occasion.
+export const CONV_INDEX_SPAN = 1;
+
+const OCC_DAY_KEYS = new Set(OCCASIONS.map(o => `${o.hm}-${o.hd}`));
+
+/** Hijri year of "today", used as the centre of the indexable window. */
+export function currentHy(): number {
+  return g2h(todayUTC()).y;
+}
+
+export function convIsIndexable(hy: number, hm: number, hd: number, curHy = currentHy()): boolean {
+  if (Math.abs(hy - curHy) <= CONV_INDEX_SPAN) return true;
+  if (hd === 1) return true;
+  return OCC_DAY_KEYS.has(`${hm}-${hd}`);
 }
 
 /** Return slug string for a Hijri date, e.g. "1448-9-1" */
