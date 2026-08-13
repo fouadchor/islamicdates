@@ -1,0 +1,76 @@
+---
+// Homepage prayer-times city block.
+// Purpose: give the city prayer-times pages (328 cities x 3 languages) a direct
+// internal link from the site's strongest page. Before this they were only
+// reachable via /prayer-times/, leaving them several clicks deep.
+import { PT_CITIES, PT_COUNTRIES, cityPath, ptBase, type PtLang } from '../lib/cities';
+import { pick, type Lang } from '../lib/data';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const l = lang as PtLang;
+
+// Curated by search demand across the site's main markets. Each entry is a
+// [countryCode, citySlug] pair resolved against PT_CITIES, so a bad slug drops
+// the card at build time rather than shipping a broken link.
+const PICKS: [string, string][] = [
+  ['sa', 'makkah'], ['sa', 'madinah'], ['sa', 'riyadh'], ['sa', 'jeddah'],
+  ['eg', 'cairo'], ['eg', 'alexandria'],
+  ['ae', 'dubai'], ['ae', 'abu-dhabi'],
+  ['kw', 'kuwait-city'], ['qa', 'doha'], ['bh', 'manama'], ['om', 'muscat'],
+  ['jo', 'amman'], ['ps', 'jerusalem'], ['lb', 'beirut'], ['sy', 'damascus'],
+  ['iq', 'baghdad'], ['ye', 'sanaa'], ['tr', 'istanbul'],
+  ['pk', 'karachi'], ['pk', 'lahore'], ['in', 'delhi'], ['in', 'mumbai'],
+  ['bd', 'dhaka'], ['id', 'jakarta'], ['my', 'kuala-lumpur'],
+  ['ma', 'casablanca'], ['dz', 'algiers'], ['tn', 'tunis'], ['sd', 'khartoum'],
+  ['gb', 'london'], ['us', 'new-york'], ['fr', 'paris'], ['ca', 'toronto'],
+];
+
+const cities = PICKS.map(([cc, slug]) => {
+  const country = PT_COUNTRIES.find(c => c.code === cc);
+  const city = PT_CITIES.find(c => c.cc === cc && c.slug === slug);
+  if (!country || !city) return null;
+  return { name: city[l], country: country[l], href: cityPath(country.slug, city.slug, l) };
+}).filter((c): c is NonNullable<typeof c> => c !== null);
+
+const T = {
+  h2: pick(lang, 'مواقيت الصلاة حسب المدينة', 'Prayer Times by City', 'شہر کے اعتبار سے مواقیتِ نماز'),
+  p: pick(lang,
+    'أوقات الفجر والظهر والعصر والمغرب والعشاء محسوبة فلكياً لكل مدينة، مع اتجاه القبلة والمساجد القريبة.',
+    'Fajr, Dhuhr, Asr, Maghrib and Isha times calculated astronomically for each city, with Qibla direction and nearby mosques.',
+    'ہر شہر کے لیے فجر، ظہر، عصر، مغرب اور عشاء کے اوقات فلکی حساب سے، قبلہ کے رخ اور قریبی مساجد کے ساتھ۔'),
+  all: pick(lang, 'كل المدن والدول', 'All cities & countries', 'تمام شہر اور ممالک'),
+};
+---
+
+<section class="card section-card" style="order:5">
+  <h2 class="section-h2">{T.h2}</h2>
+  <p class="section-p" style="margin-bottom:14px">{T.p}</p>
+  <div class="city-grid">
+    {cities.map(c => (
+      <a href={c.href} class="city-item">
+        <span class="city-name">{c.name}</span>
+        <span class="city-country">{c.country}</span>
+      </a>
+    ))}
+  </div>
+  <a href={ptBase(l)} class="city-all">{T.all} ←</a>
+</section>
+
+<style>
+  .city-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+  .city-item {
+    display: block; padding: 10px 13px;
+    border: 1px solid var(--border); border-radius: 11px;
+    background: var(--surface2); text-decoration: none; color: inherit;
+    transition: border-color .2s, background .2s, transform .2s;
+  }
+  .city-item:hover { border-color: var(--accent); background: var(--accent-soft); transform: translateY(-1px); }
+  .city-name { display: block; font-weight: 700; font-size: 14px; }
+  .city-country { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .city-all { display: inline-block; margin-top: 14px; font-size: 13.5px; font-weight: 700; color: var(--accent); text-decoration: none; }
+  @media (max-width: 700px) {
+    .city-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 7px; }
+    .city-item { padding: 9px 11px; }
+  }
+</style>
