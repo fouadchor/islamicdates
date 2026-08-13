@@ -14,8 +14,10 @@ interface Props {
   urPath?: string;
   /** false = صفحة عربية فقط: لا تُصدر hreflang لنسخ لغوية غير موجودة. */
   altLangs?: boolean;
+  /** Keep the page out of the index while still passing link equity. */
+  noindex?: boolean;
 }
-const { title, description, canonical, lang, jsonLd, arPath = '/', enPath = '/en/', urPath = '/ur/', altLangs = true } = Astro.props;
+const { title, description, canonical, lang, jsonLd, arPath = '/', enPath = '/en/', urPath = '/ur/', altLangs = true, noindex = false } = Astro.props;
 const dir = lang === 'en' ? 'ltr' : 'rtl';
 const ogLocale = pick(lang, 'ar_AR', 'en_US', 'ur_PK');
 const base = 'https://islamicdates.org';
@@ -132,7 +134,7 @@ const _bnClose = pick(lang, 'إخفاء', 'Dismiss', 'چھپائیں');
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{title}</title>
   <meta name="description" content={description} />
-  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <meta name="robots" content={`${noindex ? 'noindex' : 'index'}, follow, max-image-preview:large`} />
   <meta name="theme-color" content="#0d9488" />
   <link rel="canonical" href={canonical} />
   {altLangs && langs.map(l => <link rel="alternate" hreflang={l.code} href={`${base}${l.path}`} />)}
