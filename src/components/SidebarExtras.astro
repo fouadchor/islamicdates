@@ -1,31 +1,14 @@
 ---
-// Sidebar extras: live prayer-times mini, compact upcoming occasions, and a
-// daily supplication. Shared across the ar / en / ur home pages.
+// Sidebar extras: live prayer-times mini and a daily supplication.
+// Shared across the ar / en / ur home pages. The upcoming-occasions card that
+// used to live here was removed: <main> already renders UpcomingIsland from the
+// same MAJOR_OCC_KEYS source, so the two lists were identical on one screen.
 import PrayerMiniIsland from './PrayerMiniIsland';
-import { type Lang, pick, MAJOR_OCC_KEYS, hMonArr, gMonArr, hijriEra } from '../lib/data';
-import { g2h, h2g, getOcc, occName, dotColor, todayUTC } from '../lib/hijri';
-import { OCCASIONS, occBasePath } from '../lib/occasions';
+import { type Lang, pick } from '../lib/data';
 import { DUA_SECTIONS, srcLabel } from '../lib/duas';
 
 interface Props { lang: Lang }
 const { lang } = Astro.props;
-
-const hMon = hMonArr(lang);
-const gMon = gMonArr(lang);
-const today = todayUTC();
-const todayH = g2h(today);
-
-const fmtG = (d: Date) => `${d.getUTCDate()} ${gMon[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
-const slugFor = (hm: number, hd: number) => OCCASIONS.find(o => o.hm === hm && o.hd === hd)?.slug;
-
-const _occ = MAJOR_OCC_KEYS.map(([hm, hd]: [number, number]) => {
-  const occ = getOcc(hm, hd)!;
-  let d = h2g(todayH.y, hm, hd);
-  if (d.getTime() < today.getTime()) d = h2g(todayH.y + 1, hm, hd);
-  const slug = slugFor(hm, hd);
-  const iso = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`;
-  return { name: occName(occ, lang), greg: fmtG(d), dot: dotColor(occ[0]), href: slug ? occBasePath(slug, d.getUTCFullYear(), lang) : undefined, iso, t: d.getTime() };
-}).sort((a, b) => a.t - b.t).slice(0, 4);
 
 const _duaList = DUA_SECTIONS.flatMap(s => s.items)
   .filter(d => d.ar.length <= 140)
@@ -33,8 +16,6 @@ const _duaList = DUA_SECTIONS.flatMap(s => s.items)
 
 const _duaHref = pick(lang, '/dua/', '/en/dua/', '/ur/dua/');
 const T = {
-  occTitle: pick(lang, 'المناسبات القادمة', 'Upcoming occasions', 'آنے والی مناسبتیں'),
-  occMore: pick(lang, 'كل المناسبات', 'All occasions', 'تمام مناسبتیں'),
   duaTitle: pick(lang, 'دعاء اليوم', 'Duʿaʾ of the day', 'آج کی دعا'),
   duaMore: pick(lang, 'المزيد من الأدعية', 'More supplications', 'مزید دعائیں'),
 };
@@ -42,22 +23,6 @@ const T = {
 
 <PrayerMiniIsland lang={lang} client:visible />
 
-<div class="card" style="padding:18px 20px">
-  <h3 style="margin:0 0 14px;font-size:15.5px;font-weight:700">{T.occTitle}</h3>
-  <div style="display:flex;flex-direction:column;gap:9px">
-    {_occ.map(o => (
-      <a href={o.href} class="sb-occ" data-date={o.iso} style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:11px;background:var(--surface2);text-decoration:none;color:inherit">
-        <span style={`width:9px;height:9px;border-radius:50%;flex:0 0 auto;background:${o.dot}`}></span>
-        <span style="flex:1 1 auto;min-width:0">
-          <span style="display:block;font-weight:700;font-size:14px">{o.name}</span>
-          <span style="display:block;font-size:12px;color:var(--muted);margin-top:1px">{o.greg}</span>
-        </span>
-        <span class="sb-occ-days" style="flex:0 0 auto;font-size:12px;font-weight:700;color:var(--accent);white-space:nowrap"></span>
-      </a>
-    ))}
-  </div>
-  <a href="#occasions" style="display:inline-block;margin-top:12px;font-size:13px;color:var(--accent);font-weight:700;text-decoration:none">{T.occMore} ←</a>
-</div>
 
 <div class="card" style="padding:18px 20px;background:var(--gold-soft);border-color:var(--gold-soft)">
   <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
@@ -70,23 +35,8 @@ const T = {
   <a href={_duaHref} style="display:inline-block;margin-top:12px;font-size:13px;color:var(--accent);font-weight:700;text-decoration:none">{T.duaMore} ←</a>
 </div>
 
-<script define:vars={{ duaList: _duaList, lang }}>
+<script define:vars={{ duaList: _duaList }}>
   (function () {
-    var d0 = new Date();
-    var t0 = Date.UTC(d0.getFullYear(), d0.getMonth(), d0.getDate());
-    document.querySelectorAll('.sb-occ').forEach(function (el) {
-      var iso = el.getAttribute('data-date'); if (!iso) return;
-      var p = iso.split('-');
-      var target = Date.UTC(+p[0], +p[1] - 1, +p[2]);
-      var diff = Math.round((target - t0) / 86400000);
-      var out = el.querySelector('.sb-occ-days');
-      if (!out) return;
-      out.textContent = diff <= 0
-        ? (lang === 'ar' ? 'اليوم' : lang === 'ur' ? 'آج' : 'Today')
-        : diff === 1
-        ? (lang === 'ar' ? 'غداً' : lang === 'ur' ? 'کل' : '1 day')
-        : (lang === 'ar' ? ('باقٍ ' + diff + ' يوم') : lang === 'ur' ? (diff + ' دن') : (diff + ' days'));
-    });
     if (duaList && duaList.length) {
       var d = new Date();
       var start = Date.UTC(d.getFullYear(), 0, 0);
