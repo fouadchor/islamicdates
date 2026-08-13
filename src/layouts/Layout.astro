@@ -37,6 +37,9 @@ const _navMosques = pick(lang, '/mosques-near-me/', '/en/mosques-near-me/', '/ur
 const _lblMosques = pick(lang, 'الجوامع القريبة من مكاني', 'Mosques Near Me', 'میرے قریب مساجد');
 const _navQibla = pick(lang, '/qibla/', '/en/qibla/', '/ur/qibla/');
 const _lblQibla = pick(lang, 'اتجاه القبلة', 'Qibla Direction', 'قبلہ کا رخ');
+// Nav-only short labels: the full English labels overflow the single-row desktop nav.
+const _navLblQibla = pick(lang, 'اتجاه القبلة', 'Qibla', 'قبلہ کا رخ');
+const _navLblZakat = pick(lang, 'حاسبة الزكاة', 'Zakat', 'زکوٰۃ کیلکولیٹر');
 const _labels = {
   home: pick(lang, 'الرئيسية', 'Home', 'ہوم'),
   conv: pick(lang, 'المحوّل', 'Converter', 'کنورٹر'),
@@ -51,8 +54,8 @@ const navItems = [
   { h: _navHome, t: _labels.home },
   { h: _navHome + '#converter', t: _labels.conv },
   { h: _navPrayer, t: _labels.prayer },
-  { h: _navQibla, t: _lblQibla },
-  { h: _navZakat, t: _labels.zakat },
+  { h: _navQibla, t: _navLblQibla },
+  { h: _navZakat, t: _navLblZakat },
   { h: _navDua, t: _labels.dua },
   { h: _navFasting, t: _labels.fasting },
   { h: _navHome + '#occasions', t: _labels.occ },
@@ -274,6 +277,7 @@ const _bnClose = pick(lang, 'إخفاء', 'Dismiss', 'چھپائیں');
       overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch;
     }
     .nav-links::-webkit-scrollbar { display: none; }
+    .site-nav .nav-kids { flex: 0 0 auto; }
     .site-nav .nav-link {
       color: var(--accent-contrast); text-decoration: none;
       font-weight: 600; font-size: 14px; white-space: nowrap;
@@ -504,13 +508,8 @@ const _bnClose = pick(lang, 'إخفاء', 'Dismiss', 'چھپائیں');
     .site-nav .nav-kids { align-self: center; margin: 0 4px; padding: 8px 16px; border-radius: 999px; border-bottom: none; opacity: 1; font-weight: 800; color: #4a2b00; background: linear-gradient(135deg, #fbbf24, #fb7185); box-shadow: 0 2px 10px rgba(0,0,0,.22); transition: transform .2s, box-shadow .2s, filter .2s; }
     .site-nav .nav-kids:hover { opacity: 1; filter: brightness(1.07); transform: scale(1.05); box-shadow: 0 4px 14px rgba(0,0,0,.28); background: linear-gradient(135deg, #fcd34d, #fda4af); }
 
-    /* ——— Mobile ——— */
-    @media (max-width: 860px) {
-      .sm-grid { grid-template-columns: 1fr 1fr; }
-      .sm-brand { grid-column: 1 / -1; max-width: none; }
-    }
-    @media (max-width: 700px) {
-      /* Show ALL nav sections on small screens: wrap into pill rows instead of a hidden horizontal scroller. */
+    /* ——— Nav: wrap into pill rows once the single row no longer fits ——— */
+    @media (max-width: 1100px) {
       .site-nav-inner { flex-wrap: wrap; align-items: center; padding: 9px 10px; gap: 8px; }
       .nav-links { flex-wrap: wrap; overflow-x: visible; gap: 6px; }
       .site-nav .nav-link {
@@ -521,6 +520,14 @@ const _bnClose = pick(lang, 'إخفاء', 'Dismiss', 'چھپائیں');
       .site-nav .nav-link.active { background: rgba(255,255,255,.95); color: var(--accent-strong); }
       .site-nav .nav-kids { margin: 0; }
       .nav-actions { padding: 0; margin-inline-start: auto; }
+    }
+
+    /* ——— Mobile ——— */
+    @media (max-width: 860px) {
+      .sm-grid { grid-template-columns: 1fr 1fr; }
+      .sm-brand { grid-column: 1 / -1; max-width: none; }
+    }
+    @media (max-width: 700px) {
       .site-header { padding: 12px 14px; }
       .site-header .brand { font-size: 17px; }
       .site-header .logo-icon { width: 40px; height: 40px; font-size: 21px; }
