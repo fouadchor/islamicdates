@@ -5,6 +5,7 @@ import CalendarIsland from '../components/CalendarIsland';
 import ConverterIsland from '../components/ConverterIsland';
 import UpcomingIsland from '../components/UpcomingIsland';
 import SidebarExtras from '../components/SidebarExtras.astro';
+import HomeCityPrayer from '../components/HomeCityPrayer.astro';
 import { H_MON_AR, MONTHS_NOTES_AR, G_MON_AR } from '../lib/data';
 import { getL } from '../lib/data';
 import { HADITHS, hadithOfDay } from '../lib/hadiths';
@@ -70,10 +71,22 @@ for (const _y of _homeYears) {
 }
 occLinks.sort((a, b) => a.year - b.year || a.date.getTime() - b.date.getTime());
 
+// Split each listed year into upcoming vs already-passed occurrences so the
+// section never leads with stale dates. Passed items stay in the DOM (inside a
+// collapsed <details>) to keep their internal links crawlable.
+const _todayMs = todayUTC().getTime();
+const _yearGroups = _homeYears.map(_yr => ({
+  year: _yr,
+  upcoming: occLinks.filter(o => o.year === _yr && o.date.getTime() >= _todayMs),
+  past: occLinks.filter(o => o.year === _yr && o.date.getTime() < _todayMs),
+})).filter(g => g.upcoming.length > 0 || g.past.length > 0);
+
 // —— Event structured data for every occasion rendered on this page ——
 // Dates are the Umm al-Qura (Saudi) dates the page itself displays, so the markup
 // always matches the visible content. One node per occasion per listed year.
-const _occEvents = occLinks.map(o => {
+// Google's guidance is not to mark up events that have already happened, so the
+// Event nodes track the upcoming occurrences only.
+const _occEvents = occLinks.filter(o => o.date.getTime() >= _todayMs).map(o => {
   const _def = OCCASIONS.find(x => x.slug === o.slug);
   const _what = _def ? _def.ar.what : '';
   const _desc = _what ? _what.split('.')[0].trim() + '.' : '';
@@ -193,24 +206,44 @@ const jsonLd = JSON.stringify([
         loading="lazy" decoding="async" style="order:5;width:100%;height:auto;display:block;margin:-2px 0" />
 
       <!-- Occasion year pages (SEO internal links) -->
+      <!-- Prayer times by city (internal links to city pages) -->
+      <HomeCityPrayer lang="ar" />
+
       <section id="occasions" class="card section-card" style="order:5;scroll-margin-top:64px">
         <h2 class="section-h2">تواريخ المناسبات الإسلامية</h2>
         <p class="section-p" style="margin-bottom:14px">اعرف تاريخ كل مناسبة بالهجري والميلادي مع العدّ التنازلي</p>
-        {_homeYears.map((_yr, _i) => (
+        {_yearGroups.map((_g, _i) => { const _yr = _g.year; return (
           <div style={`margin-top:${_i === 0 ? 4 : 26}px`}>
             <h3 style="margin:0 0 12px;font-size:16px;font-weight:700;color:var(--accent)">مناسبات {_yr}</h3>
-            <div class="months-grid">
-              {occLinks.filter(o => o.year === _yr).map(o => (
-                <a href={o.href} class="month-item" style="text-decoration:none;color:inherit">
+            {_g.upcoming.length > 0 && (
+              <div class="months-grid">
+                {_g.upcoming.map(o => (
+                  <a href={o.href} class="month-item" style="text-decoration:none;color:inherit">
                   <div>
                     <div class="month-name">{o.name} {o.year}</div>
                     <div class="month-note">{fmtGShort(o.date, true)}</div>
                   </div>
                 </a>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
+            {_g.past.length > 0 && (
+              <details class="occ-past">
+                <summary>مناسبات {_yr} التي مضت ({_g.past.length})</summary>
+                <div class="months-grid" style="margin-top:10px">
+                  {_g.past.map(o => (
+                    <a href={o.href} class="month-item" style="text-decoration:none;color:inherit">
+                  <div>
+                    <div class="month-name">{o.name} {o.year}</div>
+                    <div class="month-note">{fmtGShort(o.date, true)}</div>
+                  </div>
+                </a>
+                  ))}
+                </div>
+              </details>
+            )}
           </div>
-        ))}
+        ); })}
       </section>
 
       <!-- Hijri month browse (SEO internal links) -->
