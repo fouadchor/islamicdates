@@ -133,7 +133,29 @@ export default function PrayerMiniIsland({ lang }: Props) {
 
   const card: React.CSSProperties = { background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow)' };
 
-  if (!mounted || !loc) return <div style={{ ...card, padding: '20px 22px', minHeight: 320 }} />;
+  // Pre-hydration placeholder. This card sits above the fold on the home page, so
+  // an empty box read as a broken/blank element; a shimmering skeleton with the
+  // same footprint keeps the layout stable and signals "loading" instead.
+  if (!mounted || !loc) return (
+    <div style={{ ...card, padding: '20px 22px', minHeight: 320 }} aria-hidden="true">
+      <div className="pm-sk" style={{ height: 13, width: '38%', borderRadius: 6 }} />
+      <div className="pm-sk" style={{ height: 22, width: '58%', borderRadius: 7, marginTop: 10 }} />
+      <div className="pm-sk" style={{ height: 38, borderRadius: 10, marginTop: 14 }} />
+      <div className="pm-sk" style={{ height: 56, borderRadius: 12, marginTop: 12 }} />
+      {[0, 1, 2, 3, 4, 5].map(i => (
+        <div key={i} className="pm-sk" style={{ height: 30, borderRadius: 9, marginTop: 8 }} />
+      ))}
+      <style>{`
+        .pm-sk {
+          background: linear-gradient(90deg, var(--surface2) 25%, var(--border) 37%, var(--surface2) 63%);
+          background-size: 400% 100%;
+          animation: pmShimmer 1.4s ease-in-out infinite;
+        }
+        @keyframes pmShimmer { 0% { background-position: 100% 0 } 100% { background-position: -100% 0 } }
+        @media (prefers-reduced-motion: reduce) { .pm-sk { animation: none } }
+      `}</style>
+    </div>
+  );
 
   const offset = zoneOffsetHours(loc.zone, now);
   const times = computePrayerTimes(now, loc.lat, loc.lng, offset, { method, asr, highLat: 'NightMiddle' });
