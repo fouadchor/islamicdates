@@ -53,6 +53,17 @@ const jsonLd = JSON.stringify([
 
       <PrayerTimesIsland lang="en" client:load />
 
+      <a href="/en/qibla/" class="card section-card" style="text-decoration:none;color:inherit;display:flex;flex-wrap:wrap;align-items:center;gap:14px;border-color:var(--accent);background:var(--accent-soft)">
+        <span style="width:46px;height:46px;flex:0 0 auto;border-radius:13px;background:var(--surface);color:var(--accent);display:flex;align-items:center;justify-content:center">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+        </span>
+        <span style="flex:1 1 210px;min-width:0">
+          <span style="display:block;font-weight:800;font-size:16.5px;color:var(--accent)">Qibla Direction From Your Location</span>
+          <span style="display:block;font-size:13.5px;color:var(--muted);margin-top:3px;line-height:1.6">Now that you know the time, find the direction: the Qibla angle in degrees from north, a live compass on mobile, and the distance to the Kaaba.</span>
+        </span>
+        <span style="flex:0 0 auto;padding:10px 16px;border-radius:11px;background:var(--accent);color:var(--accent-contrast);font-weight:700;font-size:13.5px">Open compass</span>
+      </a>
+
       <NearbyMosquesIsland lang="en" client:visible />
 
       <PrayerDirectory lang="en" />
@@ -82,6 +93,7 @@ const jsonLd = JSON.stringify([
         <div style="display:flex;flex-direction:column;gap:10px;font-size:14.5px">
           <a href="/en/" style="color:var(--accent);text-decoration:none">Full Hijri calendar & today\'s date</a>
           <a href="/en/" style="color:var(--accent);text-decoration:none">Hijri–Gregorian date converter</a>
+          <a href="/en/qibla/" style="color:var(--accent);text-decoration:none">Qibla direction & compass</a>
         </div>
       </div>
     </aside>
