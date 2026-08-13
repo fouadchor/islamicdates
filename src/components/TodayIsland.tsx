@@ -96,7 +96,7 @@ export default function TodayIsland({ lang }: Props) {
 
       <div style={{ position:'relative', display:'flex', alignItems:'center', justifyContent:'space-between', gap:12, flexWrap:'wrap', marginBottom:18 }}>
         <div style={{ fontSize:'12.5px', letterSpacing:'.12em', textTransform:'uppercase', color:'var(--accent)', fontWeight:700 }}>
-          {pick(lang, 'تاريخ اليوم', "Today's Date", 'آج کی تاریخ')}
+          {pick(lang, 'تقويم أم القرى', 'Umm al-Qura calendar', 'اُمّ القریٰ تقویم')}
         </div>
         <label style={{ display:'inline-flex', alignItems:'center', gap:6, fontSize:'12px', color:'var(--muted)', opacity:.85 }}
           title={pick(lang, 'اختياري: غيّر المنطقة لتعديل ملاحظة رؤية الهلال', 'Optional: change region to adjust the moon-sighting note', 'اختیاری: رؤیتِ ہلال کا نوٹ تبدیل کرنے کے لیے ملک منتخب کریں')}>
@@ -113,7 +113,12 @@ export default function TodayIsland({ lang }: Props) {
 
       <div style={{ position:'relative', display:'flex', alignItems:'center', justifyContent:'space-between', gap:28, flexWrap:'wrap' }}>
         <div style={{ flex:'1 1 320px', minWidth:0 }}>
-          <h1 style={{ margin:0, fontWeight:700, fontSize:'clamp(30px,6.2vw,54px)', lineHeight:1.05 }}>{todayHijri}</h1>
+          <h1 style={{ margin:0, fontWeight:700, fontSize:'clamp(30px,6.2vw,54px)', lineHeight:1.05 }}>
+            <span style={{ display:'block', fontSize:'clamp(14px,2.1vw,18px)', fontWeight:600, color:'var(--muted)', marginBottom:8, lineHeight:1.3 }}>
+              {pick(lang, 'التاريخ الهجري اليوم', "Today's Hijri Date", 'آج کی ہجری تاریخ')}
+            </span>
+            {todayHijri}
+          </h1>
           <div style={{ marginTop:12, fontSize:'clamp(15px,2.6vw,21px)', color:'var(--muted)' }}>{todayGreg}</div>
 
           <div style={{ marginTop:18, display:'flex', flexWrap:'wrap', gap:10, alignItems:'center' }}>
