@@ -2,16 +2,20 @@
 import Layout from '../layouts/Layout.astro';
 import {
   convBasePath, fmtHijri, fmtGregorian, fmtGregorianShort, isoDate, monthName,
-  convYears, validDaysInMonth,
+  convYears, validDaysInMonth, convIsIndexable,
 } from '../lib/convert';
 import { monthBasePath } from '../lib/months';
 import { h2g } from '../lib/hijri';
-import { type Lang, pick, hijriEra } from '../lib/data';
+import { type Lang, pick, hijriEra, wdArr, gMonArr, MONTHS_NOTES_AR, MONTHS_NOTES_EN, MONTHS_NOTES_UR } from '../lib/data';
+import { OCCASIONS, occBasePath } from '../lib/occasions';
+import { eventsOn } from '../lib/onthisday';
+import { otdContent, otdPathL } from '../lib/onthisday.i18n';
 
 interface Props { lang: Lang; hy: number; hm: number; hd: number; }
 const { lang, hy, hm, hd } = Astro.props;
 
 const gDate       = h2g(hy, hm, hd);
+const allDaysOfMonth = validDaysInMonth(hy, hm);
 const hijriLabel  = fmtHijri(hy, hm, hd, lang);
 const gregFmt     = fmtGregorian(gDate, lang);
 const gregShort   = fmtGregorianShort(gDate, lang);
@@ -20,6 +24,67 @@ const monthHref   = monthBasePath(hy, hm, lang);
 const era         = hijriEra(lang);
 
 const canonical = `https://islamicdates.org${convBasePath(hy, hm, hd, lang)}`;
+
+// Thin long-tail dates stay live and linked but out of the index — see convert.ts.
+const indexable = convIsIndexable(hy, hm, hd);
+
+// ---- Per-date context ---------------------------------------------------------
+// Without this every converter page was the same ~100-word template with only the
+// numbers swapped, which is why Google declined to index most of them. Each page
+// now carries facts that are true only of this specific Hijri date.
+const weekday   = wdArr(lang)[gDate.getUTCDay()];
+const gMonth    = gMonArr(lang)[gDate.getUTCMonth()];
+const monthNote = pick(lang, MONTHS_NOTES_AR, MONTHS_NOTES_EN, MONTHS_NOTES_UR)[hm - 1];
+
+// A named Islamic occasion falling exactly on this Hijri day, if any.
+const occDef = OCCASIONS.find(o => o.hm === hm && o.hd === hd);
+const occInfo = occDef ? {
+  name: occDef[lang].name,
+  what: occDef[lang].what.split('.')[0].trim() + '.',
+  href: occBasePath(occDef.slug, gDate.getUTCFullYear(), lang),
+} : null;
+
+// A historical event recorded on this Hijri day (exact matches only — the
+// nearest-in-month fallback would repeat across many pages and defeat the point).
+const otdEv = eventsOn(hm, hd)[0] ?? null;
+const otdInfo = otdEv ? { ...otdContent(otdEv, lang), href: otdPathL(otdEv.slug, lang) } : null;
+
+// Observance notes. Most dates carry no named occasion and no recorded event, so
+// these keep even the quietest page saying something true about that exact day.
+const dow = gDate.getUTCDay();
+const monthLen = allDaysOfMonth.length;
+const third = hd <= 10 ? 0 : hd <= 20 ? 1 : 2;
+const dayNotes: string[] = [];
+
+if (hd === 13 || hd === 14 || hd === 15) dayNotes.push(pick(lang,
+  'من الأيام البيض (13 و14 و15 من كل شهر هجري)، ويُستحب صيامها.',
+  'One of the White Days (13th, 14th and 15th of each Hijri month), which are recommended for fasting.',
+  'ایامِ بیض میں سے ہے (ہر ہجری مہینے کی 13، 14 اور 15)، اِن کا روزہ مستحب ہے۔'));
+
+if (dow === 1 || dow === 4) dayNotes.push(pick(lang,
+  `يوافق ${weekday}، وهو من أيام صيام التطوّع التي كان النبي ﷺ يتحرّاها.`,
+  `Falls on ${weekday}, one of the days the Prophet ﷺ regularly kept a voluntary fast.`,
+  `${weekday} کو آتا ہے، جو نفلی روزے کے اُن دنوں میں سے ہے جن کا نبی ﷺ اہتمام فرماتے تھے۔`));
+
+if (dow === 5) dayNotes.push(pick(lang,
+  'يوافق يوم الجمعة، وفيه صلاة الجمعة وساعة الإجابة.',
+  'Falls on Friday, the day of the Jumuʿah prayer and the hour of answered supplication.',
+  'جمعہ کے دن آتا ہے، جس میں نمازِ جمعہ اور قبولیتِ دعا کی گھڑی ہے۔'));
+
+if (hm === 1 || hm === 7 || hm === 11 || hm === 12) dayNotes.push(pick(lang,
+  `${monName} من الأشهر الحُرم الأربعة التي عظّم الله حرمتها.`,
+  `${monName} is one of the four sacred months whose sanctity God magnified.`,
+  `${monName} اُن چار حرمت والے مہینوں میں سے ہے جن کی حرمت اللہ نے بڑھائی۔`));
+
+if (hm === 9 && hd >= 21) dayNotes.push(pick(lang,
+  'ضمن العشر الأواخر من رمضان، وفيها تُلتمس ليلة القدر.',
+  'Within the last ten nights of Ramadan, when Laylat al-Qadr is sought.',
+  'رمضان کے آخری عشرے میں ہے، جس میں شبِ قدر تلاش کی جاتی ہے۔'));
+
+dayNotes.push(pick(lang,
+  `اليوم ${hd} من أصل ${monthLen} يوماً في ${monName} ${hy} هـ، أي في ${['الثلث الأول','الثلث الثاني','الثلث الأخير'][third]} من الشهر.`,
+  `Day ${hd} of ${monthLen} in ${monName} ${hy} AH — the ${['first','second','final'][third]} third of the month.`,
+  `${monName} ${hy} ھ کے ${monthLen} دنوں میں سے ${hd}واں دن، یعنی مہینے کا ${['پہلا','دوسرا','آخری'][third]} تہائی حصہ۔`));
 
 // Cross-year comparison: same Hijri day across all generated years
 const crossYears = convYears()
@@ -34,7 +99,7 @@ const crossYears = convYears()
   .filter(Boolean) as { hy: number; gDate: Date; href: string; current: boolean }[];
 
 // Adjacent days in the same month
-const allDays = validDaysInMonth(hy, hm);
+const allDays = allDaysOfMonth;
 const idx     = allDays.indexOf(hd);
 const prevDay = idx > 0                  ? allDays[idx - 1] : null;
 const nextDay = idx < allDays.length - 1 ? allDays[idx + 1] : null;
@@ -99,6 +164,14 @@ const t = {
     'تُحسب التواريخ هنا فلكياً وفق معايير تقويم أم القرى المعتمد في المملكة العربية السعودية. قد تختلف بعض الدول التي تعتمد رؤية الهلال المباشرة بيوم واحد.',
     'Dates are calculated astronomically per the Umm al-Qura standard used in Saudi Arabia. Countries relying on direct moon sighting may differ by about one day.',
     'یہاں تاریخوں کا حساب سعودی عرب میں رائج اُمّ القریٰ معیار کے مطابق فلکی طور پر کیا جاتا ہے۔ براہِ راست رؤیتِ ہلال پر انحصار کرنے والے بعض ممالک میں تقریباً ایک دن کا فرق ہو سکتا ہے۔'),
+  ctxTitle:    pick(lang, `ماذا يميّز ${hd} ${monName}؟`, `What marks ${hd} ${monName}?`, `${hd} ${monName} کی خصوصیت`),
+  ctxWeekday:  pick(lang, 'يوم الأسبوع', 'Day of the week', 'ہفتے کا دن'),
+  ctxMonth:    pick(lang, `عن شهر ${monName}`, `About ${monName}`, `${monName} کے بارے میں`),
+  ctxOcc:      pick(lang, 'مناسبة هذا اليوم', 'Occasion on this day', 'اس دن کی مناسبت'),
+  ctxOccMore:  pick(lang, 'تفاصيل المناسبة', 'Occasion details', 'مناسبت کی تفصیل'),
+  ctxOtd:      pick(lang, 'في مثل هذا اليوم الهجري', 'On this Hijri day', 'اسی ہجری دن'),
+  ctxOtdMore:  pick(lang, 'اقرأ القصة كاملة', 'Read the full story', 'مکمل کہانی پڑھیں'),
+  ctxNotes:    pick(lang, 'ملاحظات على هذا اليوم', 'Notes on this day', 'اس دن سے متعلق نکات'),
   brand:       pick(lang, 'التقويم الهجري', 'Hijri Calendar', 'ہجری کیلنڈر'),
   convTag:     pick(lang, 'تحويل التاريخ', 'Date Converter', 'تاریخ کنورٹر'),
   home:        pick(lang, 'الرئيسية', 'Home', 'ہوم'),
@@ -109,7 +182,8 @@ const t = {
 };
 ---
 <Layout title={title} description={description} canonical={canonical} lang={lang} jsonLd={jsonLd}
-  arPath={convBasePath(hy, hm, hd, 'ar')} enPath={convBasePath(hy, hm, hd, 'en')} urPath={convBasePath(hy, hm, hd, 'ur')}>
+  arPath={convBasePath(hy, hm, hd, 'ar')} enPath={convBasePath(hy, hm, hd, 'en')} urPath={convBasePath(hy, hm, hd, 'ur')}
+  noindex={!indexable}>
   <header class="site-header">
     <div class="header-start">
       <a href={homeHref} class="logo" aria-label={t.homeAria}>
@@ -149,6 +223,52 @@ const t = {
           <a href={monthHref} style="color:var(--accent);text-decoration:none;font-size:14.5px;font-weight:600">
             ↗ {t.monthLink}
           </a>
+        </div>
+      </section>
+
+      <section class="card section-card" style="order:1.5">
+        <h2 class="section-h2">{t.ctxTitle}</h2>
+
+        <div class="ctx-grid">
+          <div class="ctx-item">
+            <span class="ctx-label">{t.ctxWeekday}</span>
+            <span class="ctx-value">{weekday}</span>
+          </div>
+          <div class="ctx-item">
+            <span class="ctx-label">{t.th_greg}</span>
+            <span class="ctx-value">{gMonth} {gDate.getUTCFullYear()}</span>
+          </div>
+        </div>
+
+        {occInfo && (
+          <div class="ctx-block ctx-occ">
+            <span class="ctx-label">{t.ctxOcc}</span>
+            <p class="ctx-head">{occInfo.name}</p>
+            <p class="section-p" style="margin:6px 0 0">{occInfo.what}</p>
+            <a href={occInfo.href} class="ctx-link">{t.ctxOccMore} ←</a>
+          </div>
+        )}
+
+        {otdInfo && (
+          <div class="ctx-block">
+            <span class="ctx-label">{t.ctxOtd}</span>
+            <p class="ctx-head">{otdInfo.title} <span style="font-weight:600;color:var(--muted);font-size:14px">· {otdInfo.year}</span></p>
+            <p class="section-p" style="margin:6px 0 0">{otdInfo.summary}</p>
+            <a href={otdInfo.href} class="ctx-link">{t.ctxOtdMore} ←</a>
+          </div>
+        )}
+
+        <div class="ctx-block">
+          <span class="ctx-label">{t.ctxNotes}</span>
+          <ul class="ctx-notes">
+            {dayNotes.map(n => <li>{n}</li>)}
+          </ul>
+        </div>
+
+        <div class="ctx-block">
+          <span class="ctx-label">{t.ctxMonth}</span>
+          <p class="section-p" style="margin:6px 0 0">{monthNote}</p>
+          <a href={monthHref} class="ctx-link">{t.monthLink} ←</a>
         </div>
       </section>
 
@@ -215,6 +335,25 @@ const t = {
       </div>
     </aside>
   </div>
+
+  <style>
+    .ctx-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+    .ctx-item {
+      flex: 1 1 160px; padding: 11px 14px; border-radius: 11px;
+      border: 1px solid var(--border); background: var(--surface2);
+    }
+    .ctx-block { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border); }
+    .ctx-block.ctx-occ { border-top: none; padding: 14px 16px; margin-top: 16px; border-radius: 12px; background: var(--accent-soft); }
+    .ctx-label {
+      display: block; font-size: 11.5px; font-weight: 700; letter-spacing: .05em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 5px;
+    }
+    .ctx-value { display: block; font-size: 16px; font-weight: 700; }
+    .ctx-head { margin: 0; font-size: 16.5px; font-weight: 700; color: var(--accent); }
+    .ctx-notes { margin: 8px 0 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 7px; }
+    .ctx-notes li { font-size: 15px; line-height: 1.85; color: var(--text); }
+    .ctx-link { display: inline-block; margin-top: 10px; font-size: 13.5px; font-weight: 700; color: var(--accent); text-decoration: none; }
+  </style>
 
   <footer class="site-footer">
     {t.footer}
