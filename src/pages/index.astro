@@ -9,7 +9,7 @@ import HomeCityPrayer from '../components/HomeCityPrayer.astro';
 import { H_MON_AR, MONTHS_NOTES_AR, G_MON_AR } from '../lib/data';
 import { getL } from '../lib/data';
 import { HADITHS, hadithOfDay } from '../lib/hadiths';
-import { OCCASIONS, occurrencesInGYear, occBasePath, fmtGShort, isoUTC } from '../lib/occasions';
+import { OCCASIONS, occurrencesInGYear, occBasePath, fmtGShort } from '../lib/occasions';
 import { g2h, h2g, todayUTC } from '../lib/hijri';
 import { monthBasePath, monthName, monthSlug, H_YEAR_START, H_YEAR_END } from '../lib/months';
 import { eventForDay, eventsOfMonth, otdPath, fmtHDay, whatsappHref } from '../lib/onthisday';
@@ -81,35 +81,6 @@ const _yearGroups = _homeYears.map(_yr => ({
   past: occLinks.filter(o => o.year === _yr && o.date.getTime() < _todayMs),
 })).filter(g => g.upcoming.length > 0 || g.past.length > 0);
 
-// —— Event structured data for every occasion rendered on this page ——
-// Dates are the Umm al-Qura (Saudi) dates the page itself displays, so the markup
-// always matches the visible content. One node per occasion per listed year.
-// Google's guidance is not to mark up events that have already happened, so the
-// Event nodes track the upcoming occurrences only.
-const _occEvents = occLinks.filter(o => o.date.getTime() >= _todayMs).map(o => {
-  const _def = OCCASIONS.find(x => x.slug === o.slug);
-  const _what = _def ? _def.ar.what : '';
-  const _desc = _what ? _what.split('.')[0].trim() + '.' : '';
-  return {
-    "@context": "https://schema.org",
-    "@type": "Event",
-    "name": `${o.name} ${o.year}`,
-    "startDate": isoUTC(o.date),
-    "eventStatus": "https://schema.org/EventScheduled",
-    "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
-    "isAccessibleForFree": true,
-    "inLanguage": "ar",
-    "url": `https://islamicdates.org${o.href}`,
-    "image": ["https://islamicdates.org/og-image.png"],
-    "description": _desc,
-    "location": {
-      "@type": "Place",
-      "name": "المملكة العربية السعودية",
-      "address": { "@type": "PostalAddress", "addressCountry": "SA" }
-    }
-  };
-});
-
 // —— Internal-linking depth: Gregorian spans on month cards + cross-year month funnel ——
 const _gSpan = (hy: number, hm: number): string => {
   const _s = h2g(hy, hm, 1);
@@ -166,7 +137,6 @@ const jsonLd = JSON.stringify([
     "applicationCategory":"UtilitiesApplication","operatingSystem":"Web",
     "inLanguage":["ar","en"],"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}
   },
-  ..._occEvents
 ]);
 ---
 
