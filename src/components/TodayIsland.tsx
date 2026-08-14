@@ -45,9 +45,9 @@ export default function TodayIsland({ lang, todayIso }: Props) {
   const gMon = gMonArr(lang);
   const wd   = wdArr(lang);
   const sep  = ll === 'en' ? ', ' : '، ';
-  // COUNTRIES only carries ar/en names. Reading c.ur gave undefined on the Urdu
-  // build, and undefined.localeCompare() threw — which took the whole island down,
-  // leaving /ur/ with no hero at all. Fall back to the English name.
+  // COUNTRIES now carries ur names too, but the ?? guards stay: a missing name
+  // previously made this return undefined, and undefined.localeCompare() threw —
+  // which took the whole island down and left /ur/ with no hero at all.
   const cName = (c: typeof COUNTRIES[number]): string => {
     const n = c as { ar: string; en: string; ur?: string };
     return pick(lang, n.ar, n.en, n.ur ?? n.en) ?? n.en;
