@@ -129,7 +129,7 @@ const jsonLd = JSON.stringify([
 
   <div class="layout">
     <main>
-      <TodayIsland lang="en" client:load />
+      <TodayIsland lang="en" todayIso={todayUTC().toISOString().slice(0, 10)} client:load />
       <CalendarIsland lang="en" client:load />
       <div id="converter" style="scroll-margin-top:64px"><ConverterIsland lang="en" client:visible /></div>
 

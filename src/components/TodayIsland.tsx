@@ -3,16 +3,32 @@ import { g2h, getOcc, occName, dotColor, todayUTC, h2g } from '../lib/hijri';
 import { MAJOR_OCC_KEYS, type Lang, toLang, pick, hMonArr, gMonArr, wdArr, hijriEra, gregEra } from '../lib/data';
 import { COUNTRIES, TZ_TO_COUNTRY } from '../lib/countries';
 
-interface Props { lang: Lang }
+interface Props {
+  lang: Lang;
+  /** Request-time date from the page (YYYY-MM-DD, Umm al-Qura / Riyadh civil date). */
+  todayIso?: string;
+}
 
-export default function TodayIsland({ lang }: Props) {
+export default function TodayIsland({ lang, todayIso }: Props) {
   const ll = toLang(lang);
   const [country, setCountry] = useState('sa');
   const [copied, setCopied] = useState(false);
+  // Only gates the country <option> list — see the select below.
   const [mounted, setMounted] = useState(false);
+
+  // todayUTC() deliberately returns the Riyadh civil date on the server and the
+  // visitor's own civil date in the browser, so calling it directly during render
+  // would mismatch on hydration for anyone whose local date differs from Riyadh's.
+  // Seeding from the page's server-rendered date keeps the first client render
+  // byte-identical, then the effect below switches to the visitor's date.
+  const [today, setToday] = useState<Date>(() =>
+    todayIso ? new Date(`${todayIso}T00:00:00.000Z`) : todayUTC()
+  );
 
   useEffect(() => {
     setMounted(true);
+    const local = todayUTC();
+    setToday(prev => (prev.getTime() === local.getTime() ? prev : local));
     // Quietly default the region to the visitor's location using their
     // browser timezone — no permission prompt, no IP lookup. Selector stays
     // available as an override for anyone who wants a different region.
@@ -23,14 +39,19 @@ export default function TodayIsland({ lang }: Props) {
     } catch {}
   }, []);
 
-  const today = todayUTC();
   const th = g2h(today);
 
   const hMon = hMonArr(lang);
   const gMon = gMonArr(lang);
   const wd   = wdArr(lang);
   const sep  = ll === 'en' ? ', ' : '، ';
-  const cName = (c: typeof COUNTRIES[number]) => pick(lang, c.ar, c.en, c.ur);
+  // COUNTRIES only carries ar/en names. Reading c.ur gave undefined on the Urdu
+  // build, and undefined.localeCompare() threw — which took the whole island down,
+  // leaving /ur/ with no hero at all. Fall back to the English name.
+  const cName = (c: typeof COUNTRIES[number]): string => {
+    const n = c as { ar: string; en: string; ur?: string };
+    return pick(lang, n.ar, n.en, n.ur ?? n.en) ?? n.en;
+  };
 
   const fmtH = (d: Date, withDay: boolean) => {
     const h = g2h(d);
@@ -86,10 +107,6 @@ export default function TodayIsland({ lang }: Props) {
     window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
   };
 
-  if (!mounted) return (
-    <div style={{ background:'var(--surface)', border:'1px solid var(--border)', borderRadius:'var(--radius)', boxShadow:'var(--shadow)', padding:'28px 30px', minHeight: 200 }} />
-  );
-
   return (
     <section style={{ position:'relative', overflow:'hidden', background:'var(--surface)', backgroundImage:'linear-gradient(135deg, var(--accent-glow) 0%, transparent 55%)', border:'1px solid var(--border)', borderRadius:'var(--radius)', boxShadow:'var(--shadow)', padding:'28px 30px', animation:'fadeUp .5s ease' }}>
       <span aria-hidden="true" style={{ position:'absolute', top:-34, insetInlineEnd:-18, fontSize:150, lineHeight:1, color:'var(--accent)', opacity:.05, pointerEvents:'none', userSelect:'none' }}>☾</span>
@@ -106,7 +123,9 @@ export default function TodayIsland({ lang }: Props) {
           <select value={country} onChange={e => setCountry(e.target.value)}
             aria-label={pick(lang, 'المنطقة', 'Region', 'ملک')}
             style={{ padding:'3px 4px', borderRadius:8, border:'none', background:'transparent', color:'var(--muted)', fontSize:'12.5px', fontWeight:600, cursor:'pointer' }}>
-            {[...COUNTRIES].sort((a, b) => cName(a).localeCompare(cName(b), ll)).map(c => <option key={c.v} value={c.v}>{cName(c)}</option>)}
+            {mounted
+              ? [...COUNTRIES].sort((a, b) => cName(a).localeCompare(cName(b), ll)).map(c => <option key={c.v} value={c.v}>{cName(c)}</option>)
+              : <option value={country}>{cName(cur)}</option>}
           </select>
         </label>
       </div>
