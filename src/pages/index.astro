@@ -166,7 +166,7 @@ const jsonLd = JSON.stringify([
       <CalendarIsland lang="ar" client:load />
 
       <!-- Converter (client island) -->
-      <div id="converter" style="scroll-margin-top:64px"><ConverterIsland lang="ar" client:visible /></div>
+      <div id="converter" style="scroll-margin-top:var(--anchor-offset)"><ConverterIsland lang="ar" client:visible /></div>
 
       <!-- Upcoming occasions (client island) — order:3 so the OTD card sits above it -->
       <div style="order:3"><UpcomingIsland lang="ar" client:visible /></div>
@@ -179,7 +179,7 @@ const jsonLd = JSON.stringify([
       <!-- Prayer times by city (internal links to city pages) -->
       <HomeCityPrayer lang="ar" />
 
-      <section id="occasions" class="card section-card" style="order:5;scroll-margin-top:64px">
+      <section id="occasions" class="card section-card" style="order:5;scroll-margin-top:var(--anchor-offset)">
         <h2 class="section-h2">تواريخ المناسبات الإسلامية</h2>
         <p class="section-p" style="margin-bottom:14px">اعرف تاريخ كل مناسبة بالهجري والميلادي مع العدّ التنازلي</p>
         {_yearGroups.map((_g, _i) => { const _yr = _g.year; return (
