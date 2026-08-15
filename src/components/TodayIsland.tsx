@@ -115,14 +115,14 @@ export default function TodayIsland({ lang, todayIso }: Props) {
         <div style={{ fontSize:'12.5px', letterSpacing:'.12em', textTransform:'uppercase', color:'var(--accent)', fontWeight:700 }}>
           {pick(lang, 'تقويم أم القرى', 'Umm al-Qura calendar', 'اُمّ القریٰ تقویم')}
         </div>
-        <label style={{ display:'inline-flex', alignItems:'center', gap:6, fontSize:'12px', color:'var(--muted)', opacity:.85 }}
+        <label style={{ display:'inline-flex', alignItems:'center', gap:6, fontSize:'12px', color:'var(--muted)', opacity:.85, maxWidth:'100%', minWidth:0 }}
           title={pick(lang, 'اختياري: غيّر المنطقة لتعديل ملاحظة رؤية الهلال', 'Optional: change region to adjust the moon-sighting note', 'اختیاری: رؤیتِ ہلال کا نوٹ تبدیل کرنے کے لیے ملک منتخب کریں')}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity:.7 }} aria-hidden="true">
             <circle cx="12" cy="10" r="3" /><path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 7 8 11.7z" />
           </svg>
           <select value={country} onChange={e => setCountry(e.target.value)}
             aria-label={pick(lang, 'المنطقة', 'Region', 'ملک')}
-            style={{ padding:'3px 4px', borderRadius:8, border:'none', background:'transparent', color:'var(--muted)', fontSize:'12.5px', fontWeight:600, cursor:'pointer' }}>
+            style={{ padding:'3px 4px', borderRadius:8, border:'none', background:'transparent', color:'var(--muted)', fontSize:'12.5px', fontWeight:600, cursor:'pointer', maxWidth:'100%', minWidth:0, flex:'0 1 auto' }}>
             {mounted
               ? [...COUNTRIES].sort((a, b) => cName(a).localeCompare(cName(b), ll)).map(c => <option key={c.v} value={c.v}>{cName(c)}</option>)
               : <option value={country}>{cName(cur)}</option>}

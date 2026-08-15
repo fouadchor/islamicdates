@@ -179,7 +179,7 @@ export default function ConverterIsland({ lang }: Props) {
     <section className="card" style={{ padding: '22px 26px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 18 }}>
         <h2 style={{ margin: 0, fontWeight: 700, fontSize: 18 }}>{tab === 'conv' ? t.convTitle : t.ageTitle}</h2>
-        <div role="tablist" style={{ display: 'flex', gap: 3, background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 999, padding: 4 }}>
+        <div role="tablist" style={{ display: 'flex', flexWrap: 'wrap', maxWidth: '100%', gap: 3, background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 999, padding: 4 }}>
           <button role="tab" aria-selected={tab === 'conv'} style={pillS(tab === 'conv')} onClick={() => setTab('conv')}>{t.convTitle}</button>
           <button role="tab" aria-selected={tab === 'age'} style={pillS(tab === 'age')} onClick={() => setTab('age')}>{t.ageTitle}</button>
         </div>
