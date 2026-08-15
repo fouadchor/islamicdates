@@ -27,6 +27,17 @@ const langs: { code: Lang; path: string; label: string }[] = [
   { code: 'ur', path: urPath, label: 'اردو' },
 ];
 
+// Only the families this page can actually render with. Arabic duʿāʾ text appears in
+// every language (the sidebar dua, the dua pages), so Noto Naskh ships everywhere; the
+// Latin and Arabic UI families are language-specific. Measured on the live pages: Noto
+// Naskh covers the duʿāʾ text on its own, so IBM Plex is only needed where it is the UI
+// font, i.e. Arabic.
+const _GF = 'https://fonts.googleapis.com/css2?family=';
+const _fontHref = pick(lang,
+  _GF + 'IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap',
+  _GF + 'Noto+Naskh+Arabic:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap',
+  _GF + 'Noto+Naskh+Arabic:wght@400;500;600;700&display=swap');
+
 const _navHome = pick(lang, '/', '/en/', '/ur/');
 const _navPrayer = pick(lang, '/prayer-times/', '/en/prayer-times/', '/ur/prayer-times/');
 const _navZakat = pick(lang, '/zakat/', '/en/zakat/', '/ur/zakat/');
@@ -188,7 +199,7 @@ const _bnClose = pick(lang, 'إخفاء', 'Dismiss', 'چھپائیں');
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1722763564281190" crossorigin="anonymous"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href={_fontHref} rel="stylesheet" />
   <style is:global>
     *, *::before, *::after { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; }
@@ -248,9 +259,13 @@ const _bnClose = pick(lang, 'إخفاء', 'Dismiss', 'چھپائیں');
     /* Hadith source chip uses gold-deep as a background in the page markup — restyle for dark. */
     [data-theme="dark"] #hadith-src { background: var(--gold-soft) !important; color: var(--gold-deep) !important; border: 1px solid rgba(215,161,58,.4); }
 
-    [lang="ar"] { font-family: 'IBM Plex Sans Arabic', sans-serif; }
-    [lang="en"] { font-family: 'Plus Jakarta Sans', sans-serif; }
-    [lang="ur"] { font-family: 'Noto Naskh Arabic', 'IBM Plex Sans Arabic', serif; }
+    /* Scoped to the root element on purpose. A bare [lang="en"] also matched the
+       lang-switcher links and the footer language labels, so every Arabic and Urdu
+       page pulled the whole Latin family down to set two words. Descendants inherit
+       from <html>, and those links now render in the page's own font. */
+    html[lang="ar"] { font-family: 'IBM Plex Sans Arabic', sans-serif; }
+    html[lang="en"] { font-family: 'Plus Jakarta Sans', sans-serif; }
+    html[lang="ur"] { font-family: 'Noto Naskh Arabic', serif; }
 
     @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
     @keyframes pop { from { opacity:0; transform:scale(.96); } to { opacity:1; transform:none; } }
