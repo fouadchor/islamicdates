@@ -52,10 +52,15 @@ const _labels = {
   occ: pick(lang, 'المناسبات', 'Occasions', 'مناسبتیں'),
   guide: pick(lang, 'الدليل', 'Guide', 'رہنمائی'),
 };
-const navItems = [
+// Split drives the compact mobile bar only: primary items stay in the bar at every
+// width, the rest collapse into the "More" menu below 860px. Desktop concatenates
+// them back in the original order, so the wide nav is unchanged.
+const navPrimary = [
   { h: _navHome, t: _labels.home },
   { h: _navHome + '#converter', t: _labels.conv },
   { h: _navPrayer, t: _labels.prayer },
+];
+const navSecondary = [
   { h: _navQibla, t: _navLblQibla },
   { h: _navZakat, t: _navLblZakat },
   { h: _navDua, t: _labels.dua },
@@ -63,6 +68,11 @@ const navItems = [
   { h: _navHome + '#occasions', t: _labels.occ },
   { h: _navAbout, t: _labels.guide },
 ];
+const navItems = [...navPrimary, ...navSecondary];
+const _lblKids = pick(lang, 'ركن الصغار', 'Kids Corner', 'بچوں کا گوشہ');
+const _lblMore = pick(lang, 'المزيد', 'More', 'مزید');
+const _lblMoreMenu = pick(lang, 'قائمة إضافية', 'More menu', 'مزید مینو');
+const _lblLanguage = pick(lang, 'اللغة', 'Language', 'زبان');
 // Current path (normalised with trailing slash) → active nav highlighting.
 const _curPath = Astro.url.pathname.endsWith('/') ? Astro.url.pathname : Astro.url.pathname + '/';
 const _isActive = (h: string) => !h.includes('#') && h === _curPath;
@@ -206,6 +216,10 @@ const _bnClose = pick(lang, 'إخفاء', 'Dismiss', 'چھپائیں');
       --gold-deep: #8a5f12;
       --holy: #0ea5e9;
       --radius: 18px;
+      /* Height of the sticky nav, and the offset #anchor targets must clear to
+         land below it. Both step down per breakpoint alongside the nav itself. */
+      --nav-h: 47px;
+      --anchor-offset: 56px;
       --shadow: 0 1px 2px rgba(13,40,48,.06), 0 10px 30px rgba(13,40,48,.05);
       --shadow-lift: 0 4px 10px rgba(13,40,48,.08), 0 16px 40px rgba(13,40,48,.10);
       --nav-bg: linear-gradient(90deg, #0b7d73, #0d9488 55%, #109c8b);
@@ -512,6 +526,7 @@ const _bnClose = pick(lang, 'إخفاء', 'Dismiss', 'چھپائیں');
 
     /* ——— Nav: wrap into pill rows once the single row no longer fits ——— */
     @media (max-width: 1100px) {
+      :root { --nav-h: 104px; --anchor-offset: 112px; }
       .site-nav-inner { flex-wrap: wrap; align-items: center; padding: 9px 10px; gap: 8px; }
       .nav-links { flex-wrap: wrap; overflow-x: visible; gap: 6px; }
       .site-nav .nav-link {
@@ -522,6 +537,93 @@ const _bnClose = pick(lang, 'إخفاء', 'Dismiss', 'چھپائیں');
       .site-nav .nav-link.active { background: rgba(255,255,255,.95); color: var(--accent-strong); }
       .site-nav .nav-kids { margin: 0; }
       .nav-actions { padding: 0; margin-inline-start: auto; }
+    }
+
+    /* ——— Compact single-row mobile nav (≤860px) ———
+       Above this width every nav item sits in the bar and these controls are
+       inert; below it the bar keeps only the primary items plus a "More" menu
+       that holds the rest along with the language and theme controls. */
+    .nav-more-btn, .nav-menu { display: none; }
+
+    @media (max-width: 860px) {
+      :root { --nav-h: 56px; --anchor-offset: 64px; }
+
+      .site-nav-inner {
+        flex-wrap: nowrap; align-items: center;
+        gap: 4px; padding: 0 8px; min-height: var(--nav-h);
+      }
+      .nav-links { flex-wrap: nowrap; overflow-x: auto; gap: 2px; align-items: center; }
+      /* Everything that is not primary is reachable through the More menu instead. */
+      .site-nav .nav-links > :not(.nav-pri) { display: none; }
+      .site-nav .nav-link.nav-pri {
+        display: inline-flex; align-items: center;
+        min-height: 44px; padding: 0 11px;
+        font-size: 13px; border-radius: 10px;
+        background: transparent; border-bottom: none;
+      }
+      .site-nav .nav-link.nav-pri.active { background: rgba(255,255,255,.95); color: var(--accent-strong); }
+
+      .nav-actions { padding: 0; margin-inline-start: auto; gap: 0; }
+      .nav-actions .theme-toggle, .nav-actions .lang-switch { display: none; }
+
+      .nav-more-btn {
+        display: inline-flex; align-items: center; gap: 5px;
+        min-height: 44px; padding: 0 12px;
+        border: 1px solid rgba(255,255,255,.28); border-radius: 10px;
+        background: rgba(255,255,255,.14); color: var(--accent-contrast);
+        font-weight: 700; font-size: 13px; white-space: nowrap;
+        transition: background .2s;
+      }
+      .nav-more-btn:hover { background: rgba(255,255,255,.26); }
+      .nav-more-btn .chev { transition: transform .2s ease; }
+      .nav-more-btn[aria-expanded="true"] .chev { transform: rotate(180deg); }
+
+      .nav-menu {
+        display: block;
+        position: absolute; top: 100%; inset-inline: 0; z-index: 45;
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        box-shadow: var(--shadow-lift);
+        max-height: 0; overflow: hidden;
+        /* visibility keeps the collapsed links out of the tab order, which
+           max-height alone would not do. */
+        visibility: hidden;
+        transition: max-height .25s ease, visibility .25s ease;
+      }
+      .nav-menu.open { max-height: 75vh; overflow-y: auto; visibility: visible; }
+      .nav-menu-inner { padding: 8px 8px 12px; }
+      .site-nav .nav-menu a.nav-link {
+        display: flex; align-items: center;
+        min-height: 48px; padding: 0 14px;
+        color: var(--text); font-size: 15px; font-weight: 600;
+        background: transparent; border-bottom: none; border-radius: 10px; opacity: 1;
+      }
+      .site-nav .nav-menu a.nav-link:hover { background: var(--surface2); }
+      .site-nav .nav-menu a.nav-link.active { background: var(--accent-soft); color: var(--accent-strong); }
+      .site-nav .nav-menu a.nav-kids {
+        margin: 6px 0 0; padding: 0 14px; border-radius: 10px;
+        color: #4a2b00; background: linear-gradient(135deg, #fbbf24, #fb7185);
+      }
+
+      .nav-menu-foot {
+        display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+        margin-top: 10px; padding-top: 12px; border-top: 1px solid var(--border);
+      }
+      .nav-menu-langs { display: flex; gap: 6px; flex: 1 1 auto; flex-wrap: wrap; }
+      .nav-menu-langs a {
+        display: inline-flex; align-items: center;
+        min-height: 44px; padding: 0 14px; border-radius: 10px;
+        border: 1px solid var(--border); background: var(--surface2);
+        color: var(--text); font-weight: 700; font-size: 14px; text-decoration: none;
+      }
+      .nav-menu-langs a.on { background: var(--accent); border-color: var(--accent); color: var(--accent-contrast); }
+      .site-nav .nav-menu .theme-toggle {
+        width: auto; min-height: 44px; gap: 8px; padding: 0 14px;
+        border-radius: 10px; border: 1px solid var(--border);
+        background: var(--surface2); color: var(--text);
+        font-weight: 700; font-size: 14px;
+      }
+      .site-nav .nav-menu .theme-toggle:hover { background: var(--accent-soft); transform: none; }
     }
 
     /* ——— Mobile ——— */
@@ -553,17 +655,37 @@ const _bnClose = pick(lang, 'إخفاء', 'Dismiss', 'چھپائیں');
   <nav class="site-nav" aria-label={pick(lang, 'التنقل الرئيسي', 'Main navigation', 'مرکزی نیویگیشن')}>
     <div class="site-nav-inner">
       <div class="nav-links">
-        {navItems.map(it => <a class={`nav-link${_isActive(it.h) ? ' active' : ''}`} href={it.h} aria-current={_isActive(it.h) ? 'page' : undefined}>{it.t}</a>)}
-        <a class="nav-link nav-kids" href="/kids/">🌙 {pick(lang, 'ركن الصغار', 'Kids Corner', 'بچوں کا گوشہ')}</a>
+        {navPrimary.map(it => <a class={`nav-link nav-pri${_isActive(it.h) ? ' active' : ''}`} href={it.h} aria-current={_isActive(it.h) ? 'page' : undefined}>{it.t}</a>)}
+        {navSecondary.map(it => <a class={`nav-link${_isActive(it.h) ? ' active' : ''}`} href={it.h} aria-current={_isActive(it.h) ? 'page' : undefined}>{it.t}</a>)}
+        <a class="nav-link nav-kids" href="/kids/">🌙 {_lblKids}</a>
       </div>
       <div class="nav-actions">
+        <button type="button" class="nav-more-btn" id="nav-more" aria-expanded="false" aria-controls="nav-menu" aria-haspopup="true">
+          {_lblMore}
+          <svg class="chev" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
         <button type="button" class="theme-toggle" id="theme-toggle" aria-label={_themeLabel} title={_themeLabel}>
           <svg class="ic-moon" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
           <svg class="ic-sun" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
         </button>
-        <div class="lang-switch" role="group" aria-label={pick(lang, 'اللغة', 'Language', 'زبان')}>
+        <div class="lang-switch" role="group" aria-label={_lblLanguage}>
           <svg class="lang-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
           {langs.map(l => <a href={l.path} class={l.code === lang ? 'on' : ''} hreflang={l.code} lang={l.code} aria-current={l.code === lang ? 'true' : undefined}>{l.label}</a>)}
+        </div>
+      </div>
+    </div>
+    <div class="nav-menu" id="nav-menu" aria-label={_lblMoreMenu}>
+      <div class="nav-menu-inner">
+        {navSecondary.map(it => <a class={`nav-link${_isActive(it.h) ? ' active' : ''}`} href={it.h} aria-current={_isActive(it.h) ? 'page' : undefined}>{it.t}</a>)}
+        <a class="nav-link nav-kids" href="/kids/">🌙 {_lblKids}</a>
+        <div class="nav-menu-foot">
+          <div class="nav-menu-langs" role="group" aria-label={_lblLanguage}>
+            {langs.map(l => <a href={l.path} class={l.code === lang ? 'on' : ''} hreflang={l.code} lang={l.code} aria-current={l.code === lang ? 'true' : undefined}>{_fLangLabel(l.code)}</a>)}
+          </div>
+          <button type="button" class="theme-toggle" aria-label={_themeLabel} title={_themeLabel}>
+            <svg class="ic-moon" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            <svg class="ic-sun" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+          </button>
         </div>
       </div>
     </div>
@@ -667,15 +789,40 @@ const _bnClose = pick(lang, 'إخفاء', 'Dismiss', 'چھپائیں');
   </button>
   <script is:inline>
     (function () {
-      var tog = document.getElementById('theme-toggle');
-      if (tog) tog.addEventListener('click', function () {
-        var el = document.documentElement;
-        var next = el.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-        el.setAttribute('data-theme', next);
-        try { localStorage.setItem('theme', next); } catch (e) {}
-        var m = document.querySelector('meta[name="theme-color"]');
-        if (m) m.setAttribute('content', next === 'dark' ? '#122129' : '#0d9488');
+      // Two toggles exist: one in the bar (wide) and one in the More menu (mobile).
+      Array.prototype.forEach.call(document.querySelectorAll('.theme-toggle'), function (tog) {
+        tog.addEventListener('click', function () {
+          var el = document.documentElement;
+          var next = el.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+          el.setAttribute('data-theme', next);
+          try { localStorage.setItem('theme', next); } catch (e) {}
+          var m = document.querySelector('meta[name="theme-color"]');
+          if (m) m.setAttribute('content', next === 'dark' ? '#122129' : '#0d9488');
+        });
       });
+
+      var moreBtn = document.getElementById('nav-more');
+      var navMenu = document.getElementById('nav-menu');
+      if (moreBtn && navMenu) {
+        var setMenu = function (open) {
+          navMenu.classList.toggle('open', open);
+          moreBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        };
+        moreBtn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          setMenu(!navMenu.classList.contains('open'));
+        });
+        // Close on outside click, on Escape, and after following a link.
+        document.addEventListener('click', function (e) {
+          if (navMenu.classList.contains('open') && !navMenu.contains(e.target)) setMenu(false);
+        });
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape' && navMenu.classList.contains('open')) { setMenu(false); moreBtn.focus(); }
+        });
+        navMenu.addEventListener('click', function (e) {
+          if (e.target.closest && e.target.closest('a')) setMenu(false);
+        });
+      }
       var bt = document.getElementById('back-top');
       if (bt) {
         var onScroll = function () { bt.classList.toggle('show', window.scrollY > 600); };
