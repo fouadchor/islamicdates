@@ -162,6 +162,13 @@ const _bnClose = pick(lang, 'إخفاء', 'Dismiss', 'چھپائیں');
   {!altLangs && <link rel="alternate" hreflang="ar" href={`${base}${arPath}`} />}
   <link rel="alternate" hreflang="x-default" href={`${base}${arPath}`} />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+  {/* One manifest per language: each scopes itself to its own subtree so an installed
+      copy opens in the language it was installed from, rather than always at the Arabic root. */}
+  <link rel="manifest" href={pick(lang, '/manifest.webmanifest', '/en/manifest.webmanifest', '/ur/manifest.webmanifest')} />
+  <meta name="apple-mobile-web-app-title" content={pick(lang, 'التقويم الهجري', 'Hijri Calendar', 'ہجری کیلنڈر')} />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />
@@ -452,6 +459,27 @@ const _bnClose = pick(lang, 'إخفاء', 'Dismiss', 'چھپائیں');
     .faq-item { padding: 13px 0; border-bottom: 1px solid var(--border); }
     .faq-q { margin: 0; font-weight: 700; font-size: 15.5px; }
     .faq-a { margin: 6px 0 0; color: var(--muted); line-height: 1.75; font-size: 14.5px; text-wrap: pretty; }
+
+    /* Collapsible variant of .faq-item, used where the FAQ is a secondary block on an
+       already-long page (the homepage). Built on <details> so the answers stay in the
+       DOM for crawlers and remain reachable with no JavaScript. */
+    .faq-d { border-bottom: 1px solid var(--border); }
+    .faq-d:last-of-type { border-bottom: none; }
+    .faq-d > summary {
+      list-style: none; cursor: pointer; padding: 13px 0;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      font-weight: 700; font-size: 15.5px; color: var(--text);
+    }
+    .faq-d > summary::-webkit-details-marker { display: none; }
+    .faq-d > summary:hover { color: var(--accent); }
+    .faq-d > summary .faq-chev {
+      flex: 0 0 auto; width: 17px; height: 17px; color: var(--muted);
+      transition: transform .2s ease, color .2s ease;
+    }
+    .faq-d[open] > summary { color: var(--accent); }
+    .faq-d[open] > summary .faq-chev { transform: rotate(180deg); color: var(--accent); }
+    .faq-d > .faq-a { padding-bottom: 13px; }
+    @media (prefers-reduced-motion: reduce) { .faq-d > summary .faq-chev { transition: none; } }
 
     .ad-slot {
       border: 1px dashed var(--border); border-radius: var(--radius);
