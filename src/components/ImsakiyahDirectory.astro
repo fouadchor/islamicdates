@@ -2,6 +2,7 @@
 // Landing page for the imsākiyya set: explains the month, then a crawlable
 // country-by-country index so every city page is one click (and one hop) away.
 import Layout from '../layouts/Layout.astro';
+import ImsakiyahSearchIsland from './ImsakiyahSearchIsland';
 import { PT_COUNTRIES, PT_CITIES, citiesOfCountry } from '../lib/cities';
 import { type Lang, pick, gMonArr } from '../lib/data';
 import { activeRamadanYear, imsakBase, imsakCityPath, RAMADAN } from '../lib/imsakiyah';
@@ -97,6 +98,10 @@ const countriesWithCities = PT_COUNTRIES
         <h1 class="section-h2" style="font-size:26px">{t.h1}</h1>
         <p class="section-p">{t.sub}</p>
         <p class="imd-range">{rangeText} · {days} {t.daysWord}</p>
+
+        {/* Accelerator only — the full country index below stays in the HTML, so
+            every city is reachable without JavaScript and by a crawler. */}
+        <div class="imd-search"><ImsakiyahSearchIsland lang={lang} client:idle /></div>
       </section>
 
       <section class="card section-card">
@@ -137,6 +142,7 @@ const countriesWithCities = PT_COUNTRIES
 
   <style>
     .imd-range { margin: 10px 0 0; font-weight: 800; color: var(--accent); font-size: 15.5px; }
+    .imd-search { margin-top: 16px; }
 
     .imd-popular { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
     .imd-popular a {
