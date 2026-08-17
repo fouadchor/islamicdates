@@ -125,7 +125,6 @@ export function getL(langLike: LangLike) {
     legendHoly:   p('مناسبة دينية', 'Religious day', 'دینی مناسبت'),
     legendRam:    p('أيام رمضان', 'Ramadan days', 'رمضان کے دن'),
     selectedDay:  p('اليوم المختار', 'Selected day', 'منتخب دن'),
-    ad:           p('مساحة إعلانية', 'Advertisement', 'اشتہار'),
     footer:       p('الحساب وفق تقويم أم القرى', 'Dates based on the Umm al-Qura calendar · for reference', 'حساب اُمّ القریٰ تقویم کے مطابق'),
     aboutTitle:   p('عن التقويم الهجري', 'About the Hijri Calendar', 'ہجری تقویم کے بارے میں'),
     aboutBody:    p(
