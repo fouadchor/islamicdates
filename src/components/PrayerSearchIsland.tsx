@@ -1,17 +1,11 @@
 import { useState, useMemo } from 'react';
 import { PT_CITIES, PT_COUNTRIES, cityPath, type PtLang } from '../lib/cities';
 import { type Lang, pick, isRTL } from '../lib/data';
+// Shared with the imsākiyya search so both boxes fold Arabic/Urdu spellings the
+// same way — a place findable in one is findable in the other.
+import { normalizeSearch as norm } from '../lib/search';
 
 interface Props { lang: Lang }
-
-// Normalise Arabic/Urdu text for forgiving search (strip diacritics, unify alef/yaa forms).
-function norm(s: string): string {
-  return s.toLowerCase()
-    .replace(/[ً-ٰٟ]/g, '')
-    .replace(/[أإآٱ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه')
-    .replace(/[ئى]/g, 'ی').replace(/ك/g, 'ک')
-    .trim();
-}
 
 export default function PrayerSearchIsland({ lang }: Props) {
   const rtl = isRTL(lang);
