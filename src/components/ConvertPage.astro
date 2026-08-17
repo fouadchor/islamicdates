@@ -7,7 +7,7 @@ import {
 import { monthBasePath } from '../lib/months';
 import { h2g } from '../lib/hijri';
 import { type Lang, pick, hijriEra, wdArr, gMonArr, MONTHS_NOTES_AR, MONTHS_NOTES_EN, MONTHS_NOTES_UR } from '../lib/data';
-import { OCCASIONS, occBasePath } from '../lib/occasions';
+import { OCCASIONS, occBasePath, G_YEAR_START, G_YEAR_END } from '../lib/occasions';
 import { eventsOn } from '../lib/onthisday';
 import { otdContent, otdPathL } from '../lib/onthisday.i18n';
 
@@ -37,11 +37,19 @@ const gMonth    = gMonArr(lang)[gDate.getUTCMonth()];
 const monthNote = pick(lang, MONTHS_NOTES_AR, MONTHS_NOTES_EN, MONTHS_NOTES_UR)[hm - 1];
 
 // A named Islamic occasion falling exactly on this Hijri day, if any.
+//
+// The occasion pages only exist for G_YEAR_START..G_YEAR_END, while the converter
+// covers Hijri years whose dates fall outside that window at both ends — 1445 lands
+// in 2023, 1457 in 2036. Linking blind produced 404s (e.g. /ashura-2023/), so the
+// link is only offered when the target year was actually generated; the occasion
+// itself still gets its name and description either way.
 const occDef = OCCASIONS.find(o => o.hm === hm && o.hd === hd);
+const occGYear = gDate.getUTCFullYear();
+const occLinkable = occGYear >= G_YEAR_START && occGYear <= G_YEAR_END;
 const occInfo = occDef ? {
   name: occDef[lang].name,
   what: occDef[lang].what.split('.')[0].trim() + '.',
-  href: occBasePath(occDef.slug, gDate.getUTCFullYear(), lang),
+  href: occLinkable ? occBasePath(occDef.slug, occGYear, lang) : null,
 } : null;
 
 // A historical event recorded on this Hijri day (exact matches only — the
@@ -244,7 +252,7 @@ const t = {
             <span class="ctx-label">{t.ctxOcc}</span>
             <p class="ctx-head">{occInfo.name}</p>
             <p class="section-p" style="margin:6px 0 0">{occInfo.what}</p>
-            <a href={occInfo.href} class="ctx-link">{t.ctxOccMore} ←</a>
+            {occInfo.href && <a href={occInfo.href} class="ctx-link">{t.ctxOccMore} ←</a>}
           </div>
         )}
 
