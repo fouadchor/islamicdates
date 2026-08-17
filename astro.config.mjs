@@ -28,8 +28,12 @@ export default defineConfig({
         !page.includes('/embed') &&
         !page.includes('/404') &&
         convertPageIsIndexable(page),
-      // The homepages and on-this-day index are request-time SSR (prerender=false),
-      // so they aren't emitted as static files and won't be auto-discovered.
+      // Pages the crawler cannot discover on its own:
+      //   • the homepages and on-this-day index are request-time SSR
+      //     (prerender=false), so no static file is emitted for them;
+      //   • the Kids pages are hand-authored HTML in public/, which the
+      //     integration never scans — they are indexable, self-canonical and
+      //     carry hreflang, so leaving them out was simply a gap.
       customPages: [
         'https://islamicdates.org/',
         'https://islamicdates.org/en/',
@@ -37,10 +41,21 @@ export default defineConfig({
         'https://islamicdates.org/on-this-day/',
         'https://islamicdates.org/en/on-this-day/',
         'https://islamicdates.org/ur/on-this-day/',
+        'https://islamicdates.org/kids/',
+        'https://islamicdates.org/en/kids/',
+        'https://islamicdates.org/ur/kids/',
       ],
-      changefreq: 'weekly',
-      priority: 0.7,
-      lastmod: new Date(),
+      // No lastmod, changefreq or priority.
+      //
+      // These were previously emitted as `new Date()` / 'weekly' / 0.7 — the same
+      // three values on all ~6,800 URLs, with lastmod jumping to the current time
+      // on every deploy. A lastmod that says "everything changed just now" whenever
+      // anything is rebuilt is worse than none: Google treats an unreliable lastmod
+      // as a reason to disregard the signal for the whole file. There is no honest
+      // per-page date to put here either, since these pages are generated from
+      // shared data and templates rather than edited individually, so the field is
+      // omitted rather than faked. changefreq and priority are ignored by Google
+      // outright, and carried no information at a single uniform value.
     }),
   ],
   site: 'https://islamicdates.org',
