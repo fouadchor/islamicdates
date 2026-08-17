@@ -276,6 +276,12 @@ const _bnClose = pick(lang, 'إخفاء', 'Dismiss', 'چھپائیں');
 
     @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
     @keyframes pop { from { opacity:0; transform:scale(.96); } to { opacity:1; transform:none; } }
+    /* Halo behind the hero moon — the page's only ambient motion. Animates
+       opacity alone, so it stays on the compositor and never triggers layout
+       or repaints of anything around it. */
+    @keyframes moonGlow { from { opacity:.3; } to { opacity:.85; } }
+    .moon-glow { opacity:.55; animation: moonGlow 6s ease-in-out infinite alternate; will-change: opacity; }
+    @media (prefers-reduced-motion: reduce) { .moon-glow { animation: none; } }
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
       *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
