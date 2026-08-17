@@ -1,0 +1,25 @@
+{
+  "id": "/ur/",
+  "name": "ہجری کیلنڈر · اُمّ القریٰ تقویم",
+  "short_name": "ہجری کیلنڈر",
+  "description": "اُمّ القریٰ تقویم کے مطابق آج کی ہجری تاریخ عیسوی کے ساتھ، تاریخ کنورٹر، اسلامی مناسبتیں اور مواقیتِ نماز۔",
+  "lang": "ur",
+  "dir": "rtl",
+  "start_url": "/ur/?utm_source=pwa",
+  "scope": "/ur/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#0d9488",
+  "background_color": "#eef2f6",
+  "categories": ["utilities", "lifestyle", "education"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "مواقیتِ نماز", "short_name": "نماز", "url": "/ur/prayer-times/", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "تاریخ کنورٹر", "short_name": "کنورٹر", "url": "/ur/#converter", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "قبلہ کا رخ", "short_name": "قبلہ", "url": "/ur/qibla/", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

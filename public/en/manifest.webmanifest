@@ -1,0 +1,25 @@
+{
+  "id": "/en/",
+  "name": "Hijri Calendar · Umm al-Qura",
+  "short_name": "Hijri Calendar",
+  "description": "Today's Hijri date next to the Gregorian date per the Umm al-Qura calendar, with a date converter, Islamic occasions and prayer times.",
+  "lang": "en",
+  "dir": "ltr",
+  "start_url": "/en/?utm_source=pwa",
+  "scope": "/en/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#0d9488",
+  "background_color": "#eef2f6",
+  "categories": ["utilities", "lifestyle", "education"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Prayer times", "short_name": "Prayer", "url": "/en/prayer-times/", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Date converter", "short_name": "Converter", "url": "/en/#converter", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Qibla direction", "short_name": "Qibla", "url": "/en/qibla/", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

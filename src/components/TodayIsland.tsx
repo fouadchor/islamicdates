@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { g2h, getOcc, occName, dotColor, todayUTC, h2g } from '../lib/hijri';
 import { MAJOR_OCC_KEYS, type Lang, toLang, pick, hMonArr, gMonArr, wdArr, hijriEra, gregEra } from '../lib/data';
 import { COUNTRIES, TZ_TO_COUNTRY } from '../lib/countries';
+import { moonPhase, moonLitPath } from '../lib/moon';
 
 interface Props {
   lang: Lang;
@@ -107,6 +108,9 @@ export default function TodayIsland({ lang, todayIso }: Props) {
     window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
   };
 
+  // Tonight's moon, straight from the Hijri day already on screen.
+  const { d: moonPath, mirrored: moonMirrored } = moonLitPath(moonPhase(th.d), 14);
+
   return (
     <section style={{ position:'relative', overflow:'hidden', background:'var(--surface)', backgroundImage:'linear-gradient(135deg, var(--accent-glow) 0%, transparent 55%)', border:'1px solid var(--border)', borderRadius:'var(--radius)', boxShadow:'var(--shadow)', padding:'28px 30px', animation:'fadeUp .5s ease' }}>
       <span aria-hidden="true" style={{ position:'absolute', top:-34, insetInlineEnd:-18, fontSize:150, lineHeight:1, color:'var(--accent)', opacity:.05, pointerEvents:'none', userSelect:'none' }}>☾</span>
@@ -115,14 +119,14 @@ export default function TodayIsland({ lang, todayIso }: Props) {
         <div style={{ fontSize:'12.5px', letterSpacing:'.12em', textTransform:'uppercase', color:'var(--accent)', fontWeight:700 }}>
           {pick(lang, 'تقويم أم القرى', 'Umm al-Qura calendar', 'اُمّ القریٰ تقویم')}
         </div>
-        <label style={{ display:'inline-flex', alignItems:'center', gap:6, fontSize:'12px', color:'var(--muted)', opacity:.85 }}
+        <label style={{ display:'inline-flex', alignItems:'center', gap:6, fontSize:'12px', color:'var(--muted)', opacity:.85, maxWidth:'100%', minWidth:0 }}
           title={pick(lang, 'اختياري: غيّر المنطقة لتعديل ملاحظة رؤية الهلال', 'Optional: change region to adjust the moon-sighting note', 'اختیاری: رؤیتِ ہلال کا نوٹ تبدیل کرنے کے لیے ملک منتخب کریں')}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity:.7 }} aria-hidden="true">
             <circle cx="12" cy="10" r="3" /><path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 7 8 11.7z" />
           </svg>
           <select value={country} onChange={e => setCountry(e.target.value)}
             aria-label={pick(lang, 'المنطقة', 'Region', 'ملک')}
-            style={{ padding:'3px 4px', borderRadius:8, border:'none', background:'transparent', color:'var(--muted)', fontSize:'12.5px', fontWeight:600, cursor:'pointer' }}>
+            style={{ padding:'3px 4px', borderRadius:8, border:'none', background:'transparent', color:'var(--muted)', fontSize:'12.5px', fontWeight:600, cursor:'pointer', maxWidth:'100%', minWidth:0, flex:'0 1 auto' }}>
             {mounted
               ? [...COUNTRIES].sort((a, b) => cName(a).localeCompare(cName(b), ll)).map(c => <option key={c.v} value={c.v}>{cName(c)}</option>)
               : <option value={country}>{cName(cur)}</option>}
@@ -174,7 +178,24 @@ export default function TodayIsland({ lang, todayIso }: Props) {
         </div>
 
         <div aria-hidden="true" style={{ flex:'0 0 auto', width:186, height:186, borderRadius:'50%', background:'linear-gradient(140deg, var(--accent) 0%, var(--accent-strong) 100%)', color:'var(--accent-contrast)', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', textAlign:'center', boxShadow:'0 14px 34px rgba(13,148,136,.30)', border:'6px solid var(--accent-soft)' }}>
-          <span style={{ fontSize:24, lineHeight:1, opacity:.92 }}>☾</span>
+          {/* The badge's crescent, drawn at tonight's actual phase from the Hijri
+              day. Inline SVG, computed during render — no image, no request, no
+              extra client work beyond the island that was already hydrating. */}
+          <svg viewBox="-24 -24 48 48" width="40" height="40" style={{ display:'block', overflow:'visible' }}>
+            <defs>
+              <radialGradient id="heroMoonGlow">
+                <stop offset="45%" stopColor="#fff" stopOpacity=".38" />
+                <stop offset="100%" stopColor="#fff" stopOpacity="0" />
+              </radialGradient>
+            </defs>
+            <circle r="22" fill="url(#heroMoonGlow)" className="moon-glow" />
+            {/* The unlit disc reads darker than the badge, not lighter — a pale
+                disc on teal washes the thin day-1 and day-29 crescents out. */}
+            <circle r="14" fill="rgba(3,54,49,.45)" />
+            <g transform={moonMirrored ? 'scale(-1,1)' : undefined}>
+              <path d={moonPath} fill="#fff" />
+            </g>
+          </svg>
           <span style={{ fontSize:15, fontWeight:600, opacity:.92, marginTop:5 }}>{hMon[th.m-1]}</span>
           <span style={{ fontSize:62, fontWeight:800, lineHeight:1.02 }}>{th.d}</span>
           <span style={{ fontSize:14, fontWeight:600, opacity:.92 }}>{th.y} {hijriEra(lang)}</span>

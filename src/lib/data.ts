@@ -125,7 +125,6 @@ export function getL(langLike: LangLike) {
     legendHoly:   p('مناسبة دينية', 'Religious day', 'دینی مناسبت'),
     legendRam:    p('أيام رمضان', 'Ramadan days', 'رمضان کے دن'),
     selectedDay:  p('اليوم المختار', 'Selected day', 'منتخب دن'),
-    ad:           p('مساحة إعلانية', 'Advertisement', 'اشتہار'),
     footer:       p('الحساب وفق تقويم أم القرى', 'Dates based on the Umm al-Qura calendar · for reference', 'حساب اُمّ القریٰ تقویم کے مطابق'),
     aboutTitle:   p('عن التقويم الهجري', 'About the Hijri Calendar', 'ہجری تقویم کے بارے میں'),
     aboutBody:    p(
@@ -161,6 +160,26 @@ export function getL(langLike: LangLike) {
       { q: 'What is today\'s Hijri date?',             a: 'The site automatically shows today\'s Islamic (Hijri) date at the top, next to the Gregorian date, based on the Umm al-Qura calendar.' },
       { q: 'How do I convert a date from Hijri to Gregorian?', a: 'Use the Quick Date Converter: pick either a Hijri or a Gregorian date and the matching date appears instantly.' },
       { q: 'What are the twelve Hijri months?',        a: 'Muharram, Safar, Rabiʿ I, Rabiʿ II, Jumada I, Jumada II, Rajab, Shaʿban, Ramadan, Shawwal, Dhuʾl-Qaʿdah and Dhuʾl-Hijjah.' },
+    ],
+    // Homepage FAQ. Deliberately distinct from `faqItems` (which /about/ renders): duplicating
+    // the same Q&A pairs across two indexed pages would put identical FAQPage markup on both.
+    // Answers stay evergreen — no hard-coded dates or counts — so the static text never goes stale.
+    homeFaqTitle: p('أسئلة شائعة عن التاريخ الهجري', 'Common questions about the Hijri date', 'ہجری تاریخ کے بارے میں عام سوالات'),
+    homeFaqItems: lang === 'ar' ? [
+      { q: 'لماذا يختلف التاريخ الهجري بين الدول بيوم واحد؟', a: 'التواريخ هنا محسوبة فلكياً وفق تقويم أم القرى المعتمد في السعودية. وتعتمد دول أخرى على رؤية الهلال المباشرة ليلة التاسع والعشرين، فإذا حال الغيم أو الصفاء دون الرؤية اختلف بدء الشهر بمقدار يوم واحد تقريباً.' },
+      { q: 'هل يمكنني معرفة كم باقٍ على رمضان أو العيد؟', a: 'نعم، يعرض قسم «المناسبات الإسلامية القادمة» في هذه الصفحة عدّاً تنازلياً بالأيام لكل مناسبة، مع تاريخها بالهجري والميلادي معاً.' },
+      { q: 'كيف أحسب عمري بالتقويم الهجري؟', a: 'استخدم «حاسبة العمر بالهجري» ضمن المحوّل: أدخل تاريخ ميلادك ميلادياً أو هجرياً، فتظهر لك عمرك بالسنوات الهجرية ويوم مولدك.' },
+      { q: 'هل مواقيت الصلاة المعروضة دقيقة لمدينتي؟', a: 'المواقيت محسوبة فلكياً حسب إحداثيات كل مدينة. وقد تفرق دقائق يسيرة عن التقويم المحلي لاختلاف زاوية الفجر والعشاء المعتمدة لدى الجهة الرسمية في بلدك.' },
+    ] : lang === 'ur' ? [
+      { q: 'ہجری تاریخ مختلف ممالک میں ایک دن آگے پیچھے کیوں ہوتی ہے؟', a: 'یہاں تاریخوں کا حساب سعودی عرب میں رائج اُمّ القریٰ تقویم کے مطابق فلکی طور پر کیا جاتا ہے۔ دیگر ممالک انتیسویں شب براہِ راست رؤیتِ ہلال پر انحصار کرتے ہیں، اس لیے مہینے کا آغاز تقریباً ایک دن مختلف ہو سکتا ہے۔' },
+      { q: 'کیا میں دیکھ سکتا ہوں کہ رمضان یا عید میں کتنے دن باقی ہیں؟', a: 'جی ہاں، اسی صفحے پر «آنے والی اسلامی مناسبتیں» کے حصے میں ہر مناسبت کے لیے دنوں کی گنتی ہجری اور عیسوی دونوں تاریخوں کے ساتھ دی گئی ہے۔' },
+      { q: 'میں اپنی عمر ہجری تقویم میں کیسے معلوم کروں؟', a: 'کنورٹر میں موجود «ہجری عمر کیلکولیٹر» استعمال کریں: اپنی تاریخِ پیدائش عیسوی یا ہجری میں درج کریں، آپ کی عمر ہجری سالوں میں اور یومِ پیدائش ظاہر ہو جائے گا۔' },
+      { q: 'کیا دکھائے گئے نمازوں کے اوقات میرے شہر کے لیے درست ہیں؟', a: 'اوقات ہر شہر کے جغرافیائی محلِ وقوع کے مطابق فلکی طور پر نکالے جاتے ہیں۔ فجر اور عشاء کے زاویے کے فرق کی وجہ سے مقامی تقویم سے چند منٹ کا فرق ہو سکتا ہے۔' },
+    ] : [
+      { q: 'Why does the Hijri date differ by a day between countries?', a: 'Dates here are calculated astronomically using the Umm al-Qura calendar used in Saudi Arabia. Other countries rely on a direct sighting of the crescent on the 29th evening, so if the moon is not sighted the month can begin about one day later.' },
+      { q: 'Can I see how many days are left until Ramadan or Eid?', a: 'Yes — the "Upcoming Islamic occasions" section on this page shows a day-by-day countdown for each occasion, with both its Hijri and Gregorian date.' },
+      { q: 'How do I work out my age in the Hijri calendar?', a: 'Use the Hijri age calculator inside the converter: enter your date of birth in either calendar and it returns your age in Hijri years along with the weekday you were born on.' },
+      { q: 'Are the prayer times shown accurate for my city?', a: 'Times are computed astronomically from each city\'s coordinates. They can differ by a few minutes from your local timetable, because authorities vary in the Fajr and Isha twilight angles they adopt.' },
     ],
   };
 }

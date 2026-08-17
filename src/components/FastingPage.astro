@@ -128,7 +128,6 @@ const t = {
   relPrayer: pick(lang, 'مواقيت الصلاة حسب موقعك', 'Prayer times for your location', 'آپ کے مقام کے مطابق مواقیتِ نماز'),
   relDua: pick(lang, 'أدعية وأذكار صحيحة', 'Authentic duas and adhkar', 'مستند دعائیں اور اذکار'),
   relPrint: pick(lang, 'تقويم هجري للطباعة', 'Printable Hijri calendar', 'قابلِ طباعت ہجری کیلنڈر'),
-  ad: pick(lang, 'مساحة إعلانية', 'Advertisement', 'اشتہار'),
   footer: pick(lang, 'الحساب وفق تقويم أم القرى', 'Dates based on the Umm al-Qura calendar · for reference', 'حساب اُمّ القریٰ تقویم کے مطابق'),
   privacy: pick(lang, 'سياسة الخصوصية', 'Privacy Policy', 'رازداری پالیسی'),
   hijriDaysCell: pick(lang, '13 – 15', '13 – 15', '13 – 15'),
@@ -278,10 +277,6 @@ const ashuraLink = (d: Date) => occBasePath('ashura', d.getUTCFullYear(), lang);
           <a href={duaHref} style="color:var(--accent);text-decoration:none">{t.relDua}</a>
           <a href={printableHref} style="color:var(--accent);text-decoration:none">{t.relPrint}</a>
         </div>
-      </div>
-      <div class="ad-slot">
-        <span class="ad-label">{t.ad}</span>
-        <span style="font-size:13px;opacity:.7">300 × 250</span>
       </div>
     </aside>
   </div>

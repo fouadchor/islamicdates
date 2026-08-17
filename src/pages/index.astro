@@ -135,7 +135,15 @@ const jsonLd = JSON.stringify([
     "url":"https://islamicdates.org/",
     "description":"التقويم الهجري اليوم بالتاريخ الميلادي للمقارنة، مع تصفّح الأشهر الهجرية ومحوّل سريع بين الهجري والميلادي والمناسبات الإسلامية وفق تقويم أم القرى.",
     "applicationCategory":"UtilitiesApplication","operatingSystem":"Web",
-    "inLanguage":["ar","en"],"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}
+    "inLanguage":["ar","en","ur"],"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}
+  },
+  {
+    "@context":"https://schema.org","@type":"FAQPage",
+    "@id":"https://islamicdates.org/#faq",
+    "mainEntity": L.homeFaqItems.map(f => ({
+      "@type":"Question","name":f.q,
+      "acceptedAnswer":{"@type":"Answer","text":f.a},
+    })),
   },
 ]);
 ---
@@ -166,7 +174,7 @@ const jsonLd = JSON.stringify([
       <CalendarIsland lang="ar" client:load />
 
       <!-- Converter (client island) -->
-      <div id="converter" style="scroll-margin-top:64px"><ConverterIsland lang="ar" client:visible /></div>
+      <div id="converter" style="scroll-margin-top:var(--anchor-offset)"><ConverterIsland lang="ar" client:visible /></div>
 
       <!-- Upcoming occasions (client island) — order:3 so the OTD card sits above it -->
       <div style="order:3"><UpcomingIsland lang="ar" client:visible /></div>
@@ -179,7 +187,7 @@ const jsonLd = JSON.stringify([
       <!-- Prayer times by city (internal links to city pages) -->
       <HomeCityPrayer lang="ar" />
 
-      <section id="occasions" class="card section-card" style="order:5;scroll-margin-top:64px">
+      <section id="occasions" class="card section-card" style="order:5;scroll-margin-top:var(--anchor-offset)">
         <h2 class="section-h2">تواريخ المناسبات الإسلامية</h2>
         <p class="section-p" style="margin-bottom:14px">اعرف تاريخ كل مناسبة بالهجري والميلادي مع العدّ التنازلي</p>
         {_yearGroups.map((_g, _i) => { const _yr = _g.year; return (
@@ -357,7 +365,16 @@ const jsonLd = JSON.stringify([
       <section class="card section-card" style="order:8">
         <h2 class="section-h2">ما هو التقويم الهجري؟</h2>
         <p class="section-p">التقويم الهجري تقويم قمري تتكوّن سنته من اثني عشر شهراً قمرياً (نحو 354 يوماً)، ويبدأ تأريخه من هجرة النبي محمد ﷺ سنة 622 ميلادية. يعرض هذا الموقع التاريخ الهجري اليوم بجانب التاريخ الميلادي وفق تقويم أم القرى، مع محوّل سريع بين الهجري والميلادي، وأبرز المناسبات الإسلامية ومواقيت الصلاة.</p>
-        <a href="/about/" style="margin-top:14px;display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:11px;background:var(--accent);color:var(--accent-contrast);font-weight:700;font-size:14px;text-decoration:none">اقرأ الدليل الكامل
+
+        <h3 class="section-h2" style="font-size:17px;margin:22px 0 2px">{L.homeFaqTitle}</h3>
+        {L.homeFaqItems.map(f => (
+          <details class="faq-d">
+            <summary>{f.q}<svg class="faq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+            <p class="faq-a">{f.a}</p>
+          </details>
+        ))}
+
+        <a href="/about/" style="margin-top:18px;display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:11px;background:var(--accent);color:var(--accent-contrast);font-weight:700;font-size:14px;text-decoration:none">اقرأ الدليل الكامل
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
         </a>
       </section>
@@ -437,10 +454,6 @@ const jsonLd = JSON.stringify([
       <SidebarExtras lang="ar" />
 
       <!-- Ad slot -->
-      <div class="ad-slot">
-        <span class="ad-label">{L.ad}</span>
-        <span style="font-size:13px;opacity:.7">300 × 250</span>
-      </div>
     </aside>
   </div>
 

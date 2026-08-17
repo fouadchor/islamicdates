@@ -55,7 +55,7 @@ const Heading = as;
 </section>
 
 <style>
-  .dua-section { scroll-margin-top: 64px; }
+  .dua-section { scroll-margin-top: var(--anchor-offset); }
 
   .dua-section-head {
     display: flex; align-items: flex-start; gap: 14px;
@@ -84,7 +84,7 @@ const Heading = as;
 
   .dua-list { display: flex; flex-direction: column; gap: 16px; margin-top: 18px; }
   .dua-item {
-    display: flex; gap: 14px; scroll-margin-top: 60px;
+    display: flex; gap: 14px; scroll-margin-top: var(--anchor-offset);
     border: 1px solid var(--border); border-radius: 16px;
     background: var(--surface2); padding: 16px 18px;
     border-inline-start: 4px solid var(--accent);
