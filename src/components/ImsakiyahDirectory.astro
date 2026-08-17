@@ -1,0 +1,164 @@
+---
+// Landing page for the imsākiyya set: explains the month, then a crawlable
+// country-by-country index so every city page is one click (and one hop) away.
+import Layout from '../layouts/Layout.astro';
+import { PT_COUNTRIES, PT_CITIES, citiesOfCountry } from '../lib/cities';
+import { type Lang, pick, gMonArr } from '../lib/data';
+import { activeRamadanYear, imsakBase, imsakCityPath, RAMADAN } from '../lib/imsakiyah';
+import { h2g, daysInHMonth } from '../lib/hijri';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+
+const hy = activeRamadanYear();
+const days = daysInHMonth(hy, RAMADAN);
+const start = h2g(hy, RAMADAN, 1);
+const end = h2g(hy, RAMADAN, days);
+const gMon = gMonArr(lang);
+const fmtG = (d: Date) => `${d.getUTCDate()} ${gMon[d.getUTCMonth()]}`;
+const gYear = start.getUTCFullYear();
+const rangeText = `${fmtG(start)} – ${fmtG(end)} ${end.getUTCFullYear()}`;
+
+const canonical = `https://islamicdates.org${imsakBase(lang)}`;
+const homeHref = pick(lang, '/', '/en/', '/ur/');
+
+const POPULAR: [string, string][] = [
+  ['saudi-arabia', 'makkah'], ['saudi-arabia', 'madinah'], ['saudi-arabia', 'riyadh'],
+  ['egypt', 'cairo'], ['united-arab-emirates', 'dubai'], ['kuwait', 'kuwait-city'],
+  ['qatar', 'doha'], ['turkey', 'istanbul'], ['pakistan', 'karachi'],
+  ['pakistan', 'lahore'], ['indonesia', 'jakarta'], ['united-kingdom', 'london'],
+];
+const popular = POPULAR
+  .map(([co, ci]) => {
+    const country = PT_COUNTRIES.find(c => c.slug === co);
+    const city = country && PT_CITIES.find(c => c.cc === country.code && c.slug === ci);
+    return country && city ? { country, city } : null;
+  })
+  .filter(Boolean) as { country: typeof PT_COUNTRIES[number]; city: typeof PT_CITIES[number] }[];
+
+const t = {
+  h1: pick(lang,
+    `إمساكية رمضان ${hy} هـ — مواعيد السحور والإفطار حسب المدينة`,
+    `Ramadan ${gYear} Timetable — Suhoor & Iftar Times by City`,
+    `رمضان ${gYear} کا نقشہ — شہر کے لحاظ سے سحری و افطاری کے اوقات`),
+  sub: pick(lang,
+    `اختر مدينتك لتحصل على إمساكية كاملة: موعد السحور والإفطار لكل يوم من أيام رمضان، مع مدة الصيام، جاهزة للطباعة.`,
+    `Pick your city for a full timetable: suhoor and iftar for every day of Ramadan, with fast lengths, ready to print.`,
+    `اپنا شہر منتخب کریں: رمضان کے ہر دن کی سحری و افطاری، روزے کے دورانیے کے ساتھ، پرنٹ کے قابل۔`),
+  popularT: pick(lang, 'مدن شائعة', 'Popular cities', 'مقبول شہر'),
+  browseT:  pick(lang, 'تصفّح حسب الدولة', 'Browse by country', 'ملک کے لحاظ سے دیکھیں'),
+  aboutT:   pick(lang, 'ما هي الإمساكية؟', 'What is an imsakiyah?', 'امساکیہ کیا ہے؟'),
+  aboutB:   pick(lang,
+    'الإمساكية جدول يعرض موعد الإمساك (دخول وقت الفجر) وموعد الإفطار (أذان المغرب) لكل يوم من أيام رمضان في مدينة بعينها. وتختلف المواعيد من مدينة إلى أخرى تبعاً لخط العرض والطول وفارق التوقيت، ولذلك تجد هنا جدولاً مستقلاً لكل مدينة محسوباً بإحداثياتها.',
+    'An imsakiyah is the table that lists imsak (the entry of Fajr) and iftar (the Maghrib adhan) for each day of Ramadan in one particular city. The times shift from city to city with latitude, longitude and timezone, which is why every city here gets its own table computed from its own coordinates.',
+    'امساکیہ وہ جدول ہے جس میں رمضان کے ہر دن کے لیے امساک (فجر کا داخلہ) اور افطار (اذانِ مغرب) کے اوقات درج ہوتے ہیں۔ عرض البلد، طول البلد اور وقت کے فرق سے یہ اوقات ہر شہر میں مختلف ہوتے ہیں، اس لیے یہاں ہر شہر کا الگ جدول اُس کے اپنے محلِ وقوع سے نکالا گیا ہے۔'),
+  count: (n: number) => pick(lang, `${n} مدينة`, `${n} cities`, `${n} شہر`),
+  daysWord: pick(lang, 'يوماً', 'days', 'دن'),
+};
+
+const title = pick(lang,
+  `إمساكية رمضان ${hy} هـ (${gYear}) — مواعيد السحور والإفطار لكل مدينة`,
+  `Ramadan ${gYear} Timetable — Suhoor & Iftar Times for Every City`,
+  `رمضان ${gYear} کا نقشہ — ہر شہر کے لیے سحری و افطاری کے اوقات`);
+const description = pick(lang,
+  `إمساكية رمضان ${hy} هـ لكل مدينة: مواعيد السحور والإفطار يوماً بيوم، مع مدة الصيام وجدول قابل للطباعة. رمضان ${gYear} يبدأ ${fmtG(start)} ويستمر ${days} يوماً.`,
+  `Ramadan ${gYear} timetables for every city: day-by-day suhoor and iftar times with fast lengths, ready to print. Ramadan begins ${fmtG(start)} and runs ${days} days.`,
+  `ہر شہر کے لیے رمضان ${gYear} کا نقشہ: روزانہ سحری و افطاری کے اوقات، روزے کا دورانیہ، پرنٹ کے قابل۔ رمضان ${fmtG(start)} سے شروع اور ${days} دن جاری۔`);
+
+const jsonLd = JSON.stringify([
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [
+    { '@type': 'ListItem', 'position': 1, 'name': pick(lang, 'الرئيسية', 'Home', 'ہوم'), 'item': `https://islamicdates.org${homeHref}` },
+    { '@type': 'ListItem', 'position': 2, 'name': pick(lang, 'الإمساكية', 'Imsakiyah', 'رمضان نقشہ'), 'item': canonical },
+  ] },
+]);
+
+const countriesWithCities = PT_COUNTRIES
+  .map(c => ({ country: c, cities: citiesOfCountry(c.code) }))
+  .filter(x => x.cities.length > 0);
+---
+
+<Layout
+  title={title} description={description} canonical={canonical} lang={lang} jsonLd={jsonLd}
+  arPath={imsakBase('ar')} enPath={imsakBase('en')} urPath={imsakBase('ur')}
+>
+  <header class="site-header">
+    <a href={homeHref} class="logo" style="text-decoration:none;color:inherit" aria-label={pick(lang, 'الصفحة الرئيسية', 'Home', 'ہوم')}>
+      <div class="logo-icon">☾</div>
+      <div>
+        <div class="brand">{pick(lang, 'التقويم الهجري', 'Hijri Calendar', 'ہجری کیلنڈر')}</div>
+        <div class="tagline">{pick(lang, 'إمساكية رمضان', 'Ramadan timetable', 'رمضان نقشہ')}</div>
+      </div>
+    </a>
+  </header>
+
+  <div class="layout">
+    <main>
+      <section class="card section-card">
+        <h1 class="section-h2" style="font-size:26px">{t.h1}</h1>
+        <p class="section-p">{t.sub}</p>
+        <p class="imd-range">{rangeText} · {days} {t.daysWord}</p>
+      </section>
+
+      <section class="card section-card">
+        <h2 class="section-h2">{t.popularT}</h2>
+        <div class="imd-popular">
+          {popular.map(({ country, city }) => (
+            <a href={imsakCityPath(country.slug, city.slug, lang)}>
+              <span class="imd-city">{pick(lang, city.ar, city.en, city.ur)}</span>
+              <span class="imd-country">{pick(lang, country.ar, country.en, country.ur)}</span>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      <section class="card section-card">
+        <h2 class="section-h2">{t.aboutT}</h2>
+        <p class="section-p">{t.aboutB}</p>
+      </section>
+
+      <section class="card section-card">
+        <h2 class="section-h2">{t.browseT}</h2>
+        {countriesWithCities.map(({ country, cities }) => (
+          <div class="imd-country-block">
+            <h3 class="imd-country-h">
+              {pick(lang, country.ar, country.en, country.ur)}
+              <span class="imd-count">{t.count(cities.length)}</span>
+            </h3>
+            <div class="imd-city-list">
+              {cities.map(c => (
+                <a href={imsakCityPath(country.slug, c.slug, lang)}>{pick(lang, c.ar, c.en, c.ur)}</a>
+              ))}
+            </div>
+          </div>
+        ))}
+      </section>
+    </main>
+  </div>
+
+  <style>
+    .imd-range { margin: 10px 0 0; font-weight: 800; color: var(--accent); font-size: 15.5px; }
+
+    .imd-popular { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+    .imd-popular a {
+      display: flex; flex-direction: column; gap: 2px;
+      padding: 12px 14px; border-radius: 12px;
+      border: 1px solid var(--border); background: var(--surface2);
+      text-decoration: none; color: inherit;
+    }
+    .imd-city { font-weight: 700; font-size: 15px; color: var(--accent); }
+    .imd-country { font-size: 12.5px; color: var(--muted); }
+
+    .imd-country-block { padding: 14px 0; border-bottom: 1px solid var(--border); }
+    .imd-country-block:last-child { border-bottom: none; }
+    .imd-country-h {
+      margin: 0 0 9px; font-size: 15.5px; font-weight: 700;
+      display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap;
+    }
+    .imd-count { font-size: 12px; font-weight: 600; color: var(--muted); }
+    .imd-city-list { display: flex; flex-wrap: wrap; gap: 7px; }
+    .imd-city-list a {
+      padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border);
+      background: var(--surface2); color: var(--text); text-decoration: none; font-size: 13.5px;
+    }
+  </style>
+</Layout>

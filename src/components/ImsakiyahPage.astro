@@ -1,0 +1,434 @@
+---
+// Ramadan imsākiyya for one city. The whole timetable is server-rendered so it is
+// crawlable and readable with JavaScript off; a small inline script layers the live
+// bits (today's row, the countdown) on top rather than re-rendering the table.
+import Layout from '../layouts/Layout.astro';
+import { type PtCity, type PtCountry, citiesOfCountry, cityPath } from '../lib/cities';
+import { METHODS, fmtTime } from '../lib/prayer';
+import { type Lang, pick, wdArr, gMonArr, hijriEra } from '../lib/data';
+import {
+  buildImsakiyah, activeRamadanYear, fmtDuration, isoUTCDate,
+  imsakCityPath, imsakBase,
+} from '../lib/imsakiyah';
+
+interface Props { lang: Lang; country: PtCountry; city: PtCity }
+const { lang, country, city } = Astro.props;
+
+const cityName    = pick(lang, city.ar, city.en, city.ur);
+const countryName = pick(lang, country.ar, country.en, country.ur);
+
+const hy = activeRamadanYear();
+const ims = buildImsakiyah(city, hy);
+const methodName = pick(lang, METHODS[ims.method].ar, METHODS[ims.method].en, METHODS[ims.method].ur);
+
+const wd = wdArr(lang);
+const gMon = gMonArr(lang);
+const gYear = ims.start.getUTCFullYear();
+const fmtG = (d: Date) => `${d.getUTCDate()} ${gMon[d.getUTCMonth()]}`;
+const rangeText = `${fmtG(ims.start)} – ${fmtG(ims.end)} ${ims.end.getUTCFullYear()}`;
+
+const canonical = `https://islamicdates.org${imsakCityPath(country.slug, city.slug, lang)}`;
+const nearby = citiesOfCountry(country.code).filter(c => c.slug !== city.slug).slice(0, 12);
+
+const t = {
+  h1: pick(lang,
+    `إمساكية رمضان ${hy} هـ في ${cityName}`,
+    `Ramadan ${gYear} Timetable for ${cityName}`,
+    `${cityName} کے لیے رمضان ${gYear} کا نقشہ`),
+  sub: pick(lang,
+    `مواعيد السحور والإفطار يوماً بيوم في ${cityName}، ${countryName}`,
+    `Day-by-day suhoor and iftar times for ${cityName}, ${countryName}`,
+    `${cityName}، ${countryName} کے لیے سحری و افطاری کے روزانہ اوقات`),
+  // Column names follow the convention printed on real imsākiyyāt: the Ramadan day
+  // number sits under «رمضان», the weekday under «اليوم», the civil date under «الموافق».
+  day:      pick(lang, 'رمضان', 'Ramadan', 'رمضان'),
+  weekday:  pick(lang, 'اليوم', 'Day', 'دن'),
+  greg:     pick(lang, 'الموافق', 'Date', 'تاریخ'),
+  suhoor:   pick(lang, 'السحور (الفجر)', 'Suhoor ends (Fajr)', 'سحری ختم (فجر)'),
+  iftar:    pick(lang, 'الإفطار (المغرب)', 'Iftar (Maghrib)', 'افطار (مغرب)'),
+  duration: pick(lang, 'مدة الصيام', 'Fast length', 'روزے کا دورانیہ'),
+  print:    pick(lang, 'اطبع الإمساكية', 'Print timetable', 'نقشہ پرنٹ کریں'),
+  share:    pick(lang, 'شارك عبر واتساب', 'Share on WhatsApp', 'واٹس ایپ پر شیئر کریں'),
+  method:   pick(lang, 'طريقة الحساب', 'Calculation method', 'حسابی طریقہ'),
+  shortest: pick(lang, 'أقصر يوم', 'Shortest fast', 'سب سے چھوٹا روزہ'),
+  longest:  pick(lang, 'أطول يوم', 'Longest fast', 'سب سے لمبا روزہ'),
+  first:    pick(lang, 'أول أيام رمضان', 'First day of Ramadan', 'رمضان کا پہلا دن'),
+  total:    pick(lang, 'عدد الأيام', 'Days in Ramadan', 'رمضان کے دن'),
+  nearbyT:  pick(lang, `مدن أخرى في ${countryName}`, `Other cities in ${countryName}`, `${countryName} کے دیگر شہر`),
+  toolsT:   pick(lang, 'أدوات ذات صلة', 'Related tools', 'متعلقہ اوزار'),
+  noteT:    pick(lang, 'ملاحظة مهمة', 'Please note', 'اہم نوٹ'),
+  note: pick(lang,
+    `المواعيد محسوبة فلكياً لإحداثيات ${cityName} وفق ${methodName}، وقد تفرق دقائق يسيرة عن الإمساكية الرسمية في بلدك بسبب اختلاف زاوية الفجر المعتمدة والارتفاع والانكسار الجوي. كما يبدأ رمضان فعلياً حسب إعلان رؤية الهلال، فقد يتقدّم الجدول أو يتأخّر بيوم واحد.`,
+    `Times are calculated astronomically for the coordinates of ${cityName} using the ${methodName} method. They can differ by a few minutes from your country's official timetable, because authorities vary in the Fajr angle they adopt, and because of altitude and atmospheric refraction. Ramadan itself begins on the announced moon sighting, so the whole table may shift by a day.`,
+    `اوقات ${cityName} کے محلِ وقوع کے لیے ${methodName} کے مطابق فلکی طور پر نکالے گئے ہیں۔ فجر کے زاویے، بلندی اور انکسارِ نور کے فرق کی وجہ سے سرکاری نقشے سے چند منٹ کا فرق ہو سکتا ہے۔ رمضان کا آغاز رؤیتِ ہلال کے اعلان پر ہوتا ہے، اس لیے پورا جدول ایک دن آگے پیچھے ہو سکتا ہے۔`),
+  ramadanIn: pick(lang, 'يبدأ رمضان بعد', 'Ramadan begins in', 'رمضان شروع ہونے میں'),
+  daysWord:  pick(lang, 'يوماً', 'days', 'دن'),
+  toIftar:   pick(lang, 'باقٍ على الإفطار', 'Until iftar', 'افطار میں باقی'),
+  toSuhoor:  pick(lang, 'باقٍ على الإمساك', 'Until suhoor ends', 'سحری ختم ہونے میں'),
+  dayN:      pick(lang, 'اليوم', 'Day', 'دن'),
+  prayerLink: pick(lang, `مواقيت الصلاة في ${cityName}`, `Prayer times in ${cityName}`, `${cityName} میں اوقاتِ نماز`),
+  fastingLink: pick(lang, 'أيام الصيام في السنة', 'Fasting days through the year', 'سال بھر کے روزے'),
+  zakatLink:  pick(lang, 'حاسبة الزكاة', 'Zakat calculator', 'زکوٰۃ کیلکولیٹر'),
+  allCities:  pick(lang, 'كل مدن الإمساكية', 'All imsakiyah cities', 'تمام شہروں کا نقشہ'),
+};
+
+const title = pick(lang,
+  `إمساكية رمضان ${hy} هـ في ${cityName} · مواعيد السحور والإفطار ${countryName}`,
+  `Ramadan ${gYear} Timetable ${cityName} · Suhoor & Iftar Times, ${countryName}`,
+  `${cityName} رمضان ${gYear} ٹائم ٹیبل · سحری و افطاری کے اوقات، ${countryName}`);
+
+const description = pick(lang,
+  `إمساكية رمضان ${hy} هـ (${gYear}) في ${cityName}: مواعيد السحور والإفطار لكل يوم من أيام الشهر، مع مدة الصيام، قابلة للطباعة. الحساب وفق ${methodName}.`,
+  `Ramadan ${gYear} timetable for ${cityName}, ${countryName}: suhoor and iftar times for every day of the month with fast lengths, ready to print. Calculated per ${methodName}.`,
+  `${cityName} کے لیے رمضان ${gYear} کا مکمل نقشہ: ہر دن کی سحری و افطاری کے اوقات اور روزے کا دورانیہ، پرنٹ کے قابل۔ حساب ${methodName} کے مطابق۔`);
+
+const faq = [
+  {
+    q: pick(lang, `متى يبدأ رمضان ${hy} هـ في ${cityName}؟`, `When does Ramadan ${gYear} start in ${cityName}?`, `${cityName} میں رمضان ${gYear} کب شروع ہوگا؟`),
+    a: pick(lang,
+      `أول أيام رمضان ${hy} هـ يوافق ${fmtG(ims.start)} ${ims.start.getUTCFullYear()} وفق تقويم أم القرى، ويمتد الشهر ${ims.days} يوماً حتى ${fmtG(ims.end)}. ويبقى البدء الفعلي مرتبطاً بإعلان رؤية الهلال في ${countryName}.`,
+      `The first day of Ramadan ${hy} AH falls on ${fmtG(ims.start)} ${ims.start.getUTCFullYear()} per the Umm al-Qura calendar, running ${ims.days} days until ${fmtG(ims.end)}. The actual start still depends on the moon-sighting announcement in ${countryName}.`,
+      `اُمّ القریٰ تقویم کے مطابق رمضان ${hy} کا پہلا دن ${fmtG(ims.start)} ${ims.start.getUTCFullYear()} کو ہے، اور مہینہ ${ims.days} دن تک ${fmtG(ims.end)} تک جاری رہے گا۔ اصل آغاز ${countryName} میں رؤیتِ ہلال کے اعلان پر منحصر ہے۔`),
+  },
+  {
+    q: pick(lang, `كم ساعة يصوم أهل ${cityName} في رمضان؟`, `How many hours is the fast in ${cityName}?`, `${cityName} میں روزہ کتنے گھنٹے کا ہوتا ہے؟`),
+    a: pick(lang,
+      `تتراوح مدة الصيام في ${cityName} بين ${fmtDuration(ims.shortest.fastMinutes, 'ar')} في اليوم ${ims.shortest.day} و${fmtDuration(ims.longest.fastMinutes, 'ar')} في اليوم ${ims.longest.day}، إذ تطول ساعات النهار تدريجياً خلال الشهر.`,
+      `The fast in ${cityName} ranges from ${fmtDuration(ims.shortest.fastMinutes, 'en')} on day ${ims.shortest.day} to ${fmtDuration(ims.longest.fastMinutes, 'en')} on day ${ims.longest.day}, as daylight hours shift across the month.`,
+      `${cityName} میں روزے کا دورانیہ ${ims.shortest.day} ویں دن ${fmtDuration(ims.shortest.fastMinutes, 'ur')} سے لے کر ${ims.longest.day} ویں دن ${fmtDuration(ims.longest.fastMinutes, 'ur')} تک ہوتا ہے۔`),
+  },
+  {
+    q: pick(lang, 'ما الفرق بين وقت الإمساك ووقت الفجر؟', 'What is the difference between imsak and Fajr?', 'امساک اور فجر کے وقت میں کیا فرق ہے؟'),
+    a: pick(lang,
+      'وقت الإمساك في هذا الجدول هو دخول وقت الفجر نفسه، وهو الحدّ الشرعي لبدء الصيام. وتُقدّم بعض الإمساكيات المحلية تنبيهاً احتياطياً قبل الفجر بعشر دقائق تقريباً، وهو احتياط لا فرض.',
+      'Imsak in this table is the entry of Fajr itself, which is the point at which fasting begins. Some local timetables print a precautionary alert about ten minutes earlier; that margin is a caution, not an obligation.',
+      'اس جدول میں امساک کا وقت فجر کے داخلے کا وقت ہی ہے، جہاں سے روزہ شروع ہوتا ہے۔ بعض مقامی نقشے تقریباً دس منٹ پہلے احتیاطی اطلاع دیتے ہیں، جو احتیاط ہے، فرض نہیں۔'),
+  },
+];
+
+const homeHref = pick(lang, '/', '/en/', '/ur/');
+const jsonLd = JSON.stringify([
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [
+    { '@type': 'ListItem', 'position': 1, 'name': pick(lang, 'الرئيسية', 'Home', 'ہوم'), 'item': `https://islamicdates.org${homeHref}` },
+    { '@type': 'ListItem', 'position': 2, 'name': pick(lang, 'الإمساكية', 'Imsakiyah', 'رمضان نقشہ'), 'item': `https://islamicdates.org${imsakBase(lang)}` },
+    { '@type': 'ListItem', 'position': 3, 'name': t.h1, 'item': canonical },
+  ] },
+  { '@context': 'https://schema.org', '@type': 'FAQPage',
+    'mainEntity': faq.map(f => ({ '@type': 'Question', 'name': f.q, 'acceptedAnswer': { '@type': 'Answer', 'text': f.a } })) },
+]);
+
+// Compact payload for the inline enhancement script: one entry per day.
+// [civil date, Fajr in minutes, Maghrib in minutes, day of Ramadan]. The day number
+// is carried explicitly — deriving it from the date string would print the day of the
+// month instead, which only coincides with the Ramadan day by accident.
+const clientRows = ims.rows.map(r => [isoUTCDate(r.date), Math.round(r.fajr * 60), Math.round(r.maghrib * 60), r.day]);
+const shareText = pick(lang,
+  `إمساكية رمضان ${hy} هـ في ${cityName}`,
+  `Ramadan ${gYear} timetable for ${cityName}`,
+  `${cityName} کے لیے رمضان ${gYear} کا نقشہ`);
+---
+
+<Layout
+  title={title} description={description} canonical={canonical} lang={lang} jsonLd={jsonLd}
+  arPath={imsakCityPath(country.slug, city.slug, 'ar')}
+  enPath={imsakCityPath(country.slug, city.slug, 'en')}
+  urPath={imsakCityPath(country.slug, city.slug, 'ur')}
+>
+  <header class="site-header">
+    <a href={homeHref} class="logo" style="text-decoration:none;color:inherit" aria-label={pick(lang, 'الصفحة الرئيسية', 'Home', 'ہوم')}>
+      <div class="logo-icon">☾</div>
+      <div>
+        <div class="brand">{pick(lang, 'التقويم الهجري', 'Hijri Calendar', 'ہجری کیلنڈر')}</div>
+        <div class="tagline">{pick(lang, 'إمساكية رمضان', 'Ramadan timetable', 'رمضان نقشہ')}</div>
+      </div>
+    </a>
+  </header>
+
+  <div class="layout">
+    <main>
+      <section class="card section-card ims-hero">
+        <h1 class="section-h2" style="font-size:26px;margin-bottom:4px">{t.h1}</h1>
+        <p class="section-p" style="margin-top:0">{t.sub}</p>
+
+        <div class="ims-range">
+          <span class="ims-range-dates">{rangeText}</span>
+          <span class="ims-range-sep" aria-hidden="true">·</span>
+          <span>{ims.days} {t.daysWord}</span>
+        </div>
+
+        {/* Filled by the inline script; hidden until it has something to say, so
+            nothing flashes for visitors with JavaScript off. */}
+        <div id="ims-countdown" class="ims-countdown" hidden>
+          <span class="ims-cd-label"></span>
+          <span class="ims-cd-value"></span>
+        </div>
+
+        <div class="ims-stats">
+          <div class="ims-stat">
+            <span class="ims-stat-k">{t.first}</span>
+            <span class="ims-stat-v">{fmtG(ims.start)}</span>
+          </div>
+          <div class="ims-stat">
+            <span class="ims-stat-k">{t.shortest}</span>
+            <span class="ims-stat-v">{fmtDuration(ims.shortest.fastMinutes, lang)}</span>
+          </div>
+          <div class="ims-stat">
+            <span class="ims-stat-k">{t.longest}</span>
+            <span class="ims-stat-v">{fmtDuration(ims.longest.fastMinutes, lang)}</span>
+          </div>
+          <div class="ims-stat">
+            <span class="ims-stat-k">{t.method}</span>
+            <span class="ims-stat-v ims-stat-sm">{methodName}</span>
+          </div>
+        </div>
+
+        <div class="ims-actions">
+          <button type="button" id="ims-print" class="ims-btn ims-btn-primary">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
+            {t.print}
+          </button>
+          <a class="ims-btn" id="ims-share" href="#" rel="nofollow">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.3-3.9A8 8 0 1 1 8 19.2z"/></svg>
+            {t.share}
+          </a>
+        </div>
+      </section>
+
+      <section class="card section-card ims-table-card">
+        <div class="ims-table-wrap">
+          <table class="ims-table" id="ims-table">
+            <caption class="ims-caption">{t.h1} — {rangeText}</caption>
+            <thead>
+              <tr>
+                <th scope="col" class="ims-th-day">{t.day}</th>
+                <th scope="col">{t.weekday}</th>
+                <th scope="col">{t.greg}</th>
+                <th scope="col">{t.suhoor}</th>
+                <th scope="col">{t.iftar}</th>
+                <th scope="col" class="ims-th-dur">{t.duration}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ims.rows.map(r => (
+                <tr data-date={isoUTCDate(r.date)} class={r.isToday ? 'is-today' : undefined}>
+                  <td class="ims-day">{r.day}</td>
+                  <td>{wd[r.date.getUTCDay()]}</td>
+                  <td class="ims-date">{fmtG(r.date)}</td>
+                  <td class="ims-time ims-suhoor">{fmtTime(r.fajr, true, lang)}</td>
+                  <td class="ims-time ims-iftar">{fmtTime(r.maghrib, true, lang)}</td>
+                  <td class="ims-dur">{fmtDuration(r.fastMinutes, lang)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card section-card">
+        <h2 class="section-h2">{t.noteT}</h2>
+        <p class="section-p">{t.note}</p>
+      </section>
+
+      <section class="card section-card">
+        <h2 class="section-h2">{pick(lang, 'أسئلة شائعة', 'Frequently asked questions', 'اکثر پوچھے جانے والے سوالات')}</h2>
+        {faq.map((f, i) => (
+          <div class="faq-item" style={i === faq.length - 1 ? 'border-bottom:none' : ''}>
+            <h3 class="faq-q">{f.q}</h3>
+            <p class="faq-a">{f.a}</p>
+          </div>
+        ))}
+      </section>
+
+      {nearby.length > 0 && (
+        <section class="card section-card">
+          <h2 class="section-h2">{t.nearbyT}</h2>
+          <div class="ims-nearby">
+            {nearby.map(c => (
+              <a href={imsakCityPath(country.slug, c.slug, lang)}>{pick(lang, c.ar, c.en, c.ur)}</a>
+            ))}
+          </div>
+        </section>
+      )}
+    </main>
+
+    <aside>
+      <div class="card" style="padding:18px 20px">
+        <h3 style="margin:0 0 12px;font-size:15.5px;font-weight:700">{t.toolsT}</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:14.5px">
+          <a href={cityPath(country.slug, city.slug, lang)} style="color:var(--accent);text-decoration:none">{t.prayerLink}</a>
+          <a href={pick(lang, '/fasting/', '/en/fasting/', '/ur/fasting/')} style="color:var(--accent);text-decoration:none">{t.fastingLink}</a>
+          <a href={pick(lang, '/zakat/', '/en/zakat/', '/ur/zakat/')} style="color:var(--accent);text-decoration:none">{t.zakatLink}</a>
+          <a href={imsakBase(lang)} style="color:var(--accent);text-decoration:none">{t.allCities}</a>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <script is:inline define:vars={{ rows: clientRows, zone: city.zone, shareText, canonical, L: {
+    ramadanIn: t.ramadanIn, days: t.daysWord, toIftar: t.toIftar, toSuhoor: t.toSuhoor, dayN: t.dayN,
+  } }}>
+    // Progressive enhancement only: the table above is already complete and correct.
+    // This marks the row for *the visitor's* current day (a static build cannot know
+    // it) and runs the countdown.
+    (function () {
+      var box = document.getElementById('ims-countdown');
+      var lab = box && box.querySelector('.ims-cd-label');
+      var val = box && box.querySelector('.ims-cd-value');
+
+      document.getElementById('ims-print').addEventListener('click', function () { window.print(); });
+      var sh = document.getElementById('ims-share');
+      sh.setAttribute('href', 'https://wa.me/?text=' + encodeURIComponent(shareText + ' — ' + canonical));
+      sh.setAttribute('target', '_blank');
+
+      // "Now" as the city experiences it, so a visitor abroad still sees that city's clock.
+      function cityNow() {
+        var s = new Date().toLocaleString('en-US', { timeZone: zone });
+        return new Date(s);
+      }
+      function ymd(d) {
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      }
+      function pad(n) { return String(n).padStart(2, '0'); }
+
+      function tick() {
+        var now = cityNow();
+        var key = ymd(now);
+        var mins = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
+
+        var idx = -1;
+        for (var i = 0; i < rows.length; i++) if (rows[i][0] === key) { idx = i; break; }
+
+        // Re-anchor today's highlight to the visitor's date.
+        var prev = document.querySelector('#ims-table tr.is-today');
+        if (prev) prev.classList.remove('is-today');
+        if (idx >= 0) {
+          var tr = document.querySelector('#ims-table tr[data-date="' + key + '"]');
+          if (tr) tr.classList.add('is-today');
+        }
+
+        var label, value;
+        if (idx < 0) {
+          // Outside Ramadan: count whole days to the first row, or stay silent once past.
+          var first = new Date(rows[0][0] + 'T00:00:00');
+          var today0 = new Date(key + 'T00:00:00');
+          var diff = Math.round((first - today0) / 86400000);
+          if (diff <= 0) { box.hidden = true; return; }
+          label = L.ramadanIn; value = diff + ' ' + L.days;
+        } else {
+          var fajr = rows[idx][1], maghrib = rows[idx][2];
+          var target, isIftar, dayNo = rows[idx][3];
+          if (mins < fajr) { target = fajr; isIftar = false; }
+          else if (mins < maghrib) { target = maghrib; isIftar = true; }
+          else if (idx + 1 < rows.length) {
+            // Past sunset: the next suhūr opens the *following* day's fast, so the
+            // label has to advance with it rather than stay on the day just ended.
+            target = rows[idx + 1][1] + 1440; isIftar = false; dayNo = rows[idx + 1][3];
+          }
+          else { box.hidden = true; return; }
+          var left = (target - mins) * 60;
+          var h = Math.floor(left / 3600), m = Math.floor((left % 3600) / 60), s = Math.floor(left % 60);
+          label = (isIftar ? L.toIftar : L.toSuhoor) + ' · ' + L.dayN + ' ' + dayNo;
+          value = pad(h) + ':' + pad(m) + ':' + pad(s);
+        }
+        lab.textContent = label;
+        val.textContent = value;
+        box.hidden = false;
+      }
+
+      tick();
+      setInterval(tick, 1000);
+    })();
+  </script>
+
+  <style>
+    .ims-hero { text-align: start; }
+    .ims-range {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      font-size: 15px; font-weight: 700; color: var(--accent); margin-top: 2px;
+    }
+    .ims-range-sep { opacity: .5; }
+
+    .ims-countdown {
+      margin-top: 16px; padding: 12px 16px; border-radius: 12px;
+      background: var(--accent-soft); color: var(--accent-strong);
+      display: flex; align-items: baseline; justify-content: space-between; gap: 14px; flex-wrap: wrap;
+    }
+    .ims-cd-label { font-size: 13.5px; font-weight: 600; }
+    .ims-cd-value { font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+
+    .ims-stats {
+      margin-top: 16px; display: grid; gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    }
+    .ims-stat {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 10px 13px; display: flex; flex-direction: column; gap: 3px;
+    }
+    .ims-stat-k { font-size: 12px; color: var(--muted); font-weight: 600; }
+    .ims-stat-v { font-size: 16.5px; font-weight: 800; }
+    .ims-stat-sm { font-size: 13.5px; font-weight: 700; }
+
+    .ims-actions { margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap; }
+    .ims-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 16px; border-radius: 11px; font-weight: 700; font-size: 14px;
+      text-decoration: none; border: 1px solid var(--border);
+      background: var(--surface); color: var(--text); cursor: pointer;
+    }
+    .ims-btn-primary { background: var(--accent); color: var(--accent-contrast); border-color: var(--accent); }
+
+    .ims-table-card { padding-inline: 0; padding-block: 0; overflow: hidden; }
+    /* The table is wide on phones; it scrolls inside its own card rather than
+       forcing the page body to scroll sideways. */
+    .ims-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .ims-table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+    .ims-caption { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+    .ims-table th, .ims-table td { padding: 11px 12px; text-align: center; white-space: nowrap; }
+    .ims-table thead th {
+      position: sticky; top: 0; z-index: 1;
+      background: var(--surface2); color: var(--muted);
+      font-size: 12.5px; font-weight: 700; letter-spacing: .02em;
+      border-bottom: 1px solid var(--border);
+    }
+    .ims-table tbody tr { border-bottom: 1px solid var(--border); }
+    .ims-table tbody tr:last-child { border-bottom: none; }
+    .ims-table tbody tr:nth-child(even) { background: color-mix(in srgb, var(--surface2) 55%, transparent); }
+    .ims-day { font-weight: 800; color: var(--accent); font-size: 15.5px; }
+    .ims-time { font-weight: 700; font-variant-numeric: tabular-nums; }
+    .ims-suhoor { color: var(--gold-deep); }
+    .ims-iftar { color: var(--accent-strong); }
+    .ims-dur { color: var(--muted); font-size: 13.5px; font-variant-numeric: tabular-nums; }
+    .ims-table tbody tr.is-today {
+      background: var(--accent-soft) !important;
+      box-shadow: inset 3px 0 0 var(--accent);
+    }
+    .ims-table tbody tr.is-today .ims-day { color: var(--accent-strong); }
+
+    .ims-nearby { display: flex; flex-wrap: wrap; gap: 8px; }
+    .ims-nearby a {
+      padding: 7px 13px; border-radius: 999px; border: 1px solid var(--border);
+      background: var(--surface2); color: var(--text); text-decoration: none; font-size: 14px;
+    }
+
+    @media (max-width: 560px) {
+      .ims-table th, .ims-table td { padding: 9px 8px; font-size: 13.5px; }
+      .ims-th-dur, .ims-dur { display: none; }  /* keep the four columns that matter on a phone */
+    }
+
+    /* People print these and stick them on the fridge — so the print view drops the
+       furniture and fits the whole month on one sheet. */
+    @media print {
+      .site-header, aside, .ims-actions, .ims-countdown, .ims-nearby { display: none !important; }
+      .layout { display: block !important; }
+      .card { box-shadow: none !important; border: none !important; }
+      .ims-table-wrap { overflow: visible !important; }
+      .ims-caption { position: static !important; width: auto !important; height: auto !important;
+        clip-path: none !important; font-weight: 800; font-size: 15px; padding-bottom: 8px; }
+      .ims-table { font-size: 11.5px; }
+      .ims-table th, .ims-table td { padding: 4px 6px; }
+      .ims-th-dur, .ims-dur { display: table-cell !important; }
+      .ims-table tbody tr { break-inside: avoid; }
+      .ims-table thead { display: table-header-group; }
+    }
+  </style>
+</Layout>
