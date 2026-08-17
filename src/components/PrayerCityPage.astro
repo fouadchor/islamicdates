@@ -7,6 +7,7 @@ import {
 import { METHODS } from '../lib/prayer';
 import { qiblaBearing, qiblaDistanceKm } from '../lib/qibla';
 import { type Lang, pick } from '../lib/data';
+import { imsakCityPath } from '../lib/imsakiyah';
 
 interface Props { lang: Lang; country: PtCountry; city: PtCity }
 const { lang, country, city } = Astro.props;
@@ -80,6 +81,7 @@ const t = {
   allCities: pick(lang, `كل مدن ${countryName} ←`, `All cities in ${countryName} →`, `${countryName} کے تمام شہر ←`),
   faqTitle: pick(lang, 'أسئلة شائعة', 'FAQ', 'عام سوالات'),
   tools:    pick(lang, 'أدوات ذات صلة', 'Related tools', 'متعلقہ اوزار'),
+  imsak:    pick(lang, `إمساكية رمضان في ${cityName}`, `Ramadan timetable for ${cityName}`, `${cityName} کے لیے رمضان کا نقشہ`),
   mainTool: pick(lang, 'مواقيت الصلاة حسب موقعك', 'Prayer times for your location', 'آپ کے مقام کے اوقاتِ نماز'),
   fullCal:  pick(lang, 'التقويم الهجري الكامل وتاريخ اليوم', "Full Hijri calendar & today's date", 'مکمل ہجری کیلنڈر اور آج کی تاریخ'),
   footer:   pick(lang, 'المواقيت محسوبة فلكياً · للأغراض التقريبية', 'Astronomically calculated · for reference', 'اوقات فلکی حساب سے · تقریبی مقاصد کے لیے'),
@@ -157,6 +159,7 @@ const t = {
       <div class="card" style="padding:18px 20px">
         <h3 style="margin:0 0 12px;font-size:15.5px;font-weight:700">{t.tools}</h3>
         <div style="display:flex;flex-direction:column;gap:10px;font-size:14.5px">
+          <a href={imsakCityPath(country.slug, city.slug, lang)} style="color:var(--accent);text-decoration:none;font-weight:700">{t.imsak}</a>
           <a href={ptBase(lang)} style="color:var(--accent);text-decoration:none">{t.mainTool}</a>
           <a href={homeHref} style="color:var(--accent);text-decoration:none">{t.fullCal}</a>
         </div>

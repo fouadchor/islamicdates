@@ -105,6 +105,8 @@ const _fRights = pick(lang, 'الحساب وفق تقويم أم القرى', 'C
 const _colQuick = pick(lang, 'روابط سريعة', 'Quick links', 'فوری روابط');
 const _colTools = pick(lang, 'الأدوات', 'Tools', 'ٹولز');
 const _colOcc = pick(lang, 'المناسبات', 'Occasions', 'مناسبتیں');
+const _navImsak = pick(lang, '/imsakiyah/', '/en/imsakiyah/', '/ur/imsakiyah/');
+const _lblImsak = pick(lang, 'إمساكية رمضان', 'Ramadan timetable', 'رمضان کا نقشہ');
 const _lblAge = pick(lang, 'حاسبة العمر بالهجري', 'Hijri age calculator', 'ہجری عمر کیلکولیٹر');
 const _lblPrint = pick(lang, 'تقويم هجري للطباعة', 'Printable calendar', 'پرنٹ کے قابل کیلنڈر');
 const _lblWidget = pick(lang, 'ويدجت لموقعك', 'Widget for your site', 'آپ کی سائٹ کے لیے ویجٹ');
@@ -797,6 +799,7 @@ const _bnClose = pick(lang, 'إخفاء', 'Dismiss', 'چھپائیں');
           <h3 class="sm-col-title">{_colTools}</h3>
           <ul>
             <li><a href={_navPrayer}>{_labels.prayer}</a></li>
+            <li><a href={_navImsak}>{_lblImsak}</a></li>
             <li><a href={_navMosques}>{_lblMosques}</a></li>
             <li><a href={_navQibla}>{_lblQibla}</a></li>
             <li><a href={_navZakat}>{_labels.zakat}</a></li>
