@@ -15,12 +15,22 @@ interface Props {
   lng: number;
   zone: string;
   method: MethodId;
+  /** Month timetable computed at build time (src/lib/prayer-month.ts).
+   *  Rendered before hydration so the table exists in the server HTML; React
+   *  swaps in the live, configurable version once mounted. */
+  ssr?: {
+    year: number;
+    /** 0-based, matching Date#getMonth. */
+    month: number;
+    rows: { day: number; hd: number; hm: number; isToday: boolean; dow: number;
+            t: Record<string, string> }[];
+  };
 }
 
 const card: React.CSSProperties = { background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow)' };
 const selStyle: React.CSSProperties = { padding: '8px 11px', borderRadius: 10, border: '1px solid var(--border)', background: 'var(--surface2)', color: 'var(--text)', fontSize: 13.5 };
 
-export default function CityPrayerIsland({ lang, city, country, lat, lng, zone, method: defaultMethod }: Props) {
+export default function CityPrayerIsland({ lang, city, country, lat, lng, zone, method: defaultMethod, ssr }: Props) {
   const rtl = isRTL(lang);
   const dateLoc = pick(lang, 'ar', 'en-US', 'ur');
   const gregLoc = pick(lang, 'ar-u-ca-gregory', 'en-US', 'ur-u-ca-gregory');
@@ -48,7 +58,50 @@ export default function CityPrayerIsland({ lang, city, country, lat, lng, zone, 
     try { localStorage.setItem('pt_city_settings', JSON.stringify({ asr, h12 })); } catch {}
   }, [asr, h12, mounted]);
 
-  if (!mounted) return <div style={{ ...card, padding: 28, minHeight: 420 }} />;
+  // Pre-hydration render. This is what a crawler sees and what the reader sees
+  // in the first frame, so it carries the real timetable rather than a blank
+  // box: the same rows, minus the controls that need a client to be useful.
+  if (!mounted) {
+    if (!ssr) return <div style={{ ...card, padding: 28, minHeight: 420 }} />;
+    const label = `${gMonArr(lang)[ssr.month]} ${ssr.year}`;
+    // Local copies: the shared th/td consts are declared further down, after the
+    // hydrated render path, so they are not in scope here.
+    const th: React.CSSProperties = { padding: '9px 10px', fontSize: 12.5, fontWeight: 700, color: 'var(--muted)', whiteSpace: 'nowrap', textAlign: rtl ? 'right' : 'left' };
+    const td: React.CSSProperties = { padding: '9px 10px', fontSize: 13.5, whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' as any };
+    return (
+      <section style={{ ...card, padding: '22px', marginTop: 18 }}>
+        <h2 className="section-h2" style={{ margin: 0, fontSize: 18 }}>
+          {pick(lang, `جدول مواقيت الصلاة لشهر ${label}`, `Prayer timetable — ${label}`, `${label} کے اوقاتِ نماز کا جدول`)}
+        </h2>
+        <div style={{ overflowX: 'auto', marginTop: 14, borderRadius: 12, border: '1px solid var(--border)' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 620 }}>
+            <thead>
+              <tr style={{ background: 'var(--surface2)', borderBottom: '1px solid var(--border)' }}>
+                <th style={th}>{pick(lang, 'اليوم', 'Day', 'دن')}</th>
+                <th style={th}>{pick(lang, 'هجري', 'Hijri', 'ہجری')}</th>
+                {PRAYER_KEYS.map(k => <th key={k} style={th}>{pick(lang, PRAYER_LABELS[k].ar, PRAYER_LABELS[k].en, PRAYER_LABELS[k].ur)}</th>)}
+              </tr>
+            </thead>
+            <tbody>
+              {ssr.rows.map(r => (
+                <tr key={r.day} style={{ borderBottom: '1px solid var(--border)', background: r.isToday ? 'var(--accent-soft)' : r.dow === 5 ? 'color-mix(in srgb, var(--accent-soft) 40%, transparent)' : 'transparent' }}>
+                  <td style={{ ...td, fontWeight: r.isToday ? 800 : 600 }}>{r.day}</td>
+                  <td style={{ ...td, color: 'var(--muted)', fontSize: 12.5 }}>{r.hd} {hMonArr(lang)[r.hm - 1]}</td>
+                  {PRAYER_KEYS.map(k => <td key={k} style={td}>{r.t[k]}</td>)}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p style={{ margin: '12px 0 0', fontSize: 12, color: 'var(--muted)', lineHeight: 1.65 }}>
+          {pick(lang,
+            'المواقيت محسوبة فلكياً وقد تختلف بدقائق قليلة عن التقويم الرسمي المحلي. صفوف الجمعة مظلّلة.',
+            'Times are astronomically calculated and may differ by a few minutes from official local timetables. Friday rows are highlighted.',
+            'اوقات فلکی حساب سے ہیں اور مقامی سرکاری نظام الاوقات سے چند منٹ مختلف ہو سکتے ہیں۔ جمعہ کی قطاریں نمایاں ہیں۔')}
+        </p>
+      </section>
+    );
+  }
 
   const offset = zoneOffsetHours(zone, now);
   const opts = { method, asr, highLat: 'NightMiddle' as const };

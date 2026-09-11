@@ -8,6 +8,7 @@ import { METHODS } from '../lib/prayer';
 import { qiblaBearing, qiblaDistanceKm } from '../lib/qibla';
 import { type Lang, pick } from '../lib/data';
 import { imsakCityPath } from '../lib/imsakiyah';
+import { buildPrayerMonth, hhmm, type PrayerMonthRow } from '../lib/prayer-month';
 
 interface Props { lang: Lang; country: PtCountry; city: PtCity }
 const { lang, country, city } = Astro.props;
@@ -21,6 +22,19 @@ const distKm      = qiblaDistanceKm(city.lat, city.lng);
 
 const canonical = `https://islamicdates.org${cityPath(country.slug, city.slug, lang)}`;
 const nearby = citiesOfCountry(country.code).filter(c => c.slug !== city.slug);
+
+// Monthly timetable, computed here so it ships inside the HTML. CityPrayerIsland
+// renders it before hydration and then replaces it with the live version.
+const pm = buildPrayerMonth(city);
+const ssrMonth = {
+  year: pm.year,
+  month: pm.month,
+  rows: pm.rows.map((r: PrayerMonthRow) => ({
+    day: r.day, hd: r.hd, hm: r.hm, isToday: r.isToday, dow: r.date.getDay(),
+    t: { fajr: hhmm(r.fajr), sunrise: hhmm(r.sunrise), dhuhr: hhmm(r.dhuhr),
+         asr: hhmm(r.asr), maghrib: hhmm(r.maghrib), isha: hhmm(r.isha) },
+  })),
+};
 
 const title = pick(lang,
   `مواقيت الصلاة في ${cityName} اليوم · ${countryName} — الفجر والظهر والعصر والمغرب والعشاء`,
@@ -125,6 +139,7 @@ const t = {
         city={{ ar: city.ar, en: city.en, ur: city.ur }}
         country={{ ar: country.ar, en: country.en, ur: country.ur }}
         lat={city.lat} lng={city.lng} zone={city.zone} method={method}
+        ssr={ssrMonth}
         client:load />
 
       {nearby.length > 0 && (
