@@ -1,10 +1,14 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import RamadanImsakiyahCities from './RamadanImsakiyahCities.astro';
 import { OCCASIONS, occLoc, occurrencesInGYear, gYears, fmtG, fmtGShort, fmtH, isoUTC, occBasePath } from '../lib/occasions';
 import { type Lang, pick, hMonArr } from '../lib/data';
 
 interface Props { lang: Lang; slug: string; gYear: number; }
 const { lang, slug, gYear } = Astro.props;
+// Ramadan-season occasions: these rank for exactly the intent the imsakiyah
+// city pages serve, so they are the right doorway into them.
+const showImsakiyah = ['ramadan', 'last-ten-nights-of-ramadan', 'laylat-al-qadr'].includes(slug);
 const occ = OCCASIONS.find(o => o.slug === slug)!;
 const loc = occLoc(occ, lang);
 
@@ -311,6 +315,8 @@ const t = {
           </table>
         </div>
       </section>
+      {showImsakiyah && <RamadanImsakiyahCities lang={lang} />}
+
     </main>
 
     <aside>

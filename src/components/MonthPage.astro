@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import RamadanImsakiyahCities from './RamadanImsakiyahCities.astro';
 import { fmtG, fmtGShort, fmtH } from '../lib/occasions';
 import {
   monthGrid, monthBasePath, monthName, prevMonth, nextMonth,
@@ -11,6 +12,8 @@ import {
 
 interface Props { lang: Lang; hy: number; hm: number; }
 const { lang, hy, hm } = Astro.props;
+// Ramadan month page: surface the imsakiyah city pages, which nothing else links into.
+const showImsakiyah = hm === 9;
 
 const name = monthName(hm, lang);
 const grid = monthGrid(hy, hm, lang);
@@ -187,6 +190,8 @@ const yearMonths = Array.from({ length: 12 }, (_, i) => ({
           ) : <span></span>}
         </div>
       </section>
+      {showImsakiyah && <RamadanImsakiyahCities lang={lang} />}
+
     </main>
 
     <aside>
