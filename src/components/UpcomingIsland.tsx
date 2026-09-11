@@ -2,9 +2,16 @@ import { g2h, h2g, getOcc, occName, dotColor, todayUTC } from '../lib/hijri';
 import { MAJOR_OCC_KEYS, type Lang, pick, hMonArr, gMonArr, hijriEra } from '../lib/data';
 import { OCCASIONS, occBasePath } from '../lib/occasions';
 
-interface Props { lang: Lang }
+interface Props {
+  lang: Lang;
+  /** When true, render only the rows: no <section> wrapper and no heading.
+   *  Used by the home page, which nests this inside the merged occasions section. */
+  embedded?: boolean;
+  /** Cap the number of rows (the home page shows the next few, then links out). */
+  limit?: number;
+}
 
-export default function UpcomingIsland({ lang }: Props) {
+export default function UpcomingIsland({ lang, embedded = false, limit }: Props) {
   const today = todayUTC();
   const todayH = g2h(today);
   const hMon = hMonArr(lang);
@@ -32,22 +39,23 @@ export default function UpcomingIsland({ lang }: Props) {
     return { cat: occ[0], name: occName(occ, lang), hijri: fmtH(d), greg: fmtG(d), days, t: d.getTime(), href };
   }).sort((a,b) => a.t - b.t);
 
+  const shown = limit ? items.slice(0, limit) : items;
+
   const rowStyle: React.CSSProperties = {
     display:'flex', alignItems:'center', gap:13, padding:'13px 15px',
     border:'1px solid var(--border)', borderRadius:14, background:'var(--surface2)',
     textDecoration:'none', color:'inherit',
   };
 
-  return (
-    <section className="card" style={{ padding:'22px 26px' }}>
+  const rows = (
+    <>
       <style>{`
         .upcoming-row { transition: border-color .15s, background .15s, transform .15s; }
         a.upcoming-row:hover { border-color: var(--accent); background: var(--surface); transform: translateY(-1px); }
         a.upcoming-row:hover .upcoming-name { color: var(--accent); }
       `}</style>
-      <h2 style={{ margin:'0 0 16px', fontWeight:700, fontSize:19 }}>{pick(lang, 'المناسبات الإسلامية القادمة', 'Upcoming Islamic occasions', 'آنے والی اسلامی مناسبتیں')}</h2>
       <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
-        {items.map((u, i) => {
+        {shown.map((u, i) => {
           const inner = (
             <>
               <span style={{ width:11, height:11, borderRadius:'50%', flex:'0 0 auto', background:dotColor(u.cat) }} />
@@ -67,6 +75,15 @@ export default function UpcomingIsland({ lang }: Props) {
           );
         })}
       </div>
+    </>
+  );
+
+  if (embedded) return rows;
+
+  return (
+    <section className="card" style={{ padding:'22px 26px' }}>
+      <h2 style={{ margin:'0 0 16px', fontWeight:700, fontSize:19 }}>{pick(lang, 'المناسبات الإسلامية القادمة', 'Upcoming Islamic occasions', 'آنے والی اسلامی مناسبتیں')}</h2>
+      {rows}
     </section>
   );
 }

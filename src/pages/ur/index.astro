@@ -136,9 +136,12 @@ const jsonLd = JSON.stringify([
     </a>
   </header>
 
-  <div class="layout">
-    <main>
+  <div class="layout with-hero">
+    <div class="hero-band">
       <TodayIsland lang="ur" todayIso={todayUTC().toISOString().slice(0, 10)} client:load />
+    </div>
+
+    <main>
 
       <CalendarIsland lang="ur" client:load />
 
@@ -195,7 +198,6 @@ const jsonLd = JSON.stringify([
         </div>
       </section>
 
-      <div style="order:3"><UpcomingIsland lang="ur" client:visible /></div>
 
       <!-- Decorative section divider -->
       <img src="/images/divider-ornament.svg" alt="" role="presentation" width="1200" height="70"
@@ -204,35 +206,36 @@ const jsonLd = JSON.stringify([
       <!-- Prayer times by city (internal links to city pages) -->
       <HomeCityPrayer lang="ur" />
 
-      <section id="occasions" class="card section-card" style="order:5;scroll-margin-top:var(--anchor-offset)">
-        <h2 class="section-h2">اسلامی مناسبتوں کی تاریخیں</h2>
-        <p class="section-p" style="margin-bottom:14px">ہر مناسبت کی ہجری اور عیسوی تاریخ عددِ معکوس کے ساتھ جانیں</p>
+      <section id="occasions" class="card section-card" style="order:3;scroll-margin-top:var(--anchor-offset)">
+        <h2 class="section-h2">اسلامی مناسبتیں</h2>
+        <p class="section-p" style="margin-bottom:4px">قریب ترین مناسبتوں کا عددِ معکوس، پھر ہر مناسبت کی ہجری اور عیسوی تاریخ سال بہ سال</p>
+
+        <!-- The countdown island that used to be its own section directly above. -->
+        <div style="margin-top:16px"><UpcomingIsland lang="ur" embedded limit={6} client:visible /></div>
+
+        <!-- Same per-year links as before, as chips rather than full-width cards. -->
         {_yearGroups.map((_g, _i) => { const _yr = _g.year; return (
-          <div style={`margin-top:${_i === 0 ? 4 : 26}px`}>
-            <h3 style="margin:0 0 12px;font-size:16px;font-weight:700;color:var(--accent)">{_yr} کی مناسبتیں</h3>
+          <div style="margin-top:20px">
+            <h3 style="margin:0;font-size:14.5px;font-weight:700;color:var(--muted)">{`${_yr} کی مناسبتیں`}</h3>
             {_g.upcoming.length > 0 && (
-              <div class="months-grid">
+              <div class="occ-chips">
                 {_g.upcoming.map(o => (
-                  <a href={o.href} class="month-item" style="text-decoration:none;color:inherit">
-                  <div>
-                    <div class="month-name">{o.name} {o.year}</div>
-                    <div class="month-note">{fmtGShort(o.date, 'ur')}</div>
-                  </div>
-                </a>
+                  <a href={o.href} class="occ-chip">
+                    <span class="oc-n">{o.name}</span>
+                    <span class="oc-d">{fmtGShort(o.date, false)}</span>
+                  </a>
                 ))}
               </div>
             )}
             {_g.past.length > 0 && (
-              <details class="occ-past">
-                <summary>{_yr} میں گزر چکی ({_g.past.length})</summary>
-                <div class="months-grid" style="margin-top:10px">
+              <details class="fold">
+                <summary>{`${_yr} میں گزر چکی`} ({_g.past.length})</summary>
+                <div class="occ-chips">
                   {_g.past.map(o => (
-                    <a href={o.href} class="month-item" style="text-decoration:none;color:inherit">
-                  <div>
-                    <div class="month-name">{o.name} {o.year}</div>
-                    <div class="month-note">{fmtGShort(o.date, 'ur')}</div>
-                  </div>
-                </a>
+                    <a href={o.href} class="occ-chip">
+                      <span class="oc-n">{o.name}</span>
+                      <span class="oc-d">{fmtGShort(o.date, false)}</span>
+                    </a>
                   ))}
                 </div>
               </details>
@@ -242,7 +245,7 @@ const jsonLd = JSON.stringify([
       </section>
 
       <section class="card section-card" style="order:5">
-        <h2 class="section-h2">{_curHy} ھ کے ہجری مہینے دیکھیں</h2>
+        <h2 class="section-h2">{`${_curHy} ھ کے ہجری مہینے`}</h2>
         <p class="section-p" style="margin-bottom:14px">ہجری سال کو مہینہ بہ مہینہ دیکھیں — معانی، مناسبتیں اور عیسوی تاریخیں</p>
         <div class="months-grid" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))">
           {_monthLinks.map((m, i) => (
@@ -252,30 +255,30 @@ const jsonLd = JSON.stringify([
             </a>
           ))}
         </div>
-      </section>
 
-      <!-- Key months across Hijri years (SEO internal links to month pages) -->
-      <section class="card section-card" style="order:5">
-        <h2 class="section-h2">ہجری سالوں میں نمایاں مہینے</h2>
-        <p class="section-p" style="margin-bottom:16px">جس ہجری سال کا مہینہ چاہیں براہِ راست دیکھیں — اس کی عیسوی تاریخ کے ساتھ۔</p>
-        <div style="display:flex;flex-direction:column;gap:16px">
-          {_keyMonthRows.map(row => (
-            <div>
-              <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:9px">
-                <span style="font-weight:700;font-size:15.5px">{row.name}</span>
-                <span style="font-size:12.5px;color:var(--muted)">{row.note}</span>
+        <!-- Was a separate "key months across the years" section. Same links,
+             folded: crawlable in the DOM, one line of height on screen. -->
+        <details class="fold">
+          <summary>یہی مہینہ دوسرے ہجری سالوں میں</summary>
+          <div style="display:flex;flex-direction:column;gap:14px;margin-top:16px">
+            {_keyMonthRows.map(row => (
+              <div>
+                <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+                  <span style="font-weight:700;font-size:14.5px">{row.name}</span>
+                  <span style="font-size:12.5px;color:var(--muted)">{row.note}</span>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                  {row.years.map(y => (
+                    <a href={y.href} class="yr-chip" aria-label={`${row.name} ${y.hy} ہجری`}>
+                      <span class="yc-h">{y.hy} ہجری</span>
+                      <span class="yc-g">{y.gy}</span>
+                    </a>
+                  ))}
+                </div>
               </div>
-              <div style="display:flex;gap:8px;flex-wrap:wrap">
-                {row.years.map(y => (
-                  <a href={y.href} class="yr-chip" aria-label={`${row.name} ${y.hy} ہجری`}>
-                    <span class="yc-h">{y.hy} ہجری</span>
-                    <span class="yc-g">{y.gy}</span>
-                  </a>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </details>
         <style>
           .yr-chip { display:inline-flex; flex-direction:column; align-items:center; gap:1px; padding:7px 14px; border-radius:11px; background:var(--surface2); border:1px solid var(--border); text-decoration:none; transition:border-color .2s, transform .2s, box-shadow .2s; }
           .yr-chip:hover { border-color:var(--accent); transform:translateY(-1px); box-shadow:var(--shadow); }
@@ -331,61 +334,42 @@ const jsonLd = JSON.stringify([
     </main>
 
     <aside class="rail-start">
-      <a href="/ur/prayer-times/" class="card" style="padding:16px 18px;text-decoration:none;color:inherit;display:flex;align-items:center;gap:13px;border-color:var(--accent)">
-        <span style="width:40px;height:40px;flex:0 0 auto;border-radius:11px;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-        </span>
-        <span><span style="display:block;font-weight:700;font-size:15.5px;color:var(--accent)">مواقیتِ نماز</span><span style="display:block;font-size:13px;color:var(--muted);margin-top:2px">آپ کے مقام کے مطابق آج کے اوقات</span></span>
-      </a>
-
-      <a href="/ur/mosques-near-me/" class="card" style="padding:16px 18px;text-decoration:none;color:inherit;display:flex;align-items:center;gap:13px;border-color:var(--accent)">
-        <span style="width:40px;height:40px;flex:0 0 auto;border-radius:11px;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M12 21s-7-6.3-7-11a7 7 0 0 1 14 0c0 4.7-7 11-7 11Z"/></svg>
-        </span>
-        <span><span style="display:block;font-weight:700;font-size:15.5px;color:var(--accent)">میرے قریب مساجد</span><span style="display:block;font-size:13px;color:var(--muted);margin-top:2px">قریب ترین مساجد، راستے کے ساتھ</span></span>
-      </a>
-
-      <a href="/ur/qibla/" class="card" style="padding:16px 18px;text-decoration:none;color:inherit;display:flex;align-items:center;gap:13px;border-color:var(--accent)">
-        <span style="width:40px;height:40px;flex:0 0 auto;border-radius:11px;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
-        </span>
-        <span><span style="display:block;font-weight:700;font-size:15.5px;color:var(--accent)">قبلہ کا رخ</span><span style="display:block;font-size:13px;color:var(--muted);margin-top:2px">قبلہ کمپاس اور کعبہ تک فاصلہ</span></span>
-      </a>
-
-      <a href="/ur/zakat/" class="card" style="padding:16px 18px;text-decoration:none;color:inherit;display:flex;align-items:center;gap:13px;border-color:var(--accent)">
-        <span style="width:40px;height:40px;flex:0 0 auto;border-radius:11px;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-        </span>
-        <span><span style="display:block;font-weight:700;font-size:15.5px;color:var(--accent)">زکوٰۃ کیلکولیٹر</span><span style="display:block;font-size:13px;color:var(--muted);margin-top:2px">اپنے مال اور سونے کی زکوٰۃ نکالیں (2.5%)</span></span>
-      </a>
-
-      <a href="/ur/age/" class="card" style="padding:16px 18px;text-decoration:none;color:inherit;display:flex;align-items:center;gap:13px;border-color:var(--accent)">
-        <span style="width:40px;height:40px;flex:0 0 auto;border-radius:11px;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v10H4V12"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
-        </span>
-        <span><span style="display:block;font-weight:700;font-size:15.5px;color:var(--accent)">ہجری عمر کیلکولیٹر</span><span style="display:block;font-size:13px;color:var(--muted);margin-top:2px">اپنی عمر ہجری و عیسوی میں اور سالگرہ</span></span>
-      </a>
-
-      <a href="/ur/fasting/" class="card" style="padding:16px 18px;text-decoration:none;color:inherit;display:flex;align-items:center;gap:13px;border-color:var(--accent)">
-        <span style="width:40px;height:40px;flex:0 0 auto;border-radius:11px;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        </span>
-        <span><span style="display:block;font-weight:700;font-size:15.5px;color:var(--accent)">ایامِ بیض اور روزوں کے دن</span><span style="display:block;font-size:13px;color:var(--muted);margin-top:2px">ایامِ بیض کی عیسوی تاریخیں اور مسنون روزے</span></span>
-      </a>
-
-      <a href="/ur/printable/" class="card" style="padding:16px 18px;text-decoration:none;color:inherit;display:flex;align-items:center;gap:13px;border-color:var(--accent)">
-        <span style="width:40px;height:40px;flex:0 0 auto;border-radius:11px;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
-        </span>
-        <span><span style="display:block;font-weight:700;font-size:15.5px;color:var(--accent)">پرنٹ کے قابل کیلنڈر</span><span style="display:block;font-size:13px;color:var(--muted);margin-top:2px">کیلنڈر PDF و PNG ڈاؤن لوڈ و پرنٹ کریں</span></span>
-      </a>
-
-      <a href="/ur/widget/" class="card" style="padding:16px 18px;text-decoration:none;color:inherit;display:flex;align-items:center;gap:13px;border-color:var(--accent)">
-        <span style="width:40px;height:40px;flex:0 0 auto;border-radius:11px;background:var(--gold-soft);color:var(--gold-deep);display:flex;align-items:center;justify-content:center">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 6-6 6 6 6"/><path d="m16 6 6 6-6 6"/></svg>
-        </span>
-        <span><span style="display:block;font-weight:700;font-size:15.5px;color:var(--gold-deep)">آپ کی سائٹ کے لیے ویجٹ</span><span style="display:block;font-size:13px;color:var(--muted);margin-top:2px">آج کی ہجری تاریخ مفت اپنی سائٹ پر شامل کریں</span></span>
-      </a>
+      <div class="card" style="padding:15px">
+        <div class="tool-grid">
+          <a href="/ur/prayer-times/" class="tool-tile is-primary">
+            <span class="tt-i"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+            <span class="tt-n">مواقیتِ نماز<span class="tt-sub">آپ کے مقام کے مطابق آج کے اوقات</span></span>
+          </a>
+          <a href="/ur/mosques-near-me/" class="tool-tile is-primary">
+            <span class="tt-i"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M12 21s-7-6.3-7-11a7 7 0 0 1 14 0c0 4.7-7 11-7 11Z"/></svg></span>
+            <span class="tt-n">میرے قریب مساجد<span class="tt-sub">قریب ترین مساجد، راستے کے ساتھ</span></span>
+          </a>
+          <a href="/ur/qibla/" class="tool-tile" title="قبلہ کمپاس اور کعبہ تک فاصلہ">
+            <span class="tt-i"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></span>
+            <span class="tt-n">قبلہ کا رخ</span>
+          </a>
+          <a href="/ur/zakat/" class="tool-tile" title="اپنے مال اور سونے کی زکوٰۃ نکالیں (2.5%)">
+            <span class="tt-i"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
+            <span class="tt-n">زکوٰۃ کیلکولیٹر</span>
+          </a>
+          <a href="/ur/age/" class="tool-tile" title="اپنی عمر ہجری و عیسوی میں اور سالگرہ">
+            <span class="tt-i"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v10H4V12"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></span>
+            <span class="tt-n">ہجری عمر کیلکولیٹر</span>
+          </a>
+          <a href="/ur/fasting/" class="tool-tile" title="ایامِ بیض کی عیسوی تاریخیں اور مسنون روزے">
+            <span class="tt-i"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
+            <span class="tt-n">ایامِ بیض اور روزوں کے دن</span>
+          </a>
+          <a href="/ur/printable/" class="tool-tile" title="کیلنڈر PDF و PNG ڈاؤن لوڈ و پرنٹ کریں">
+            <span class="tt-i"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg></span>
+            <span class="tt-n">پرنٹ کے قابل کیلنڈر</span>
+          </a>
+          <a href="/ur/widget/" class="tool-tile is-gold" title="آج کی ہجری تاریخ مفت اپنی سائٹ پر شامل کریں">
+            <span class="tt-i"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 6-6 6 6 6"/><path d="m16 6 6 6-6 6"/></svg></span>
+            <span class="tt-n">آپ کی سائٹ کے لیے ویجٹ</span>
+          </a>
+        </div>
+      </div>
 
       <div class="card" style="padding:18px 20px">
         <h3 style="margin:0 0 12px;font-size:15.5px;font-weight:700">{L.legend}</h3>

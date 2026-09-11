@@ -429,6 +429,11 @@ const _bnClose = pick(lang, 'إخفاء', 'Dismiss', 'چھپائیں');
     .layout > main { grid-area: main; }
     .layout > .rail-start { grid-area: railstart; }
     .layout > .rail-end { grid-area: railend; }
+    .layout > .hero-band { grid-area: hero; min-width: 0; }
+
+    /* Home only: today's date spans the full grid instead of being squeezed
+       into the narrow centre column between the two rails. */
+    .layout.with-hero { grid-template-areas: "hero hero hero" "railstart main railend"; }
     main { min-width: 0; display: flex; flex-direction: column; gap: 20px; }
     aside { display: flex; flex-direction: column; gap: 18px; position: sticky; top: 88px; align-self: start; }
 
@@ -438,6 +443,7 @@ const _bnClose = pick(lang, 'إخفاء', 'Dismiss', 'چھپائیں');
         grid-template-columns: minmax(0, 1fr) 320px;
         grid-template-areas: "main railstart" "main railend";
       }
+      .layout.with-hero { grid-template-areas: "hero hero" "main railstart" "main railend"; }
     }
     /* Small tablet / mobile: single column */
     @media (max-width: 820px) {
@@ -445,6 +451,7 @@ const _bnClose = pick(lang, 'إخفاء', 'Dismiss', 'چھپائیں');
         grid-template-columns: 1fr;
         grid-template-areas: "main" "railstart" "railend";
       }
+      .layout.with-hero { grid-template-areas: "hero" "main" "railstart" "railend"; }
       aside { position: static; }
     }
 
@@ -463,6 +470,67 @@ const _bnClose = pick(lang, 'إخفاء', 'Dismiss', 'چھپائیں');
     .month-num { flex: 0 0 auto; width: 27px; height: 27px; border-radius: 8px; background: var(--gold-soft); color: var(--gold-deep); font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; }
     .month-name { font-weight: 700; font-size: 14.5px; transition: color .2s; }
     .month-note { font-size: 12.5px; color: var(--muted); margin-top: 2px; line-height: 1.5; }
+
+    /* --- Compact occasion chips (merged occasions section) -------------------
+       Same links as the old full-width cards, a third of the vertical weight. */
+    .occ-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .occ-chip {
+      display: inline-flex; align-items: baseline; gap: 8px;
+      padding: 8px 14px; border-radius: 999px;
+      background: var(--surface2); border: 1px solid var(--border);
+      text-decoration: none; color: inherit;
+      transition: border-color .2s, transform .2s, box-shadow .2s;
+    }
+    .occ-chip:hover { border-color: var(--accent); transform: translateY(-1px); box-shadow: var(--shadow); }
+    .occ-chip .oc-n { font-weight: 700; font-size: 13.5px; }
+    .occ-chip:hover .oc-n { color: var(--accent); }
+    .occ-chip .oc-d { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+    /* Collapsed blocks (past occasions, cross-year months): links stay in the
+       DOM and crawlable, but cost one line of height instead of a full grid. */
+    .fold { margin-top: 14px; border-top: 1px solid var(--border); padding-top: 12px; }
+    .fold > summary {
+      cursor: pointer; list-style: none; font-weight: 700; font-size: 13.5px;
+      color: var(--accent); display: flex; align-items: center; gap: 7px;
+    }
+    .fold > summary::-webkit-details-marker { display: none; }
+    .fold > summary::after {
+      content: ''; width: 7px; height: 7px; margin-inline-start: 2px;
+      border-inline-end: 2px solid currentColor; border-block-end: 2px solid currentColor;
+      transform: rotate(45deg) translateY(-2px); transition: transform .2s;
+    }
+    .fold[open] > summary::after { transform: rotate(-135deg) translateY(-2px); }
+
+    /* --- Compact tool rail ---------------------------------------------------
+       Eight identical full-width cards became a two-column tile grid, so the
+       eye lands on the two primary tools instead of scanning a wall of green. */
+    .tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+    .tool-tile {
+      display: flex; flex-direction: column; gap: 7px;
+      padding: 13px 12px; border-radius: 13px;
+      background: var(--surface2); border: 1px solid var(--border);
+      text-decoration: none; color: inherit;
+      transition: border-color .2s, transform .2s, box-shadow .2s;
+    }
+    .tool-tile:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow); }
+    .tool-tile .tt-i {
+      width: 32px; height: 32px; border-radius: 9px; flex: 0 0 auto;
+      background: var(--accent-soft); color: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .tool-tile .tt-n { font-weight: 700; font-size: 13.5px; line-height: 1.4; }
+    .tool-tile:hover .tt-n { color: var(--accent); }
+    /* The two primary tools get the full-width treatment and a description. */
+    .tool-tile.is-primary { grid-column: 1 / -1; flex-direction: row; align-items: center; gap: 12px; padding: 14px 15px; border-color: var(--accent); background: var(--surface); }
+    .tool-tile.is-primary .tt-i { width: 38px; height: 38px; border-radius: 11px; }
+    .tool-tile.is-primary .tt-n { font-size: 15px; color: var(--accent); }
+    .tool-tile .tt-sub { display: block; font-size: 12.5px; color: var(--muted); margin-top: 2px; font-weight: 400; }
+    /* Gold is reserved: the widget tile is the one link we actively want shared. */
+    .tool-tile.is-gold .tt-i { background: var(--gold-soft); color: var(--gold-deep); }
+    .tool-tile.is-gold:hover { border-color: var(--gold); }
+    .tool-tile.is-gold:hover .tt-n { color: var(--gold-deep); }
+    @media (max-width: 1200px) and (min-width: 821px) { .tool-grid { grid-template-columns: 1fr 1fr 1fr; } .tool-tile.is-primary { grid-column: span 3; } }
+    @media (max-width: 560px) { .tool-grid { grid-template-columns: 1fr 1fr; } .tool-tile.is-primary { grid-column: 1 / -1; } }
 
     .faq-item { padding: 13px 0; border-bottom: 1px solid var(--border); }
     .faq-q { margin: 0; font-weight: 700; font-size: 15.5px; }
