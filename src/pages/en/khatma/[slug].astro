@@ -1,6 +1,6 @@
 ---
-import KhatmaPage from '../../components/KhatmaPage.astro';
-import { loadKhatma, statusFor } from '../../lib/khatma-load';
+import KhatmaPage from '../../../components/KhatmaPage.astro';
+import { loadKhatma, statusFor } from '../../../lib/khatma-load';
 
 // حالة مشتركة حيّة: تتغيّر الختمة كلما حجز أحدهم جزءاً أو أتمّه،
 // فتُبنى الصفحة عند كل طلب ولا تُخزَّن على الحافة.
@@ -12,4 +12,4 @@ Astro.response.headers.set('Cache-Control', 'no-store');
 const loaded = await loadKhatma(Astro.params.slug, (Astro.locals as App.Locals)?.runtime?.env?.DB ?? null);
 Astro.response.status = statusFor(loaded.problem);
 ---
-<KhatmaPage lang="ar" loaded={loaded} />
+<KhatmaPage lang="en" loaded={loaded} />

@@ -5,21 +5,26 @@ import { body, clientIp, db, fail, json, sameOrigin } from './_shared';
 export const prerender = false;
 
 export const POST: APIRoute = async (ctx) => {
-  if (!sameOrigin(ctx.request)) return fail('طلب غير مسموح.', 403);
+  if (!sameOrigin(ctx.request)) return fail('forbidden', 403);
 
   const database = db(ctx);
-  if (!database) return fail('خدمة الختمة غير مهيّأة على الخادم.', 503);
+  if (!database) return fail('unavailable', 503);
 
   const b = await body(ctx.request);
   const title = cleanTitle(b.title);
-  if (!title) return fail('اكتب عنواناً للختمة.', 422);
+  if (!title) return fail('empty_title', 422);
 
   const holdHours = Number.isFinite(Number(b.holdHours)) ? Number(b.holdHours) : HOLD_DEFAULT;
 
   if (!(await allowCreate(database, clientIp(ctx.request)))) {
-    return fail('أنشأتَ ختمات كثيرة خلال ساعة. حاول بعد قليل.', 429);
+    return fail('rate', 429);
   }
 
-  const { slug, adminKey } = await createKhatma(database, { title, lang: 'ar', holdHours });
-  return json({ ok: true, slug, adminKey, url: `/khatma/${slug}/` }, 201);
+  // The creator's language is recorded only so a khatma can later be counted
+  // per locale; every khatma page renders in the language of whoever opens it.
+  const lang = ['ar', 'en', 'ur'].includes(String(b.lang)) ? String(b.lang) : 'ar';
+
+  const { slug, adminKey } = await createKhatma(database, { title, lang, holdHours });
+  const base = lang === 'en' ? '/en/khatma/' : lang === 'ur' ? '/ur/khatma/' : '/khatma/';
+  return json({ ok: true, slug, adminKey, url: `${base}${slug}/` }, 201);
 };
