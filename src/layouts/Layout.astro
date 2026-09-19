@@ -868,6 +868,7 @@ const _bnClose = pick(lang, 'إخفاء', 'Dismiss', 'چھپائیں');
           <ul>
             <li><a href={_navPrayer}>{_labels.prayer}</a></li>
             <li><a href={_navImsak}>{_lblImsak}</a></li>
+            {lang === 'ar' && <li><a href="/khatma/">ختمة قرآن جماعية</a></li>}
             <li><a href={_navMosques}>{_lblMosques}</a></li>
             <li><a href={_navQibla}>{_lblQibla}</a></li>
             <li><a href={_navZakat}>{_labels.zakat}</a></li>

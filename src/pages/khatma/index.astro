@@ -1,0 +1,233 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { HOLD_HOURS, HOLD_DEFAULT, TITLE_MAX } from '../../lib/khatma';
+
+const canonical = 'https://islamicdates.org/khatma/';
+const title = 'ختمة قرآن جماعية · وزّعوا الأجزاء الثلاثين بينكم برابط واحد';
+const description = 'أنشئ ختمة قرآن جماعية مجاناً وبلا تسجيل: رابط واحد تشاركه، وكل مشارك يختار جزءاً ويقرأه، والعدّاد يتابع الأجزاء المكتملة. الجزء غير المقروء يعود للمجموعة تلقائياً حتى لا تتوقّف الختمة.';
+
+const steps = [
+  { t: 'أنشئ الختمة', d: 'اكتب عنواناً يعرفه أهلك أو أصدقاؤك — «ختمة العائلة» أو «ختمة رمضان» — واضغط إنشاء. بلا حساب ولا بريد ولا رقم هاتف.' },
+  { t: 'شارك الرابط', d: 'ينشأ رابط واحد للختمة. أرسله في مجموعة واتساب أو التلغرام؛ كل من يفتحه يرى الأجزاء المتاحة فوراً.' },
+  { t: 'كل مشارك يختار جزءاً', d: 'بضغطة واحدة يحجز الجزء باسمه أو بلا اسم، فيختفي من قائمة المتاح لئلا يُقرأ مرتين ويبقى غيره بلا قارئ.' },
+  { t: 'تأكيد الإتمام', d: 'بعد القراءة يضغط «أتممت القراءة» فيُحتسب الجزء. وإذا انشغل ومرّت المهلة عاد الجزء للمجموعة تلقائياً.' },
+];
+
+const faq = [
+  {
+    q: 'هل تجوز الختمة الجماعية بتوزيع الأجزاء؟',
+    a: 'القراءة نفسها لا خلاف في فضلها، وكل قارئ يؤجر على ما قرأ. أما تنظيم المجموعة وتوزيع الأجزاء فقد أفتت دار الإفتاء المصرية بجواز ختم القرآن جماعةً، واعتبرته تعاوناً على الخير لا عبادةً بصفة مخترعة. وذهب آخرون — كمركز الفتوى بإسلام ويب — إلى التحفّظ على اتخاذها عادة راتبة، ونبّهوا إلى أن من قرأ جزءاً واحداً لم يختم القرآن حقيقةً. ولذلك يعرض الموقع العدّاد على أنه «أجزاء مكتملة» لا على أن أحداً ختم القرآن، وهي مسألة اجتهادية يُرجع فيها إلى دار الإفتاء في بلدك.',
+  },
+  {
+    q: 'هل في الموقع ختمة للمتوفّى؟',
+    a: 'لا. هذه الختمة قراءة جماعية عامة ليس غير، وليس فيها حقل لاسم متوفّى ولا إهداء ثواب، لأن وصول ثواب التلاوة إلى الميت مسألة خلافية بين المذاهب. ومن أراد الدعاء لميت فليدعُ له بنفسه، فالدعاء متفق على وصوله.',
+  },
+  {
+    q: 'هل أحتاج إلى حساب أو تسجيل دخول؟',
+    a: 'لا. الرابط وحده هو الدعوة، والاسم اختياري تماماً؛ من تركه ظهر باسم «مشارك». لا نطلب بريداً ولا رقم هاتف، ولا نحفظ عنك شيئاً سوى الاسم الذي تكتبه بنفسك إن كتبته.',
+  },
+  {
+    q: 'ماذا لو أخذ أحدهم جزءاً ولم يقرأه؟',
+    a: 'لكل جزء مهلة يحدّدها منشئ الختمة (١٢ ساعة إلى أسبوع، والافتراضي يومان). فإذا انتهت المهلة دون تأكيد، عاد الجزء إلى المتاح ليأخذه غيره. هذه أهم نقطة عملياً: بدونها تتجمّد الختمة عند جزء واحد نسيه صاحبه.',
+  },
+  {
+    q: 'هل يمكن أن يأخذ شخصان الجزء نفسه؟',
+    a: 'لا. يُحجز الجزء لأول من يضغط عليه، ومن يأتي بعده تظهر له رسالة بأن غيره سبقه مع تحديث فوري للأجزاء المتاحة.',
+  },
+  {
+    q: 'كم جزءاً أستطيع أن آخذ؟',
+    a: 'ما شئت. خذ جزءاً واحداً أو عدة أجزاء، وأعد أي جزء للمجموعة متى شئت بزر «إرجاع» إن رأيت أنك لن تتمكّن منه.',
+  },
+];
+
+const jsonLd = JSON.stringify([
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [
+    { '@type': 'ListItem', 'position': 1, 'name': 'الرئيسية', 'item': 'https://islamicdates.org/' },
+    { '@type': 'ListItem', 'position': 2, 'name': 'ختمة قرآن جماعية', 'item': canonical },
+  ] },
+  { '@context': 'https://schema.org', '@type': 'WebApplication', 'name': 'ختمة قرآن جماعية', 'alternateName': 'Group Quran Khatma', 'url': canonical,
+    'description': description,
+    'applicationCategory': 'UtilitiesApplication', 'operatingSystem': 'Web', 'inLanguage': ['ar'],
+    'offers': { '@type': 'Offer', 'price': '0', 'priceCurrency': 'USD' } },
+  { '@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': faq.map(f => ({ '@type': 'Question', 'name': f.q, 'acceptedAnswer': { '@type': 'Answer', 'text': f.a } })) },
+]);
+---
+<Layout title={title} description={description} canonical={canonical} lang="ar" jsonLd={jsonLd} arPath="/khatma/" altLangs={false}>
+  <header class="site-header">
+    <div class="header-start">
+      <a href="/" class="logo" aria-label="الانتقال إلى الصفحة الرئيسية">
+        <div class="logo-icon">☾</div>
+        <div>
+          <div class="brand">التقويم الهجري</div>
+          <div class="tagline">ختمة جماعية</div>
+        </div>
+      </a>
+      <a href="/" class="home-btn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+        <span>الرئيسية</span>
+      </a>
+    </div>
+  </header>
+
+  <div class="layout">
+    <main>
+      <section class="card section-card" style="order:1">
+        <h1 class="section-h2" style="font-size:25px">ختمة قرآن جماعية بتوزيع الأجزاء</h1>
+        <p class="section-p" style="margin-top:8px">ثلاثون جزءاً وأنتم جماعة: كل واحد يأخذ جزءاً ويقرأه، فتكتمل الأجزاء الثلاثون بينكم في أيام. أنشئ الختمة من هنا، وشارك رابطها في مجموعتكم — بلا تسجيل ولا تطبيق ولا إعلان داخل الصفحة.</p>
+      </section>
+
+      <section class="card section-card" id="new" style="order:2">
+        <h2 class="section-h2">أنشئ ختمة الآن</h2>
+        <form id="kh-new" class="kh-form" novalidate>
+          <label for="kh-title">عنوان الختمة</label>
+          <input id="kh-title" name="title" type="text" maxlength={TITLE_MAX} required
+                 placeholder="مثال: ختمة العائلة · ختمة رمضان · ختمة الأصدقاء" autocomplete="off" />
+
+          <label for="kh-hold">مهلة قراءة الجزء الواحد</label>
+          <select id="kh-hold" name="holdHours">
+            {HOLD_HOURS.map(h => (
+              <option value={h} selected={h === HOLD_DEFAULT}>
+                {h < 24 ? `${h} ساعة` : h === 24 ? 'يوم واحد' : h === 168 ? 'أسبوع' : `${h / 24} أيام`}
+                {h === HOLD_DEFAULT ? ' (الافتراضي)' : ''}
+              </option>
+            ))}
+          </select>
+          <p class="kh-form-hint">إذا لم يؤكّد القارئ إتمام جزئه خلال هذه المهلة عاد الجزء إلى المجموعة تلقائياً، فلا تتعطّل الختمة بجزء نسيه صاحبه.</p>
+
+          <button type="submit" class="kh-submit">إنشاء الختمة</button>
+          <p class="kh-form-err" id="kh-err" role="alert" hidden></p>
+        </form>
+      </section>
+
+      <section class="card section-card" style="order:3">
+        <h2 class="section-h2">كيف تعمل؟</h2>
+        <ol class="kh-steps">
+          {steps.map((s, i) => (
+            <li>
+              <span class="kh-step-n">{i + 1}</span>
+              <div>
+                <p class="kh-step-t">{s.t}</p>
+                <p class="kh-step-d">{s.d}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section class="card section-card" style="order:4">
+        <h2 class="section-h2">ضوابط راعيناها في هذه الصفحة</h2>
+        <p class="section-p">الختمة الجماعية مسألة اجتهادية، وقد بُنيت هذه الأداة على الصورة التي عليها أكثر المفتين المعاصرين، مع تجنّب مواضع الخلاف الحادّ:</p>
+        <ul class="kh-rules">
+          <li><strong>لا إهداء للأموات.</strong> ليس في الختمة حقل لاسم متوفّى، لأن وصول ثواب التلاوة إلى الميت محلّ خلاف بين المذاهب. والدعاء للميت متفق عليه، فليدعُ من شاء بنفسه.</li>
+          <li><strong>العدّاد صادق في عبارته.</strong> يقول «كذا جزءاً مكتملاً» ولا يقول لأحد إنه ختم القرآن؛ فمن قرأ جزءاً فقد قرأ جزءاً.</li>
+          <li><strong>لا تخصيص بزمن ولا عدد.</strong> لا نربط الختمة بليلة بعينها ولا بأربعين يوماً ولا بتكرار مخصوص يُعتقد فيه فضل خاص.</li>
+          <li><strong>القراءة باللسان.</strong> ننبّه عليها عند أخذ كل جزء، فالنظر المجرّد في المصحف من غير تحريك اللسان لا يُعدّ تلاوة.</li>
+          <li><strong>لا إلزام ولا عقوبة.</strong> من لم يتمكّن من جزئه أرجعه بزرّ واحد، ولا يُشهَّر بأحد ولا تُحتسب عليه مخالفة.</li>
+          <li><strong>الاسم اختياري ولا لوحة تنافس.</strong> من شاء شارك باسمه ومن شاء بقي «مشارك»، ولا نرتّب الناس حسب عدد أجزائهم.</li>
+          <li><strong>دعاء الختم لكل قارئ.</strong> لا نصوغ للمجموعة دعاء ختمةٍ كاملة، إذ من قرأ جزءاً لم يختم القرآن.</li>
+        </ul>
+        <p class="section-p" style="margin-top:14px">للاستزادة: <a href="https://www.dar-alifta.org/ar/fatwaresearch/details/77/%D8%AD%D9%83%D9%85-%D8%AE%D8%AA%D9%85-%D8%A7%D9%84%D9%82%D8%B1%D8%A2%D9%86-%D8%AC%D9%85%D8%A7%D8%B9%D8%A9" target="_blank" rel="noopener nofollow" style="color:var(--accent)">فتوى دار الإفتاء المصرية في ختم القرآن جماعة</a> · <a href="https://www.islamweb.net/ar/fatwa/442006/" target="_blank" rel="noopener nofollow" style="color:var(--accent)">فتوى إسلام ويب في المجموعات المنظَّمة للختم</a>. والمسألة اجتهادية، والأولى سؤال دار الإفتاء في بلدك.</p>
+      </section>
+
+      <section class="card section-card" style="order:5">
+        <h2 class="section-h2">أسئلة شائعة</h2>
+        {faq.map((f, i) => (
+          <div class="faq-item" style={i === faq.length - 1 ? 'border-bottom:none' : ''}>
+            <p class="faq-q">{f.q}</p>
+            <p class="faq-a">{f.a}</p>
+          </div>
+        ))}
+      </section>
+    </main>
+
+    <aside>
+      <div class="card" style="padding:18px 20px">
+        <h3 style="margin:0 0 12px;font-size:15.5px;font-weight:700">أدوات ذات صلة</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:14.5px">
+          <a href="/imsakiyah/" style="color:var(--accent);text-decoration:none">إمساكية رمضان حسب مدينتك</a>
+          <a href="/fasting/" style="color:var(--accent);text-decoration:none">الأيام البيض وأيام الصيام</a>
+          <a href="/dua/" style="color:var(--accent);text-decoration:none">أدعية وأذكار</a>
+          <a href="/prayer-times/" style="color:var(--accent);text-decoration:none">مواقيت الصلاة حسب المدينة</a>
+          <a href="/" style="color:var(--accent);text-decoration:none">التقويم الهجري وتاريخ اليوم</a>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="site-footer">
+    ختمة جماعية بلا تسجيل · الاسم اختياري ولا نحفظ بيانات شخصية
+    <span style="margin:0 8px;opacity:.4">·</span>
+    <a href="/privacy/" style="color:var(--muted);text-decoration:none;font-size:13px">سياسة الخصوصية</a>
+  </footer>
+
+  <style is:global>
+    .kh-form { display:flex; flex-direction:column; gap:8px; margin-top:12px; }
+    .kh-form label { font-size:14px; font-weight:600; color:var(--text); margin-top:6px; }
+    .kh-form input, .kh-form select {
+      font:inherit; padding:11px 13px; border:1px solid var(--border); border-radius:12px;
+      background:var(--surface); color:var(--text); width:100%;
+    }
+    .kh-form input:focus-visible, .kh-form select:focus-visible { outline:2px solid var(--accent); outline-offset:1px; }
+    .kh-form-hint { font-size:13.5px; color:var(--muted); line-height:1.75; margin:2px 0 0; }
+    .kh-form-err { font-size:14px; color:#b42318; margin:4px 0 0; }
+    .kh-submit {
+      font:inherit; font-weight:700; margin-top:12px; padding:12px 18px; border:0; border-radius:12px;
+      background:var(--accent); color:var(--accent-contrast); cursor:pointer; align-self:flex-start;
+    }
+    .kh-submit:hover { background:var(--accent-strong); }
+    .kh-submit[disabled] { opacity:.6; cursor:progress; }
+    .kh-steps { list-style:none; margin:14px 0 0; padding:0; display:flex; flex-direction:column; gap:14px; }
+    .kh-steps li { display:flex; gap:12px; align-items:flex-start; }
+    .kh-step-n {
+      flex:0 0 28px; height:28px; border-radius:50%; display:grid; place-items:center;
+      background:var(--accent-soft); color:var(--accent-strong); font-weight:700; font-size:14px;
+    }
+    .kh-step-t { margin:0 0 3px; font-weight:700; font-size:15px; }
+    .kh-step-d { margin:0; color:var(--muted); font-size:14.5px; line-height:1.85; }
+    .kh-rules { margin:12px 0 0; padding-inline-start:20px; display:flex; flex-direction:column; gap:10px; }
+    .kh-rules li { font-size:14.5px; line-height:1.85; color:var(--muted); }
+    .kh-rules strong { color:var(--text); }
+  </style>
+
+  <script>
+    const form = document.getElementById('kh-new');
+    const err = document.getElementById('kh-err');
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = form.querySelector('button[type=submit]');
+      const title = (document.getElementById('kh-title')).value.trim();
+      const holdHours = Number((document.getElementById('kh-hold')).value);
+      err.hidden = true;
+      if (!title) {
+        err.textContent = 'اكتب عنواناً للختمة.';
+        err.hidden = false;
+        return;
+      }
+      btn.disabled = true;
+      btn.textContent = 'جارٍ الإنشاء…';
+      try {
+        const r = await fetch('/api/khatma/create', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ title, holdHours }),
+        });
+        const j = await r.json();
+        if (j && j.ok) {
+          // The admin key is the creator's only proof of ownership, and it is
+          // deliberately never mailed anywhere — it rides in the URL once and is
+          // kept in this browser.
+          try { localStorage.setItem('idk.khatma.admin.' + j.slug, j.adminKey); } catch (_) {}
+          location.href = j.url + '?new=1';
+          return;
+        }
+        err.textContent = (j && j.error) || 'تعذّر إنشاء الختمة. حاول مرة أخرى.';
+        err.hidden = false;
+      } catch (_) {
+        err.textContent = 'تعذّر الاتصال. تحقّق من الشبكة وأعد المحاولة.';
+        err.hidden = false;
+      }
+      btn.disabled = false;
+      btn.textContent = 'إنشاء الختمة';
+    });
+  </script>
+</Layout>
