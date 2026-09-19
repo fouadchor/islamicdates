@@ -39,6 +39,10 @@ export interface KhatmaT {
   dir: 'rtl' | 'ltr';
   tagline: string;
   base: string;
+  /** بطاقة الدعوة في الصفحة الرئيسية */
+  homeH: string; homeP: string; homeCta: string;
+  /** بلاطة الميزة في شبكة الأدوات */
+  toolLabel: string; toolSub: string;
   metaTitle: string; metaDesc: string;
   h1: string; intro: string;
   formH: string;
@@ -73,9 +77,14 @@ export const FATWA_LINKS = {
 const AR: KhatmaT = {
   dir: 'rtl',
   tagline: 'ختمة جماعية',
+  homeH: 'اقرأوا القرآن جماعةً — ختمة بينكم في أيام',
+  homeP: 'ثلاثون جزءاً وأنتم جماعة: أنشئ ختمة، وأرسل رابطها في مجموعة العائلة أو الأصدقاء، وكل واحد يأخذ جزءاً ويقرأه. بلا تسجيل، والجزء غير المقروء يعود للمجموعة تلقائياً.',
+  homeCta: 'ابدأ ختمة جماعية',
+  toolLabel: 'ختمة قرآن جماعية',
+  toolSub: 'وزّعوا الأجزاء الثلاثين بينكم برابط واحد',
   base: '/khatma/',
   metaTitle: 'ختمة قرآن جماعية · وزّعوا الأجزاء الثلاثين بينكم برابط واحد',
-  metaDesc: 'أنشئ ختمة قرآن جماعية مجاناً وبلا تسجيل: رابط واحد تشاركه، وكل مشارك يختار جزءاً ويقرأه، والعدّاد يتابع الأجزاء المكتملة. الجزء غير المقروء يعود للمجموعة تلقائياً حتى لا تتوقّف الختمة.',
+  metaDesc: 'أنشئ ختمة قرآن جماعية مجاناً وبلا تسجيل: رابط واحد تشاركه، وكل مشارك يأخذ جزءاً ويقرأه، والجزء غير المقروء يعود للمجموعة تلقائياً فلا تتوقّف الختمة.',
   h1: 'ختمة قرآن جماعية بتوزيع الأجزاء',
   intro: 'ثلاثون جزءاً وأنتم جماعة: كل واحد يأخذ جزءاً ويقرأه، فتكتمل الأجزاء الثلاثون بينكم في أيام. أنشئ الختمة من هنا، وشارك رابطها في مجموعتكم — بلا تسجيل ولا تطبيق ولا إعلان داخل الصفحة.',
   formH: 'أنشئ ختمة الآن',
@@ -191,9 +200,14 @@ const AR: KhatmaT = {
 const EN: KhatmaT = {
   dir: 'ltr',
   tagline: 'Group khatma',
+  homeH: "Read the Qur'an together — a khatma between you in days",
+  homeP: "Thirty juz' and a group of you: create a khatma, send its link to your family or friends, and each person takes one and reads it. No sign-up, and an unread juz returns to the group on its own.",
+  homeCta: 'Start a group khatma',
+  toolLabel: "Group Qur'an khatma",
+  toolSub: "Share the thirty juz' over one link",
   base: '/en/khatma/',
   metaTitle: "Group Quran Khatma · Share the thirty juz' over one link",
-  metaDesc: "Start a group Qur'an khatma, free and without signing up: one link to share, each reader takes a juz and reads it, and the counter follows what is done. A juz left unread returns to the group automatically, so the khatma never stalls.",
+  metaDesc: "Start a group Qur'an khatma, free and with no sign-up: one link to share, each reader takes a juz, and an unread juz returns to the group automatically.",
   h1: "A group Qur'an khatma, juz by juz",
   intro: "Thirty juz' and a group of you: each person takes one and reads it, and the thirty are finished between you within days. Create the khatma here and share its link with your group — no sign-up, no app, no ads on the page.",
   formH: 'Start a khatma',
@@ -309,9 +323,14 @@ const EN: KhatmaT = {
 const UR: KhatmaT = {
   dir: 'rtl',
   tagline: 'اجتماعی ختم',
+  homeH: 'مل کر قرآن پڑھیں — چند دنوں میں آپس میں ایک ختم',
+  homeP: 'تیس پارے اور آپ ایک جماعت: ختم بنائیں، اس کا لنک گھر والوں یا دوستوں کے گروپ میں بھیجیں، اور ہر فرد ایک پارہ لے کر پڑھے۔ بغیر رجسٹریشن، اور اَن پڑھا پارہ خود بخود گروپ کو واپس مل جاتا ہے۔',
+  homeCta: 'اجتماعی ختم شروع کریں',
+  toolLabel: 'اجتماعی ختمِ قرآن',
+  toolSub: 'تیس پارے ایک لنک پر آپس میں بانٹیں',
   base: '/ur/khatma/',
   metaTitle: 'اجتماعی ختمِ قرآن · تیس پارے ایک لنک پر آپس میں بانٹیں',
-  metaDesc: 'مفت اور بغیر رجسٹریشن اجتماعی ختمِ قرآن شروع کریں: ایک لنک شیئر کریں، ہر شریک ایک پارہ لے کر پڑھے، اور کاؤنٹر مکمل پاروں کا حساب رکھے۔ جو پارہ نہ پڑھا جائے وہ خود بخود گروپ کو واپس مل جاتا ہے، تاکہ ختم رُکے نہیں۔',
+  metaDesc: 'مفت اور بغیر رجسٹریشن اجتماعی ختمِ قرآن شروع کریں: ایک لنک شیئر کریں، ہر شریک ایک پارہ لے کر پڑھے، اور اَن پڑھا پارہ خود بخود گروپ کو واپس مل جاتا ہے۔',
   h1: 'اجتماعی ختمِ قرآن، پارہ بہ پارہ',
   intro: 'تیس پارے اور آپ ایک جماعت: ہر فرد ایک پارہ لے کر پڑھتا ہے، اور تیسوں پارے چند دنوں میں آپس میں مکمل ہو جاتے ہیں۔ یہاں سے ختم بنائیں اور اس کا لنک اپنے گروپ میں بھیجیں — نہ رجسٹریشن، نہ ایپ، نہ صفحے کے اندر اشتہار۔',
   formH: 'ابھی ختم شروع کریں',

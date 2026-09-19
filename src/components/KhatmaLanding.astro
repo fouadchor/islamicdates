@@ -183,6 +183,7 @@ const jsonLd = JSON.stringify([
           // deliberately never mailed anywhere — it rides in the URL once and is
           // kept in this browser.
           try { localStorage.setItem('idk.khatma.admin.' + j.slug, j.adminKey); } catch (_) {}
+          if (window.gtag) gtag('event', 'khatma_create', { hold_hours: holdHours, lang: document.documentElement.lang });
           location.href = form.dataset.base + j.slug + '/?new=1';
           return;
         }
