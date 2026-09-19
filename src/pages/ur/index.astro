@@ -1,5 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import KhatmaHomeCard from '../../components/KhatmaHomeCard.astro';
+import KhatmaToolTile from '../../components/KhatmaToolTile.astro';
 import TodayIsland from '../../components/TodayIsland';
 import CalendarIsland from '../../components/CalendarIsland';
 import ConverterIsland from '../../components/ConverterIsland';
@@ -142,6 +144,8 @@ const jsonLd = JSON.stringify([
     </div>
 
     <main>
+      <KhatmaHomeCard lang="ur" order={4} />
+
 
       <CalendarIsland lang="ur" client:load />
 
@@ -344,6 +348,7 @@ const jsonLd = JSON.stringify([
             <span class="tt-i"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M12 21s-7-6.3-7-11a7 7 0 0 1 14 0c0 4.7-7 11-7 11Z"/></svg></span>
             <span class="tt-n">میرے قریب مساجد<span class="tt-sub">قریب ترین مساجد، راستے کے ساتھ</span></span>
           </a>
+          <KhatmaToolTile lang="ur" />
           <a href="/ur/qibla/" class="tool-tile" title="قبلہ کمپاس اور کعبہ تک فاصلہ">
             <span class="tt-i"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></span>
             <span class="tt-n">قبلہ کا رخ</span>

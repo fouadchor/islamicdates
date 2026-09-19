@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Lang } from '../lib/data';
 import { juzInfo, juzReadHref, num } from '../lib/khatma-juz';
 import { fill, type ErrCode, type GridT } from '../lib/khatma-i18n';
+import { track } from '../lib/track';
 
 type PartStatus = 'free' | 'held' | 'done';
 
@@ -131,6 +132,7 @@ export default function KhatmaGrid({ initial, lang, t, holdLabel, base }: Khatma
         if (j?.ok) {
           setK(j.khatma);
           setPicking(null);
+          track(`khatma_${action}`, { part, lang });
         } else {
           const code = (j?.code ?? 'generic') as ErrCode;
           setErr(t.err[code] ?? t.err.generic);
@@ -142,7 +144,7 @@ export default function KhatmaGrid({ initial, lang, t, holdLabel, base }: Khatma
         setBusy(null);
       }
     },
-    [initial.slug, refresh, t],
+    [initial.slug, refresh, t, lang],
   );
 
   const confirmClaim = () => {
@@ -170,6 +172,7 @@ export default function KhatmaGrid({ initial, lang, t, holdLabel, base }: Khatma
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(shareUrl);
+      track('khatma_share', { method: 'copy', lang });
       setCopied(true);
       window.setTimeout(() => setCopied(false), 2000);
     } catch {
@@ -319,6 +322,7 @@ export default function KhatmaGrid({ initial, lang, t, holdLabel, base }: Khatma
             href={`https://wa.me/?text=${encodeURIComponent(`${shareText} ${shareUrl}`)}`}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => track('khatma_share', { method: 'whatsapp', lang })}
           >
             {t.shareWa}
           </a>

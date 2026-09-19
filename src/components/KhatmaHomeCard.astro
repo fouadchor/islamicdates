@@ -1,0 +1,50 @@
+---
+// بطاقة الدعوة إلى الختمة الجماعية في الصفحة الرئيسية.
+// موضعها البصري يحدّده `order`، فمكانها في الشيفرة داخل <main> لا يهمّ.
+import type { Lang } from '../lib/data';
+import { khatmaT } from '../lib/khatma-i18n';
+
+interface Props { lang: Lang; order?: number }
+const { lang, order = 4 } = Astro.props;
+const t = khatmaT(lang);
+---
+<section class="card section-card kh-home" style={`order:${order}`}>
+  <span aria-hidden="true" class="kh-home-glyph kh-home-glyph-a">۞</span>
+  <span aria-hidden="true" class="kh-home-glyph kh-home-glyph-b">☾</span>
+  <div class="kh-home-row">
+    <div class="kh-home-mark" aria-hidden="true">٣٠</div>
+    <div class="kh-home-body">
+      <h2 class="kh-home-h">{t.homeH}</h2>
+      <p class="kh-home-p">{t.homeP}</p>
+    </div>
+    <a href={t.base} class="kh-home-cta" data-ga="khatma_home_cta">{t.homeCta}</a>
+  </div>
+</section>
+
+<style is:global>
+  .kh-home {
+    position:relative; overflow:hidden; border-color:transparent; color:#eafaf6;
+    background:linear-gradient(135deg,#0b7d73 0%,#0d9488 55%,#14b8a6 120%);
+  }
+  .kh-home-glyph { position:absolute; opacity:.13; line-height:1; pointer-events:none; }
+  .kh-home-glyph-a { top:-30px; inset-inline-start:-12px; font-size:118px; transform:rotate(-12deg); }
+  .kh-home-glyph-b { bottom:-34px; inset-inline-end:-8px; font-size:104px; }
+  .kh-home-row { position:relative; display:flex; align-items:center; gap:18px; flex-wrap:wrap; }
+  .kh-home-mark {
+    flex:0 0 auto; width:62px; height:62px; border-radius:18px; display:grid; place-items:center;
+    background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.28);
+    font-size:25px; font-weight:800; color:#fff;
+  }
+  .kh-home-body { flex:1 1 260px; }
+  .kh-home-h { margin:0 0 6px; font-size:22px; font-weight:700; color:#fff; }
+  .kh-home-p { margin:0; color:#d8f3ee; line-height:1.9; font-size:14.5px; }
+  .kh-home-cta {
+    flex:0 0 auto; display:inline-flex; align-items:center; gap:8px;
+    padding:13px 26px; border-radius:999px; background:#fbbf24; color:#4a2b00;
+    font-weight:800; font-size:15.5px; text-decoration:none; box-shadow:0 4px 14px rgba(0,0,0,.22);
+  }
+  .kh-home-cta:hover { background:#fcd34d; }
+  @media (max-width:520px) {
+    .kh-home-cta { width:100%; justify-content:center; }
+  }
+</style>

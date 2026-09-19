@@ -206,6 +206,19 @@ const _bnClose = pick(lang, 'إخفاء', 'Dismiss', 'چھپائیں');
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
     gtag('config', 'G-3QNF278Y3B');
+
+    // One delegated listener for the whole site: any element carrying data-ga
+    // reports a GA4 event of that name when clicked. Cheaper than wiring a
+    // handler per link, and it keeps the markup declarative.
+    //
+    // NOTE: GA4 lists these under Reports → Realtime and Engagement → Events on
+    // its own, but breaking them down by a parameter (part, method, hold_hours)
+    // needs that parameter registered once under Admin → Custom definitions.
+    document.addEventListener('click', function (e) {
+      var el = e.target && e.target.closest ? e.target.closest('[data-ga]') : null;
+      if (!el) return;
+      gtag('event', el.getAttribute('data-ga'), { link_url: el.getAttribute('href') || undefined });
+    }, { passive: true, capture: true });
   </script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1722763564281190" crossorigin="anonymous"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
