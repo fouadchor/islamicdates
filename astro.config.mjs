@@ -19,7 +19,12 @@ export default defineConfig({
   // Static by default (every existing page stays prerendered exactly as before);
   // individual pages opt into request-time SSR with `export const prerender = false`.
   output: 'hybrid',
-  adapter: cloudflare(),
+  adapter: cloudflare({
+    // Gives `astro dev` the Pages bindings (the khatma feature's D1) from
+    // wrangler.dev.toml. Named .dev.toml so the deployed Pages project keeps
+    // using its dashboard configuration rather than a file in the repo.
+    platformProxy: { enabled: true, configPath: 'wrangler.dev.toml' },
+  }),
   integrations: [
     react(),
     sitemap({

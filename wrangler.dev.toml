@@ -1,0 +1,16 @@
+# Local development only.
+#
+# The deployed site is a Cloudflare Pages project whose bindings live in the
+# dashboard; Pages would read a file named `wrangler.toml` and start ignoring
+# that dashboard configuration, so this file is deliberately named otherwise and
+# is referenced by `platformProxy.configPath` in astro.config.mjs. It exists so
+# `npm run dev` has a local D1 to talk to.
+#
+#   npx wrangler d1 execute islamicdates-khatma --local --file=./migrations/0001_khatma.sql
+name = "islamicdates-dev"
+compatibility_date = "2024-09-23"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "islamicdates-khatma"
+database_id = "local-dev"
