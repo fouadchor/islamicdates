@@ -1,0 +1,199 @@
+---
+// صفحة الهبوط للختمة الجماعية — نسخة واحدة تخدم اللغات الثلاث.
+import Layout from '../layouts/Layout.astro';
+import { pick, type Lang } from '../lib/data';
+import { HOLD_HOURS, HOLD_DEFAULT, TITLE_MAX } from '../lib/khatma';
+import { khatmaT, FATWA_LINKS } from '../lib/khatma-i18n';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = khatmaT(lang);
+
+const canonical = `https://islamicdates.org${t.base}`;
+const home = pick(lang, '/', '/en/', '/ur/');
+
+const jsonLd = JSON.stringify([
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [
+    { '@type': 'ListItem', 'position': 1, 'name': t.home, 'item': `https://islamicdates.org${home}` },
+    { '@type': 'ListItem', 'position': 2, 'name': t.h1, 'item': canonical },
+  ] },
+  { '@context': 'https://schema.org', '@type': 'WebApplication', 'name': t.h1, 'url': canonical,
+    'description': t.metaDesc,
+    'applicationCategory': 'UtilitiesApplication', 'operatingSystem': 'Web', 'inLanguage': [lang],
+    'offers': { '@type': 'Offer', 'price': '0', 'priceCurrency': 'USD' } },
+  { '@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': t.faq.map(f => ({ '@type': 'Question', 'name': f.q, 'acceptedAnswer': { '@type': 'Answer', 'text': f.a } })) },
+]);
+---
+<Layout title={t.metaTitle} description={t.metaDesc} canonical={canonical} lang={lang} jsonLd={jsonLd}
+        arPath="/khatma/" enPath="/en/khatma/" urPath="/ur/khatma/">
+  <header class="site-header">
+    <div class="header-start">
+      <a href={home} class="logo" aria-label={t.home}>
+        <div class="logo-icon">☾</div>
+        <div>
+          <div class="brand">{pick(lang, 'التقويم الهجري', 'Hijri Calendar', 'ہجری کیلنڈر')}</div>
+          <div class="tagline">{t.tagline}</div>
+        </div>
+      </a>
+      <a href={home} class="home-btn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+        <span>{t.home}</span>
+      </a>
+    </div>
+  </header>
+
+  <div class="layout">
+    <main>
+      <section class="card section-card" style="order:1">
+        <h1 class="section-h2" style="font-size:25px">{t.h1}</h1>
+        <p class="section-p" style="margin-top:8px">{t.intro}</p>
+      </section>
+
+      <section class="card section-card" id="new" style="order:2">
+        <h2 class="section-h2">{t.formH}</h2>
+        <form id="kh-new" class="kh-form" novalidate data-base={t.base}>
+          <label for="kh-title">{t.titleLabel}</label>
+          <input id="kh-title" name="title" type="text" maxlength={TITLE_MAX} required
+                 placeholder={t.titlePh} autocomplete="off" />
+
+          <label for="kh-hold">{t.holdLabel}</label>
+          <select id="kh-hold" name="holdHours">
+            {HOLD_HOURS.map(h => (
+              <option value={h} selected={h === HOLD_DEFAULT}>{t.holdText(h)}</option>
+            ))}
+          </select>
+          <p class="kh-form-hint">{t.holdHint}</p>
+
+          <button type="submit" class="kh-submit" data-idle={t.submit} data-busy={t.submitting}>{t.submit}</button>
+          <p class="kh-form-err" id="kh-err" role="alert" hidden data-empty={t.grid.err.empty_title}
+             data-generic={t.grid.err.generic} data-network={t.grid.err.network}></p>
+        </form>
+      </section>
+
+      <section class="card section-card" style="order:3">
+        <h2 class="section-h2">{t.stepsH}</h2>
+        <ol class="kh-steps">
+          {t.steps.map((s, i) => (
+            <li>
+              <span class="kh-step-n">{i + 1}</span>
+              <div>
+                <p class="kh-step-t">{s.t}</p>
+                <p class="kh-step-d">{s.d}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section class="card section-card" style="order:4">
+        <h2 class="section-h2">{t.rulesH}</h2>
+        <p class="section-p">{t.rulesIntro}</p>
+        <ul class="kh-rules">
+          {t.rules.map(r => (<li><strong>{r.b}</strong> {r.t}</li>))}
+        </ul>
+        <p class="section-p" style="margin-top:14px">
+          {t.rulesMoreA}
+          <a href={FATWA_LINKS.darAlifta} target="_blank" rel="noopener nofollow" style="color:var(--accent)">{t.rulesMoreB}</a>
+          {' · '}
+          <a href={FATWA_LINKS.islamweb} target="_blank" rel="noopener nofollow" style="color:var(--accent)">{t.rulesMoreC}</a>
+        </p>
+      </section>
+
+      <section class="card section-card" style="order:5">
+        <h2 class="section-h2">{t.faqH}</h2>
+        {t.faq.map((f, i) => (
+          <div class="faq-item" style={i === t.faq.length - 1 ? 'border-bottom:none' : ''}>
+            <p class="faq-q">{f.q}</p>
+            <p class="faq-a">{f.a}</p>
+          </div>
+        ))}
+      </section>
+    </main>
+
+    <aside>
+      <div class="card" style="padding:18px 20px">
+        <h3 style="margin:0 0 12px;font-size:15.5px;font-weight:700">{t.relatedH}</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:14.5px">
+          {t.related.map(r => (<a href={r.href} style="color:var(--accent);text-decoration:none">{r.label}</a>))}
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="site-footer">
+    {t.footerNote}
+    <span style="margin:0 8px;opacity:.4">·</span>
+    <a href={t.privacyHref} style="color:var(--muted);text-decoration:none;font-size:13px">{t.privacyLabel}</a>
+  </footer>
+
+  <style is:global>
+    .kh-form { display:flex; flex-direction:column; gap:8px; margin-top:12px; }
+    .kh-form label { font-size:14px; font-weight:600; color:var(--text); margin-top:6px; }
+    .kh-form input, .kh-form select {
+      font:inherit; padding:11px 13px; border:1px solid var(--border); border-radius:12px;
+      background:var(--surface); color:var(--text); width:100%;
+    }
+    .kh-form input:focus-visible, .kh-form select:focus-visible { outline:2px solid var(--accent); outline-offset:1px; }
+    .kh-form-hint { font-size:13.5px; color:var(--muted); line-height:1.75; margin:2px 0 0; }
+    .kh-form-err { font-size:14px; color:#b42318; margin:4px 0 0; }
+    .kh-submit {
+      font:inherit; font-weight:700; margin-top:12px; padding:12px 18px; border:0; border-radius:12px;
+      background:var(--accent); color:var(--accent-contrast); cursor:pointer; align-self:flex-start;
+    }
+    .kh-submit:hover { background:var(--accent-strong); }
+    .kh-submit[disabled] { opacity:.6; cursor:progress; }
+    .kh-steps { list-style:none; margin:14px 0 0; padding:0; display:flex; flex-direction:column; gap:14px; }
+    .kh-steps li { display:flex; gap:12px; align-items:flex-start; }
+    .kh-step-n {
+      flex:0 0 28px; height:28px; border-radius:50%; display:grid; place-items:center;
+      background:var(--accent-soft); color:var(--accent-strong); font-weight:700; font-size:14px;
+    }
+    .kh-step-t { margin:0 0 3px; font-weight:700; font-size:15px; }
+    .kh-step-d { margin:0; color:var(--muted); font-size:14.5px; line-height:1.85; }
+    .kh-rules { margin:12px 0 0; padding-inline-start:20px; display:flex; flex-direction:column; gap:10px; }
+    .kh-rules li { font-size:14.5px; line-height:1.85; color:var(--muted); }
+    .kh-rules strong { color:var(--text); }
+  </style>
+
+  <script>
+    const form = document.getElementById('kh-new');
+    const err = document.getElementById('kh-err');
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = form.querySelector('button[type=submit]');
+      const title = (document.getElementById('kh-title')).value.trim();
+      const holdHours = Number((document.getElementById('kh-hold')).value);
+      err.hidden = true;
+      if (!title) {
+        err.textContent = err.dataset.empty;
+        err.hidden = false;
+        return;
+      }
+      btn.disabled = true;
+      btn.textContent = btn.dataset.busy;
+      try {
+        const r = await fetch('/api/khatma/create', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ title, holdHours, lang: document.documentElement.lang }),
+        });
+        const j = await r.json();
+        if (j && j.ok) {
+          // The admin key is the creator's only proof of ownership, and it is
+          // deliberately never mailed anywhere — it rides in the URL once and is
+          // kept in this browser.
+          try { localStorage.setItem('idk.khatma.admin.' + j.slug, j.adminKey); } catch (_) {}
+          location.href = form.dataset.base + j.slug + '/?new=1';
+          return;
+        }
+        err.textContent = err.dataset.generic;
+        err.hidden = false;
+      } catch (_) {
+        err.textContent = err.dataset.network;
+        err.hidden = false;
+      }
+      btn.disabled = false;
+      btn.textContent = btn.dataset.idle;
+    });
+  </script>
+</Layout>

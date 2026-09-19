@@ -1,5 +1,6 @@
 import type { APIContext } from 'astro';
 import type { D1 } from '../../../lib/khatma';
+import type { ErrCode } from '../../../lib/khatma-i18n';
 
 export const json = (data: unknown, status = 200) =>
   new Response(JSON.stringify(data), {
@@ -7,7 +8,11 @@ export const json = (data: unknown, status = 200) =>
     headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
   });
 
-export const fail = (message: string, status = 400) => json({ ok: false, error: message }, status);
+/**
+ * الخطأ يُرسل برمز لا بنصّ: الصفحة تعرض الرسالة بلغة زائرها، فلا يرى قارئ
+ * أردي رسالة عربية لأن الخادم اختار الصياغة.
+ */
+export const fail = (code: ErrCode, status = 400) => json({ ok: false, code }, status);
 
 /** قاعدة البيانات إن كانت مربوطة. */
 export function db(ctx: APIContext): D1 | null {
