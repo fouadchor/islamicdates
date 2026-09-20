@@ -23,6 +23,39 @@ export function activeRamadanYear(today: Date = todayUTC()): number {
   return h.y + 1;                             // Shawwāl onwards → next year's
 }
 
+// ---- Index curation -----------------------------------------------------------
+// These 795 pages (264 cities x 3 languages) shipped on 17 Aug 2026. Google's
+// average position for the whole site went 24.4 -> 45.9 -> 57.7 over the three
+// weeks that followed, and the imsakiyah pages themselves have never recorded a
+// single impression — not in the 90 days to 2026-09-17, not in the last 28.
+//
+// Two things happened in that window and this data cannot separate them: the
+// deploy on the 17th, and Google's spam update of 18-21 Aug. But the pages are
+// 80% word-identical city to city (712 words where only the city name and the
+// times move), which is the scaled-content shape either explanation penalises,
+// and Ramadan 1448 is still five months out, so nothing is being lost now by
+// holding them back.
+//
+// So a city's imsakiyah indexes only in the run-up to the Ramadan it shows:
+// IMSAK_LEAD_DAYS before it starts, through to the end of it. Outside that they
+// stay live, linked and fully server-rendered — a visitor who arrives is served
+// the complete timetable — but ship noindex,follow and leave the sitemap. The
+// window reopens on its own at the next rebuild, roughly three months before
+// Ramadan, which is early enough for the pages to be crawled and aged before
+// the season's searches begin.
+//
+// Revisit if Search Console shows these earning impressions once readmitted; the
+// lead time is the dial.
+export const IMSAK_LEAD_DAYS = 100;
+
+export function imsakiyahIsIndexable(today: Date = todayUTC()): boolean {
+  const hy = activeRamadanYear(today);
+  const start = h2g(hy, RAMADAN, 1);
+  const end = h2g(hy, RAMADAN, daysInHMonth(hy, RAMADAN));
+  const opensAt = new Date(start.getTime() - IMSAK_LEAD_DAYS * 86400000);
+  return today >= opensAt && today <= end;
+}
+
 export interface ImsakRow {
   /** Day of Ramadan, 1-based. */
   day: number;
