@@ -14,13 +14,33 @@ export function convYears(): number[] {
 }
 
 // ---- Index curation -----------------------------------------------------------
-// Search Console showed 1,220 URLs in "Crawled - currently not indexed", dominated
-// by /convert/. Every converter page that actually earned impressions sat within
-// one Hijri year of today, so the thin long tail is kept live and internally
-// linked but marked noindex,follow. A page stays indexable when it is:
-//   1. within CONV_INDEX_SPAN Hijri years of today (where the demand is),
-//   2. the 1st of a month (month-start queries), or
-//   3. the date of a named Islamic occasion.
+// Second pass. The first attempt indexed every converter date within one Hijri
+// year of today; Search Console's "Crawled - currently not indexed" bucket grew
+// from 1,220 to 3,927 under it, so the window was not the binding constraint —
+// near-duplication was. Measured over the 90 days to 2026-09-17:
+//
+//   group          pages  impressions  clicks   CTR
+//   event pages      119       14,430      31   0.21%
+//   convert          766        5,731      10   0.17%
+//   hijri month      103        2,482       8   0.32%
+//
+// 766 converter pages earned ten clicks between them, and adjacent pages share
+// 96% of their words (only the date differs in ~700 words of template). They are
+// worth keeping live and internally linked — a visitor who lands on one is served
+// — but as a body of indexable documents they are ballast that Google reads as a
+// site-wide quality signal.
+//
+// So indexability is no longer a window around today. A converter page is indexed
+// only when a distinct query plausibly exists for that exact date:
+//   1. the 1st of a Hijri month ("1 Ramadan 1448 in Gregorian"), or
+//   2. the date of a named Islamic occasion,
+// and in both cases only within CONV_INDEX_SPAN Hijri years of today, since
+// nobody searches the Gregorian equivalent of a date six years out.
+//
+// Everything else ships <meta robots="noindex,follow"> and is filtered out of the
+// sitemap (see astro.config.mjs). Widen CONV_INDEX_SPAN or relax the day test here
+// if Search Console later shows converter pages earning clicks rather than bare
+// impressions — that is the signal this trade is tuned against.
 export const CONV_INDEX_SPAN = 1;
 
 const OCC_DAY_KEYS = new Set(OCCASIONS.map(o => `${o.hm}-${o.hd}`));
@@ -31,7 +51,7 @@ export function currentHy(): number {
 }
 
 export function convIsIndexable(hy: number, hm: number, hd: number, curHy = currentHy()): boolean {
-  if (Math.abs(hy - curHy) <= CONV_INDEX_SPAN) return true;
+  if (Math.abs(hy - curHy) > CONV_INDEX_SPAN) return false;
   if (hd === 1) return true;
   return OCC_DAY_KEYS.has(`${hm}-${hd}`);
 }

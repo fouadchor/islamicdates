@@ -7,6 +7,7 @@
 import { g2h, h2g, getOcc, occName, type OccCat } from './hijri';
 import { OCCASIONS, occBasePath, occurrencesInGYear, G_YEAR_START, G_YEAR_END } from './occasions';
 import { type LangLike, toLang, hMonArr } from './data';
+import { currentHy } from './convert';
 
 // SEO-friendly English slugs for the twelve Hijri months (index 0 = Muharram).
 export const H_MON_SLUG = [
@@ -23,6 +24,21 @@ export function hYears(): number[] {
   const a: number[] = [];
   for (let y = H_YEAR_START; y <= H_YEAR_END; y++) a.push(y);
   return a;
+}
+
+// ---- Index curation -----------------------------------------------------------
+// Month pages are generated out to 1457 AH (2035) so the calendar can be browsed
+// forward, but Search Console rejects the far end of that range outright —
+// /1452/rajab/ and /ur/1451/jumada-al-awwal/ both sit in "Crawled - currently not
+// indexed". A grid of a month nine years out has no query behind it yet.
+//
+// Pages outside the window stay live, linked and navigable; they ship
+// noindex,follow and leave the sitemap until the year comes within range, at
+// which point a rebuild readmits them with no URL change.
+export const MONTH_INDEX_SPAN = 2;
+
+export function monthIsIndexable(hy: number, curHy = currentHy()): boolean {
+  return Math.abs(hy - curHy) <= MONTH_INDEX_SPAN;
 }
 
 export function slugToMonth(slug: string): number | null {

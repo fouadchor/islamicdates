@@ -3,8 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import RamadanImsakiyahCities from './RamadanImsakiyahCities.astro';
 import { fmtG, fmtGShort, fmtH } from '../lib/occasions';
 import {
-  monthGrid, monthBasePath, monthName, prevMonth, nextMonth,
-} from '../lib/months';
+  monthGrid, monthBasePath, monthName, prevMonth, nextMonth, monthIsIndexable } from '../lib/months';
 import {
   type Lang, pick, hijriEra, wdHeadArr, gShortArr,
   MONTHS_NOTES_AR, MONTHS_NOTES_EN, MONTHS_NOTES_UR,
@@ -92,7 +91,8 @@ const yearMonths = Array.from({ length: 12 }, (_, i) => ({
 }));
 ---
 <Layout title={title} description={description} canonical={canonical} lang={lang} jsonLd={jsonLd}
-  arPath={monthBasePath(hy, hm, 'ar')} enPath={monthBasePath(hy, hm, 'en')} urPath={monthBasePath(hy, hm, 'ur')}>
+  arPath={monthBasePath(hy, hm, 'ar')} enPath={monthBasePath(hy, hm, 'en')} urPath={monthBasePath(hy, hm, 'ur')}
+  noindex={!monthIsIndexable(hy)}>
   <header class="site-header">
     <div class="header-start">
     <a href={homeHref} class="logo" aria-label={t.homeAria}>

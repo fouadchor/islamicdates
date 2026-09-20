@@ -3,16 +3,31 @@ import react from '@astrojs/react';
 import cloudflare from '@astrojs/cloudflare';
 import sitemap from '@astrojs/sitemap';
 import { convIsIndexable, parseSlug } from './src/lib/convert.ts';
+import { monthIsIndexable, H_MON_SLUG } from './src/lib/months.ts';
+import { occIsIndexable, OCCASIONS } from './src/lib/occasions.ts';
 
-// Converter pages outside the indexable window ship with <meta robots="noindex">.
-// Listing them in the sitemap too would trip "Submitted URL marked noindex" in
-// Search Console, so they are filtered out here as well.
-const CONV_RE = /\/convert\/([0-9]+-[0-9]+-[0-9]+)\/?$/;
-function convertPageIsIndexable(url) {
-  const m = url.match(CONV_RE);
-  if (!m) return true;
-  const p = parseSlug(m[1]);
-  return p ? convIsIndexable(p.hy, p.hm, p.hd) : true;
+// Pages outside their indexable window ship with <meta robots="noindex">. Listing
+// them in the sitemap too would trip "Submitted URL marked noindex" in Search
+// Console — and, worse, keep asking Google to re-crawl URLs it has already
+// declined — so the same three predicates that drive the meta tag also gate the
+// sitemap. One source of truth per page family, imported from src/lib.
+const CONV_RE  = /\/convert\/([0-9]+-[0-9]+-[0-9]+)\/?$/;
+const MONTH_RE = new RegExp(`/([0-9]{4})/(${H_MON_SLUG.join('|')})/?$`);
+const OCC_RE   = new RegExp(`/(${OCCASIONS.map(o => o.slug).join('|')})-([0-9]{4})/?$`);
+
+function pageIsIndexable(url) {
+  const c = url.match(CONV_RE);
+  if (c) {
+    const p = parseSlug(c[1]);
+    return p ? convIsIndexable(p.hy, p.hm, p.hd) : true;
+  }
+  const m = url.match(MONTH_RE);
+  if (m) return monthIsIndexable(Number(m[1]));
+
+  const o = url.match(OCC_RE);
+  if (o) return occIsIndexable(Number(o[2]));
+
+  return true;
 }
 
 export default defineConfig({
@@ -32,7 +47,7 @@ export default defineConfig({
       filter: (page) =>
         !page.includes('/embed') &&
         !page.includes('/404') &&
-        convertPageIsIndexable(page),
+        pageIsIndexable(page),
       // Pages the crawler cannot discover on its own:
       //   • the homepages and on-this-day index are request-time SSR
       //     (prerender=false), so no static file is emitted for them;
