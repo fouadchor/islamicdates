@@ -9,6 +9,7 @@ import { type Lang, pick, wdArr, gMonArr, hijriEra } from '../lib/data';
 import {
   buildImsakiyah, activeRamadanYear, fmtDuration, isoUTCDate,
   imsakCityPath, imsakBase,
+  imsakiyahIsIndexable,
 } from '../lib/imsakiyah';
 
 interface Props { lang: Lang; country: PtCountry; city: PtCity }
@@ -133,6 +134,7 @@ const shareText = pick(lang,
   arPath={imsakCityPath(country.slug, city.slug, 'ar')}
   enPath={imsakCityPath(country.slug, city.slug, 'en')}
   urPath={imsakCityPath(country.slug, city.slug, 'ur')}
+  noindex={!imsakiyahIsIndexable()}
 >
   <header class="site-header">
     <a href={homeHref} class="logo" style="text-decoration:none;color:inherit" aria-label={pick(lang, 'الصفحة الرئيسية', 'Home', 'ہوم')}>

@@ -435,6 +435,21 @@ export function gYears(): number[] {
   return a;
 }
 
+// ---- Index curation -----------------------------------------------------------
+// Occasion pages run 2024-2035 so that "when is ashura 2033" has an answer, but
+// Google declines the far years: /en/ashura-2030/ is in "Crawled - currently not
+// indexed". Interest in a dated occasion page builds in the year or two before it,
+// and the page templates are identical apart from the dates, so the distant years
+// read as duplicates rather than as answers.
+//
+// Out-of-window years stay live and linked, ship noindex,follow, and drop out of
+// the sitemap; each rebuild readmits the next year automatically.
+export const OCC_INDEX_SPAN = 2;
+
+export function occIsIndexable(gy: number, curGy = new Date().getUTCFullYear()): boolean {
+  return gy >= curGy - 1 && gy <= curGy + OCC_INDEX_SPAN;
+}
+
 // Pick the localized occasion strings.
 import { type LangLike, toLang } from './data';
 export function occLoc(occ: OccDef, lang: LangLike): OccLoc {

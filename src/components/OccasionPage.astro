@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import RamadanImsakiyahCities from './RamadanImsakiyahCities.astro';
-import { OCCASIONS, occLoc, occurrencesInGYear, gYears, fmtG, fmtGShort, fmtH, isoUTC, occBasePath } from '../lib/occasions';
+import { OCCASIONS, occLoc, occurrencesInGYear, gYears, fmtG, fmtGShort, fmtH, isoUTC, occBasePath, occIsIndexable } from '../lib/occasions';
 import { type Lang, pick, hMonArr } from '../lib/data';
 
 interface Props { lang: Lang; slug: string; gYear: number; }
@@ -175,7 +175,8 @@ const t = {
 };
 ---
 <Layout title={title} description={description} canonical={canonical} lang={lang} jsonLd={jsonLd}
-  arPath={occBasePath(slug, gYear, 'ar')} enPath={occBasePath(slug, gYear, 'en')} urPath={occBasePath(slug, gYear, 'ur')}>
+  arPath={occBasePath(slug, gYear, 'ar')} enPath={occBasePath(slug, gYear, 'en')} urPath={occBasePath(slug, gYear, 'ur')}
+  noindex={!occIsIndexable(gYear)}>
   <header class="site-header">
     <a href={homeHref} class="logo" style="text-decoration:none;color:inherit" aria-label={t.home}>
       <div class="logo-icon">☾</div>
