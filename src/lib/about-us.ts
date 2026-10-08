@@ -18,7 +18,7 @@
 import type { Lang } from './data';
 
 export const ABOUT_UPDATED = '2026-10-08';
-export const CONTACT_EMAIL = 'islamicdates.contact@gmail.com';
+export const CONTACT_EMAIL = 'contact@islamicdates.org';
 
 export const FATWA_LINKS = {
   daralifta: 'https://www.dar-alifta.org/ar/fatwaresearch/details/77/%D8%AD%D9%83%D9%85-%D8%AE%D8%AA%D9%85-%D8%A7%D9%84%D9%82%D8%B1%D8%A2%D9%86-%D8%AC%D9%85%D8%A7%D8%B9%D8%A9',
@@ -66,8 +66,8 @@ const AR: AboutT = {
     },
     {
       name: 'د. محمد بسام',
-      role: 'دكتور في إدارة الأعمال',
-      bio: '',
+      role: 'خبير في إدارة الأعمال، حاصل على الدكتوراه',
+      bio: 'يتولّى التخطيط الاستراتيجي للموقع وأولويات تطويره، وتنظيم المحتوى وتجربة المستخدم بناءً على ملاحظات الزوار وبيانات الاستخدام، وبناء الشراكات مع المساجد والمراكز والمواقع الإسلامية.',
     },
   ],
   mission: 'قامت سلمى ببناء هذا الموقع ليكون مرجعاً دقيقاً ومجانياً للتقويم الهجري ومواقيت الصلاة والمناسبات الإسلامية، بالعربية والإنجليزية والأردية، بلا حسابات ولا تسجيل. كل أداة فيه تشرح طريقة حسابها أدناه، حتى يعرف القارئ لماذا قد يختلف رقم عندنا عمّا يراه في مكان آخر.',
@@ -163,8 +163,8 @@ const EN: AboutT = {
     },
     {
       name: 'Dr. Mohammad Bassam',
-      role: 'Doctorate in business administration',
-      bio: '',
+      role: 'Business administration expert, PhD',
+      bio: 'Leads the site\'s strategy and development priorities, shapes its content structure and user experience from visitor feedback and usage data, and builds partnerships with mosques, Islamic centres and websites.',
     },
   ],
   mission: 'Salma built this site to be an accurate, free reference for the Hijri calendar, prayer times and Islamic occasions — in Arabic, English and Urdu, with no accounts and no sign-up. Every tool on it explains its method below, so a reader can see why a number here might differ from one they saw elsewhere.',
@@ -260,8 +260,8 @@ const UR: AboutT = {
     },
     {
       name: 'ڈاکٹر محمد بسام',
-      role: 'بزنس ایڈمنسٹریشن میں ڈاکٹریٹ',
-      bio: '',
+      role: 'بزنس ایڈمنسٹریشن کے ماہر، پی ایچ ڈی',
+      bio: 'سائٹ کی حکمتِ عملی اور ترقی کی ترجیحات، زائرین کی آراء اور استعمال کے اعداد و شمار کی بنیاد پر مواد کی ترتیب اور صارف کے تجربے، اور مساجد، اسلامی مراکز اور ویب سائٹس کے ساتھ شراکت داری کے ذمہ دار ہیں۔',
     },
   ],
   mission: 'سلمیٰ نے یہ سائٹ اس لیے بنائی کہ ہجری تقویم، نماز کے اوقات اور اسلامی مناسبتوں کے لیے ایک درست اور مفت حوالہ ہو — عربی، انگریزی اور اردو میں، بغیر اکاؤنٹ اور بغیر رجسٹریشن کے۔ ہر ٹول کا طریقۂ حساب نیچے لکھا ہے، تاکہ قاری جان سکے کہ یہاں کا عدد کہیں اور سے کیوں مختلف ہو سکتا ہے۔',
