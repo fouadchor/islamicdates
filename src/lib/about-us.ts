@@ -13,6 +13,9 @@
 //   zakat      → components/ZakatIsland.tsx (85 g gold / 595 g silver, 2.5 %)
 //   duas       → lib/duas.ts (Quran + Sahih collections, source on every duʿāʾ)
 //   khatma     → lib/khatma-i18n.ts (no dedication field, recitation by tongue)
+// Per Salma: no mission paragraph, and no mention of Google advertising or
+// analytics on this page. The full privacy policy (linked from the privacy
+// section) keeps its Analytics and AdSense disclosure, which AdSense requires.
 // If one of those changes, this page must change with it.
 // ─────────────────────────────────────────────────────────────────────────────
 import type { Lang } from './data';
@@ -33,7 +36,7 @@ export interface AboutT {
   title: string; description: string; h1: string; intro: string;
   breadcrumbHome: string; breadcrumb: string; tagline: string; home: string;
   tocH: string;
-  whoH: string; whoIntro: string; people: Person[]; mission: string;
+  whoH: string; whoIntro: string; people: Person[];
   companyH: string; company: string; companyLink: string;
   calH: string; cal: string[];
   prayH: string; pray: string[]; prayTableCaption: string;
@@ -80,7 +83,6 @@ const AR: AboutT = {
   companyH: 'الشركة',
   company: 'التقويم الهجري أحد مشاريع شركة \u2066ICTSPS L.L.C (ICT Solutions & Professional Services)\u2069، المتخصصة في حلول تقنية المعلومات والتحوّل الرقمي، وتطوير البرمجيات وتطبيقات الهاتف والمواقع، وتحليلات الأعمال والاستشارات، ولها مكاتب في الولايات المتحدة وتركيا.',
   companyLink: 'موقع الشركة',
-  mission: 'قامت سلمى ببناء هذا الموقع ليكون مرجعاً دقيقاً ومجانياً للتقويم الهجري ومواقيت الصلاة والمناسبات الإسلامية، بالعربية والإنجليزية والأردية، بلا حسابات ولا تسجيل. كل أداة فيه تشرح طريقة حسابها أدناه، حتى يعرف القارئ لماذا قد يختلف رقم عندنا عمّا يراه في مكان آخر.',
 
   calH: 'التاريخ الهجري',
   cal: [
@@ -133,7 +135,6 @@ const AR: AboutT = {
   privH: 'الخصوصية',
   priv: [
     'لا يطلب الموقع حساباً ولا بريداً ولا رقم هاتف لأي أداة. الختمة تتعرّف عليك برمز عشوائي يبقى في متصفحك وحده.',
-    'نستخدم Google Analytics لقياس الزيارات، ونعرض إعلانات Google AdSense لتغطية تكاليف الموقع.',
   ],
   privLink: 'سياسة الخصوصية كاملة',
 
@@ -185,7 +186,6 @@ const EN: AboutT = {
   companyH: 'The company',
   company: 'Hijri Calendar is a project of ICTSPS L.L.C (ICT Solutions & Professional Services), a company specialising in IT solutions and digital transformation, software, mobile app and website development, and business analytics and consulting, with offices in the United States and Turkey.',
   companyLink: 'Company website',
-  mission: 'Salma built this site to be an accurate, free reference for the Hijri calendar, prayer times and Islamic occasions — in Arabic, English and Urdu, with no accounts and no sign-up. Every tool on it explains its method below, so a reader can see why a number here might differ from one they saw elsewhere.',
 
   calH: 'Hijri dates',
   cal: [
@@ -238,7 +238,6 @@ const EN: AboutT = {
   privH: 'Privacy',
   priv: [
     'No tool on the site asks for an account, an email address or a phone number. The khatma recognises you by a random token kept in your own browser.',
-    'We use Google Analytics to measure visits, and show Google AdSense ads to cover the site\'s costs.',
   ],
   privLink: 'Full privacy policy',
 
@@ -290,7 +289,6 @@ const UR: AboutT = {
   companyH: 'کمپنی',
   company: 'ہجری کیلنڈر \u2066ICTSPS L.L.C (ICT Solutions & Professional Services)\u2069 کا ایک منصوبہ ہے، جو آئی ٹی حل اور ڈیجیٹل تبدیلی، سافٹ ویئر، موبائل ایپس اور ویب سائٹس کی تیاری، اور بزنس اینالیٹکس و مشاورت میں مہارت رکھتی ہے، اور اس کے دفاتر امریکہ اور ترکی میں ہیں۔',
   companyLink: 'کمپنی کی ویب سائٹ',
-  mission: 'سلمیٰ نے یہ سائٹ اس لیے بنائی کہ ہجری تقویم، نماز کے اوقات اور اسلامی مناسبتوں کے لیے ایک درست اور مفت حوالہ ہو — عربی، انگریزی اور اردو میں، بغیر اکاؤنٹ اور بغیر رجسٹریشن کے۔ ہر ٹول کا طریقۂ حساب نیچے لکھا ہے، تاکہ قاری جان سکے کہ یہاں کا عدد کہیں اور سے کیوں مختلف ہو سکتا ہے۔',
 
   calH: 'ہجری تاریخ',
   cal: [
@@ -343,7 +341,6 @@ const UR: AboutT = {
   privH: 'رازداری',
   priv: [
     'سائٹ کا کوئی ٹول اکاؤنٹ، ای میل یا فون نمبر نہیں مانگتا۔ اجتماعی ختم آپ کو ایک بے ترتیب کوڈ سے پہچانتا ہے جو صرف آپ کے براؤزر میں رہتا ہے۔',
-    'ہم وزٹس ناپنے کے لیے Google Analytics استعمال کرتے ہیں، اور سائٹ کے اخراجات کے لیے Google AdSense کے اشتہارات دکھاتے ہیں۔',
   ],
   privLink: 'مکمل رازداری پالیسی',
 
