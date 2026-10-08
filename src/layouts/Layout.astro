@@ -101,6 +101,10 @@ const _navPrint = pick(lang, '/printable/', '/en/printable/', '/ur/printable/');
 const _navWidget = pick(lang, '/widget/', '/en/widget/', '/ur/widget/');
 const _navPrivacy = pick(lang, '/privacy/', '/en/privacy/', '/ur/privacy/');
 const _navContact = pick(lang, '/contact/', '/en/contact/', '/ur/contact/');
+// Who runs the site and how its numbers are produced — linked from every page,
+// because Google weighs religious and prayer-time content on exactly that.
+const _navAboutUs = pick(lang, '/about-us/', '/en/about-us/', '/ur/about-us/');
+const _lblAboutUs = pick(lang, 'من نحن والمنهجية', 'About us & methodology', 'ہمارے بارے میں');
 const _fBrand = pick(lang, 'التقويم الهجري', 'Hijri Calendar', 'ہجری کیلنڈر');
 const _fTagline = pick(lang,
   'تقويم أم القرى: تحويل التواريخ، مواقيت الصلاة، والمناسبات الإسلامية في مكان واحد.',
@@ -613,6 +617,7 @@ const _bnClose = pick(lang, 'إخفاء', 'Dismiss', 'چھپائیں');
     .sm-col a:hover { color: #fff; padding-inline-start: 4px; }
     .sm-bottom { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; margin-top: 34px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,.1); }
     .sm-copy { margin: 0; color: #8aa9a3; font-size: 13.5px; }
+    .sm-copy a { color: inherit; text-decoration: underline; text-decoration-color: rgba(138,169,163,.45); text-underline-offset: 3px; }
     .sm-legal { display: flex; gap: 22px; flex-wrap: wrap; }
     .sm-legal a { color: #b7d1cc; font-size: 13.5px; }
     .sm-legal a:hover { color: #fff; }
@@ -888,6 +893,7 @@ const _bnClose = pick(lang, 'إخفاء', 'Dismiss', 'چھپائیں');
             <li><a href={_navHome + '#occasions'}>{_labels.occ}</a></li>
             <li><a href={_navOtd}>{_lblOtd}</a></li>
             <li><a href={_navAbout}>{_labels.guide}</a></li>
+            <li><a href={_navAboutUs}>{_lblAboutUs}</a></li>
           </ul>
         </nav>
 
@@ -917,8 +923,9 @@ const _bnClose = pick(lang, 'إخفاء', 'Dismiss', 'چھپائیں');
       </div>
 
       <div class="sm-bottom">
-        <p class="sm-copy">© {_footYear} {_fBrand} · islamicdates.org — {_fRights}</p>
+        <p class="sm-copy">© {_footYear} {_fBrand} · islamicdates.org — <a href={_navAboutUs + '#calendar'}>{_fRights}</a></p>
         <nav class="sm-legal" aria-label={pick(lang, 'روابط قانونية', 'Legal', 'قانونی روابط')}>
+          <a href={_navAboutUs}>{_lblAboutUs}</a>
           <a href={_navPrivacy}>{_lblPrivacy}</a>
           <a href={_navContact}>{_lblContact}</a>
         </nav>
