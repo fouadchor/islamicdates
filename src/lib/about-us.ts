@@ -19,6 +19,7 @@ import type { Lang } from './data';
 
 export const ABOUT_UPDATED = '2026-10-08';
 export const CONTACT_EMAIL = 'contact@islamicdates.org';
+export const COMPANY = { name: 'ICTSPS L.L.C', longName: 'ICT Solutions & Professional Services', url: 'https://ictsps.com/' };
 
 export const FATWA_LINKS = {
   daralifta: 'https://www.dar-alifta.org/ar/fatwaresearch/details/77/%D8%AD%D9%83%D9%85-%D8%AE%D8%AA%D9%85-%D8%A7%D9%84%D9%82%D8%B1%D8%A2%D9%86-%D8%AC%D9%85%D8%A7%D8%B9%D8%A9',
@@ -32,7 +33,8 @@ export interface AboutT {
   title: string; description: string; h1: string; intro: string;
   breadcrumbHome: string; breadcrumb: string; tagline: string; home: string;
   tocH: string;
-  whoH: string; whoIntro: string; people: [Person, Person]; mission: string;
+  whoH: string; whoIntro: string; people: Person[]; mission: string;
+  companyH: string; company: string; companyLink: string;
   calH: string; cal: string[];
   prayH: string; pray: string[]; prayTableCaption: string;
   prayCols: [string, string, string, string]; minutesAfterMaghrib: (m: string) => string; andOthers: string;
@@ -50,14 +52,14 @@ export interface AboutT {
 // ── Arabic ───────────────────────────────────────────────────────────────────
 const AR: AboutT = {
   title: 'من نحن والمنهجية · كيف نحسب التاريخ الهجري ومواقيت الصلاة',
-  description: 'من يقف وراء موقع التقويم الهجري، وكيف نحسب التاريخ وفق أم القرى ومواقيت الصلاة والقبلة والزكاة، ومن أين نأخذ الأدعية، وكيف نصحّح الأخطاء.',
+  description: 'تعرّف على فريق موقع التقويم الهجري، وكيف نحسب التاريخ وفق أم القرى ومواقيت الصلاة والقبلة والزكاة، ومن أين نأخذ الأدعية، وكيف نصحّح الأخطاء.',
   h1: 'من نحن والمنهجية',
-  intro: 'هذه الصفحة تشرح من يقف وراء الموقع، وكيف يُحسب كل رقم تراه فيه، ومن أين يأتي النص الديني، وماذا نفعل حين يقع خطأ.',
+  intro: 'هذه الصفحة تعرّف بفريق الموقع، وتشرح كيف يُحسب كل رقم تراه فيه، ومن أين يأتي النص الديني، وماذا نفعل حين يقع خطأ.',
   breadcrumbHome: 'الرئيسية', breadcrumb: 'من نحن والمنهجية', tagline: 'من نحن والمنهجية', home: 'الرئيسية',
   tocH: 'في هذه الصفحة',
 
-  whoH: 'من يقف وراء الموقع',
-  whoIntro: 'يعمل على الموقع شخصان:',
+  whoH: 'فريق الموقع',
+  whoIntro: 'يعمل على الموقع:',
   people: [
     {
       name: 'سلمى محمود',
@@ -67,9 +69,17 @@ const AR: AboutT = {
     {
       name: 'د. محمد بسام',
       role: 'خبير في إدارة الأعمال، حاصل على الدكتوراه',
-      bio: 'يتولّى التخطيط الاستراتيجي للموقع وأولويات تطويره، وتنظيم المحتوى وتجربة المستخدم بناءً على ملاحظات الزوار وبيانات الاستخدام، وبناء الشراكات مع المساجد والمراكز والمواقع الإسلامية.',
+      bio: 'يتولّى التخطيط الاستراتيجي للموقع وأولويات تطويره بناءً على ملاحظات الزوار وبيانات الاستخدام، وبناء الشراكات مع المساجد والمراكز والمواقع الإسلامية.',
+    },
+    {
+      name: 'سمير عبد الغني',
+      role: 'مصمم تجربة وواجهة المستخدم (UX/UI)',
+      bio: 'صمّم واجهة الموقع وتجربة استخدامه على الهاتف والحاسوب، بالعربية والإنجليزية والأردية.',
     },
   ],
+  companyH: 'الشركة',
+  company: 'التقويم الهجري أحد مشاريع شركة \u2066ICTSPS L.L.C (ICT Solutions & Professional Services)\u2069، المتخصصة في حلول تقنية المعلومات والتحوّل الرقمي، وتطوير البرمجيات وتطبيقات الهاتف والمواقع، وتحليلات الأعمال والاستشارات، ولها مكاتب في الولايات المتحدة وتركيا.',
+  companyLink: 'موقع الشركة',
   mission: 'قامت سلمى ببناء هذا الموقع ليكون مرجعاً دقيقاً ومجانياً للتقويم الهجري ومواقيت الصلاة والمناسبات الإسلامية، بالعربية والإنجليزية والأردية، بلا حسابات ولا تسجيل. كل أداة فيه تشرح طريقة حسابها أدناه، حتى يعرف القارئ لماذا قد يختلف رقم عندنا عمّا يراه في مكان آخر.',
 
   calH: 'التاريخ الهجري',
@@ -147,14 +157,14 @@ const AR: AboutT = {
 // ── English ──────────────────────────────────────────────────────────────────
 const EN: AboutT = {
   title: 'About Us & Methodology · How We Calculate Hijri Dates and Prayer Times',
-  description: 'Who runs islamicdates.org, how we calculate Umm al-Qura dates, prayer times, qibla and zakat, where our supplications come from, and how we correct mistakes.',
+  description: 'Meet the islamicdates.org team, and see how we calculate Umm al-Qura dates, prayer times, qibla and zakat, where our supplications come from, and how we correct mistakes.',
   h1: 'About us & methodology',
-  intro: 'This page explains who runs the site, how every number on it is produced, where the religious text comes from, and what we do when something is wrong.',
+  intro: 'This page introduces our team and explains how every number on the site is produced, where the religious text comes from, and what we do when something is wrong.',
   breadcrumbHome: 'Home', breadcrumb: 'About us & methodology', tagline: 'About us & methodology', home: 'Home',
   tocH: 'On this page',
 
-  whoH: 'Who runs the site',
-  whoIntro: 'Two people work on the site:',
+  whoH: 'Our team',
+  whoIntro: 'The people who work on the site:',
   people: [
     {
       name: 'Salma Mahmoud',
@@ -164,9 +174,17 @@ const EN: AboutT = {
     {
       name: 'Dr. Mohammad Bassam',
       role: 'Business administration expert, PhD',
-      bio: 'Leads the site\'s strategy and development priorities, shapes its content structure and user experience from visitor feedback and usage data, and builds partnerships with mosques, Islamic centres and websites.',
+      bio: 'Leads the site\'s strategy and development priorities, guided by visitor feedback and usage data, and builds partnerships with mosques, Islamic centres and websites.',
+    },
+    {
+      name: 'Samir Abdelghani',
+      role: 'UX/UI designer',
+      bio: 'Designed the site\'s interface and user experience across phone and desktop, in Arabic, English and Urdu.',
     },
   ],
+  companyH: 'The company',
+  company: 'Hijri Calendar is a project of ICTSPS L.L.C (ICT Solutions & Professional Services), a company specialising in IT solutions and digital transformation, software, mobile app and website development, and business analytics and consulting, with offices in the United States and Turkey.',
+  companyLink: 'Company website',
   mission: 'Salma built this site to be an accurate, free reference for the Hijri calendar, prayer times and Islamic occasions — in Arabic, English and Urdu, with no accounts and no sign-up. Every tool on it explains its method below, so a reader can see why a number here might differ from one they saw elsewhere.',
 
   calH: 'Hijri dates',
@@ -244,14 +262,14 @@ const EN: AboutT = {
 // ── Urdu ─────────────────────────────────────────────────────────────────────
 const UR: AboutT = {
   title: 'ہمارے بارے میں اور طریقۂ کار · ہجری تاریخ اور نماز کے اوقات کیسے نکالے جاتے ہیں',
-  description: 'islamicdates.org کے پیچھے کون ہے، ہم اُمّ القریٰ تاریخ، نماز کے اوقات، قبلہ اور زکوٰۃ کیسے نکالتے ہیں، دعائیں کہاں سے لیتے ہیں، اور غلطی کیسے درست کرتے ہیں۔',
+  description: 'islamicdates.org کی ٹیم سے ملیں، اور جانیں کہ ہم اُمّ القریٰ تاریخ، نماز کے اوقات، قبلہ اور زکوٰۃ کیسے نکالتے ہیں، دعائیں کہاں سے لیتے ہیں، اور غلطی کیسے درست کرتے ہیں۔',
   h1: 'ہمارے بارے میں اور طریقۂ کار',
-  intro: 'یہ صفحہ بتاتا ہے کہ سائٹ کے پیچھے کون ہے، یہاں کا ہر عدد کیسے نکلتا ہے، دینی متن کہاں سے آتا ہے، اور غلطی ہو تو ہم کیا کرتے ہیں۔',
+  intro: 'یہ صفحہ ہماری ٹیم کا تعارف کراتا ہے اور بتاتا ہے کہ یہاں کا ہر عدد کیسے نکلتا ہے، دینی متن کہاں سے آتا ہے، اور غلطی ہو تو ہم کیا کرتے ہیں۔',
   breadcrumbHome: 'ہوم', breadcrumb: 'ہمارے بارے میں', tagline: 'ہمارے بارے میں اور طریقۂ کار', home: 'ہوم',
   tocH: 'اس صفحے پر',
 
-  whoH: 'سائٹ کے پیچھے کون ہے',
-  whoIntro: 'سائٹ پر دو افراد کام کرتے ہیں:',
+  whoH: 'ہماری ٹیم',
+  whoIntro: 'سائٹ پر کام کرنے والے:',
   people: [
     {
       name: 'سلمیٰ محمود',
@@ -261,9 +279,17 @@ const UR: AboutT = {
     {
       name: 'ڈاکٹر محمد بسام',
       role: 'بزنس ایڈمنسٹریشن کے ماہر، پی ایچ ڈی',
-      bio: 'سائٹ کی حکمتِ عملی اور ترقی کی ترجیحات، زائرین کی آراء اور استعمال کے اعداد و شمار کی بنیاد پر مواد کی ترتیب اور صارف کے تجربے، اور مساجد، اسلامی مراکز اور ویب سائٹس کے ساتھ شراکت داری کے ذمہ دار ہیں۔',
+      bio: 'زائرین کی آراء اور استعمال کے اعداد و شمار کی بنیاد پر سائٹ کی حکمتِ عملی اور ترقی کی ترجیحات، اور مساجد، اسلامی مراکز اور ویب سائٹس کے ساتھ شراکت داری کے ذمہ دار ہیں۔',
+    },
+    {
+      name: 'سمیر عبدالغنی',
+      role: 'UX/UI ڈیزائنر',
+      bio: 'سائٹ کا انٹرفیس اور صارف کا تجربہ فون اور کمپیوٹر کے لیے، عربی، انگریزی اور اردو میں ڈیزائن کیا۔',
     },
   ],
+  companyH: 'کمپنی',
+  company: 'ہجری کیلنڈر \u2066ICTSPS L.L.C (ICT Solutions & Professional Services)\u2069 کا ایک منصوبہ ہے، جو آئی ٹی حل اور ڈیجیٹل تبدیلی، سافٹ ویئر، موبائل ایپس اور ویب سائٹس کی تیاری، اور بزنس اینالیٹکس و مشاورت میں مہارت رکھتی ہے، اور اس کے دفاتر امریکہ اور ترکی میں ہیں۔',
+  companyLink: 'کمپنی کی ویب سائٹ',
   mission: 'سلمیٰ نے یہ سائٹ اس لیے بنائی کہ ہجری تقویم، نماز کے اوقات اور اسلامی مناسبتوں کے لیے ایک درست اور مفت حوالہ ہو — عربی، انگریزی اور اردو میں، بغیر اکاؤنٹ اور بغیر رجسٹریشن کے۔ ہر ٹول کا طریقۂ حساب نیچے لکھا ہے، تاکہ قاری جان سکے کہ یہاں کا عدد کہیں اور سے کیوں مختلف ہو سکتا ہے۔',
 
   calH: 'ہجری تاریخ',

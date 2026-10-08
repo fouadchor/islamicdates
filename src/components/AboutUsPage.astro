@@ -4,7 +4,7 @@
 // PT_COUNTRIES the prayer pages use, so it cannot drift from what they compute.
 import Layout from '../layouts/Layout.astro';
 import { type Lang, pick } from '../lib/data';
-import { aboutT, aboutUsPath, CONTACT_EMAIL, FATWA_LINKS, ABOUT_UPDATED } from '../lib/about-us';
+import { aboutT, aboutUsPath, CONTACT_EMAIL, COMPANY, FATWA_LINKS, ABOUT_UPDATED } from '../lib/about-us';
 import { METHODS, type MethodId } from '../lib/prayer';
 import { PT_COUNTRIES } from '../lib/cities';
 
@@ -77,7 +77,9 @@ const jsonLd = JSON.stringify([
     member: [
       { '@type': 'Person', name: 'Salma Mahmoud', alternateName: 'سلمى محمود' },
       { '@type': 'Person', name: 'Dr. Mohammad Bassam', alternateName: 'د. محمد بسام', honorificPrefix: 'Dr.', jobTitle: 'Business administration expert', knowsAbout: ['Business strategy', 'Digital product development', 'Partnerships'] },
+      { '@type': 'Person', name: 'Samir Abdelghani', alternateName: 'سمير عبد الغني', jobTitle: 'UX/UI designer' },
     ],
+    parentOrganization: { '@type': 'Organization', name: COMPANY.name, alternateName: COMPANY.longName, url: COMPANY.url },
     contactPoint: { '@type': 'ContactPoint', contactType: 'customer support', email: CONTACT_EMAIL, url: base + contactHref, availableLanguage: ['ar', 'en', 'ur'] },
     publishingPrinciples: `${base}${aboutUsPath('en')}`,
     correctionsPolicy: `${base}${aboutUsPath('en')}#corrections`,
@@ -129,6 +131,9 @@ const jsonLd = JSON.stringify([
           ))}
         </div>
         <p class="section-p" style="margin-top:14px">{t.mission}</p>
+        <h3 class="au-sub">{t.companyH}</h3>
+        <p class="section-p">{t.company}</p>
+        <p class="section-p au-p"><a href={COMPANY.url} target="_blank" rel="noopener">{t.companyLink}: <bdi dir="ltr">ictsps.com</bdi></a></p>
       </section>
 
       <section class="card section-card" id="calendar">
@@ -217,6 +222,7 @@ const jsonLd = JSON.stringify([
     .au-avatar { flex:none; width:44px; height:44px; border-radius:50%; display:grid; place-items:center;
       background:var(--accent); color:var(--accent-contrast); font-weight:800; font-size:19px; }
     .au-name { font-weight:700; font-size:16px; }
+    .au-sub { margin:20px 0 6px; font-size:16px; font-weight:700; }
     .au-role { color:var(--accent-strong); font-size:14px; margin-top:2px; }
     .au-bio { margin:6px 0 0; color:var(--muted); font-size:14.5px; line-height:1.8; }
     .au-table-wrap { overflow-x:auto; margin-top:14px; }
