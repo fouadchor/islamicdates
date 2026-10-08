@@ -1,0 +1,240 @@
+---
+// «من نحن والمنهجية» — one component for the three languages. Content lives in
+// lib/about-us.ts; the prayer-method table is built from the same METHODS and
+// PT_COUNTRIES the prayer pages use, so it cannot drift from what they compute.
+import Layout from '../layouts/Layout.astro';
+import { type Lang, pick } from '../lib/data';
+import { aboutT, aboutUsPath, CONTACT_EMAIL, FATWA_LINKS, ABOUT_UPDATED } from '../lib/about-us';
+import { METHODS, type MethodId } from '../lib/prayer';
+import { PT_COUNTRIES } from '../lib/cities';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = aboutT(lang);
+const base = 'https://islamicdates.org';
+const canonical = base + aboutUsPath(lang);
+const home = pick(lang, '/', '/en/', '/ur/');
+const contactHref = pick(lang, '/contact/', '/en/contact/', '/ur/contact/');
+const privacyHref = pick(lang, '/privacy/', '/en/privacy/', '/ur/privacy/');
+
+const digits = (s: string) =>
+  lang === 'en' ? s : s.replace(/[0-9]/g, (c) => (lang === 'ur' ? '۰۱۲۳۴۵۶۷۸۹' : '٠١٢٣٤٥٦٧٨٩')[+c]).replace('.', '٫');
+const deg = (n: number) => `\u2066${digits(String(n))}°\u2069`;
+const ishaText = (v: number | { minutes: number }) => (typeof v === 'number' ? deg(v) : t.minutesAfterMaghrib(digits(String(v.minutes))));
+
+// Methods actually used as a country default, most-used first; others omitted.
+const byMethod = new Map<MethodId, string[]>();
+for (const c of PT_COUNTRIES) {
+  const name = lang === 'ar' ? c.ar : lang === 'ur' ? c.ur : c.en;
+  byMethod.set(c.method, [...(byMethod.get(c.method) ?? []), name]);
+}
+const rows = [...byMethod.entries()]
+  .sort((a, b) => b[1].length - a[1].length)
+  .map(([id, countries]) => {
+    const m = METHODS[id];
+    const shown = countries.slice(0, 6).join(pick(lang, '، ', ', ', '، '));
+    return {
+      name: pick(lang, m.ar, m.en, m.ur),
+      fajr: deg(m.params.fajr),
+      isha: ishaText(m.params.isha),
+      countries: countries.length > 6 ? `${shown} ${t.andOthers}` : shown,
+    };
+  });
+
+const sections = [
+  { id: 'who', h: t.whoH },
+  { id: 'calendar', h: t.calH },
+  { id: 'prayer-times', h: t.prayH },
+  { id: 'qibla', h: t.qiblaH },
+  { id: 'zakat', h: t.zakatH },
+  { id: 'duas', h: t.duaH },
+  { id: 'khatma', h: t.khatmaH },
+  { id: 'corrections', h: t.fixH },
+  { id: 'privacy', h: t.privH },
+  { id: 'contact', h: t.contactH },
+];
+
+// AboutPage + the Organization behind the site, with the people named on it.
+// Same @id as the homepage's Organization node, so Google merges the two.
+const orgId = `${base}/#organization`;
+const jsonLd = JSON.stringify([
+  {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+      { '@type': 'ListItem', position: 1, name: t.breadcrumbHome, item: base + home },
+      { '@type': 'ListItem', position: 2, name: t.breadcrumb, item: canonical },
+    ],
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'AboutPage', '@id': `${canonical}#page`,
+    url: canonical, name: t.h1, description: t.description, inLanguage: lang,
+    dateModified: ABOUT_UPDATED, about: { '@id': orgId }, publisher: { '@id': orgId },
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'Organization', '@id': orgId,
+    name: 'التقويم الهجري', alternateName: 'Hijri Calendar · islamicdates.org', url: `${base}/`,
+    email: CONTACT_EMAIL,
+    founder: { '@type': 'Person', name: 'Salma Mahmoud', alternateName: 'سلمى محمود', jobTitle: 'Systems Integration and Digital Solutions Specialist', homeLocation: { '@type': 'Place', name: 'Doha, Qatar' } },
+    member: [
+      { '@type': 'Person', name: 'Salma Mahmoud', alternateName: 'سلمى محمود' },
+      { '@type': 'Person', name: 'Dr. Mohammad Bassam', alternateName: 'د. محمد بسام', honorificPrefix: 'Dr.' },
+    ],
+    contactPoint: { '@type': 'ContactPoint', contactType: 'customer support', email: CONTACT_EMAIL, url: base + contactHref, availableLanguage: ['ar', 'en', 'ur'] },
+    publishingPrinciples: `${base}${aboutUsPath('en')}`,
+    correctionsPolicy: `${base}${aboutUsPath('en')}#corrections`,
+    actionableFeedbackPolicy: `${base}${aboutUsPath('en')}#corrections`,
+  },
+]);
+---
+<Layout title={t.title} description={t.description} canonical={canonical} lang={lang} jsonLd={jsonLd}
+        arPath={aboutUsPath('ar')} enPath={aboutUsPath('en')} urPath={aboutUsPath('ur')}>
+  <header class="site-header">
+    <div class="header-start">
+      <a href={home} class="logo" aria-label={t.home}>
+        <div class="logo-icon">☾</div>
+        <div>
+          <div class="brand">{pick(lang, 'التقويم الهجري', 'Hijri Calendar', 'ہجری کیلنڈر')}</div>
+          <div class="tagline">{t.tagline}</div>
+        </div>
+      </a>
+      <a href={home} class="home-btn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+        <span>{t.home}</span>
+      </a>
+    </div>
+  </header>
+
+  <div class="layout">
+    <main>
+      <section class="card section-card">
+        <h1 class="section-h2" style="font-size:25px">{t.h1}</h1>
+        <p class="section-p" style="margin-top:8px">{t.intro}</p>
+        <nav class="au-toc" aria-label={t.tocH}>
+          {sections.map(s => <a href={`#${s.id}`}>{s.h}</a>)}
+        </nav>
+      </section>
+
+      <section class="card section-card" id="who">
+        <h2 class="section-h2">{t.whoH}</h2>
+        <p class="section-p">{t.whoIntro}</p>
+        <div class="au-people">
+          {t.people.map(p => (
+            <div class="au-person">
+              <div class="au-avatar" aria-hidden="true">{p.name.replace(/^(د\.|Dr\.|ڈاکٹر)\s*/, '').trim().charAt(0)}</div>
+              <div>
+                <div class="au-name">{p.name}</div>
+                <div class="au-role">{p.role}</div>
+                {p.bio && <p class="au-bio">{p.bio}</p>}
+              </div>
+            </div>
+          ))}
+        </div>
+        <p class="section-p" style="margin-top:14px">{t.mission}</p>
+      </section>
+
+      <section class="card section-card" id="calendar">
+        <h2 class="section-h2">{t.calH}</h2>
+        {t.cal.map(p => <p class="section-p au-p">{p}</p>)}
+      </section>
+
+      <section class="card section-card" id="prayer-times">
+        <h2 class="section-h2">{t.prayH}</h2>
+        {t.pray.map(p => <p class="section-p au-p">{p}</p>)}
+        <div class="au-table-wrap">
+          <table class="au-table">
+            <caption>{t.prayTableCaption}</caption>
+            <thead><tr>{t.prayCols.map(c => <th scope="col">{c}</th>)}</tr></thead>
+            <tbody>
+              {rows.map(r => (
+                <tr><th scope="row">{r.name}</th><td class="au-num">{r.fajr}</td><td class="au-num">{r.isha}</td><td>{r.countries}</td></tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card section-card" id="qibla">
+        <h2 class="section-h2">{t.qiblaH}</h2>
+        {t.qibla.map(p => <p class="section-p au-p">{p}</p>)}
+      </section>
+
+      <section class="card section-card" id="zakat">
+        <h2 class="section-h2">{t.zakatH}</h2>
+        {t.zakat.map(p => <p class="section-p au-p">{p}</p>)}
+      </section>
+
+      <section class="card section-card" id="duas">
+        <h2 class="section-h2">{t.duaH}</h2>
+        {t.dua.map(p => <p class="section-p au-p">{p}</p>)}
+      </section>
+
+      <section class="card section-card" id="khatma">
+        <h2 class="section-h2">{t.khatmaH}</h2>
+        {t.khatma.map(p => <p class="section-p au-p">{p}</p>)}
+        <ul class="au-links">
+          <li><a href={FATWA_LINKS.daralifta} target="_blank" rel="noopener">{t.fatwaDarAlifta}</a></li>
+          <li><a href={FATWA_LINKS.islamweb} target="_blank" rel="noopener">{t.fatwaIslamweb}</a></li>
+        </ul>
+      </section>
+
+      <section class="card section-card" id="corrections">
+        <h2 class="section-h2">{t.fixH}</h2>
+        {t.fix.map(p => <p class="section-p au-p">{p}</p>)}
+      </section>
+
+      <section class="card section-card" id="privacy">
+        <h2 class="section-h2">{t.privH}</h2>
+        {t.priv.map(p => <p class="section-p au-p">{p}</p>)}
+        <p class="section-p au-p"><a href={privacyHref}>{t.privLink}</a></p>
+      </section>
+
+      <section class="card section-card" id="contact">
+        <h2 class="section-h2">{t.contactH}</h2>
+        <p class="section-p">{t.contact}</p>
+        <ul class="au-links">
+          <li><a href={contactHref}>{t.contactForm}</a></li>
+          <li>{t.emailLabel}: <a href={`mailto:${CONTACT_EMAIL}`} dir="ltr">{CONTACT_EMAIL}</a></li>
+        </ul>
+        <p class="au-updated">{t.updated}</p>
+      </section>
+    </main>
+
+    <aside>
+      <div class="card" style="padding:18px 20px">
+        <h3 style="margin:0 0 12px;font-size:15.5px;font-weight:700">{t.relatedH}</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:14.5px">
+          {t.related.map(r => <a href={r.href} style="color:var(--accent);text-decoration:none">{r.label}</a>)}
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <style is:global>
+    .au-p + .au-p { margin-top: 10px; }
+    .au-toc { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+    .au-toc a { font-size:13.5px; padding:6px 11px; border-radius:99px; background:var(--accent-soft); color:var(--accent-strong); text-decoration:none; }
+    .au-people { display:grid; gap:12px; margin-top:12px; }
+    .au-person { display:flex; gap:12px; align-items:flex-start; padding:14px; border:1px solid var(--border); border-radius:14px; }
+    .au-avatar { flex:none; width:44px; height:44px; border-radius:50%; display:grid; place-items:center;
+      background:var(--accent); color:var(--accent-contrast); font-weight:800; font-size:19px; }
+    .au-name { font-weight:700; font-size:16px; }
+    .au-role { color:var(--accent-strong); font-size:14px; margin-top:2px; }
+    .au-bio { margin:6px 0 0; color:var(--muted); font-size:14.5px; line-height:1.8; }
+    .au-table-wrap { overflow-x:auto; margin-top:14px; }
+    .au-table { width:100%; border-collapse:collapse; font-size:14px; }
+    .au-table caption { text-align:start; color:var(--muted); font-size:13px; margin-bottom:8px; }
+    .au-table th, .au-table td { padding:9px 10px; border-bottom:1px solid var(--border); text-align:start; vertical-align:top; }
+    .au-table thead th { font-size:13px; color:var(--muted); font-weight:600; }
+    .au-table tbody th { font-weight:600; width:32%; }
+    .au-table .au-num { white-space:nowrap; }
+    @media (max-width:520px) {
+      .au-table { font-size:13px; }
+      .au-table th, .au-table td { padding:8px 6px; }
+      .au-table td:last-child { min-width:9em; }
+      .au-table .au-num { white-space:normal; }
+    }
+    .au-links { margin:10px 0 0; padding-inline-start:20px; line-height:2; font-size:15px; }
+    .au-links a, .au-p a { color:var(--accent); }
+    .au-updated { margin:16px 0 0; font-size:13px; color:var(--muted); }
+    [id] { scroll-margin-top: var(--anchor-offset, 80px); }
+  </style>
+</Layout>
