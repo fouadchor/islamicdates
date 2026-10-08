@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Lang } from '../lib/data';
 import { juzInfo, juzReadHref, num } from '../lib/khatma-juz';
 import { fill, type ErrCode, type GridT } from '../lib/khatma-i18n';
@@ -69,15 +69,26 @@ export interface KhatmaGridProps {
   holdLabel: string;
   /** جذر الميزة في هذه اللغة، لروابط «ختمة جديدة». */
   base: string;
+  /**
+   * The canonical address of this khatma, built on the server. Shared instead of
+   * location.href, which can carry the creator-only `?new=1` and tracking
+   * parameters (fbclid) to everyone the link is sent to.
+   */
+  shareUrl: string;
 }
 
-export default function KhatmaGrid({ initial, lang, t, holdLabel, base }: KhatmaGridProps) {
+export default function KhatmaGrid({ initial, lang, t, holdLabel, base, shareUrl }: KhatmaGridProps) {
   const [k, setK] = useState<KhatmaView>(initial);
   const [busy, setBusy] = useState<number | null>(null);
   const [err, setErr] = useState<string>('');
   const [picking, setPicking] = useState<number | null>(null);
   const [name, setName] = useState('');
   const [copied, setCopied] = useState(false);
+  // Web Share opens the phone's own share sheet — the only way a web page can
+  // hand a link to Instagram, Telegram or Messages. Detected after mount so the
+  // server render and the first client render agree.
+  const [canShare, setCanShare] = useState(false);
+  const [justDone, setJustDone] = useState(false);
   const token = useRef<string>('');
   const nameInput = useRef<HTMLInputElement>(null);
 
@@ -96,6 +107,7 @@ export default function KhatmaGrid({ initial, lang, t, holdLabel, base }: Khatma
   }, [initial.slug]);
 
   useEffect(() => {
+    setCanShare(typeof navigator !== 'undefined' && typeof navigator.share === 'function');
     token.current = readerToken();
     setName(recall(NAME_KEY));
     // The server rendered this page without knowing who is looking at it, so the
@@ -122,6 +134,7 @@ export default function KhatmaGrid({ initial, lang, t, holdLabel, base }: Khatma
     async (part: number, action: 'claim' | 'complete' | 'release', readerName = '') => {
       setBusy(part);
       setErr('');
+      setJustDone(false);
       try {
         const r = await fetch(`/api/khatma/${initial.slug}`, {
           method: 'POST',
@@ -132,6 +145,7 @@ export default function KhatmaGrid({ initial, lang, t, holdLabel, base }: Khatma
         if (j?.ok) {
           setK(j.khatma);
           setPicking(null);
+          if (action === 'complete') setJustDone(true);
           track(`khatma_${action}`, { part, lang });
         } else {
           const code = (j?.code ?? 'generic') as ErrCode;
@@ -166,8 +180,13 @@ export default function KhatmaGrid({ initial, lang, t, holdLabel, base }: Khatma
 
   const total = k.parts.length;
   const pct = Math.round((k.done / total) * 100);
-  const shareUrl = useMemo(() => (typeof location === 'undefined' ? '' : location.href), []);
-  const shareText = fill(t.shareText, { title: k.title });
+  const left = total - k.done;
+  const shareText =
+    left === 0
+      ? fill(t.shareTextDone, { title: k.title })
+      : k.done === 0
+        ? fill(t.shareTextFresh, { title: k.title })
+        : fill(t.shareText, { title: k.title, left: N(left) });
 
   const copy = async () => {
     try {
@@ -177,6 +196,15 @@ export default function KhatmaGrid({ initial, lang, t, holdLabel, base }: Khatma
       window.setTimeout(() => setCopied(false), 2000);
     } catch {
       /* clipboard refused — the link is in the address bar anyway */
+    }
+  };
+
+  const nativeShare = async () => {
+    try {
+      await navigator.share({ title: k.title, text: shareText, url: shareUrl });
+      track('khatma_share', { method: 'native', lang });
+    } catch {
+      /* the reader closed the sheet — nothing to do */
     }
   };
 
@@ -217,6 +245,33 @@ export default function KhatmaGrid({ initial, lang, t, holdLabel, base }: Khatma
           {err}
         </p>
       )}
+
+      <div className="kh-share">
+        {justDone && left > 0 ? (
+          <p className="kh-thanks">{fill(t.thanksDone, { left: N(left) })}</p>
+        ) : (
+          <p>{t.sharePrompt}</p>
+        )}
+        <div className="kh-share-row">
+          <a
+            className="kh-wa"
+            href={`https://wa.me/?text=${encodeURIComponent(`${shareText} ${shareUrl}`)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => track('khatma_share', { method: 'whatsapp', lang })}
+          >
+            {t.shareWa}
+          </a>
+          {canShare && (
+            <button type="button" className="kh-native" onClick={() => void nativeShare()}>
+              {t.shareNative}
+            </button>
+          )}
+          <button type="button" className="kh-ghost" onClick={() => void copy()}>
+            {copied ? t.shareCopied : t.shareCopy}
+          </button>
+        </div>
+      </div>
 
       <ul className="kh-grid">
         {k.parts.map((p) => {
@@ -314,23 +369,6 @@ export default function KhatmaGrid({ initial, lang, t, holdLabel, base }: Khatma
         </div>
       )}
 
-      <div className="kh-share">
-        <p>{t.sharePrompt}</p>
-        <div className="kh-share-row">
-          <a
-            className="kh-wa"
-            href={`https://wa.me/?text=${encodeURIComponent(`${shareText} ${shareUrl}`)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => track('khatma_share', { method: 'whatsapp', lang })}
-          >
-            {t.shareWa}
-          </a>
-          <button type="button" className="kh-ghost" onClick={() => void copy()}>
-            {copied ? t.shareCopied : t.shareCopy}
-          </button>
-        </div>
-      </div>
     </div>
   );
 }

@@ -6,6 +6,7 @@
 // function. Everything outside `grid` is rendered on the server and may be one.
 // ─────────────────────────────────────────────────────────────────────────────
 import type { Lang } from './data';
+import { num } from './khatma-juz';
 
 /** رموز الأخطاء — تُرسل من الخادم وتُترجَم في المتصفح. */
 export type ErrCode =
@@ -30,7 +31,10 @@ export interface GridT {
   modalTitle: string; modalRange: string;
   nameLabel: string; namePh: string; modalNote: string;
   modalTake: string; modalCancel: string;
-  sharePrompt: string; shareText: string; shareWa: string; shareCopy: string; shareCopied: string;
+  sharePrompt: string; shareText: string; shareTextFresh: string; shareTextDone: string;
+  shareWa: string; shareNative: string; shareCopy: string; shareCopied: string;
+  /** Shown after a reader confirms a juz while others remain. */
+  thanksDone: string;
   tExpired: string; tDay: string; tDays: string; tHour: string; tHours: string; tMinutes: string;
   err: Record<ErrCode, string>;
 }
@@ -65,6 +69,8 @@ export interface KhatmaT {
   holdText: (h: number) => string;
   khatmaTitle: (t: string) => string;
   khatmaDesc: (t: string, done: number) => string;
+  /** Alt text for the per-khatma link-preview image. */
+  ogAlt: (t: string, done: number) => string;
   grid: GridT;
 }
 
@@ -149,7 +155,12 @@ const AR: KhatmaT = {
   home: 'الرئيسية',
   holdText: (h) => (h === 720 ? 'شهر' : h === 168 ? 'أسبوع' : h === 24 ? 'يوم واحد' : h < 24 ? `${h} ساعة` : h === 48 ? 'يومان' : `${h / 24} أيام`),
   khatmaTitle: (t) => `ختمة «${t}» · اختر جزءاً واقرأه`,
-  khatmaDesc: (t, d) => `شارك في ختمة «${t}»: اكتمل ${d} من ٣٠ جزءاً. اختر جزءاً متاحاً واقرأه، ثم أكّد إتمامه.`,
+  khatmaDesc: (t, d) => d >= 30
+    ? `اكتملت ختمة «${t}» بأجزائها الثلاثين. تقبّل الله من كل قارئ ما قرأ.`
+    : d === 0
+      ? `ختمة جديدة «${t}»: ثلاثون جزءاً بانتظار القرّاء. اختر جزءاً واقرأه، ثم أكّد إتمامه.`
+      : `شارك في ختمة «${t}»: اكتمل ${num(d, 'ar')} من ٣٠ جزءاً، والمتبقي ${num(30 - d, 'ar')}. اختر جزءاً متاحاً واقرأه، ثم أكّد إتمامه.`,
+  ogAlt: (t, d) => (d === 0 ? `ختمة «${t}» — ثلاثون جزءاً بانتظار القرّاء` : `ختمة «${t}» — اكتمل ${num(d, 'ar')} من ٣٠ جزءاً`),
   grid: {
     progressAria: 'تقدّم الختمة',
     countDone: '{done}/{total} جزءاً مكتملاً',
@@ -173,8 +184,11 @@ const AR: KhatmaT = {
     modalNote: 'القراءة تكون باللسان لا بمجرّد النظر. أمامك {hold} لقراءته، وبعدها يعود للمجموعة تلقائياً حتى لا تتوقّف الختمة.',
     modalTake: 'خذ الجزء', modalCancel: 'إلغاء',
     sharePrompt: 'شارك الرابط ليأخذ غيرك بقيّة الأجزاء:',
-    shareText: 'شاركنا في ختمة «{title}» — اختر جزءاً واقرأه:',
-    shareWa: 'مشاركة على واتساب', shareCopy: 'نسخ الرابط', shareCopied: 'تم نسخ الرابط',
+    shareText: 'شاركنا في ختمة «{title}» — الأجزاء المتبقية: {left} من ٣٠. اختر جزءاً واقرأه:',
+    shareTextFresh: 'شاركنا في ختمة «{title}» — اختر جزءاً واقرأه:',
+    shareTextDone: 'اكتملت ختمة «{title}» بأجزائها الثلاثين، تقبّل الله منّا ومنكم:',
+    shareWa: 'مشاركة على واتساب', shareNative: 'تطبيقات أخرى…', shareCopy: 'نسخ الرابط', shareCopied: 'تم نسخ الرابط',
+    thanksDone: 'تقبّل الله منك. الأجزاء المتبقية: {left} — شارك الرابط ليكتمل الختم.',
     tExpired: 'انتهت المهلة', tDay: 'يوم تقريباً', tDays: '{n} أيام تقريباً',
     tHour: 'ساعة تقريباً', tHours: '{n} ساعات تقريباً', tMinutes: '{n} دقيقة',
     err: {
@@ -272,7 +286,12 @@ const EN: KhatmaT = {
   home: 'Home',
   holdText: (h) => (h === 720 ? 'a month' : h === 168 ? 'a week' : h === 24 ? 'one day' : h < 24 ? `${h} hours` : `${h / 24} days`),
   khatmaTitle: (t) => `Khatma "${t}" · take a juz and read it`,
-  khatmaDesc: (t, d) => `Join the khatma "${t}": ${d} of 30 juz' completed. Pick an available juz, read it, then confirm.`,
+  khatmaDesc: (t, d) => d >= 30
+    ? `The khatma "${t}" is complete — all thirty juz' read. May Allah accept it from every reader.`
+    : d === 0
+      ? `A new khatma "${t}": thirty juz', waiting for readers. Pick one, read it, then confirm.`
+      : `Join the khatma "${t}": ${d} of 30 juz' completed, ${30 - d} still to read. Pick an available juz, read it, then confirm.`,
+  ogAlt: (t, d) => (d === 0 ? `Khatma "${t}" — thirty juz', waiting for readers` : `Khatma "${t}" — ${d} of 30 juz' completed`),
   grid: {
     progressAria: 'Khatma progress',
     countDone: "{done}/{total} juz' completed",
@@ -296,8 +315,11 @@ const EN: KhatmaT = {
     modalNote: 'Recitation is with the tongue, not by looking alone. You have {hold} to read it; after that it returns to the group automatically so the khatma keeps moving.',
     modalTake: 'Take the juz', modalCancel: 'Cancel',
     sharePrompt: "Share the link so others can take the remaining juz':",
-    shareText: 'Join our khatma "{title}" — take a juz and read it:',
-    shareWa: 'Share on WhatsApp', shareCopy: 'Copy link', shareCopied: 'Link copied',
+    shareText: 'Join our khatma "{title}" — {left} of 30 juz\' still to read. Take one and read it:',
+    shareTextFresh: 'Join our khatma "{title}" — take a juz and read it:',
+    shareTextDone: 'Our khatma "{title}" is complete — all thirty juz\' read. May Allah accept it from us all:',
+    shareWa: 'Share on WhatsApp', shareNative: 'Other apps…', shareCopy: 'Copy link', shareCopied: 'Link copied',
+    thanksDone: 'May Allah accept it from you. {left} juz\' still to go — share the link so the khatma gets completed.',
     tExpired: 'window expired', tDay: 'about a day', tDays: 'about {n} days',
     tHour: 'about an hour', tHours: 'about {n} hours', tMinutes: '{n} minutes',
     err: {
@@ -395,7 +417,12 @@ const UR: KhatmaT = {
   home: 'ہوم',
   holdText: (h) => (h === 720 ? 'ایک مہینہ' : h === 168 ? 'ایک ہفتہ' : h === 24 ? 'ایک دن' : h < 24 ? `${h} گھنٹے` : `${h / 24} دن`),
   khatmaTitle: (t) => `ختم «${t}» · ایک پارہ لیں اور پڑھیں`,
-  khatmaDesc: (t, d) => `ختم «${t}» میں شریک ہوں: ۳۰ میں سے ${d} پارے مکمل۔ کوئی دستیاب پارہ چنیں، پڑھیں، پھر تصدیق کریں۔`,
+  khatmaDesc: (t, d) => d >= 30
+    ? `ختم «${t}» مکمل ہو گیا — تیسوں پارے پڑھے جا چکے۔ اللہ ہر قاری سے قبول فرمائے۔`
+    : d === 0
+      ? `نیا ختم «${t}»: تیس پارے قاریوں کے منتظر۔ کوئی پارہ چنیں، پڑھیں، پھر تصدیق کریں۔`
+      : `ختم «${t}» میں شریک ہوں: ۳۰ میں سے ${num(d, 'ur')} پارے مکمل، ${num(30 - d, 'ur')} باقی۔ کوئی دستیاب پارہ چنیں، پڑھیں، پھر تصدیق کریں۔`,
+  ogAlt: (t, d) => (d === 0 ? `ختم «${t}» — تیس پارے قاریوں کے منتظر` : `ختم «${t}» — ۳۰ میں سے ${num(d, 'ur')} پارے مکمل`),
   grid: {
     progressAria: 'ختم کی پیش رفت',
     countDone: '{done}/{total} پارے مکمل',
@@ -419,8 +446,11 @@ const UR: KhatmaT = {
     modalNote: 'تلاوت زبان سے ہوتی ہے، صرف دیکھنے سے نہیں۔ اسے پڑھنے کے لیے آپ کے پاس {hold} ہے، اس کے بعد پارہ خود بخود گروپ کو واپس مل جائے گا تاکہ ختم رُکے نہیں۔',
     modalTake: 'پارہ لیں', modalCancel: 'منسوخ',
     sharePrompt: 'لنک شیئر کریں تاکہ باقی پارے دوسرے لے لیں:',
-    shareText: 'ہمارے ختم «{title}» میں شریک ہوں — ایک پارہ لیں اور پڑھیں:',
-    shareWa: 'واٹس ایپ پر شیئر کریں', shareCopy: 'لنک کاپی کریں', shareCopied: 'لنک کاپی ہو گیا',
+    shareText: 'ہمارے ختم «{title}» میں شریک ہوں — ۳۰ میں سے {left} پارے باقی ہیں۔ ایک پارہ لیں اور پڑھیں:',
+    shareTextFresh: 'ہمارے ختم «{title}» میں شریک ہوں — ایک پارہ لیں اور پڑھیں:',
+    shareTextDone: 'ہمارا ختم «{title}» مکمل ہو گیا — تیسوں پارے پڑھے جا چکے۔ اللہ ہم سب سے قبول فرمائے:',
+    shareWa: 'واٹس ایپ پر شیئر کریں', shareNative: 'دیگر ایپس…', shareCopy: 'لنک کاپی کریں', shareCopied: 'لنک کاپی ہو گیا',
+    thanksDone: 'اللہ قبول فرمائے۔ ابھی {left} پارے باقی ہیں — لنک شیئر کریں تاکہ ختم مکمل ہو۔',
     tExpired: 'مہلت ختم', tDay: 'تقریباً ایک دن', tDays: 'تقریباً {n} دن',
     tHour: 'تقریباً ایک گھنٹہ', tHours: 'تقریباً {n} گھنٹے', tMinutes: '{n} منٹ',
     err: {
