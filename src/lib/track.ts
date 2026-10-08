@@ -7,8 +7,17 @@
  */
 export function track(name: string, params: Record<string, unknown> = {}): void {
   try {
-    const g = (globalThis as { gtag?: (...a: unknown[]) => void }).gtag;
-    if (typeof g === 'function') g('event', name, params);
+    const w = globalThis as { gtag?: (...a: unknown[]) => void; dataLayer?: unknown[] };
+    if (typeof w.gtag === 'function') {
+      w.gtag('event', name, params);
+    } else if (Array.isArray(w.dataLayer)) {
+      // Same queue gtag() feeds. gtag.js reads `arguments` objects, not arrays,
+      // so push one shaped exactly like gtag's own.
+      (function (..._a: unknown[]) {
+        // eslint-disable-next-line prefer-rest-params
+        w.dataLayer!.push(arguments);
+      })('event', name, params);
+    }
   } catch {
     /* analytics must never break the feature */
   }

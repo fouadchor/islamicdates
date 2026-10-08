@@ -207,9 +207,16 @@ const _bnClose = pick(lang, 'إخفاء', 'Dismiss', 'چھپائیں');
     })();
   </script>
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-3QNF278Y3B"></script>
-  <script>
+  <script is:inline>
+    // is:inline is load-bearing. Without it Astro bundles this block into a
+    // minified module, `gtag` becomes a private local (it shipped as `a`), and
+    // window.gtag never exists — so every event sent from anywhere else on the
+    // site (track() in the React islands, the khatma landing form) was dropped
+    // without a sound from launch until 2026-10-08. Page views and the data-ga
+    // listener below kept working only because they live in this same block.
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
+    window.gtag = gtag;
     gtag('js', new Date());
     gtag('config', 'G-3QNF278Y3B');
 
