@@ -50,13 +50,13 @@ export interface AboutT {
 // ── Arabic ───────────────────────────────────────────────────────────────────
 const AR: AboutT = {
   title: 'من نحن والمنهجية · كيف نحسب التاريخ الهجري ومواقيت الصلاة',
-  description: 'من يقف وراء موقع التقويم الهجري، وكيف نحسب التاريخ وفق أم القرى ومواقيت الصلاة والقبلة والزكاة، ومن أين نأخذ الأدعية، وكيف نصحّح الأخطاء.',
+  description: 'تعرّف على فريق موقع التقويم الهجري، وكيف نحسب التاريخ وفق أم القرى ومواقيت الصلاة والقبلة والزكاة، ومن أين نأخذ الأدعية، وكيف نصحّح الأخطاء.',
   h1: 'من نحن والمنهجية',
-  intro: 'هذه الصفحة تشرح من يقف وراء الموقع، وكيف يُحسب كل رقم تراه فيه، ومن أين يأتي النص الديني، وماذا نفعل حين يقع خطأ.',
+  intro: 'هذه الصفحة تعرّف بفريق الموقع، وتشرح كيف يُحسب كل رقم تراه فيه، ومن أين يأتي النص الديني، وماذا نفعل حين يقع خطأ.',
   breadcrumbHome: 'الرئيسية', breadcrumb: 'من نحن والمنهجية', tagline: 'من نحن والمنهجية', home: 'الرئيسية',
   tocH: 'في هذه الصفحة',
 
-  whoH: 'من يقف وراء الموقع',
+  whoH: 'فريق الموقع',
   whoIntro: 'يعمل على الموقع شخصان:',
   people: [
     {
@@ -147,13 +147,13 @@ const AR: AboutT = {
 // ── English ──────────────────────────────────────────────────────────────────
 const EN: AboutT = {
   title: 'About Us & Methodology · How We Calculate Hijri Dates and Prayer Times',
-  description: 'Who runs islamicdates.org, how we calculate Umm al-Qura dates, prayer times, qibla and zakat, where our supplications come from, and how we correct mistakes.',
+  description: 'Meet the islamicdates.org team, and see how we calculate Umm al-Qura dates, prayer times, qibla and zakat, where our supplications come from, and how we correct mistakes.',
   h1: 'About us & methodology',
-  intro: 'This page explains who runs the site, how every number on it is produced, where the religious text comes from, and what we do when something is wrong.',
+  intro: 'This page introduces our team and explains how every number on the site is produced, where the religious text comes from, and what we do when something is wrong.',
   breadcrumbHome: 'Home', breadcrumb: 'About us & methodology', tagline: 'About us & methodology', home: 'Home',
   tocH: 'On this page',
 
-  whoH: 'Who runs the site',
+  whoH: 'Our team',
   whoIntro: 'Two people work on the site:',
   people: [
     {
@@ -244,13 +244,13 @@ const EN: AboutT = {
 // ── Urdu ─────────────────────────────────────────────────────────────────────
 const UR: AboutT = {
   title: 'ہمارے بارے میں اور طریقۂ کار · ہجری تاریخ اور نماز کے اوقات کیسے نکالے جاتے ہیں',
-  description: 'islamicdates.org کے پیچھے کون ہے، ہم اُمّ القریٰ تاریخ، نماز کے اوقات، قبلہ اور زکوٰۃ کیسے نکالتے ہیں، دعائیں کہاں سے لیتے ہیں، اور غلطی کیسے درست کرتے ہیں۔',
+  description: 'islamicdates.org کی ٹیم سے ملیں، اور جانیں کہ ہم اُمّ القریٰ تاریخ، نماز کے اوقات، قبلہ اور زکوٰۃ کیسے نکالتے ہیں، دعائیں کہاں سے لیتے ہیں، اور غلطی کیسے درست کرتے ہیں۔',
   h1: 'ہمارے بارے میں اور طریقۂ کار',
-  intro: 'یہ صفحہ بتاتا ہے کہ سائٹ کے پیچھے کون ہے، یہاں کا ہر عدد کیسے نکلتا ہے، دینی متن کہاں سے آتا ہے، اور غلطی ہو تو ہم کیا کرتے ہیں۔',
+  intro: 'یہ صفحہ ہماری ٹیم کا تعارف کراتا ہے اور بتاتا ہے کہ یہاں کا ہر عدد کیسے نکلتا ہے، دینی متن کہاں سے آتا ہے، اور غلطی ہو تو ہم کیا کرتے ہیں۔',
   breadcrumbHome: 'ہوم', breadcrumb: 'ہمارے بارے میں', tagline: 'ہمارے بارے میں اور طریقۂ کار', home: 'ہوم',
   tocH: 'اس صفحے پر',
 
-  whoH: 'سائٹ کے پیچھے کون ہے',
+  whoH: 'ہماری ٹیم',
   whoIntro: 'سائٹ پر دو افراد کام کرتے ہیں:',
   people: [
     {
