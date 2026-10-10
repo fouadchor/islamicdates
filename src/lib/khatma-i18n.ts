@@ -45,6 +45,10 @@ export interface KhatmaT {
   base: string;
   /** بطاقة الدعوة في الصفحة الرئيسية */
   homeH: string; homeP: string; homeCta: string;
+  /** باب الختمة في رأس الصفحة الرئيسية، بجانب تاريخ اليوم */
+  heroH: string; heroP: string; heroSteps: [string, string, string]; heroNote: string;
+  /** الكلمة تحت الرقم ٣٠ في حلقة الأجزاء */
+  heroRingUnit: string;
   /** بلاطة الميزة في شبكة الأدوات */
   toolLabel: string; toolSub: string;
   metaTitle: string; metaDesc: string;
@@ -86,6 +90,11 @@ const AR: KhatmaT = {
   homeH: 'اقرأوا القرآن جماعةً — ختمة بينكم في أيام',
   homeP: 'ثلاثون جزءاً وأنتم جماعة: أنشئ ختمة، وأرسل رابطها في مجموعة العائلة أو الأصدقاء، وكل واحد يأخذ جزءاً ويقرأه. بلا تسجيل، والجزء غير المقروء يعود للمجموعة تلقائياً.',
   homeCta: 'ابدأ ختمة جماعية',
+  heroH: 'اقرأوا القرآن جماعةً',
+  heroP: 'ثلاثون جزءاً تتوزّع بينكم برابط واحد، فتكتمل الختمة في أيام.',
+  heroSteps: ['أنشئ الختمة', 'أرسل رابطها لمجموعتك', 'كلٌّ يأخذ جزءاً ويقرأه'],
+  heroNote: 'مجاناً · بلا تسجيل · الاسم اختياري',
+  heroRingUnit: 'جزءاً',
   toolLabel: 'ختمة قرآن جماعية',
   toolSub: 'وزّعوا الأجزاء الثلاثين بينكم برابط واحد',
   base: '/khatma/',
@@ -217,6 +226,11 @@ const EN: KhatmaT = {
   homeH: "Read the Qur'an together — a khatma between you in days",
   homeP: "Thirty juz' and a group of you: create a khatma, send its link to your family or friends, and each person takes one and reads it. No sign-up, and an unread juz returns to the group on its own.",
   homeCta: 'Start a group khatma',
+  heroH: "Read the Qur'an together",
+  heroP: "Thirty juz' shared out over one link — the khatma is finished between you in days.",
+  heroSteps: ['Create the khatma', 'Send its link to your group', 'Each person takes a juz and reads it'],
+  heroNote: 'Free · No sign-up · Name optional',
+  heroRingUnit: "juz'",
   toolLabel: "Group Qur'an khatma",
   toolSub: "Share the thirty juz' over one link",
   base: '/en/khatma/',
@@ -348,6 +362,11 @@ const UR: KhatmaT = {
   homeH: 'مل کر قرآن پڑھیں — چند دنوں میں آپس میں ایک ختم',
   homeP: 'تیس پارے اور آپ ایک جماعت: ختم بنائیں، اس کا لنک گھر والوں یا دوستوں کے گروپ میں بھیجیں، اور ہر فرد ایک پارہ لے کر پڑھے۔ بغیر رجسٹریشن، اور اَن پڑھا پارہ خود بخود گروپ کو واپس مل جاتا ہے۔',
   homeCta: 'اجتماعی ختم شروع کریں',
+  heroH: 'مل کر قرآن پڑھیں',
+  heroP: 'تیس پارے ایک لنک پر آپس میں بٹ جاتے ہیں، اور ختم چند دنوں میں مکمل ہو جاتا ہے۔',
+  heroSteps: ['ختم بنائیں', 'اس کا لنک اپنے گروپ کو بھیجیں', 'ہر فرد ایک پارہ لے کر پڑھے'],
+  heroNote: 'مفت · بغیر رجسٹریشن · نام اختیاری',
+  heroRingUnit: 'پارے',
   toolLabel: 'اجتماعی ختمِ قرآن',
   toolSub: 'تیس پارے ایک لنک پر آپس میں بانٹیں',
   base: '/ur/khatma/',

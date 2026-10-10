@@ -136,7 +136,8 @@ export default function TodayIsland({ lang, todayIso }: Props) {
 
       <div style={{ position:'relative', display:'flex', alignItems:'center', justifyContent:'space-between', gap:28, flexWrap:'wrap' }}>
         <div style={{ flex:'1 1 320px', minWidth:0 }}>
-          <h1 style={{ margin:0, fontWeight:700, fontSize:'clamp(30px,6.2vw,54px)', lineHeight:1.05 }}>
+          {/* --today-h1 lets the home hero shrink this when the khatma door shares the row. */}
+          <h1 style={{ margin:0, fontWeight:700, fontSize:'var(--today-h1, clamp(30px,6.2vw,54px))', lineHeight:1.05 }}>
             <span style={{ display:'block', fontSize:'clamp(14px,2.1vw,18px)', fontWeight:600, color:'var(--muted)', marginBottom:8, lineHeight:1.3 }}>
               {pick(lang, 'التاريخ الهجري اليوم', "Today's Hijri Date", 'آج کی ہجری تاریخ')}
             </span>
@@ -177,7 +178,9 @@ export default function TodayIsland({ lang, todayIso }: Props) {
           <p style={{ margin:'16px 0 0', fontSize:'12.5px', color:'var(--muted)', lineHeight:1.65, textWrap:'pretty' as any }}>{hilalNote}</p>
         </div>
 
-        <div aria-hidden="true" style={{ flex:'0 0 auto', width:186, height:186, borderRadius:'50%', background:'linear-gradient(140deg, var(--accent) 0%, var(--accent-strong) 100%)', color:'var(--accent-contrast)', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', textAlign:'center', boxShadow:'0 14px 34px rgba(13,148,136,.30)', border:'6px solid var(--accent-soft)' }}>
+        {/* --today-badge: the home hero hides this on phones so the khatma door
+            fits on the first screen; the badge repeats the date shown just above. */}
+        <div aria-hidden="true" style={{ flex:'0 0 auto', width:186, height:186, borderRadius:'50%', background:'linear-gradient(140deg, var(--accent) 0%, var(--accent-strong) 100%)', color:'var(--accent-contrast)', display:'var(--today-badge, flex)', flexDirection:'column', alignItems:'center', justifyContent:'center', textAlign:'center', boxShadow:'0 14px 34px rgba(13,148,136,.30)', border:'6px solid var(--accent-soft)' }}>
           {/* The badge's crescent, drawn at tonight's actual phase from the Hijri
               day. Inline SVG, computed during render — no image, no request, no
               extra client work beyond the island that was already hydrating. */}
