@@ -1,6 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import KhatmaHomeCard from '../components/KhatmaHomeCard.astro';
+import KhatmaHeroDoor from '../components/KhatmaHeroDoor.astro';
 import KhatmaToolTile from '../components/KhatmaToolTile.astro';
 import TodayIsland from '../components/TodayIsland';
 import CalendarIsland from '../components/CalendarIsland';
@@ -172,12 +172,12 @@ const jsonLd = JSON.stringify([
   </header>
 
   <div class="layout with-hero">
-    <div class="hero-band">
+    <div class="hero-band has-door">
       <TodayIsland lang="ar" todayIso={todayUTC().toISOString().slice(0, 10)} client:load />
+      <KhatmaHeroDoor lang="ar" />
     </div>
 
     <main>
-      <KhatmaHomeCard lang="ar" order={4} />
 
 
       <!-- Calendar (client island) -->

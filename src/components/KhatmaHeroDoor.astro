@@ -1,0 +1,145 @@
+---
+// «باب الختمة» — الباب الثاني في رأس الصفحة الرئيسية، بجانب تاريخ اليوم الهجري.
+//
+// Replaces the in-feed card that sat at `order:4` inside <main>, below the
+// calendar, converter and occasions. Same destination and the same GA event
+// (`khatma_home_cta`), so clicks before and after the move compare directly.
+//
+// Rendered on the server, no island: nothing here needs JavaScript.
+import type { Lang } from '../lib/data';
+import { khatmaT } from '../lib/khatma-i18n';
+import { num } from '../lib/khatma-juz';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = khatmaT(lang);
+
+// Ring of thirty segments — the motif of the khatma link-preview cards. Some
+// done, a few being read, the rest free: the whole mechanic at a glance.
+// Purely decorative (aria-hidden); the text beside it says the same in words.
+const R = 46, C = 60, STEP = 12, GAP = 2.6;
+const pt = (deg: number) => {
+  const a = (deg - 90) * Math.PI / 180;
+  return `${(C + R * Math.cos(a)).toFixed(2)} ${(C + R * Math.sin(a)).toFixed(2)}`;
+};
+const segs = Array.from({ length: 30 }, (_, i) => ({
+  i,
+  d: `M${pt(i * STEP + GAP / 2)}A${R} ${R} 0 0 1 ${pt((i + 1) * STEP - GAP / 2)}`,
+  s: i < 19 ? 'done' : i < 23 ? 'held' : 'free',
+}));
+const arrow = t.dir === 'rtl' ? 'M15 6l-6 6 6 6' : 'M9 6l6 6-6 6';
+---
+<section class="kh-door" aria-labelledby={`kh-door-h-${lang}`}>
+  <span aria-hidden="true" class="kh-door-glyph">۞</span>
+  <div class="kh-door-in">
+    <div class="kh-door-top">
+      <svg class="kh-door-ring" viewBox="0 0 120 120" aria-hidden="true">
+        {segs.map(s => <path d={s.d} class={`kh-seg kh-seg-${s.s}`} style={`--i:${s.i}`} />)}
+        <text x="60" y="58" class="kh-ring-n">{num(30, lang)}</text>
+        <text x="60" y="78" class="kh-ring-u">{t.heroRingUnit}</text>
+      </svg>
+      <div class="kh-door-head">
+        <span class="kh-door-kicker">{t.tagline}</span>
+        <h2 class="kh-door-h" id={`kh-door-h-${lang}`}>{t.heroH}</h2>
+        <p class="kh-door-p">{t.heroP}</p>
+      </div>
+    </div>
+
+    <ol class="kh-door-steps">
+      {t.heroSteps.map((s, i) => (
+        <li><span class="kh-step-n" aria-hidden="true">{num(i + 1, lang)}</span><span>{s}</span></li>
+      ))}
+    </ol>
+
+    <div class="kh-door-act">
+      <a href={t.base} class="kh-door-cta" data-ga="khatma_home_cta">
+        {t.homeCta}
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={arrow}/></svg>
+      </a>
+      <p class="kh-door-note">{t.heroNote}</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .kh-door {
+    position: relative; overflow: hidden; min-width: 0;
+    container-type: inline-size;
+    display: flex; flex-direction: column;
+    padding: 26px 26px 22px;
+    border-radius: var(--radius); box-shadow: var(--shadow);
+    color: #eafaf6;
+    background: linear-gradient(150deg, #0b7d73 0%, #0d9488 55%, #14b8a6 125%);
+    animation: fadeUp .5s ease .08s both;
+  }
+  .kh-door-glyph {
+    position: absolute; bottom: -44px; inset-inline-end: -16px;
+    font-size: 160px; line-height: 1; opacity: .08; pointer-events: none; user-select: none;
+  }
+
+  /* Narrow (beside the date on desktop, or a phone): one column, CTA at the
+     bottom so it lines up with the foot of the date card it sits next to. */
+  .kh-door-in { position: relative; flex: 1 1 auto; display: flex; flex-direction: column; gap: 18px; }
+  .kh-door-top { display: flex; align-items: center; gap: 18px; }
+  .kh-door-ring { flex: 0 0 auto; width: 112px; height: 112px; overflow: visible; }
+  .kh-seg { fill: none; stroke-width: 9; stroke-linecap: butt; }
+  .kh-seg-done { stroke: #fff; }
+  .kh-seg-held { stroke: #fbbf24; }
+  .kh-seg-free { stroke: rgba(255,255,255,.22); }
+  @media (prefers-reduced-motion: no-preference) {
+    .kh-seg-done, .kh-seg-held { animation: khSegIn .45s ease both; animation-delay: calc(var(--i) * 30ms + .3s); }
+  }
+  @keyframes khSegIn { from { stroke: rgba(255,255,255,.22); } }
+  .kh-ring-n { font-size: 31px; font-weight: 800; fill: #fff; text-anchor: middle; dominant-baseline: middle; }
+  .kh-ring-u { font-size: 12px; font-weight: 700; fill: #c9eee7; text-anchor: middle; dominant-baseline: middle; }
+
+  .kh-door-head { min-width: 0; }
+  .kh-door-kicker {
+    display: inline-block; margin-bottom: 8px; padding: 3px 11px; border-radius: 999px;
+    background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.26);
+    font-size: 12px; font-weight: 700; color: #d8f3ee;
+  }
+  .kh-door-h { margin: 0 0 6px; font-size: clamp(21px, 2vw, 25px); font-weight: 800; line-height: 1.35; color: #fff; }
+  .kh-door-p { margin: 0; font-size: 14px; line-height: 1.85; color: #d8f3ee; text-wrap: pretty; }
+
+  .kh-door-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
+  .kh-door-steps li { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; line-height: 1.5; color: #f0fbf8; }
+  .kh-step-n {
+    flex: 0 0 auto; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center;
+    background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.3);
+    font-size: 13px; font-weight: 800; color: #fff;
+  }
+
+  .kh-door-act { margin-top: auto; display: flex; flex-direction: column; gap: 9px; }
+  .kh-door-cta {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 14px 22px; border-radius: 999px;
+    background: #fbbf24; color: #4a2b00; font-weight: 800; font-size: 16px; text-decoration: none;
+    box-shadow: 0 6px 18px rgba(0,0,0,.22);
+    transition: background .2s, transform .2s, box-shadow .2s;
+  }
+  .kh-door-cta:hover { background: #fcd34d; transform: translateY(-1px); box-shadow: 0 8px 22px rgba(0,0,0,.26); }
+  .kh-door-cta:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+  .kh-door-note { margin: 0; text-align: center; font-size: 12.5px; color: #c9eee7; }
+
+  /* Wide (stacked under the date on tablets): ring + heading and the steps on
+     one side, the button on the other, so the door stays a short band. */
+  @container (min-width: 640px) {
+    .kh-door-in {
+      display: grid; align-items: center; column-gap: 32px; row-gap: 16px;
+      grid-template-columns: minmax(0, 1.5fr) minmax(220px, 1fr);
+      grid-template-areas: "top act" "steps act";
+    }
+    .kh-door-top { grid-area: top; }
+    .kh-door-steps { grid-area: steps; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 12px; }
+    .kh-door-steps li { align-items: flex-start; font-size: 13.5px; }
+    .kh-door-act { grid-area: act; margin-top: 0; }
+  }
+  @container (max-width: 360px) {
+    .kh-door-top { gap: 14px; }
+    .kh-door-ring { width: 88px; height: 88px; }
+  }
+  @media (max-width: 700px) {
+    .kh-door { padding: 22px 18px 18px; }
+  }
+</style>
