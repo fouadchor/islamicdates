@@ -189,6 +189,7 @@ const ogImageAlt = view ? t.ogAlt(view.title, view.done) : undefined;
     .kh-hint { margin:0 0 14px; font-size:13px; color:var(--muted); }
     .kh-sheet label { display:block; font-size:14px; font-weight:600; margin-bottom:6px; }
     .kh-sheet input { font:inherit; width:100%; padding:11px 13px; border:1px solid var(--border); border-radius:12px; background:var(--bg); color:var(--text); }
+    .kh-name-hint { margin:6px 0 0; font-size:12.5px; color:var(--muted); line-height:1.7; }
     .kh-note { margin:12px 0 0; font-size:13px; color:var(--muted); line-height:1.8; }
     .kh-sheet-actions { display:flex; gap:8px; margin-top:16px; }
     .kh-sheet-actions button { font:inherit; font-weight:700; padding:11px 16px; border-radius:12px; border:0; background:var(--accent); color:var(--accent-contrast); cursor:pointer; }
@@ -206,6 +207,10 @@ const ogImageAlt = view ? t.ogAlt(view.title, view.done) : undefined;
     .kh-wa { background:#25D366; color:#fff; }
     .kh-wa:hover { background:#1ebe5a; }
     .kh-share-row svg { flex:0 0 auto; }
+    /* Phones and tablets: every button a finger can hit comfortably (44px). */
+    @media (pointer:coarse) {
+      .kh-actions button, .kh-read, .kh-wa, .kh-share-row button, .kh-sheet-actions button { min-height:44px; }
+    }
     @media (max-width:480px) {
       .kh-grid { grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); }
     }

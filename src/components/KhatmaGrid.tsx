@@ -268,10 +268,12 @@ export default function KhatmaGrid({ initial, lang, t, holdLabel, base, shareUrl
       )}
 
       <div className="kh-share">
+        {/* No "so others can take the rest" once there is no rest: a completed
+            khatma keeps its share buttons (the message itself says it is done). */}
         {justDone && left > 0 ? (
           <p className="kh-thanks">{fill(t.thanksDone, { left: N(left) })}</p>
         ) : (
-          <p>{t.sharePrompt}</p>
+          !complete && <p>{t.sharePrompt}</p>
         )}
         <div className="kh-share-row">
           <a
@@ -377,12 +379,14 @@ export default function KhatmaGrid({ initial, lang, t, holdLabel, base, shareUrl
               value={name}
               maxLength={32}
               placeholder={t.namePh}
+              aria-describedby="kh-name-hint"
               onChange={(e) => setName(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') confirmClaim();
                 if (e.key === 'Escape') setPicking(null);
               }}
             />
+            <p className="kh-name-hint" id="kh-name-hint">{t.nameHint}</p>
             <p className="kh-note">{fill(t.modalNote, { hold: holdLabel })}</p>
             <div className="kh-sheet-actions">
               <button type="button" onClick={confirmClaim} disabled={busy !== null}>

@@ -32,6 +32,8 @@ export interface GridT {
   juzLabel: string; ordinals: string[];
   modalTitle: string; modalRange: string;
   nameLabel: string; namePh: string; modalNote: string;
+  /** One line under the name field: what the name is for. Kept out of the placeholder, which a phone cuts off. */
+  nameHint: string;
   modalTake: string; modalCancel: string;
   sharePrompt: string; shareText: string; shareTextFresh: string; shareTextDone: string;
   shareWa: string; shareNative: string; shareCopy: string; shareCopied: string;
@@ -106,7 +108,7 @@ const AR: KhatmaT = {
   intro: 'ثلاثون جزءاً وأنتم جماعة: كل واحد يأخذ جزءاً ويقرأه، فتكتمل الأجزاء الثلاثون بينكم في أيام. أنشئ الختمة من هنا، وشارك رابطها في مجموعتكم — بلا تسجيل ولا تطبيق ولا إعلان داخل الصفحة.',
   formH: 'أنشئ ختمة الآن',
   titleLabel: 'عنوان الختمة',
-  titlePh: 'مثال: ختمة العائلة · ختمة رمضان · ختمة الأصدقاء',
+  titlePh: 'مثال: ختمة العائلة',
   holdLabel: 'مهلة قراءة الجزء الواحد',
   holdHint: 'إذا لم يؤكّد القارئ إتمام جزئه خلال هذه المهلة عاد الجزء إلى المجموعة تلقائياً، فلا تتعطّل الختمة بجزء نسيه صاحبه. اختر مهلة تناسب إيقاع مجموعتكم: نصف يوم لختمة سريعة، وشهر لمن يقرأ على مهل.',
   submit: 'إنشاء الختمة',
@@ -192,7 +194,8 @@ const AR: KhatmaT = {
     modalTitle: '{n} — {name}',
     modalRange: '{from} إلى {to}',
     nameLabel: 'اسمك (اختياري)',
-    namePh: 'يظهر بجانب الجزء — اتركه فارغاً لتبقى «مشارك»',
+    namePh: 'مثال: أم محمد',
+    nameHint: 'يظهر على الجزء لبقية المجموعة، ويمكنك تركه فارغاً.',
     modalNote: 'القراءة تكون باللسان لا بمجرّد النظر. أمامك {hold} لقراءته، وبعدها يعود للمجموعة تلقائياً حتى لا تتوقّف الختمة.',
     modalTake: 'خذ الجزء', modalCancel: 'إلغاء',
     sharePrompt: 'شارك الرابط ليأخذ غيرك بقيّة الأجزاء:',
@@ -243,7 +246,7 @@ const EN: KhatmaT = {
   intro: "Thirty juz' and a group of you: each person takes one and reads it, and the thirty are finished between you within days. Create the khatma here and share its link with your group — no sign-up, no app, no ads on the page.",
   formH: 'Start a khatma',
   titleLabel: 'Khatma name',
-  titlePh: 'For example: Family khatma · Ramadan khatma · Friends',
+  titlePh: 'e.g. Family khatma',
   holdLabel: 'How long one juz may be held',
   holdHint: 'If a reader does not confirm their juz within this window it returns to the group automatically, so one forgotten juz cannot stall the khatma. Pick what matches your group: half a day for a fast khatma, a month for reading at leisure.',
   submit: 'Create khatma',
@@ -329,7 +332,8 @@ const EN: KhatmaT = {
     modalTitle: '{n} — {name}',
     modalRange: '{from} to {to}',
     nameLabel: 'Your name (optional)',
-    namePh: 'Shown beside the juz — leave empty to stay "Participant"',
+    namePh: 'e.g. Umm Muhammad',
+    nameHint: 'Shown on the juz to the rest of the group. You can leave it empty.',
     modalNote: 'Recitation is with the tongue, not by looking alone. You have {hold} to read it; after that it returns to the group automatically so the khatma keeps moving.',
     modalTake: 'Take the juz', modalCancel: 'Cancel',
     sharePrompt: "Share the link so others can take the remaining juz':",
@@ -380,7 +384,7 @@ const UR: KhatmaT = {
   intro: 'تیس پارے اور آپ ایک جماعت: ہر فرد ایک پارہ لے کر پڑھتا ہے، اور تیسوں پارے چند دنوں میں آپس میں مکمل ہو جاتے ہیں۔ یہاں سے ختم بنائیں اور اس کا لنک اپنے گروپ میں بھیجیں — نہ رجسٹریشن، نہ ایپ، نہ صفحے کے اندر اشتہار۔',
   formH: 'ابھی ختم شروع کریں',
   titleLabel: 'ختم کا عنوان',
-  titlePh: 'مثلاً: گھر والوں کا ختم · رمضان کا ختم · دوستوں کا ختم',
+  titlePh: 'مثلاً: گھر والوں کا ختم',
   holdLabel: 'ایک پارے کے لیے مہلت',
   holdHint: 'اگر پڑھنے والا اس مہلت میں اپنے پارے کی تصدیق نہ کرے تو پارہ خود بخود گروپ کو واپس مل جاتا ہے، تاکہ ایک بھولا ہوا پارہ پورے ختم کو نہ روکے۔ اپنی جماعت کی رفتار کے مطابق چنیں: تیز ختم کے لیے آدھا دن، اور اطمینان سے پڑھنے کے لیے ایک مہینہ۔',
   submit: 'ختم بنائیں',
@@ -466,7 +470,8 @@ const UR: KhatmaT = {
     modalTitle: '{n} — {name}',
     modalRange: '{from} سے {to} تک',
     nameLabel: 'آپ کا نام (اختیاری)',
-    namePh: 'پارے کے ساتھ دکھایا جائے گا — خالی چھوڑیں تو «شریک» رہیں گے',
+    namePh: 'مثلاً: امِ محمد',
+    nameHint: 'یہ پارے پر گروپ کے باقی لوگوں کو دکھائی دے گا، اور آپ اسے خالی بھی چھوڑ سکتے ہیں۔',
     modalNote: 'تلاوت زبان سے ہوتی ہے، صرف دیکھنے سے نہیں۔ اسے پڑھنے کے لیے آپ کے پاس {hold} ہے، اس کے بعد پارہ خود بخود گروپ کو واپس مل جائے گا تاکہ ختم رُکے نہیں۔',
     modalTake: 'پارہ لیں', modalCancel: 'منسوخ',
     sharePrompt: 'لنک شیئر کریں تاکہ باقی پارے دوسرے لے لیں:',
