@@ -16,9 +16,9 @@ export type PartStatus = 'free' | 'held' | 'done';
 export { PARTS } from './khatma-juz';
 import { PARTS } from './khatma-juz';
 
-/** المهل المتاحة لحجز الجزء (بالساعات): من نصف يوم إلى شهر — الافتراضي يومان. */
+/** المهل المتاحة لحجز الجزء (بالساعات): من نصف يوم إلى شهر — الافتراضي أسبوع (كان يومين حتى ١٠ أكتوبر ٢٠٢٦). */
 export const HOLD_HOURS = [12, 24, 48, 72, 168, 720] as const;
-export const HOLD_DEFAULT = 48;
+export const HOLD_DEFAULT = 168;
 
 export const TITLE_MAX = 80;
 export const NAME_MAX = 32;
