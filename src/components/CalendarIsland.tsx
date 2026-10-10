@@ -191,6 +191,22 @@ export default function CalendarIsland({ lang }: Props) {
             </div>
           ))}
         </div>
+
+        {/* Colour key. Until 10 Oct 2026 this was its own card in the home sidebar,
+            away from the grid it explains. */}
+        <div style={{ display:'flex', flexWrap:'wrap', gap:'8px 16px', marginTop:14, fontSize:'12.5px', color:'var(--muted)' }}>
+          {[
+            { c:'var(--accent)',      r:'50%', l:pick(lang, 'اليوم', 'Today', 'آج') },
+            { c:'var(--gold)',        r:'50%', l:pick(lang, 'عيد', 'Eid', 'عید') },
+            { c:'var(--holy)',        r:'50%', l:pick(lang, 'مناسبة دينية', 'Religious day', 'دینی مناسبت') },
+            { c:'var(--accent-soft)', r:'3px', l:pick(lang, 'أيام رمضان', 'Ramadan days', 'رمضان کے دن'), edge:true },
+          ].map(k => (
+            <span key={k.l} style={{ display:'inline-flex', alignItems:'center', gap:6 }}>
+              <span style={{ width:9, height:9, borderRadius:k.r, background:k.c, border:k.edge ? '1px solid var(--accent)' : 'none', flex:'0 0 auto' }} />
+              {k.l}
+            </span>
+          ))}
+        </div>
       </section>
 
       {/* Selected day card */}

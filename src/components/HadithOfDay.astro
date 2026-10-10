@@ -1,0 +1,46 @@
+---
+// «حديث اليوم» — بطاقة صغيرة في العمود الجانبي للصفحة الرئيسية، تحت «دعاء اليوم».
+// Until 10 Oct 2026 this was a full-width gold section inside <main> (order:7);
+// it now sits with the other daily item, styled like the dua card beside it.
+//
+// The server renders the day's hadith by the server's date; the inline script
+// swaps in the visitor's own date, as before.
+import { HADITHS, hadithOfDay, type Hadith } from '../lib/hadiths';
+import { pick, type Lang } from '../lib/data';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+
+const text = (h: Hadith) => (lang === 'ar' ? h.ar : lang === 'ur' ? h.ur : h.en);
+const src = (h: Hadith) => (lang === 'ar' ? h.arSrc : lang === 'ur' ? h.urSrc : h.enSrc);
+const [qo, qc] = lang === 'en' ? ['“', '”'] : ['«', '»'];
+
+const h = hadithOfDay(new Date());
+const hList = HADITHS.map(x => ({ t: text(x), s: src(x) }));
+
+const T = {
+  title: pick(lang, 'حديث اليوم', 'Hadith of the Day', 'آج کی حدیث'),
+  note: pick(lang, 'من صحيح البخاري ومسلم', 'from Sahih al-Bukhari & Muslim', 'صحیح بخاری و مسلم سے'),
+};
+---
+<div class="card" style="padding:18px 20px;background:var(--gold-soft);border-color:var(--gold-soft)">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+    <span aria-hidden="true" style="font-size:18px;line-height:1;color:var(--gold-deep)">☾</span>
+    <h3 style="margin:0;font-size:15.5px;font-weight:700;color:var(--gold-deep)">{T.title}</h3>
+  </div>
+  <blockquote id="hadith-text" style="margin:0;border:0;padding:0;font-size:16px;line-height:2;font-weight:700;color:var(--text);text-wrap:pretty">{qo}{text(h)}{qc}</blockquote>
+  <p style="margin:10px 0 0;font-size:12px;color:var(--muted)"><span id="hadith-src" style="font-weight:700;color:var(--gold-deep)">{src(h)}</span> · {T.note}</p>
+</div>
+
+<script define:vars={{ hList, qo, qc }}>
+  (function () {
+    var d = new Date();
+    var start = Date.UTC(d.getFullYear(), 0, 0);
+    var day = Math.floor((Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - start) / 86400000);
+    var h = hList[((day % hList.length) + hList.length) % hList.length];
+    var t = document.getElementById('hadith-text');
+    var s = document.getElementById('hadith-src');
+    if (t) t.textContent = qo + h.t + qc;
+    if (s) s.textContent = h.s;
+  })();
+</script>

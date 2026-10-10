@@ -1,0 +1,75 @@
+---
+// قسم المناسبات في الصفحة الرئيسية — بالعربية والإنجليزية والأردية.
+//
+// The countdown (UpcomingIsland: the next six major occasions) followed by ONE
+// row of chips: every other occasion at its next date. Each occasion appears
+// once; when it passes, its chip moves on to the following year's page by itself.
+//
+// Until 10 Oct 2026 this section listed every occasion for this Gregorian year
+// and the next: the six in the countdown appeared twice, passed dates sat in a
+// fold, and next year's were all repeated — 38 links, the tallest block on the
+// page (981px desktop, 1,454px phone).
+import UpcomingIsland from './UpcomingIsland';
+import { OCCASIONS, occBasePath, occLoc, fmtGShort } from '../lib/occasions';
+import { MAJOR_OCC_KEYS, pick, type Lang } from '../lib/data';
+import { g2h, h2g, todayUTC } from '../lib/hijri';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+
+/** Rows in the countdown; the chips skip exactly these. */
+const COUNTDOWN = 6;
+
+const today = todayUTC();
+const th = g2h(today);
+const nextDate = (hm: number, hd: number): Date => {
+  const d = h2g(th.y, hm, hd);
+  return d.getTime() < today.getTime() ? h2g(th.y + 1, hm, hd) : d;
+};
+
+// The same selection and order UpcomingIsland makes from the same date.
+const inCountdown = new Set(
+  MAJOR_OCC_KEYS
+    .map(([hm, hd]) => ({ k: `${hm}-${hd}`, t: nextDate(hm, hd).getTime() }))
+    .sort((a, b) => a.t - b.t)
+    .slice(0, COUNTDOWN)
+    .map(x => x.k)
+);
+
+const later = OCCASIONS
+  .filter(o => !inCountdown.has(`${o.hm}-${o.hd}`))
+  .map(o => {
+    const d = nextDate(o.hm, o.hd);
+    return { name: occLoc(o, lang).name, date: d, href: occBasePath(o.slug, d.getUTCFullYear(), lang) };
+  })
+  .sort((a, b) => a.date.getTime() - b.date.getTime());
+
+const T = {
+  h2: pick(lang, 'المناسبات الإسلامية', 'Islamic occasions', 'اسلامی مناسبتیں'),
+  p: pick(lang,
+    'العدّ التنازلي لأقرب المناسبات، ثم موعد كل مناسبة أخرى خلال العام القادم',
+    'A countdown to the nearest occasions, then the next date of every other one over the coming year',
+    'قریب ترین مناسبتوں کا عددِ معکوس، پھر آنے والے سال میں باقی ہر مناسبت کی اگلی تاریخ'),
+  h3: pick(lang, 'بقية المناسبات خلال العام القادم', 'Later in the coming year', 'آنے والے سال میں باقی مناسبتیں'),
+};
+---
+<section id="occasions" class="card section-card" style="order:3;scroll-margin-top:var(--anchor-offset)">
+  <h2 class="section-h2">{T.h2}</h2>
+  <p class="section-p" style="margin-bottom:4px">{T.p}</p>
+
+  <div style="margin-top:16px"><UpcomingIsland lang={lang} embedded limit={COUNTDOWN} client:visible /></div>
+
+  {later.length > 0 && (
+    <div style="margin-top:20px">
+      <h3 style="margin:0;font-size:14.5px;font-weight:700;color:var(--muted)">{T.h3}</h3>
+      <div class="occ-chips">
+        {later.map(o => (
+          <a href={o.href} class="occ-chip">
+            <span class="oc-n">{o.name}</span>
+            <span class="oc-d">{fmtGShort(o.date, lang)}</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  )}
+</section>
