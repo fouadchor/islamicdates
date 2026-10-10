@@ -1,17 +1,15 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import KhatmaHeroDoor from '../components/KhatmaHeroDoor.astro';
-import KhatmaToolTile from '../components/KhatmaToolTile.astro';
 import TodayIsland from '../components/TodayIsland';
 import CalendarIsland from '../components/CalendarIsland';
 import ConverterIsland from '../components/ConverterIsland';
-import UpcomingIsland from '../components/UpcomingIsland';
+import HomeOccasions from '../components/HomeOccasions.astro';
 import SidebarExtras from '../components/SidebarExtras.astro';
+import HadithOfDay from '../components/HadithOfDay.astro';
 import HomeCityPrayer from '../components/HomeCityPrayer.astro';
 import { H_MON_AR, MONTHS_NOTES_AR, G_MON_AR } from '../lib/data';
 import { getL } from '../lib/data';
-import { HADITHS, hadithOfDay } from '../lib/hadiths';
-import { OCCASIONS, occurrencesInGYear, occBasePath, fmtGShort } from '../lib/occasions';
 import { g2h, h2g, todayUTC } from '../lib/hijri';
 import { monthBasePath, monthName, monthSlug, H_YEAR_START, H_YEAR_END } from '../lib/months';
 import { eventForDay, eventsOfMonth, otdPath, fmtHDay, whatsappHref } from '../lib/onthisday';
@@ -33,7 +31,6 @@ const _monthNotesShort = ['مفتتح العام الهجري وأحد الأش�
 
 const lang = 'ar';
 const L = getL(true);
-const _h = hadithOfDay(new Date());
 
 // «في مثل هذا اليوم الهجري» — حدث اليوم (SSR عند كل طلب) + شريط أحداث الشهر التفاعلي
 const _otdH = g2h(todayUTC());
@@ -60,28 +57,6 @@ const _otdCur = _otdMonthEvents.find(e => e.slug === _otd.ev.slug) || _otdMonthE
 const _otdWa = whatsappHref(_otd.ev);
 const _otdMonthName = H_MON_AR[_otdH.m - 1];
 
-const _featured = OCCASIONS.map(o => o.slug); // all occasions, ordered by date below
-const _homeYears = (() => { const y = new Date().getUTCFullYear(); return [y, y+1]; })();
-const occLinks = [];
-for (const _y of _homeYears) {
-  for (const _slug of _featured) {
-    const _o = OCCASIONS.find(x => x.slug === _slug);
-    if (!_o) continue;
-    const _occ = occurrencesInGYear(_o.hm, _o.hd, _y)[0];
-    if (_occ) occLinks.push({ slug: _slug, name: _o.ar.name, year: _y, href: occBasePath(_slug, _y, true), date: _occ.date });
-  }
-}
-occLinks.sort((a, b) => a.year - b.year || a.date.getTime() - b.date.getTime());
-
-// Split each listed year into upcoming vs already-passed occurrences so the
-// section never leads with stale dates. Passed items stay in the DOM (inside a
-// collapsed <details>) to keep their internal links crawlable.
-const _todayMs = todayUTC().getTime();
-const _yearGroups = _homeYears.map(_yr => ({
-  year: _yr,
-  upcoming: occLinks.filter(o => o.year === _yr && o.date.getTime() >= _todayMs),
-  past: occLinks.filter(o => o.year === _yr && o.date.getTime() < _todayMs),
-})).filter(g => g.upcoming.length > 0 || g.past.length > 0);
 
 // —— Internal-linking depth: Gregorian spans on month cards + cross-year month funnel ——
 const _gSpan = (hy: number, hm: number): string => {
@@ -196,43 +171,7 @@ const jsonLd = JSON.stringify([
       <!-- Prayer times by city (internal links to city pages) -->
       <HomeCityPrayer lang="ar" />
 
-      <section id="occasions" class="card section-card" style="order:3;scroll-margin-top:var(--anchor-offset)">
-        <h2 class="section-h2">المناسبات الإسلامية</h2>
-        <p class="section-p" style="margin-bottom:4px">العدّ التنازلي لأقرب المناسبات، ثم تاريخ كل مناسبة بالهجري والميلادي سنةً بسنة</p>
-
-        <!-- The countdown island that used to be its own section directly above. -->
-        <div style="margin-top:16px"><UpcomingIsland lang="ar" embedded limit={6} client:visible /></div>
-
-        <!-- Same per-year links as before, as chips rather than full-width cards. -->
-        {_yearGroups.map((_g, _i) => { const _yr = _g.year; return (
-          <div style="margin-top:20px">
-            <h3 style="margin:0;font-size:14.5px;font-weight:700;color:var(--muted)">{`مناسبات ${_yr}`}</h3>
-            {_g.upcoming.length > 0 && (
-              <div class="occ-chips">
-                {_g.upcoming.map(o => (
-                  <a href={o.href} class="occ-chip">
-                    <span class="oc-n">{o.name}</span>
-                    <span class="oc-d">{fmtGShort(o.date, true)}</span>
-                  </a>
-                ))}
-              </div>
-            )}
-            {_g.past.length > 0 && (
-              <details class="fold">
-                <summary>{`مناسبات ${_yr} التي مضت`} ({_g.past.length})</summary>
-                <div class="occ-chips">
-                  {_g.past.map(o => (
-                    <a href={o.href} class="occ-chip">
-                      <span class="oc-n">{o.name}</span>
-                      <span class="oc-d">{fmtGShort(o.date, true)}</span>
-                    </a>
-                  ))}
-                </div>
-              </details>
-            )}
-          </div>
-        ); })}
-      </section>
+      <HomeOccasions lang="ar" />
 
       <section class="card section-card" style="order:5">
         <h2 class="section-h2">{`الأشهر الهجرية ${_curHy} هـ`}</h2>
@@ -326,49 +265,6 @@ const jsonLd = JSON.stringify([
         </div>
       </section>
 
-      <!-- Kids corner (ركن الصغار) -->
-<section class="card section-card" style="order:6;background:linear-gradient(135deg,#7c5cd6 0%,#a78bfa 55%,#fb7185 130%);border-color:transparent;color:#fff;position:relative;overflow:hidden">
-<span aria-hidden="true" style="position:absolute;top:-26px;inset-inline-start:-14px;font-size:110px;opacity:.14;transform:rotate(-15deg)">✦</span>
-<span aria-hidden="true" style="position:absolute;bottom:-30px;inset-inline-end:-10px;font-size:100px;opacity:.14">☾</span>
-<div style="position:relative;display:flex;align-items:center;gap:18px;flex-wrap:wrap">
-<div style="font-size:52px;line-height:1" aria-hidden="true">🌙</div>
-<div style="flex:1 1 260px">
-<h2 style="margin:0 0 6px;font-size:22px;font-weight:700;color:#fff">ركن الصغار — تعلّم التقويم الهجري باللعب!</h2>
-<p style="margin:0;color:#f3edff;line-height:1.9;font-size:14.5px">سبع مغامرات تفاعلية للأطفال: مختبر أطوار القمر، قطار الشهور، لعبة البحث عن الهلال، قصة الهجرة المصوّرة، اختبار النجوم، وعيد الميلاد الهجري — واجمع النجوم السبع!</p>
-</div>
-<a href="/kids/" style="flex:0 0 auto;display:inline-flex;align-items:center;gap:8px;padding:13px 26px;border-radius:999px;background:#fbbf24;color:#4a2b00;font-weight:800;font-size:15.5px;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.22)">ابدأ اللعب ⭐</a>
-</div>
-</section>
-
-<!-- Hadith of the day -->
-      <section class="card section-card" style="order:7;background:var(--gold-soft);border-color:var(--gold-soft)">
-        <div style="display:flex;align-items:center;gap:9px;margin-bottom:10px">
-          <span aria-hidden="true" style="font-size:22px;line-height:1;color:var(--gold-deep)">☾</span>
-          <h2 class="section-h2" style="margin:0;color:var(--gold-deep)">حديث اليوم</h2>
-        </div>
-        <img src="/images/hadith-ornament.svg" alt="" role="presentation" width="900" height="130"
-          loading="lazy" decoding="async" style="display:block;margin:2px auto 8px;width:100%;max-width:440px;height:auto" />
-        <div style="position:relative;padding:4px 2px 0">
-          <span aria-hidden="true" style="position:absolute;top:-22px;inset-inline-start:-2px;font-size:60px;line-height:1;color:var(--gold);opacity:.22;font-family:Georgia,serif">”</span>
-          <blockquote id="hadith-text" style="margin:0;border:0;padding:0;font-size:clamp(19px,2.9vw,26px);line-height:2.1;font-weight:700;color:var(--text);text-wrap:pretty">«{_h.ar}»</blockquote>
-        </div>
-        <div style="margin-top:18px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-          <span id="hadith-src" style="display:inline-block;padding:5px 14px;border-radius:999px;background:var(--gold-deep);color:#fff;font-weight:700;font-size:13px">{_h.arSrc}</span>
-          <span style="color:var(--muted);font-size:12.5px">من صحيح البخاري ومسلم</span>
-        </div>
-      </section>
-      <script define:vars={{ hList: HADITHS.map(h => ({ t: h.ar, s: h.arSrc })) }}>
-        (function () {
-          var d = new Date();
-          var start = Date.UTC(d.getFullYear(), 0, 0);
-          var day = Math.floor((Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - start) / 86400000);
-          var h = hList[((day % hList.length) + hList.length) % hList.length];
-          var t = document.getElementById('hadith-text');
-          var s = document.getElementById('hadith-src');
-          if (t) t.textContent = '«' + h.t + '»';
-          if (s) s.textContent = h.s;
-        })();
-      </script>
 
       <!-- Condensed intro + guide link (full educational content lives on /about/) -->
       <section class="card section-card" style="order:8">
@@ -400,7 +296,10 @@ const jsonLd = JSON.stringify([
             <span class="tt-i"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M12 21s-7-6.3-7-11a7 7 0 0 1 14 0c0 4.7-7 11-7 11Z"/></svg></span>
             <span class="tt-n">الجوامع القريبة من مكاني<span class="tt-sub">أقرب المساجد إليك مع الاتجاهات</span></span>
           </a>
-          <KhatmaToolTile lang="ar" />
+          <a href="/kids/" class="tool-tile is-primary" title="سبع مغامرات تفاعلية لتعلّم التقويم الهجري">
+            <span class="tt-i"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg></span>
+            <span class="tt-n">ركن الصغار<span class="tt-sub">تعلّم التقويم الهجري باللعب</span></span>
+          </a>
           <a href="/qibla/" class="tool-tile" title="بوصلة القبلة والمسافة إلى الكعبة">
             <span class="tt-i"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></span>
             <span class="tt-n">اتجاه القبلة</span>
@@ -428,21 +327,12 @@ const jsonLd = JSON.stringify([
         </div>
       </div>
 
-      <!-- Legend -->
-      <div class="card" style="padding:18px 20px">
-        <h3 style="margin:0 0 12px;font-size:15.5px;font-weight:700">{L.legend}</h3>
-        <div style="display:flex;flex-direction:column;gap:11px;font-size:14px">
-          <div style="display:flex;gap:11px;align-items:center"><span style="width:12px;height:12px;border-radius:50%;background:var(--accent);flex:0 0 auto"></span>{L.legendToday}</div>
-          <div style="display:flex;gap:11px;align-items:center"><span style="width:12px;height:12px;border-radius:50%;background:var(--gold);flex:0 0 auto"></span>{L.legendEid}</div>
-          <div style="display:flex;gap:11px;align-items:center"><span style="width:12px;height:12px;border-radius:50%;background:var(--holy);flex:0 0 auto"></span>{L.legendHoly}</div>
-          <div style="display:flex;gap:11px;align-items:center"><span style="width:12px;height:12px;border-radius:4px;background:var(--accent-soft);border:1px solid var(--accent);flex:0 0 auto"></span>{L.legendRam}</div>
-        </div>
-      </div>
     </aside>
 
     <aside class="rail-end">
       <!-- Sidebar extras: prayer mini, upcoming occasions, dua of the day -->
       <SidebarExtras lang="ar" />
+      <HadithOfDay lang="ar" />
 
       <!-- Ad slot -->
     </aside>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { g2h, getOcc, occName, dotColor, todayUTC, h2g } from '../lib/hijri';
-import { MAJOR_OCC_KEYS, type Lang, toLang, pick, hMonArr, gMonArr, wdArr, hijriEra, gregEra } from '../lib/data';
+import { g2h, getOcc, occName, todayUTC } from '../lib/hijri';
+import { type Lang, toLang, pick, hMonArr, gMonArr, wdArr, hijriEra, gregEra } from '../lib/data';
 import { COUNTRIES, TZ_TO_COUNTRY } from '../lib/countries';
 import { moonPhase, moonLitPath } from '../lib/moon';
 
@@ -71,21 +71,6 @@ export default function TodayIsland({ lang, todayIso }: Props) {
   const tocc = getOcc(th.m, th.d);
   const todayOcc = tocc ? occName(tocc, lang) : (th.m === 9 ? pick(lang, 'شهر رمضان المبارك', 'The blessed month of Ramadan', 'رمضان المبارک کا مہینہ') : null);
 
-  // next upcoming occasion for countdown
-  const upcoming = MAJOR_OCC_KEYS.map(([hm, hd]) => {
-    const occ = getOcc(hm, hd)!;
-    let d = h2g(th.y, hm, hd);
-    if (d.getTime() < today.getTime()) d = h2g(th.y + 1, hm, hd);
-    const days = Math.round((d.getTime() - today.getTime()) / 86400000);
-    return { name: occName(occ, lang), days };
-  }).sort((a, b) => a.days - b.days);
-  const nearest = upcoming[0];
-  const countdown = nearest
-    ? (nearest.days === 0
-        ? pick(lang, `${nearest.name} اليوم`, `${nearest.name} today`, `${nearest.name} آج`)
-        : pick(lang, `باقٍ ${nearest.days} يوم على ${nearest.name}`, `${nearest.days} days to ${nearest.name}`, `${nearest.name} میں ${nearest.days} دن باقی`))
-    : '';
-
   const cur = COUNTRIES.find(c => c.v === country) ?? COUNTRIES[0];
   const hilalNote = cur.umm
     ? pick(lang,
@@ -145,20 +130,17 @@ export default function TodayIsland({ lang, todayIso }: Props) {
           </h1>
           <div style={{ marginTop:12, fontSize:'clamp(15px,2.6vw,21px)', color:'var(--muted)' }}>{todayGreg}</div>
 
-          <div style={{ marginTop:18, display:'flex', flexWrap:'wrap', gap:10, alignItems:'center' }}>
-            {todayOcc && (
+          {/* Only today's own occasion now. The "N days to …" countdown chip that sat
+              beside it was removed on 10 Oct 2026: the home page already counts down
+              in the promo bar and in the occasions section. */}
+          {todayOcc && (
+            <div style={{ marginTop:18, display:'flex', flexWrap:'wrap', gap:10, alignItems:'center' }}>
               <div style={{ display:'inline-flex', alignItems:'center', gap:10, padding:'10px 18px', borderRadius:999, background:'var(--accent-soft)', color:'var(--accent)', fontWeight:700, fontSize:15 }}>
                 <span style={{ width:9, height:9, borderRadius:'50%', background:'var(--accent)', display:'inline-block' }} />
                 {todayOcc}
               </div>
-            )}
-            {countdown && (
-              <div style={{ display:'inline-flex', alignItems:'center', gap:9, padding:'10px 18px', borderRadius:999, background:'var(--surface2)', border:'1px solid var(--border)', fontWeight:600, fontSize:14 }}>
-                <span style={{ width:8, height:8, borderRadius:'50%', background:'var(--gold)', display:'inline-block' }} />
-                {countdown}
-              </div>
-            )}
-          </div>
+            </div>
+          )}
 
           <div style={{ marginTop:18, display:'flex', flexWrap:'wrap', gap:10 }}>
             <button onClick={copyToday}

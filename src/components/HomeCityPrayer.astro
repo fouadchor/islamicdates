@@ -30,8 +30,19 @@ const cities = PICKS.map(([cc, slug]) => {
   const country = PT_COUNTRIES.find(c => c.code === cc);
   const city = PT_CITIES.find(c => c.cc === cc && c.slug === slug);
   if (!country || !city) return null;
-  return { name: city[l], country: country[l], href: cityPath(country.slug, city.slug, l) };
+  return { slug, name: city[l], country: country[l], href: cityPath(country.slug, city.slug, l) };
 }).filter((c): c is NonNullable<typeof c> => c !== null);
+
+// Twelve shown, the rest folded into a <details>: every link stays in the DOM
+// (crawlable), but the block costs a third of the height it did as 34 cards.
+// Which twelve depends on who reads each language.
+const FIRST: Record<PtLang, string[]> = {
+  ar: ['makkah', 'madinah', 'riyadh', 'jeddah', 'cairo', 'dubai', 'kuwait-city', 'doha', 'amman', 'baghdad', 'casablanca', 'algiers'],
+  en: ['london', 'new-york', 'toronto', 'paris', 'dubai', 'makkah', 'madinah', 'istanbul', 'kuala-lumpur', 'jakarta', 'karachi', 'cairo'],
+  ur: ['karachi', 'lahore', 'delhi', 'mumbai', 'dhaka', 'makkah', 'madinah', 'riyadh', 'jeddah', 'dubai', 'doha', 'london'],
+};
+const first = FIRST[l].map(s => cities.find(c => c.slug === s)).filter((c): c is NonNullable<typeof c> => !!c);
+const more = cities.filter(c => !first.includes(c));
 
 const T = {
   h2: pick(lang, 'مواقيت الصلاة حسب المدينة', 'Prayer Times by City', 'شہر کے اعتبار سے مواقیتِ نماز'),
@@ -40,37 +51,32 @@ const T = {
     'Fajr, Dhuhr, Asr, Maghrib and Isha times calculated astronomically for each city, with Qibla direction and nearby mosques.',
     'ہر شہر کے لیے فجر، ظہر، عصر، مغرب اور عشاء کے اوقات فلکی حساب سے، قبلہ کے رخ اور قریبی مساجد کے ساتھ۔'),
   all: pick(lang, 'كل المدن والدول', 'All cities & countries', 'تمام شہر اور ممالک'),
+  more: (n: number) => pick(lang, `مدن أخرى (${n})`, `More cities (${n})`, `مزید شہر (${n})`),
 };
 ---
 
 <section class="card section-card" style="order:5">
   <h2 class="section-h2">{T.h2}</h2>
-  <p class="section-p" style="margin-bottom:14px">{T.p}</p>
-  <div class="city-grid">
-    {cities.map(c => (
-      <a href={c.href} class="city-item">
-        <span class="city-name">{c.name}</span>
-        <span class="city-country">{c.country}</span>
-      </a>
+  <p class="section-p" style="margin-bottom:2px">{T.p}</p>
+  <div class="occ-chips">
+    {first.map(c => (
+      <a href={c.href} class="occ-chip"><span class="oc-n">{c.name}</span><span class="oc-d">{c.country}</span></a>
     ))}
   </div>
-  <a href={ptBase(l)} class="city-all">{T.all} ←</a>
+  {more.length > 0 && (
+    <details class="fold">
+      <summary>{T.more(more.length)}</summary>
+      <div class="occ-chips">
+        {more.map(c => (
+          <a href={c.href} class="occ-chip"><span class="oc-n">{c.name}</span><span class="oc-d">{c.country}</span></a>
+        ))}
+      </div>
+    </details>
+  )}
+  <a href={ptBase(l)} class="city-all">{T.all} {l === 'en' ? '→' : '←'}</a>
 </section>
 
 <style>
-  .city-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
-  .city-item {
-    display: block; padding: 10px 13px;
-    border: 1px solid var(--border); border-radius: 11px;
-    background: var(--surface2); text-decoration: none; color: inherit;
-    transition: border-color .2s, background .2s, transform .2s;
-  }
-  .city-item:hover { border-color: var(--accent); background: var(--accent-soft); transform: translateY(-1px); }
-  .city-name { display: block; font-weight: 700; font-size: 14px; }
-  .city-country { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
   .city-all { display: inline-block; margin-top: 14px; font-size: 13.5px; font-weight: 700; color: var(--accent); text-decoration: none; }
-  @media (max-width: 700px) {
-    .city-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 7px; }
-    .city-item { padding: 9px 11px; }
-  }
+  .city-all:hover { text-decoration: underline; }
 </style>
