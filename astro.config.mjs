@@ -5,7 +5,7 @@ import sitemap from '@astrojs/sitemap';
 import { convIsIndexable, parseSlug } from './src/lib/convert.ts';
 import { monthIsIndexable, H_MON_SLUG } from './src/lib/months.ts';
 import { occIsIndexable, OCCASIONS } from './src/lib/occasions.ts';
-import { imsakiyahIsIndexable } from './src/lib/imsakiyah.ts';
+import { imsakCityIsIndexable } from './src/lib/imsakiyah.ts';
 
 // Pages outside their indexable window ship with <meta robots="noindex">. Listing
 // them in the sitemap too would trip "Submitted URL marked noindex" in Search
@@ -28,8 +28,10 @@ function pageIsIndexable(url) {
   const o = url.match(OCC_RE);
   if (o) return occIsIndexable(Number(o[2]));
 
-  // Per-city imsakiyah pages (the directory index stays indexable year-round).
-  if (/\/imsakiyah\/[^/]+\/[^/]+\/?$/.test(url)) return imsakiyahIsIndexable();
+  // Per-city imsakiyah pages: in the Ramadan window and a featured city (the
+  // directory index stays indexable year-round).
+  const im = url.match(/\/imsakiyah\/([^/]+)\/([^/]+)\/?$/);
+  if (im) return imsakCityIsIndexable(im[1], im[2]);
 
   return true;
 }

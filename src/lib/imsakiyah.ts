@@ -7,7 +7,7 @@
 import { computePrayerTimes, type MethodId, type PrayerOptions } from './prayer';
 import { zoneOffsetHours } from './qibla';
 import { h2g, g2h, daysInHMonth, todayUTC } from './hijri';
-import { type PtCity, cityMethod } from './cities';
+import { type PtCity, type PtCountry, cityMethod, PT_COUNTRIES, PT_CITIES } from './cities';
 
 export const RAMADAN = 9;
 
@@ -46,7 +46,44 @@ export function activeRamadanYear(today: Date = todayUTC()): number {
 //
 // Revisit if Search Console shows these earning impressions once readmitted; the
 // lead time is the dial.
+//
+// Update 2026-10-11: the window alone would readmit all ~790 at once on 31 Oct
+// 2026 (100 days before Ramadan 1448), growing the sitemap by ~37% in a single
+// rebuild — the same block, on a domain Google still declines to trust (673
+// indexed, 4,047 crawled-not-indexed, one external link). So the window now
+// readmits only IMSAK_FEATURED, the cities the Ramadan-season pages link to
+// (RamadanImsakiyahCities): 34 cities x 3 languages = 102 URLs. Every other
+// city stays live, linked and noindex,follow. That is the second dial: widen
+// the list once the featured pages earn impressions.
 export const IMSAK_LEAD_DAYS = 100;
+
+/**
+ * The featured imsakiyah cities, as [country code, city slug]: the ones linked
+ * from the Ramadan month page, the Ramadan occasion pages and the fasting guide,
+ * and the only ones offered for indexing. Main markets first.
+ */
+export const IMSAK_FEATURED: readonly (readonly [string, string])[] = [
+  ['sa', 'makkah'], ['sa', 'madinah'], ['sa', 'riyadh'], ['sa', 'jeddah'],
+  ['eg', 'cairo'], ['eg', 'alexandria'],
+  ['ae', 'dubai'], ['ae', 'abu-dhabi'],
+  ['kw', 'kuwait-city'], ['qa', 'doha'], ['bh', 'manama'], ['om', 'muscat'],
+  ['jo', 'amman'], ['ps', 'jerusalem'], ['lb', 'beirut'], ['sy', 'damascus'],
+  ['iq', 'baghdad'], ['ye', 'sanaa'], ['tr', 'istanbul'],
+  ['pk', 'karachi'], ['pk', 'lahore'], ['in', 'delhi'], ['in', 'mumbai'],
+  ['bd', 'dhaka'], ['id', 'jakarta'], ['my', 'kuala-lumpur'],
+  ['ma', 'casablanca'], ['dz', 'algiers'], ['tn', 'tunis'], ['sd', 'khartoum'],
+  ['gb', 'london'], ['us', 'new-york'], ['fr', 'paris'], ['ca', 'toronto'],
+];
+
+/** The featured cities resolved to their URL slugs; an unknown pick drops out. */
+export const IMSAK_FEATURED_CITIES: { country: PtCountry; city: PtCity }[] =
+  IMSAK_FEATURED.flatMap(([cc, slug]) => {
+    const country = PT_COUNTRIES.find(c => c.code === cc);
+    const city = PT_CITIES.find(c => c.cc === cc && c.slug === slug);
+    return country && city ? [{ country, city }] : [];
+  });
+
+const FEATURED_KEYS = new Set(IMSAK_FEATURED_CITIES.map(f => `${f.country.slug}/${f.city.slug}`));
 
 export function imsakiyahIsIndexable(today: Date = todayUTC()): boolean {
   const hy = activeRamadanYear(today);
@@ -54,6 +91,15 @@ export function imsakiyahIsIndexable(today: Date = todayUTC()): boolean {
   const end = h2g(hy, RAMADAN, daysInHMonth(hy, RAMADAN));
   const opensAt = new Date(start.getTime() - IMSAK_LEAD_DAYS * 86400000);
   return today >= opensAt && today <= end;
+}
+
+/**
+ * Whether one city's imsakiyah page indexes: inside the Ramadan window AND a
+ * featured city. The page's robots meta and the sitemap filter both call this,
+ * so the two can never disagree.
+ */
+export function imsakCityIsIndexable(countrySlug: string, citySlug: string, today: Date = todayUTC()): boolean {
+  return imsakiyahIsIndexable(today) && FEATURED_KEYS.has(`${countrySlug}/${citySlug}`);
 }
 
 export interface ImsakRow {

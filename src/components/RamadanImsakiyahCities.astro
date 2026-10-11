@@ -11,8 +11,7 @@
 // Same shape as HomeCityPrayer, pointed at the imsākiyya paths. Rendered only
 // on Ramadan-season pages (the month page for Ramadan, the Ramadan occasion
 // pages, and the fasting guide), so it stays contextual rather than sitewide.
-import { PT_CITIES, PT_COUNTRIES } from '../lib/cities';
-import { imsakBase, imsakCityPath, activeRamadanYear, type ImsakLang } from '../lib/imsakiyah';
+import { imsakBase, imsakCityPath, activeRamadanYear, IMSAK_FEATURED_CITIES, type ImsakLang } from '../lib/imsakiyah';
 import { pick, type Lang, hijriEra } from '../lib/data';
 import { h2g } from '../lib/hijri';
 
@@ -20,28 +19,14 @@ interface Props { lang: Lang }
 const { lang } = Astro.props;
 const l = lang as ImsakLang;
 
-// Imsākiyya pages are generated from PT_CITIES, the same set the prayer-times
-// city pages use, so these picks resolve to real pages. A bad slug resolves to
-// null and drops the card at build time rather than shipping a broken link.
-const PICKS: [string, string][] = [
-  ['sa', 'makkah'], ['sa', 'madinah'], ['sa', 'riyadh'], ['sa', 'jeddah'],
-  ['eg', 'cairo'], ['eg', 'alexandria'],
-  ['ae', 'dubai'], ['ae', 'abu-dhabi'],
-  ['kw', 'kuwait-city'], ['qa', 'doha'], ['bh', 'manama'], ['om', 'muscat'],
-  ['jo', 'amman'], ['ps', 'jerusalem'], ['lb', 'beirut'], ['sy', 'damascus'],
-  ['iq', 'baghdad'], ['ye', 'sanaa'], ['tr', 'istanbul'],
-  ['pk', 'karachi'], ['pk', 'lahore'], ['in', 'delhi'], ['in', 'mumbai'],
-  ['bd', 'dhaka'], ['id', 'jakarta'], ['my', 'kuala-lumpur'],
-  ['ma', 'casablanca'], ['dz', 'algiers'], ['tn', 'tunis'], ['sd', 'khartoum'],
-  ['gb', 'london'], ['us', 'new-york'], ['fr', 'paris'], ['ca', 'toronto'],
-];
-
-const cities = PICKS.map(([cc, slug]) => {
-  const country = PT_COUNTRIES.find(c => c.code === cc);
-  const city = PT_CITIES.find(c => c.cc === cc && c.slug === slug);
-  if (!country || !city) return null;
-  return { name: city[l], country: country[l], href: imsakCityPath(country.slug, city.slug, l) };
-}).filter((c): c is NonNullable<typeof c> => c !== null);
+// The featured cities live in lib/imsakiyah (IMSAK_FEATURED) because the same
+// list decides which imsākiyya pages are offered for indexing: the pages this
+// block links to are exactly the ones in the sitemap. Picks are resolved
+// against PT_CITIES there, so a bad slug drops out at build time rather than
+// shipping a broken link.
+const cities = IMSAK_FEATURED_CITIES.map(({ country, city }) => ({
+  name: city[l], country: country[l], href: imsakCityPath(country.slug, city.slug, l),
+}));
 
 // The Hijri year whose Ramadan the imsākiyya pages are currently showing, and
 // the Gregorian year it lands in — so the heading names the same Ramadan the
