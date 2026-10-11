@@ -1,0 +1,8 @@
+# Cloudflare Pages redirects (static assets only — requests routed to the SSR
+# Worker by _routes.json never reach this file).
+#
+# @astrojs/sitemap publishes the sitemap as /sitemap-index.xml, and that is what
+# robots.txt and Search Console point to. Nothing links to /sitemap.xml, but SEO
+# audit tools and some crawlers probe it by convention and report the 404 as a
+# broken sitemap. A permanent redirect answers them without a second sitemap.
+/sitemap.xml /sitemap-index.xml 301
