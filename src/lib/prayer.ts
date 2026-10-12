@@ -2,7 +2,28 @@
 // Adapted from the PrayTimes.org algorithm by Hamid Zarrabi-Zadeh, used under
 // its free-use terms (https://praytimes.org). Ported to TypeScript, no deps.
 // Computes solar-based prayer times for a given date, latitude, longitude and
-// timezone offset (in hours).
+// timezone offset (in hours). The credit-with-a-link the terms ask for is on
+// the About us & methodology page (components/AboutUsPage.astro).
+//
+// Original copyright block, kept as its terms request:
+/*
+PrayTimes.js: Prayer Times Calculator (ver 2.5)
+Copyright (C) 2007-2017 PrayTimes.org
+
+Developer: Hamid Zarrabi-Zadeh
+License: GNU LGPL v3.0
+
+TERMS OF USE:
+	Permission is granted to use this code, with or
+	without modification, in any website or application
+	provided that credit is given to the original work
+	with a link back to PrayTimes.org.
+
+This program is distributed in the hope that it will
+be useful, but WITHOUT ANY WARRANTY.
+
+PLEASE DO NOT REMOVE THIS COPYRIGHT BLOCK.
+*/
 
 export type MethodId = 'MWL' | 'ISNA' | 'Egypt' | 'Makkah' | 'Karachi' | 'Tehran' | 'Jafari' | 'Gulf' | 'Kuwait' | 'Qatar' | 'Singapore' | 'Turkey';
 export type AsrId = 'Standard' | 'Hanafi';

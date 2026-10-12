@@ -20,7 +20,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import type { Lang } from './data';
 
-export const ABOUT_UPDATED = '2026-10-08';
+export const ABOUT_UPDATED = '2026-10-12';
 export const CONTACT_EMAIL = 'contact@islamicdates.org';
 export const COMPANY = { name: 'ICTSPS L.L.C', longName: 'ICT Solutions & Professional Services', url: 'https://ictsps.com/' };
 
@@ -70,8 +70,8 @@ const AR: AboutT = {
       bio: 'متخصصة في تكامل الأنظمة والحلول الرقمية، بخبرة تزيد على عشر سنوات في تطبيقات الهاتف والتجارة الإلكترونية والتحوّل الرقمي، وخلفية في هندسة تقنية المعلومات بتركيز على الذكاء الاصطناعي. مقيمة في الدوحة.',
     },
     {
-      name: 'د. محمد بسام',
-      role: 'خبير في إدارة الأعمال، حاصل على الدكتوراه',
+      name: 'المهندس محمد بسام',
+      role: 'خبير في إدارة الأعمال',
       bio: 'يتولّى التخطيط الاستراتيجي للموقع وأولويات تطويره بناءً على ملاحظات الزوار وبيانات الاستخدام، وبناء الشراكات مع المساجد والمراكز والمواقع الإسلامية.',
     },
     {
@@ -81,13 +81,13 @@ const AR: AboutT = {
     },
   ],
   companyH: 'الشركة',
-  company: 'التقويم الهجري أحد مشاريع شركة \u2066ICTSPS L.L.C (ICT Solutions & Professional Services)\u2069، المتخصصة في حلول تقنية المعلومات والتحوّل الرقمي، وتطوير البرمجيات وتطبيقات الهاتف والمواقع، وتحليلات الأعمال والاستشارات، ولها مكاتب في الولايات المتحدة وتركيا.',
+  company: 'التقويم الهجري أحد مشاريع شركة \u2066ICTSPS L.L.C (ICT Solutions & Professional Services)\u2069، المتخصصة في حلول تقنية المعلومات والتحوّل الرقمي، وتطوير البرمجيات وتطبيقات الهاتف والمواقع، وتحليلات الأعمال والاستشارات، ولها مكتبان في تالين (إستونيا) ودبي (الإمارات العربية المتحدة).',
   companyLink: 'موقع الشركة',
 
   calH: 'التاريخ الهجري',
   cal: [
     'نعتمد تقويم أم القرى، وهو التقويم الرسمي في المملكة العربية السعودية، ويُحسب فلكياً مسبقاً. نستخدم تطبيقه المعياري المضمَّن في المتصفحات وأنظمة التشغيل (معيار Unicode CLDR، تقويم islamic-umalqura)، فالتاريخ الذي تراه عندنا هو نفسه الذي تعرضه هواتف آبل وأندرويد وأنظمة ويندوز.',
-    'تعتمد دول كثيرة — منها باكستان ومصر والمغرب — على رؤية الهلال بالعين، فقد يتقدّم بداية الشهر عندها أو يتأخّر يوماً عن أم القرى. لذلك تعرض صفحات المناسبات التاريخ المتوقَّع في كل دولة مع التنبيه إلى ذلك، والمرجع في الصيام والعيد هو ما تعلنه الجهة الرسمية في بلدك.',
+    'تعتمد دول كثيرة — منها باكستان ومصر والمغرب — على رؤية الهلال بالعين، فقد يتقدّم بداية الشهر عندها أو يتأخّر يوماً عن أم القرى. لذلك تنبّه صفحات المناسبات إلى أن التاريخ الفعلي قد يختلف يوماً بين دولة وأخرى، والمرجع في الصيام والعيد هو ما تعلنه الجهة الرسمية في بلدك.',
   ],
 
   prayH: 'مواقيت الصلاة',
@@ -129,12 +129,13 @@ const AR: AboutT = {
 
   fixH: 'الأخطاء والتصحيح',
   fix: [
-    'إن وجدت تاريخاً أو وقتاً أو نصاً غير صحيح، فأرسل لنا رابط الصفحة ووصف الخطأ عبر نموذج التواصل أو البريد أدناه. نراجع كل بلاغ، ونصحّح الصفحة، ونحدّث تاريخ «آخر مراجعة» فيها.',
+    'إن وجدت تاريخاً أو وقتاً أو نصاً غير صحيح، فأرسل لنا رابط الصفحة ووصف الخطأ عبر نموذج التواصل أو البريد أدناه. نراجع كل بلاغ ونصحّح الصفحة.',
   ],
 
   privH: 'الخصوصية',
   priv: [
-    'لا يطلب الموقع حساباً ولا بريداً ولا رقم هاتف لأي أداة. الختمة تتعرّف عليك برمز عشوائي يبقى في متصفحك وحده.',
+    'لا يطلب الموقع حساباً ولا بريداً ولا رقم هاتف لأي أداة؛ ونموذج التواصل وحده يطلب بريدك لنتمكّن من الردّ عليك.',
+    'الختمة تتعرّف عليك برمز عشوائي يُحفظ في متصفحك وعلى خادم الموقع، ولا يرتبط بهويتك. الاسم اختياري، ويراه كل من معه رابط الختمة. وعند إنشاء ختمة نستعمل عنوان IP مؤقتاً للحدّ من إساءة الاستخدام، ويُحذف خلال ساعتين تقريباً.',
   ],
   privLink: 'سياسة الخصوصية كاملة',
 
@@ -143,7 +144,7 @@ const AR: AboutT = {
   contactForm: 'نموذج التواصل',
   emailLabel: 'البريد',
 
-  updated: 'آخر مراجعة لهذه الصفحة: ٨ أكتوبر ٢٠٢٦',
+  updated: 'آخر مراجعة لهذه الصفحة: ١٢ أكتوبر ٢٠٢٦',
   relatedH: 'صفحات ذات صلة',
   related: [
     { href: '/about/', label: 'ما هو التقويم الهجري؟' },
@@ -173,8 +174,8 @@ const EN: AboutT = {
       bio: 'A systems integration and digital solutions specialist with more than ten years in mobile apps, e-commerce and digital transformation, and a background in IT engineering with a focus on AI. Based in Doha.',
     },
     {
-      name: 'Dr. Mohammad Bassam',
-      role: 'Business administration expert, PhD',
+      name: 'Eng. Mohammad Bassam',
+      role: 'Business administration expert',
       bio: 'Leads the site\'s strategy and development priorities, guided by visitor feedback and usage data, and builds partnerships with mosques, Islamic centres and websites.',
     },
     {
@@ -184,13 +185,13 @@ const EN: AboutT = {
     },
   ],
   companyH: 'The company',
-  company: 'Hijri Calendar is a project of ICTSPS L.L.C (ICT Solutions & Professional Services), a company specialising in IT solutions and digital transformation, software, mobile app and website development, and business analytics and consulting, with offices in the United States and Turkey.',
+  company: 'Hijri Calendar is a project of ICTSPS L.L.C (ICT Solutions & Professional Services), a company specialising in IT solutions and digital transformation, software, mobile app and website development, and business analytics and consulting, with offices in Tallinn, Estonia and Dubai, UAE.',
   companyLink: 'Company website',
 
   calH: 'Hijri dates',
   cal: [
     'We use the Umm al-Qura calendar, the official calendar of Saudi Arabia, which is calculated astronomically in advance. We rely on its standard implementation built into browsers and operating systems (Unicode CLDR, the islamic-umalqura calendar), so the date you see here is the one Apple, Android and Windows devices show.',
-    'Many countries — Pakistan, Egypt and Morocco among them — start the month by sighting the new moon, so their month can begin a day earlier or later than Umm al-Qura. Our occasion pages show the expected date for each country with that caveat; for fasting and Eid, follow the announcement of the official authority where you live.',
+    'Many countries — Pakistan, Egypt and Morocco among them — start the month by sighting the new moon, so their month can begin a day earlier or later than Umm al-Qura. Our occasion pages point out that the actual date can differ by a day between countries; for fasting and Eid, follow the announcement of the official authority where you live.',
   ],
 
   prayH: 'Prayer times',
@@ -232,12 +233,13 @@ const EN: AboutT = {
 
   fixH: 'Mistakes and corrections',
   fix: [
-    'If you find a date, time or text that is wrong, send us the page link and a description through the contact form or email below. We review every report, correct the page, and update its "last reviewed" date.',
+    'If you find a date, time or text that is wrong, send us the page link and a description through the contact form or email below. We review every report and correct the page.',
   ],
 
   privH: 'Privacy',
   priv: [
-    'No tool on the site asks for an account, an email address or a phone number. The khatma recognises you by a random token kept in your own browser.',
+    'No tool on the site asks for an account, an email address or a phone number; only the contact form asks for your email, so that we can reply.',
+    'The khatma recognises you by a random code stored in your browser and on our server; it is not linked to your identity. Names are optional and visible to anyone who has the khatma link. When a khatma is created, your IP address is used briefly to limit abuse and is deleted within about two hours.',
   ],
   privLink: 'Full privacy policy',
 
@@ -246,7 +248,7 @@ const EN: AboutT = {
   contactForm: 'Contact form',
   emailLabel: 'Email',
 
-  updated: 'This page was last reviewed on 8 October 2026',
+  updated: 'This page was last reviewed on 12 October 2026',
   relatedH: 'Related pages',
   related: [
     { href: '/en/about/', label: 'What is the Hijri calendar?' },
@@ -276,8 +278,8 @@ const UR: AboutT = {
       bio: 'سسٹمز انٹیگریشن اور ڈیجیٹل حل کی ماہر، موبائل ایپس، ای کامرس اور ڈیجیٹل تبدیلی میں دس سال سے زیادہ کا تجربہ، اور مصنوعی ذہانت پر توجہ کے ساتھ آئی ٹی انجینئرنگ کا پس منظر۔ دوحہ میں مقیم۔',
     },
     {
-      name: 'ڈاکٹر محمد بسام',
-      role: 'بزنس ایڈمنسٹریشن کے ماہر، پی ایچ ڈی',
+      name: 'انجینئر محمد بسام',
+      role: 'بزنس ایڈمنسٹریشن کے ماہر',
       bio: 'زائرین کی آراء اور استعمال کے اعداد و شمار کی بنیاد پر سائٹ کی حکمتِ عملی اور ترقی کی ترجیحات، اور مساجد، اسلامی مراکز اور ویب سائٹس کے ساتھ شراکت داری کے ذمہ دار ہیں۔',
     },
     {
@@ -287,13 +289,13 @@ const UR: AboutT = {
     },
   ],
   companyH: 'کمپنی',
-  company: 'ہجری کیلنڈر \u2066ICTSPS L.L.C (ICT Solutions & Professional Services)\u2069 کا ایک منصوبہ ہے، جو آئی ٹی حل اور ڈیجیٹل تبدیلی، سافٹ ویئر، موبائل ایپس اور ویب سائٹس کی تیاری، اور بزنس اینالیٹکس و مشاورت میں مہارت رکھتی ہے، اور اس کے دفاتر امریکہ اور ترکی میں ہیں۔',
+  company: 'ہجری کیلنڈر \u2066ICTSPS L.L.C (ICT Solutions & Professional Services)\u2069 کا ایک منصوبہ ہے، جو آئی ٹی حل اور ڈیجیٹل تبدیلی، سافٹ ویئر، موبائل ایپس اور ویب سائٹس کی تیاری، اور بزنس اینالیٹکس و مشاورت میں مہارت رکھتی ہے، اور اس کے دفاتر ٹالن (اسٹونیا) اور دبئی (متحدہ عرب امارات) میں ہیں۔',
   companyLink: 'کمپنی کی ویب سائٹ',
 
   calH: 'ہجری تاریخ',
   cal: [
     'ہم اُمّ القریٰ تقویم استعمال کرتے ہیں، جو سعودی عرب کا سرکاری تقویم ہے اور پہلے سے فلکیاتی طور پر نکالا جاتا ہے۔ ہم براؤزرز اور آپریٹنگ سسٹمز میں موجود اس کا معیاری نفاذ (Unicode CLDR، islamic-umalqura) استعمال کرتے ہیں، اس لیے یہاں کی تاریخ وہی ہے جو ایپل، اینڈرائیڈ اور ونڈوز دکھاتے ہیں۔',
-    'کئی ممالک — جیسے پاکستان، مصر اور مراکش — مہینے کا آغاز چاند دیکھ کر کرتے ہیں، اس لیے وہاں مہینہ اُمّ القریٰ سے ایک دن آگے یا پیچھے ہو سکتا ہے۔ ہمارے مناسبتوں کے صفحات ہر ملک کی متوقع تاریخ اسی وضاحت کے ساتھ دکھاتے ہیں؛ روزے اور عید کے لیے اپنے ملک کی سرکاری رؤیتِ ہلال کمیٹی کے اعلان پر عمل کریں۔',
+    'کئی ممالک — جیسے پاکستان، مصر اور مراکش — مہینے کا آغاز چاند دیکھ کر کرتے ہیں، اس لیے وہاں مہینہ اُمّ القریٰ سے ایک دن آگے یا پیچھے ہو سکتا ہے۔ ہمارے مناسبتوں کے صفحات پر یہ وضاحت درج ہے کہ اصل تاریخ ممالک کے درمیان ایک دن آگے پیچھے ہو سکتی ہے؛ روزے اور عید کے لیے اپنے ملک کی سرکاری رؤیتِ ہلال کمیٹی کے اعلان پر عمل کریں۔',
   ],
 
   prayH: 'نماز کے اوقات',
@@ -335,12 +337,13 @@ const UR: AboutT = {
 
   fixH: 'غلطیاں اور تصحیح',
   fix: [
-    'اگر کوئی تاریخ، وقت یا متن غلط ملے تو صفحے کا لنک اور غلطی کی وضاحت نیچے دیے گئے رابطہ فارم یا ای میل سے بھیجیں۔ ہم ہر اطلاع دیکھتے ہیں، صفحہ درست کرتے ہیں، اور اس کی «آخری نظرِ ثانی» کی تاریخ بدل دیتے ہیں۔',
+    'اگر کوئی تاریخ، وقت یا متن غلط ملے تو صفحے کا لنک اور غلطی کی وضاحت نیچے دیے گئے رابطہ فارم یا ای میل سے بھیجیں۔ ہم ہر اطلاع دیکھتے ہیں اور صفحہ درست کرتے ہیں۔',
   ],
 
   privH: 'رازداری',
   priv: [
-    'سائٹ کا کوئی ٹول اکاؤنٹ، ای میل یا فون نمبر نہیں مانگتا۔ اجتماعی ختم آپ کو ایک بے ترتیب کوڈ سے پہچانتا ہے جو صرف آپ کے براؤزر میں رہتا ہے۔',
+    'سائٹ کا کوئی ٹول اکاؤنٹ، ای میل یا فون نمبر نہیں مانگتا؛ صرف رابطہ فارم آپ کی ای میل مانگتا ہے تاکہ ہم جواب دے سکیں۔',
+    'اجتماعی ختم آپ کو ایک بے ترتیب کوڈ سے پہچانتا ہے جو آپ کے براؤزر اور ہمارے سرور پر محفوظ ہوتا ہے اور آپ کی شناخت سے منسلک نہیں۔ نام اختیاری ہے اور ختم کا لنک رکھنے والا ہر شخص اسے دیکھ سکتا ہے۔ ختم بناتے وقت غلط استعمال روکنے کے لیے آپ کا IP پتہ عارضی طور پر استعمال ہوتا ہے اور تقریباً دو گھنٹوں میں حذف ہو جاتا ہے۔',
   ],
   privLink: 'مکمل رازداری پالیسی',
 
@@ -349,7 +352,7 @@ const UR: AboutT = {
   contactForm: 'رابطہ فارم',
   emailLabel: 'ای میل',
 
-  updated: 'اس صفحے پر آخری نظرِ ثانی: ۸ اکتوبر ۲۰۲۶',
+  updated: 'اس صفحے پر آخری نظرِ ثانی: ۱۲ اکتوبر ۲۰۲۶',
   relatedH: 'متعلقہ صفحات',
   related: [
     { href: '/ur/about/', label: 'ہجری تقویم کیا ہے؟' },
