@@ -1,10 +1,33 @@
-import { useState } from 'react';
-import { g2h, h2g, daysInHMonth, todayUTC } from '../lib/hijri';
+import { useState, useEffect } from 'react';
+import { g2h, h2g, daysInHMonth, todayUTC, fromWestern, toWestern, isJulianEra, westernDaysInMonth, isTabularYear } from '../lib/hijri';
 import { type Lang, toLang, pick, hMonArr, gMonArr, wdArr, hijriEra, gregEra } from '../lib/data';
 
 interface Props { lang: Lang }
 
 interface YMD { y: number; m: number; d: number }
+
+// A year typed as a number: the converter reaches back to 622 CE / 1 AH, far too
+// many years for a dropdown. Commits only valid years; reverts on blur.
+function YearInput({ value, min, max, onChange, style, label }: {
+  value: number; min: number; max: number; onChange: (n: number) => void;
+  style: React.CSSProperties; label: string;
+}) {
+  const [txt, setTxt] = useState(String(value));
+  useEffect(() => { setTxt(String(value)); }, [value]);
+  return (
+    <input
+      type="text" inputMode="numeric" dir="ltr" aria-label={label} value={txt}
+      onChange={e => {
+        const v = e.target.value.replace(/[^0-9]/g, '').slice(0, 4);
+        setTxt(v);
+        const n = parseInt(v, 10);
+        if (n >= min && n <= max) onChange(n);
+      }}
+      onBlur={() => setTxt(String(value))}
+      style={{ ...style, width: '100%', textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}
+    />
+  );
+}
 
 export default function ConverterIsland({ lang }: Props) {
   const today = todayUTC();
@@ -60,35 +83,66 @@ export default function ConverterIsland({ lang }: Props) {
     todayWord: pick(lang, 'اليوم! 🎉', 'Today! 🎉', 'آج! 🎉'),
     left: (n: number) => pick(lang, `باقٍ ${n} يوم`, `${n} days left`, `${n} دن باقی`),
     fullAge: pick(lang, 'الصفحة الكاملة لحاسبة العمر', 'Open the full age calculator', 'مکمل عمر کیلکولیٹر کھولیں'),
+    range: pick(lang,
+      'يعمل من 1 هـ (622م) إلى اليوم وما بعده، ويصلح للتواريخ التاريخية والمخطوطات.',
+      'Works from 1 AH (622 CE) to today and beyond, including historical and manuscript dates.',
+      'یکم ہجری (622ء) سے آج اور آگے تک، تاریخی اور مخطوطات کی تاریخوں سمیت۔'),
+    julianTag: pick(lang, 'يولياني', 'Julian', 'جولین'),
+    inGregorian: pick(lang, 'بالتقويم الغريغوري', 'in the Gregorian calendar', 'گریگورین تقویم میں'),
+    tabularNote: pick(lang,
+      'قبل سنة 1300 هـ (1882م) لا يوجد تقويم أم القرى، فنحسب التاريخ بالتقويم الهجري الحسابي (الجدولي) الذي تعتمده المراجع التاريخية. قد يختلف يوماً أو يومين عمّا رُئي فيه الهلال فعلاً.',
+      'Before 1300 AH (1882 CE) there is no Umm al-Qura calendar, so we use the arithmetical (tabular) Islamic calendar that historical references use. It can differ by a day or two from when the crescent was actually sighted.',
+      'سنہ 1300ھ (1882ء) سے پہلے ام القریٰ تقویم موجود نہیں، اس لیے ہم حسابی (جدولی) ہجری تقویم استعمال کرتے ہیں جو تاریخی حوالوں میں رائج ہے۔ اس میں رؤیتِ ہلال سے ایک دو دن کا فرق ہو سکتا ہے۔'),
+    julianNote: pick(lang,
+      'قبل 15 أكتوبر 1582 نكتب التاريخ الميلادي بالتقويم اليولياني، كما تذكره المصادر التاريخية.',
+      'Before 15 October 1582, Christian-era dates are given in the Julian calendar, as historical sources record them.',
+      '15 اکتوبر 1582ء سے پہلے عیسوی تاریخ جولین تقویم میں لکھی جاتی ہے، جیسا کہ تاریخی مآخذ میں درج ہے۔'),
+    beforeHijra: pick(lang,
+      'هذا التاريخ قبل بداية التقويم الهجري (16 يوليو 622م).',
+      'This date is before the start of the Hijri calendar (16 July 622 CE).',
+      'یہ تاریخ ہجری تقویم کے آغاز (16 جولائی 622ء) سے پہلے کی ہے۔'),
   };
 
   const agePath = pick(lang, '/age/', '/en/age/', '/ur/age/');
 
   const fmtH = (d: Date) => { const h = g2h(d); return `${wd[d.getUTCDay()]}${sep}${h.d} ${hMon[h.m - 1]} ${h.y} ${hijriEra(lang)}`; };
   const fmtG = (d: Date) => `${wd[d.getUTCDay()]}${sep}${d.getUTCDate()} ${gMon[d.getUTCMonth()]} ${d.getUTCFullYear()} ${gregEra(lang)}`;
+  // Western date as historians write it: Julian before 15 Oct 1582, tagged so.
+  const fmtW = (d: Date) => {
+    if (!isJulianEra(d)) return fmtG(d);
+    const w = toWestern(d);
+    return `${wd[d.getUTCDay()]}${sep}${w.d} ${gMon[w.m - 1]} ${w.y} ${gregEra(lang)} (${t.julianTag})`;
+  };
+  const fmtGPlain = (d: Date) => `${d.getUTCDate()} ${gMon[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
   const fmtHShort = (d: Date) => { const h = g2h(d); return `${h.d} ${hMon[h.m - 1]} ${h.y} ${hijriEra(lang)}`; };
   const fmtGWd = (d: Date) => `${wd[d.getUTCDay()]}${sep}${d.getUTCDate()} ${gMon[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
 
   // ---- Converter values ----
   const curGY = today.getUTCFullYear();
   const gregDaysInMonth = (y: number, m: number) => new Date(Date.UTC(y, m, 0)).getUTCDate(); // m is 1-based
-  const cgDays = gregDaysInMonth(cgy, cgm);
+  const cgDays = westernDaysInMonth(cgy, cgm);
   const cgdSafe = cgd > cgDays ? cgDays : cgd;
   const chDays = daysInHMonth(chy, chm);
   const chdSafe = chd > chDays ? chDays : chd;
 
-  const convYears: number[] = [];
-  for (let y = curGY + 11; y >= 1900; y--) convYears.push(y);
-  const convHYears: number[] = [];
-  for (let y = todayH.y + 11; y >= 1318; y--) convHYears.push(y);
+  const gYearMax = curGY + 11, hYearMax = todayH.y + 11;
 
-  let convResult = '', convResultSub = '';
-  if (mode === 'g2h') {
-    const d = new Date(Date.UTC(cgy, cgm - 1, cgdSafe));
-    convResult = fmtH(d); convResultSub = fmtG(d);
+  let convResult = '', convResultSub = '', convResultGreg = '';
+  let showTabular = false, showJulian = false, beforeHijra = false;
+  const convDate = mode === 'g2h' ? fromWestern(cgy, cgm, cgdSafe) : h2g(chy, chm, chdSafe);
+  const convH = g2h(convDate);
+  if (convH.y < 1) {
+    beforeHijra = true;
+    convResult = t.beforeHijra; convResultSub = fmtW(convDate);
+  } else if (mode === 'g2h') {
+    convResult = fmtH(convDate); convResultSub = fmtW(convDate);
   } else {
-    const d = h2g(chy, chm, chdSafe);
-    convResult = fmtG(d); convResultSub = fmtH(d);
+    convResult = fmtW(convDate); convResultSub = fmtH(convDate);
+  }
+  if (!beforeHijra) {
+    showTabular = isTabularYear(convH.y);
+    showJulian = isJulianEra(convDate);
+    if (showJulian) convResultGreg = `= ${fmtGPlain(convDate)} ${t.inGregorian}`;
   }
 
   // ---- Age values ----
@@ -147,7 +201,7 @@ export default function ConverterIsland({ lang }: Props) {
   const dmySelects = (
     dVal: number, dOpts: number, onD: (n: number) => void,
     mVal: number, mNames: string[], onM: (n: number) => void,
-    yVal: number, yOpts: number[], onY: (n: number) => void,
+    yVal: number, yOpts: number[] | { min: number; max: number }, onY: (n: number) => void,
     withEmpty: boolean,
   ) => (
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
@@ -167,10 +221,14 @@ export default function ConverterIsland({ lang }: Props) {
       </label>
       <label style={{ ...selLabel, flex: '1 1 90px', minWidth: 88 }}>
         {t.year}
-        <select value={yVal} onChange={e => onY(+e.target.value)} style={{ ...inputStyle, width: '100%' }}>
-          {withEmpty && <option value={0}>—</option>}
-          {yOpts.map(y => <option key={y} value={y}>{y}</option>)}
-        </select>
+        {Array.isArray(yOpts) ? (
+          <select value={yVal} onChange={e => onY(+e.target.value)} style={{ ...inputStyle, width: '100%' }}>
+            {withEmpty && <option value={0}>—</option>}
+            {yOpts.map(y => <option key={y} value={y}>{y}</option>)}
+          </select>
+        ) : (
+          <YearInput value={yVal} min={yOpts.min} max={yOpts.max} onChange={onY} style={inputStyle} label={t.year} />
+        )}
       </label>
     </div>
   );
@@ -194,14 +252,22 @@ export default function ConverterIsland({ lang }: Props) {
 
           <div style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 8 }}>{mode === 'g2h' ? t.pickG : t.pickH}</div>
           {mode === 'g2h'
-            ? dmySelects(cgdSafe, cgDays, setCgd, cgm, gMon, setCgm, cgy, convYears, setCgy, false)
-            : dmySelects(chdSafe, chDays, setChd, chm, hMon, setChm, chy, convHYears, setChy, false)}
+            ? dmySelects(cgdSafe, cgDays, setCgd, cgm, gMon, setCgm, cgy, { min: 622, max: gYearMax }, setCgy, false)
+            : dmySelects(chdSafe, chDays, setChd, chm, hMon, setChm, chy, { min: 1, max: hYearMax }, setChy, false)}
+          <div style={{ marginTop: 8, fontSize: 12.5, color: 'var(--muted)' }}>{t.range}</div>
 
           <div style={{ marginTop: 20, padding: '18px 20px', borderRadius: 14, background: 'var(--accent-soft)' }}>
             <div style={{ fontSize: 12, color: 'var(--accent)', fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', marginBottom: 7 }}>{t.result}</div>
             <div style={{ fontWeight: 700, fontSize: 'clamp(18px,3.2vw,25px)', lineHeight: 1.25 }}>{convResult}</div>
             <div style={{ marginTop: 5, color: 'var(--muted)', fontSize: '14.5px' }}>{convResultSub}</div>
+            {convResultGreg && <div style={{ marginTop: 2, color: 'var(--muted)', fontSize: 13 }}>{convResultGreg}</div>}
           </div>
+          {(showTabular || showJulian) && (
+            <div style={{ marginTop: 10, display: 'grid', gap: 6, fontSize: 12.5, lineHeight: 1.6, color: 'var(--muted)' }}>
+              {showTabular && <p style={{ margin: 0 }}>{t.tabularNote}</p>}
+              {showJulian && <p style={{ margin: 0 }}>{t.julianNote}</p>}
+            </div>
+          )}
         </div>
       ) : (
         <div>

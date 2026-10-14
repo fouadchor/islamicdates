@@ -42,6 +42,75 @@ export function h2g(hy: number, hm: number, hd: number): Date {
   return new Date(Date.UTC(d2.getUTCFullYear(), d2.getUTCMonth(), d2.getUTCDate()));
 }
 
+// ── Historical dates ────────────────────────────────────────────────────────
+// The Umm al-Qura table in CLDR/ICU starts at 1 Muharram 1300 AH (12 Nov 1882).
+// For earlier dates the same `islamic-umalqura` formatter falls back to the
+// arithmetical (tabular, "civil") Islamic calendar with the Friday epoch —
+// 1 Muharram 1 AH = 16 July 622 Julian — which is what historical reference
+// converters use. g2h/h2g above therefore already cover 1 AH onward; these
+// helpers add the Western side: dates before 15 October 1582 are shown in the
+// Julian calendar, as historical sources record them.
+
+/** First Hijri year covered by the Umm al-Qura table; earlier years are tabular. */
+export const UQ_FIRST_YEAR = 1300;
+/** First day of the Gregorian calendar (15 Oct 1582). */
+export const GREGORIAN_START_MS = Date.UTC(1582, 9, 15);
+
+const DAY_MS = 86400000;
+const UNIX_EPOCH_JDN = 2440588; // Julian Day Number of 1970-01-01
+
+const jdnOf = (d: Date) => Math.floor(d.getTime() / DAY_MS) + UNIX_EPOCH_JDN;
+const dateOfJdn = (jdn: number) => new Date((jdn - UNIX_EPOCH_JDN) * DAY_MS);
+
+/** Julian-calendar Y/M/D for a UTC-midnight date. */
+export function toJulian(date: Date): HDate {
+  const c = jdnOf(date) + 32082;
+  const d = Math.floor((4 * c + 3) / 1461);
+  const e = c - Math.floor((1461 * d) / 4);
+  const m = Math.floor((5 * e + 2) / 153);
+  return {
+    d: e - Math.floor((153 * m + 2) / 5) + 1,
+    m: m + 3 - 12 * Math.floor(m / 10),
+    y: d - 4800 + Math.floor(m / 10),
+  };
+}
+
+/** UTC-midnight date for a Julian-calendar Y/M/D. */
+export function fromJulian(y: number, m: number, d: number): Date {
+  const a = Math.floor((14 - m) / 12);
+  const yy = y + 4800 - a;
+  const mm = m + 12 * a - 3;
+  return dateOfJdn(d + Math.floor((153 * mm + 2) / 5) + 365 * yy + Math.floor(yy / 4) - 32083);
+}
+
+/** True for instants before the Gregorian reform (shown in the Julian calendar). */
+export const isJulianEra = (date: Date) => date.getTime() < GREGORIAN_START_MS;
+
+/** A "Western" Y/M/D (Julian before 15 Oct 1582, Gregorian from then on) is in the Julian era. */
+export const westernIsJulian = (y: number, m: number, d: number) =>
+  y < 1582 || (y === 1582 && (m < 10 || (m === 10 && d < 15)));
+
+/** UTC-midnight date for a Western Y/M/D, read as Julian before the reform. */
+export function fromWestern(y: number, m: number, d: number): Date {
+  return westernIsJulian(y, m, d) ? fromJulian(y, m, d) : new Date(Date.UTC(y, m - 1, d));
+}
+
+/** Western Y/M/D for a date: Julian before the reform, Gregorian after. */
+export function toWestern(date: Date): HDate {
+  return isJulianEra(date)
+    ? toJulian(date)
+    : { y: date.getUTCFullYear(), m: date.getUTCMonth() + 1, d: date.getUTCDate() };
+}
+
+/** Days in a Western month (Julian leap rule before 1582). */
+export function westernDaysInMonth(y: number, m: number): number {
+  if (m === 2 && (y < 1582)) return y % 4 === 0 ? 29 : 28;
+  return new Date(Date.UTC(y, m, 0)).getUTCDate();
+}
+
+/** True when this Hijri year is computed with the tabular calendar. */
+export const isTabularYear = (hy: number) => hy < UQ_FIRST_YEAR;
+
 export function daysInHMonth(hy: number, hm: number): number {
   const a = h2g(hy, hm, 1);
   let ny = hy, nm = hm + 1;

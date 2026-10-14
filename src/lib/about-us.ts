@@ -88,6 +88,7 @@ const AR: AboutT = {
   cal: [
     'نعتمد تقويم أم القرى، وهو التقويم الرسمي في المملكة العربية السعودية، ويُحسب فلكياً مسبقاً. نستخدم تطبيقه المعياري المضمَّن في المتصفحات وأنظمة التشغيل (معيار Unicode CLDR، تقويم islamic-umalqura)، فالتاريخ الذي تراه عندنا هو نفسه الذي تعرضه هواتف آبل وأندرويد وأنظمة ويندوز.',
     'تعتمد دول كثيرة — منها باكستان ومصر والمغرب — على رؤية الهلال بالعين، فقد يتقدّم بداية الشهر عندها أو يتأخّر يوماً عن أم القرى. لذلك تنبّه صفحات المناسبات إلى أن التاريخ الفعلي قد يختلف يوماً بين دولة وأخرى، والمرجع في الصيام والعيد هو ما تعلنه الجهة الرسمية في بلدك.',
+    'يبدأ جدول أم القرى سنة 1300 هـ (1882م). للتواريخ الأقدم يحسب محوّل التاريخ بالتقويم الهجري الحسابي (الجدولي)، وأول يوم فيه 1 محرم 1 هـ = الجمعة 16 يوليو 622م، وهو ما تعتمده المراجع التاريخية، وقد يختلف يوماً أو يومين عن رؤية الهلال الفعلية. والتواريخ الميلادية قبل 15 أكتوبر 1582 نكتبها بالتقويم اليولياني كما تذكرها المصادر التاريخية، ونذكر معها ما يقابلها بالتقويم الغريغوري.',
   ],
 
   prayH: 'مواقيت الصلاة',
@@ -192,6 +193,7 @@ const EN: AboutT = {
   cal: [
     'We use the Umm al-Qura calendar, the official calendar of Saudi Arabia, which is calculated astronomically in advance. We rely on its standard implementation built into browsers and operating systems (Unicode CLDR, the islamic-umalqura calendar), so the date you see here is the one Apple, Android and Windows devices show.',
     'Many countries — Pakistan, Egypt and Morocco among them — start the month by sighting the new moon, so their month can begin a day earlier or later than Umm al-Qura. Our occasion pages point out that the actual date can differ by a day between countries; for fasting and Eid, follow the announcement of the official authority where you live.',
+    'The Umm al-Qura table starts in 1300 AH (1882 CE). For earlier dates the converter uses the arithmetical (tabular) Islamic calendar, whose first day, 1 Muharram 1 AH, is Friday 16 July 622 CE — the calendar historical references use. It can differ by a day or two from the actual sighting of the crescent. Christian-era dates before 15 October 1582 are given in the Julian calendar, as historical sources record them, with the Gregorian equivalent alongside.',
   ],
 
   prayH: 'Prayer times',
@@ -296,6 +298,7 @@ const UR: AboutT = {
   cal: [
     'ہم اُمّ القریٰ تقویم استعمال کرتے ہیں، جو سعودی عرب کا سرکاری تقویم ہے اور پہلے سے فلکیاتی طور پر نکالا جاتا ہے۔ ہم براؤزرز اور آپریٹنگ سسٹمز میں موجود اس کا معیاری نفاذ (Unicode CLDR، islamic-umalqura) استعمال کرتے ہیں، اس لیے یہاں کی تاریخ وہی ہے جو ایپل، اینڈرائیڈ اور ونڈوز دکھاتے ہیں۔',
     'کئی ممالک — جیسے پاکستان، مصر اور مراکش — مہینے کا آغاز چاند دیکھ کر کرتے ہیں، اس لیے وہاں مہینہ اُمّ القریٰ سے ایک دن آگے یا پیچھے ہو سکتا ہے۔ ہمارے مناسبتوں کے صفحات پر یہ وضاحت درج ہے کہ اصل تاریخ ممالک کے درمیان ایک دن آگے پیچھے ہو سکتی ہے؛ روزے اور عید کے لیے اپنے ملک کی سرکاری رؤیتِ ہلال کمیٹی کے اعلان پر عمل کریں۔',
+    'اُمّ القریٰ کا جدول سنہ 1300ھ (1882ء) سے شروع ہوتا ہے۔ اس سے پہلے کی تاریخوں کے لیے کنورٹر حسابی (جدولی) ہجری تقویم استعمال کرتا ہے، جس کا پہلا دن یکم محرم 1ھ = جمعہ 16 جولائی 622ء ہے، اور یہی تاریخی حوالوں میں رائج ہے؛ اس میں رؤیتِ ہلال سے ایک دو دن کا فرق ہو سکتا ہے۔ 15 اکتوبر 1582ء سے پہلے کی عیسوی تاریخیں جولین تقویم میں لکھی جاتی ہیں، جیسا کہ تاریخی مآخذ میں درج ہیں، اور ساتھ گریگورین مساوی بھی دیا جاتا ہے۔',
   ],
 
   prayH: 'نماز کے اوقات',
