@@ -1,0 +1,140 @@
+---
+// «محوّل التواريخ التاريخية» — the converter opened on a historical date, with the
+// method explained and a table of worked examples computed by the same code.
+import Layout from '../layouts/Layout.astro';
+import ConverterIsland from './ConverterIsland';
+import { type Lang, pick } from '../lib/data';
+import { historicalT, historicalPath, historicalExamples, HISTORICAL_START } from '../lib/historical';
+import { aboutUsPath } from '../lib/about-us';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = historicalT(lang);
+const base = 'https://islamicdates.org';
+const canonical = base + historicalPath(lang);
+const home = pick(lang, '/', '/en/', '/ur/');
+const examples = historicalExamples(lang);
+const methodHref = aboutUsPath(lang) + '#calendar';
+
+const jsonLd = JSON.stringify([
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: t.home, item: base + home },
+      { '@type': 'ListItem', position: 2, name: t.breadcrumb, item: canonical },
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: t.h1,
+    url: canonical,
+    description: t.description,
+    inLanguage: lang,
+    applicationCategory: 'UtilitiesApplication',
+    operatingSystem: 'Any',
+    isAccessibleForFree: true,
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    publisher: { '@id': `${base}/#organization` },
+  },
+]);
+---
+<Layout title={t.title} description={t.description} canonical={canonical} lang={lang} jsonLd={jsonLd}
+        arPath={historicalPath('ar')} enPath={historicalPath('en')} urPath={historicalPath('ur')}>
+  <header class="site-header">
+    <div class="header-start">
+      <a href={home} class="logo" aria-label={t.home}>
+        <div class="logo-icon">☾</div>
+        <div>
+          <div class="brand">{pick(lang, 'التقويم الهجري', 'Hijri Calendar', 'ہجری کیلنڈر')}</div>
+          <div class="tagline">{t.tagline}</div>
+        </div>
+      </a>
+      <a href={home} class="home-btn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+        <span>{t.home}</span>
+      </a>
+    </div>
+  </header>
+
+  <div class="layout">
+    <main>
+      <section class="card section-card">
+        <h1 class="section-h2" style="font-size:25px">{t.h1}</h1>
+        <p class="section-p" style="margin-top:8px">{t.intro}</p>
+      </section>
+
+      <div id="converter"><ConverterIsland lang={lang} start={HISTORICAL_START} converterOnly client:load /></div>
+
+      <section class="card section-card" id="how">
+        <h2 class="section-h2">{t.howH}</h2>
+        <ul class="hc-list">{t.how.map(p => <li>{p}</li>)}</ul>
+        <p class="section-p hc-p"><a href={methodHref}>{t.methodLink}</a></p>
+      </section>
+
+      <section class="card section-card" id="examples">
+        <h2 class="section-h2">{t.examplesH}</h2>
+        <div class="hc-table-wrap">
+          <table class="hc-table">
+            <thead><tr>
+              <th scope="col">{t.colEvent}</th><th scope="col">{t.colWestern}</th>
+              <th scope="col">{t.colHijri}</th><th scope="col">{t.colWeekday}</th>
+            </tr></thead>
+            <tbody>
+              {examples.map(e => (
+                <tr><th scope="row">{e.event}</th><td>{e.western}</td><td>{e.hijri}</td><td>{e.weekday}</td></tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card section-card" id="difference">
+        <h2 class="section-h2">{t.dayH}</h2>
+        {t.day.map(p => <p class="section-p hc-p">{p}</p>)}
+      </section>
+
+      <section class="card section-card" id="estimate">
+        <h2 class="section-h2">{t.quickH}</h2>
+        <p class="section-p">{t.quick[0]}</p>
+        <ul class="hc-formulas">{t.quick.slice(1, 3).map(f => <li><bdi>{f}</bdi></li>)}</ul>
+        <p class="section-p hc-p">{t.quick[3]}</p>
+      </section>
+
+      <section class="card section-card" id="limits">
+        <h2 class="section-h2">{t.notH}</h2>
+        <p class="section-p">{t.not}</p>
+      </section>
+
+      <section class="card section-card" id="cite">
+        <h2 class="section-h2">{t.citeH}</h2>
+        <p class="section-p">{t.cite}</p>
+      </section>
+    </main>
+
+    <aside>
+      <div class="card" style="padding:18px 20px">
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:14.5px">
+          <a href={home + '#converter'} style="color:var(--accent);text-decoration:none">{t.todayLink}</a>
+          <a href={methodHref} style="color:var(--accent);text-decoration:none">{t.methodLink}</a>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <style is:global>
+    .hc-list { margin:10px 0 0; padding-inline-start:20px; line-height:1.8; font-size:15px; display:grid; gap:6px; }
+    .hc-p + .hc-p { margin-top:10px; }
+    .hc-p a { color:var(--accent); }
+    .hc-table-wrap { overflow-x:auto; margin-top:12px; }
+    .hc-table { width:100%; border-collapse:collapse; font-size:14px; }
+    .hc-table th, .hc-table td { padding:9px 10px; border-bottom:1px solid var(--border); text-align:start; vertical-align:top; }
+    .hc-table thead th { font-size:13px; color:var(--muted); font-weight:600; white-space:nowrap; }
+    .hc-table tbody th { font-weight:600; }
+    .hc-table td { font-variant-numeric:tabular-nums; }
+    @media (max-width:520px) { .hc-table { font-size:13px; } .hc-table th, .hc-table td { padding:8px 6px; } }
+    .hc-formulas { margin:10px 0; padding-inline-start:20px; font-size:15.5px; font-weight:600; line-height:2; }
+    #converter { scroll-margin-top: var(--anchor-offset, 80px); }
+  </style>
+</Layout>

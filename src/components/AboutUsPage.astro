@@ -7,6 +7,7 @@ import { type Lang, pick } from '../lib/data';
 import { aboutT, aboutUsPath, CONTACT_EMAIL, COMPANY, FATWA_LINKS, ABOUT_UPDATED } from '../lib/about-us';
 import { METHODS, type MethodId } from '../lib/prayer';
 import { PT_COUNTRIES } from '../lib/cities';
+import { historicalPath } from '../lib/historical';
 
 interface Props { lang: Lang }
 const { lang } = Astro.props;
@@ -139,6 +140,7 @@ const jsonLd = JSON.stringify([
       <section class="card section-card" id="calendar">
         <h2 class="section-h2">{t.calH}</h2>
         {t.cal.map(p => <p class="section-p au-p">{p}</p>)}
+        <p class="section-p au-p"><a href={historicalPath(lang)}>{pick(lang, 'محوّل التواريخ التاريخية مع أمثلة', 'The historical date converter, with examples', 'تاریخی تاریخ کنورٹر، مثالوں کے ساتھ')}</a></p>
       </section>
 
       <section class="card section-card" id="prayer-times">

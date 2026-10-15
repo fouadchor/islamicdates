@@ -2,7 +2,15 @@ import { useState, useEffect } from 'react';
 import { g2h, h2g, daysInHMonth, todayUTC, fromWestern, toWestern, isJulianEra, westernDaysInMonth, isTabularYear } from '../lib/hijri';
 import { type Lang, toLang, pick, hMonArr, gMonArr, wdArr, hijriEra, gregEra } from '../lib/data';
 
-interface Props { lang: Lang }
+interface Props {
+  lang: Lang;
+  /** Open on this Western date (Julian before 1582) instead of today. */
+  start?: { y: number; m: number; d: number };
+  /** Converter only — no age tab (the historical page). */
+  converterOnly?: boolean;
+  /** Show a link to the dedicated historical-dates page under the converter. */
+  historicalHref?: string;
+}
 
 interface YMD { y: number; m: number; d: number }
 
@@ -29,22 +37,25 @@ function YearInput({ value, min, max, onChange, style, label }: {
   );
 }
 
-export default function ConverterIsland({ lang }: Props) {
+export default function ConverterIsland({ lang, start, converterOnly = false, historicalHref }: Props) {
   const today = todayUTC();
   const todayH = g2h(today);
+  const startDate = start ? fromWestern(start.y, start.m, start.d) : today;
+  const startW = start ?? { y: today.getUTCFullYear(), m: today.getUTCMonth() + 1, d: today.getUTCDate() };
+  const startH = start ? g2h(startDate) : todayH;
   const sep = toLang(lang) === 'en' ? ', ' : '، ';
 
   const [tab, setTab] = useState<'conv' | 'age'>('conv');
   const [mode, setMode] = useState<'g2h' | 'h2g'>('g2h');
 
   // Converter — Gregorian side (day/month/year dropdowns, defaults to today)
-  const [cgd, setCgd] = useState(today.getUTCDate());
-  const [cgm, setCgm] = useState(today.getUTCMonth() + 1);
-  const [cgy, setCgy] = useState(today.getUTCFullYear());
+  const [cgd, setCgd] = useState(startW.d);
+  const [cgm, setCgm] = useState(startW.m);
+  const [cgy, setCgy] = useState(startW.y);
   // Converter — Hijri side (defaults to today)
-  const [chy, setChy] = useState(todayH.y);
-  const [chm, setChm] = useState(todayH.m);
-  const [chd, setChd] = useState(todayH.d);
+  const [chy, setChy] = useState(startH.y);
+  const [chm, setChm] = useState(startH.m);
+  const [chd, setChd] = useState(startH.d);
 
   // Age calculator — Gregorian birth date (starts empty)
   const [agd, setAgd] = useState(0);
@@ -97,6 +108,7 @@ export default function ConverterIsland({ lang }: Props) {
       'قبل 15 أكتوبر 1582 نكتب التاريخ الميلادي بالتقويم اليولياني، كما تذكره المصادر التاريخية.',
       'Before 15 October 1582, Christian-era dates are given in the Julian calendar, as historical sources record them.',
       '15 اکتوبر 1582ء سے پہلے عیسوی تاریخ جولین تقویم میں لکھی جاتی ہے، جیسا کہ تاریخی مآخذ میں درج ہے۔'),
+    histLink: pick(lang, 'صفحة التواريخ التاريخية: كيف نحسب، وأمثلة', 'Historical dates: how it works, with examples', 'تاریخی تاریخیں: طریقہ اور مثالیں'),
     beforeHijra: pick(lang,
       'هذا التاريخ قبل بداية التقويم الهجري (16 يوليو 622م).',
       'This date is before the start of the Hijri calendar (16 July 622 CE).',
@@ -237,10 +249,10 @@ export default function ConverterIsland({ lang }: Props) {
     <section className="card" style={{ padding: '22px 26px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 18 }}>
         <h2 style={{ margin: 0, fontWeight: 700, fontSize: 18 }}>{tab === 'conv' ? t.convTitle : t.ageTitle}</h2>
-        <div role="tablist" style={{ display: 'flex', flexWrap: 'wrap', maxWidth: '100%', gap: 3, background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 999, padding: 4 }}>
+        {!converterOnly && <div role="tablist" style={{ display: 'flex', flexWrap: 'wrap', maxWidth: '100%', gap: 3, background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 999, padding: 4 }}>
           <button role="tab" aria-selected={tab === 'conv'} style={pillS(tab === 'conv')} onClick={() => setTab('conv')}>{t.convTitle}</button>
           <button role="tab" aria-selected={tab === 'age'} style={pillS(tab === 'age')} onClick={() => setTab('age')}>{t.ageTitle}</button>
-        </div>
+        </div>}
       </div>
 
       {tab === 'conv' ? (
@@ -254,7 +266,10 @@ export default function ConverterIsland({ lang }: Props) {
           {mode === 'g2h'
             ? dmySelects(cgdSafe, cgDays, setCgd, cgm, gMon, setCgm, cgy, { min: 622, max: gYearMax }, setCgy, false)
             : dmySelects(chdSafe, chDays, setChd, chm, hMon, setChm, chy, { min: 1, max: hYearMax }, setChy, false)}
-          <div style={{ marginTop: 8, fontSize: 12.5, color: 'var(--muted)' }}>{t.range}</div>
+          <div style={{ marginTop: 8, fontSize: 12.5, color: 'var(--muted)' }}>
+            {t.range}
+            {historicalHref && <> <a href={historicalHref} style={{ color: 'var(--accent)', fontWeight: 600 }}>{t.histLink}</a></>}
+          </div>
 
           <div style={{ marginTop: 20, padding: '18px 20px', borderRadius: 14, background: 'var(--accent-soft)' }}>
             <div style={{ fontSize: 12, color: 'var(--accent)', fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', marginBottom: 7 }}>{t.result}</div>

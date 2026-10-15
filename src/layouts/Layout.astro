@@ -97,6 +97,7 @@ const _topLabel = pick(lang, 'العودة إلى الأعلى', 'Back to top', 
 
 // ——— Sitemap footer (language-aware, site-wide) ———
 const _navAge = pick(lang, '/age/', '/en/age/', '/ur/age/');
+const _navHist = pick(lang, '/historical-date-converter/', '/en/historical-date-converter/', '/ur/historical-date-converter/');
 const _navPrint = pick(lang, '/printable/', '/en/printable/', '/ur/printable/');
 const _navWidget = pick(lang, '/widget/', '/en/widget/', '/ur/widget/');
 const _navPrivacy = pick(lang, '/privacy/', '/en/privacy/', '/ur/privacy/');
@@ -119,6 +120,7 @@ const _lblImsak = pick(lang, 'إمساكية رمضان', 'Ramadan timetable', '
 const _navKhatma = pick(lang, '/khatma/', '/en/khatma/', '/ur/khatma/');
 const _lblKhatma = pick(lang, 'ختمة قرآن جماعية', 'Group Quran khatma', 'اجتماعی ختمِ قرآن');
 const _lblAge = pick(lang, 'حاسبة العمر بالهجري', 'Hijri age calculator', 'ہجری عمر کیلکولیٹر');
+const _lblHist = pick(lang, 'محوّل التواريخ التاريخية', 'Historical date converter', 'تاریخی تاریخ کنورٹر');
 const _lblPrint = pick(lang, 'تقويم هجري للطباعة', 'Printable calendar', 'پرنٹ کے قابل کیلنڈر');
 const _lblWidget = pick(lang, 'ويدجت لموقعك', 'Widget for your site', 'آپ کی سائٹ کے لیے ویجٹ');
 const _lblPrivacy = pick(lang, 'سياسة الخصوصية', 'Privacy Policy', 'رازداری پالیسی');
@@ -920,6 +922,7 @@ const _bnClose = pick(lang, 'إخفاء', 'Dismiss', 'چھپائیں');
             <li><a href={_navQibla}>{_lblQibla}</a></li>
             <li><a href={_navZakat}>{_labels.zakat}</a></li>
             <li><a href={_navAge}>{_lblAge}</a></li>
+            <li><a href={_navHist}>{_lblHist}</a></li>
             <li><a href={_navFasting}>{_labels.fasting}</a></li>
             <li><a href={_navDua}>{_labels.dua}</a></li>
             <li><a href={_navPrint}>{_lblPrint}</a></li>
