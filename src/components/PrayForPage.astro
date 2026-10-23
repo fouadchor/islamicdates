@@ -1,0 +1,187 @@
+---
+// صفحة «ادعوا لـ…» الواحدة — نسخة واحدة تخدم اللغات الثلاث.
+import Layout from '../layouts/Layout.astro';
+import PrayForCard from './PrayForCard';
+import { pick, type Lang } from '../lib/data';
+import { prayT } from '../lib/pray-for-i18n';
+import { renderDuas } from '../lib/pray-for-duas';
+import type { PrayLoaded } from '../lib/pray-for-load';
+
+// Loaded — and the status set — by the route file, because Astro streams.
+interface Props { lang: Lang; loaded: PrayLoaded }
+const { lang, loaded } = Astro.props;
+const { slug, view, problem } = loaded;
+const T = prayT(lang);
+
+const isNew = Astro.url.searchParams.get('new') === '1';
+const canonical = `https://islamicdates.org${T.base}${slug}/`;
+const home = pick(lang, '/', '/en/', '/ur/');
+const copy = view ? T.page(view.name, view.kind, view.gender, view.prayers) : null;
+const duas = view ? renderDuas(view.kind, view.gender, lang, view.name) : [];
+
+// One pre-rendered preview card per language and kind (scripts/gen-pray-for-og.mjs);
+// the person's name travels in og:title beside it.
+const ogImage = view ? `https://islamicdates.org/og/pray-for/${lang}-${view.kind}.jpg` : undefined;
+---
+<Layout title={copy ? copy.title : T.notFoundH} description={copy ? copy.description : T.notFoundBody}
+        canonical={canonical} lang={lang}
+        arPath={`/pray-for/${slug}/`} enPath={`/en/pray-for/${slug}/`} urPath={`/ur/pray-for/${slug}/`} noindex={true}
+        ogImage={ogImage} ogImageAlt={copy?.ogAlt}>
+  <header class="site-header">
+    <div class="header-start">
+      <a href={home} class="logo" aria-label={T.home}>
+        <div class="logo-icon">☾</div>
+        <div>
+          <div class="brand">{pick(lang, 'التقويم الهجري', 'Hijri Calendar', 'ہجری کیلنڈر')}</div>
+          <div class="tagline">{T.tagline}</div>
+        </div>
+      </a>
+      <a href={T.base} class="home-btn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        <span>{T.navNew}</span>
+      </a>
+    </div>
+  </header>
+
+  <div class="layout">
+    <main>
+      {view && copy ? (
+        <>
+          {isNew && (
+            <section class="card section-card pf-new-note" style="order:0;display:none" data-pf-new={slug}>
+              <p><strong>{T.newNoteLead}</strong> {T.newNote}</p>
+            </section>
+          )}
+
+          <section class={`card section-card pf-head pf-${view.kind}`} style="order:1">
+            <h1 class="pf-h1">{copy.h1}</h1>
+            <p class="pf-lead">{copy.lead}</p>
+            <p class="section-p pf-intro">{copy.intro}</p>
+          </section>
+
+          <section class="card section-card" style="order:2">
+            <PrayForCard initial={view} lang={lang} t={copy.card} duas={duas} duasH={copy.duasH}
+                         shareUrl={canonical} base={T.base} client:load />
+          </section>
+
+          <section class="card section-card" style="order:3">
+            <h2 class="section-h2">{copy.reminderH}</h2>
+            <p class="section-p">{copy.reminder}</p>
+          </section>
+        </>
+      ) : (
+        <section class="card section-card" style="order:1">
+          <h1 class="section-h2" style="font-size:24px">{problem === 'unavailable' ? T.unavailableH : T.notFoundH}</h1>
+          <p class="section-p" style="margin-top:8px">{problem === 'unavailable' ? T.unavailableBody : T.notFoundBody}</p>
+          <p class="section-p" style="margin-top:12px"><a href={T.base} style="color:var(--accent)">{T.createNew}</a></p>
+        </section>
+      )}
+    </main>
+
+    <aside>
+      <div class="card" style="padding:18px 20px">
+        <h3 style="margin:0 0 12px;font-size:15.5px;font-weight:700">{T.relatedH}</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:14.5px">
+          <a href={T.base} style="color:var(--accent);text-decoration:none">{T.createNew}</a>
+          {/* No khatma link here: next to someone's name it would read as a reading dedicated to them. */}
+          {T.related.filter(r => !r.href.includes('/khatma/')).slice(0, 4).map(r => (
+            <a href={r.href} style="color:var(--accent);text-decoration:none">{r.label}</a>
+          ))}
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  {isNew && view && (
+    <script is:inline>
+      // `?new=1` marks the creator's first visit, but it rides along whenever the
+      // address bar is copied. The note ships hidden and is shown only in the
+      // browser holding this page's admin key; the flag is dropped either way so
+      // the next copy is clean. (Same as the khatma page.)
+      (function () {
+        var note = document.querySelector('[data-pf-new]');
+        var mine = true;
+        try { mine = !!(note && localStorage.getItem('idk.pray.admin.' + note.getAttribute('data-pf-new'))); } catch (_) {}
+        if (note && mine) note.style.display = '';
+        try {
+          var u = new URL(location.href);
+          u.searchParams.delete('new');
+          history.replaceState(history.state, '', u.pathname + (u.search === '?' ? '' : u.search) + u.hash);
+        } catch (_) {}
+      })();
+    </script>
+  )}
+
+  <footer class="site-footer">
+    {T.footerNote}
+    <span style="margin:0 8px;opacity:.4">·</span>
+    <a href={T.privacyHref} style="color:var(--muted);text-decoration:none;font-size:13px">{T.privacyLabel}</a>
+  </footer>
+
+  <style is:global>
+    .pf-new-note p { margin:0; font-size:14.5px; line-height:1.85; color:var(--muted); }
+    .pf-new-note strong { color:var(--text); }
+
+    .pf-head { text-align:center; padding-top:30px; padding-bottom:26px; }
+    .pf-h1 { margin:0; font-size:clamp(25px, 4.2vw, 32px); font-weight:800; line-height:1.4; color:var(--text); overflow-wrap:anywhere; }
+    .pf-lead { margin:6px 0 0; font-size:17px; font-weight:700; color:var(--accent-strong); }
+    .pf-sick .pf-lead { color:var(--gold-deep); }
+    .pf-intro { margin:14px auto 0; max-width:560px; }
+
+    .pf-tally { display:flex; align-items:center; gap:14px; padding:16px 18px; border-radius:16px; background:var(--accent-soft); }
+    .pf-tally p { margin:0; font-size:17px; font-weight:700; color:var(--accent-strong); line-height:1.6; }
+    .pf-tally .pf-n { font-size:30px; font-weight:800; margin:0 6px; vertical-align:-3px; }
+    .pf-tally-ic { flex:0 0 auto; width:46px; height:46px; border-radius:50%; display:grid; place-items:center; background:var(--surface); color:var(--accent-strong); }
+    .pf-tally-zero { background:var(--gold-soft); }
+    .pf-tally-zero p, .pf-tally-zero .pf-tally-ic { color:var(--gold-deep); }
+
+    .pf-duas-h { margin-top:22px; }
+    .pf-duas { list-style:none; margin:14px 0 0; padding:0; display:flex; flex-direction:column; gap:14px; }
+    .pf-dua { border:1px solid var(--border); border-inline-start:4px solid var(--accent); border-radius:16px; background:var(--surface2); padding:15px 17px; }
+    .pf-dua-head { display:flex; align-items:center; gap:10px; padding-bottom:9px; margin-bottom:10px; border-bottom:1px dashed var(--border); }
+    .pf-dua-n { flex:0 0 auto; width:26px; height:26px; border-radius:8px; display:grid; place-items:center; background:var(--surface); border:1px solid var(--border); font-size:13px; font-weight:800; color:var(--muted); }
+    .pf-when { margin:0; flex:1 1 auto; min-width:0; font-size:15px; font-weight:800; color:var(--accent); line-height:1.5; }
+    .pf-times { flex:0 0 auto; font-size:12.5px; font-weight:700; color:var(--gold-deep); background:var(--gold-soft); padding:4px 11px; border-radius:999px; }
+    .pf-text { margin:0; font-family:'Noto Naskh Arabic', 'IBM Plex Sans Arabic', serif; font-size:clamp(19px, 2.6vw, 23px); line-height:2.15; font-weight:500; color:var(--text); text-align:right; text-wrap:pretty; }
+    .pf-meaning { margin:10px 0 0; font-size:14.5px; line-height:1.8; color:var(--muted); }
+    .pf-src { margin:10px 0 0; padding-top:9px; border-top:1px dashed var(--border); font-size:13px; font-weight:600; color:var(--muted); }
+
+    .pf-act { margin-top:20px; text-align:center; }
+    .pf-pray {
+      font:inherit; font-size:18px; font-weight:800; width:100%; max-width:420px; min-height:56px;
+      display:inline-flex; align-items:center; justify-content:center; gap:10px;
+      padding:14px 22px; border:0; border-radius:16px; cursor:pointer;
+      background:var(--accent); color:var(--accent-contrast); box-shadow:0 8px 22px rgba(14,128,118,.22);
+      transition:background .15s, transform .12s;
+    }
+    .pf-pray:hover:not([disabled]) { background:var(--accent-strong); transform:translateY(-1px); }
+    .pf-pray[disabled] { cursor:default; }
+    .pf-pray.is-done { background:var(--accent-soft); color:var(--accent-strong); box-shadow:none; }
+    .pf-hint { margin:9px 0 0; font-size:13px; color:var(--muted); }
+    .pf-thanks { margin:12px auto 0; max-width:460px; font-size:15px; font-weight:700; line-height:1.8; color:var(--accent-strong); }
+    .pf-err { margin:0 0 12px; padding:11px 13px; border-radius:12px; background:#fdecea; color:#b42318; font-size:14px; }
+
+    .pf-share { margin-top:22px; padding:14px; border-radius:14px; background:var(--accent-soft); }
+    .pf-share p { margin:0 0 9px; font-size:14px; color:var(--text); }
+    .pf-share-row { display:flex; gap:8px; flex-wrap:wrap; }
+    .pf-wa, .pf-share-row button {
+      font:inherit; font-size:14px; font-weight:700; padding:10px 15px; border-radius:12px; border:0;
+      display:inline-flex; align-items:center; gap:7px;
+      background:var(--accent); color:var(--accent-contrast); text-decoration:none; cursor:pointer;
+    }
+    .pf-wa { background:#25D366; color:#fff; }
+    .pf-wa:hover { background:#1ebe5a; }
+    .pf-share-row .pf-ghost { background:var(--surface); color:var(--accent-strong); border:1px solid var(--border); }
+
+    .pf-admin { margin-top:18px; padding-top:14px; border-top:1px dashed var(--border); display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; font-size:13.5px; color:var(--muted); }
+    .pf-admin button { font:inherit; font-size:13.5px; font-weight:700; display:inline-flex; align-items:center; gap:6px; padding:8px 13px; border-radius:10px; cursor:pointer; background:transparent; color:#b42318; border:1px solid #f1c4c0; }
+    .pf-admin button:hover { background:#fdecea; }
+    .pf-deleted { text-align:center; padding:18px 0; }
+    .pf-deleted-msg { margin:0 0 10px; font-size:16px; font-weight:700; }
+    .pf-new-link { color:var(--accent); font-weight:700; }
+
+    @media (pointer:coarse) {
+      .pf-wa, .pf-share-row button, .pf-admin button { min-height:44px; }
+    }
+  </style>
+</Layout>

@@ -1,0 +1,13 @@
+---
+import PrayForPage from '../../../components/PrayForPage.astro';
+import { loadPrayPage, prayStatusFor } from '../../../lib/pray-for-load';
+
+// حالة مشتركة حيّة: العدّاد يتغيّر كلما دعا أحدهم، فتُبنى الصفحة عند كل طلب.
+export const prerender = false;
+Astro.response.headers.set('Cache-Control', 'no-store');
+
+// التحميل هنا لا داخل المكوّن: Astro يبثّ الاستجابة، فرمز الحالة يُضبط قبل أول بايت.
+const loaded = await loadPrayPage(Astro.params.slug, (Astro.locals as App.Locals)?.runtime?.env?.DB ?? null);
+Astro.response.status = prayStatusFor(loaded.problem);
+---
+<PrayForPage lang="en" loaded={loaded} />

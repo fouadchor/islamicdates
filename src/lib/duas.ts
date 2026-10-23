@@ -53,6 +53,7 @@ const SURAHS: Record<number, Tri> = {
   25: { ar: 'الفرقان',   en: 'al-Furqan',   ur: 'الفرقان' },
   28: { ar: 'القصص',     en: 'al-Qasas',    ur: 'القصص' },
   46: { ar: 'الأحقاف',   en: 'al-Ahqaf',    ur: 'الاحقاف' },
+  59: { ar: 'الحشر',     en: 'al-Hashr',    ur: 'الحشر' },
 };
 
 const pickTri = (t: Tri, l: 'ar' | 'en' | 'ur') => (l === 'ar' ? t.ar : l === 'ur' ? t.ur : t.en);

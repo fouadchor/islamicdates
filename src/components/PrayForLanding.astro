@@ -1,0 +1,259 @@
+---
+// صفحة الهبوط لـ«ادعوا لـ…» — نسخة واحدة تخدم اللغات الثلاث.
+import Layout from '../layouts/Layout.astro';
+import { pick, type Lang } from '../lib/data';
+import { NAME_MAX } from '../lib/pray-for';
+import { prayT } from '../lib/pray-for-i18n';
+import { renderDuas } from '../lib/pray-for-duas';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const T = prayT(lang);
+const canonical = `https://islamicdates.org${T.base}`;
+const home = pick(lang, '/', '/en/', '/ur/');
+
+// The same supplications every page shows — here in their general form, so the
+// landing page carries the content people search for («دعاء للميت»).
+const deceasedDuas = renderDuas('deceased', 'm', lang, null);
+const sickDuas = renderDuas('sick', 'm', lang, null);
+
+const jsonLd = JSON.stringify([
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [
+    { '@type': 'ListItem', 'position': 1, 'name': T.home, 'item': `https://islamicdates.org${home}` },
+    { '@type': 'ListItem', 'position': 2, 'name': T.toolLabel, 'item': canonical },
+  ] },
+  { '@context': 'https://schema.org', '@type': 'WebApplication', 'name': T.toolLabel, 'url': canonical,
+    'description': T.metaDesc, 'applicationCategory': 'UtilitiesApplication', 'operatingSystem': 'Web', 'inLanguage': [lang],
+    'offers': { '@type': 'Offer', 'price': '0', 'priceCurrency': 'USD' } },
+  { '@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': T.faq.map(f => ({ '@type': 'Question', 'name': f.q, 'acceptedAnswer': { '@type': 'Answer', 'text': f.a } })) },
+]);
+---
+<Layout title={T.metaTitle} description={T.metaDesc} canonical={canonical} lang={lang} jsonLd={jsonLd}
+        arPath="/pray-for/" enPath="/en/pray-for/" urPath="/ur/pray-for/"
+        ogImage={`https://islamicdates.org/og/pray-for/${lang}-deceased.jpg`} ogImageAlt={T.toolLabel}>
+  <header class="site-header">
+    <div class="header-start">
+      <a href={home} class="logo" aria-label={T.home}>
+        <div class="logo-icon">☾</div>
+        <div>
+          <div class="brand">{pick(lang, 'التقويم الهجري', 'Hijri Calendar', 'ہجری کیلنڈر')}</div>
+          <div class="tagline">{T.tagline}</div>
+        </div>
+      </a>
+      <a href={home} class="home-btn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+        <span>{T.home}</span>
+      </a>
+    </div>
+  </header>
+
+  <div class="layout">
+    <main>
+      <section class="card section-card" style="order:1">
+        <h1 class="section-h2" style="font-size:25px">{T.h1}</h1>
+        <p class="section-p" style="margin-top:8px">{T.intro}</p>
+      </section>
+
+      <section class="card section-card" id="new" style="order:2">
+        <h2 class="section-h2">{T.formH}</h2>
+        <form id="pf-new" class="pf-form" novalidate data-base={T.base}>
+          <fieldset class="pf-kinds">
+            <legend>{T.kindLabel}</legend>
+            {(['deceased', 'sick'] as const).map((k, i) => (
+              <label class="pf-kind">
+                <input type="radio" name="kind" value={k} checked={i === 0} />
+                <span class="pf-kind-t">{T.kinds[k].t}</span>
+                <span class="pf-kind-d">{T.kinds[k].d}</span>
+              </label>
+            ))}
+          </fieldset>
+
+          <label for="pf-name" class="pf-label">{T.nameLabel}</label>
+          <input id="pf-name" name="name" type="text" maxlength={NAME_MAX} required
+                 placeholder={T.namePh} autocomplete="off" aria-describedby="pf-name-hint" />
+          <p class="pf-form-hint" id="pf-name-hint">{T.nameHint}</p>
+
+          <fieldset class="pf-genders">
+            <legend>{T.genderLabel}</legend>
+            <div class="pf-seg">
+              {(['m', 'f'] as const).map((g, i) => (
+                <label><input type="radio" name="gender" value={g} checked={i === 0} /><span>{T.genders[g]}</span></label>
+              ))}
+            </div>
+            <p class="pf-form-hint">{T.genderHint}</p>
+          </fieldset>
+
+          <button type="submit" class="pf-submit" data-idle={T.submit} data-busy={T.submitting}>{T.submit}</button>
+          <p class="pf-form-err" id="pf-err" role="alert" hidden
+             data-empty={T.err.empty_name} data-generic={T.err.generic} data-network={T.err.network} data-rate={T.err.rate}></p>
+        </form>
+      </section>
+
+      <section class="card section-card" style="order:3">
+        <h2 class="section-h2">{T.stepsH}</h2>
+        <ol class="pf-steps">
+          {T.steps.map((s, i) => (
+            <li>
+              <span class="pf-step-n">{i + 1}</span>
+              <div><p class="pf-step-t">{s.t}</p><p class="pf-step-d">{s.d}</p></div>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      {[{ h: T.duasDeceasedH, list: deceasedDuas, id: 'duas-deceased' }, { h: T.duasSickH, list: sickDuas, id: 'duas-sick' }].map((sec, si) => (
+        <section class="card section-card" id={sec.id} style={`order:${4 + si}`}>
+          <h2 class="section-h2">{sec.h}</h2>
+          {si === 0 && <p class="section-p">{T.duasNote}</p>}
+          <ol class="pf-duas">
+            {sec.list.map(d => (
+              <li class="pf-dua">
+                <div class="pf-dua-head">
+                  <h3 class="pf-when">{d.when}</h3>
+                  {d.count && <span class="pf-times">×{d.count}</span>}
+                </div>
+                <p class="pf-text" dir="rtl" lang="ar">{d.text}</p>
+                {d.meaning && <p class="pf-meaning">{d.meaning}</p>}
+                <p class="pf-src">{d.src}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+      ))}
+
+      <section class="card section-card" style="order:6">
+        <h2 class="section-h2">{T.rulesH}</h2>
+        <ul class="pf-rules">
+          {T.rules.map(r => (<li><strong>{r.b}</strong> {r.t}</li>))}
+        </ul>
+      </section>
+
+      <section class="card section-card" style="order:7">
+        <h2 class="section-h2">{T.faqH}</h2>
+        {T.faq.map((f, i) => (
+          <div class="faq-item" style={i === T.faq.length - 1 ? 'border-bottom:none' : ''}>
+            <p class="faq-q">{f.q}</p>
+            <p class="faq-a">{f.a}</p>
+          </div>
+        ))}
+      </section>
+    </main>
+
+    <aside>
+      <div class="card" style="padding:18px 20px">
+        <h3 style="margin:0 0 12px;font-size:15.5px;font-weight:700">{T.relatedH}</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:14.5px">
+          {T.related.map(r => (<a href={r.href} style="color:var(--accent);text-decoration:none">{r.label}</a>))}
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="site-footer">
+    {T.footerNote}
+    <span style="margin:0 8px;opacity:.4">·</span>
+    <a href={T.privacyHref} style="color:var(--muted);text-decoration:none;font-size:13px">{T.privacyLabel}</a>
+  </footer>
+
+  <style is:global>
+    .pf-form { display:flex; flex-direction:column; gap:8px; margin-top:12px; }
+    .pf-form fieldset { border:0; margin:0; padding:0; min-width:0; }
+    .pf-form legend, .pf-label { font-size:14px; font-weight:600; color:var(--text); margin:6px 0 6px; padding:0; }
+    .pf-kinds { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .pf-kinds legend { grid-column:1 / -1; }
+    .pf-kind { position:relative; display:flex; flex-direction:column; gap:3px; padding:13px 14px; border:1.5px solid var(--border); border-radius:14px; background:var(--surface); cursor:pointer; transition:border-color .15s, background .15s; }
+    .pf-kind input { position:absolute; opacity:0; pointer-events:none; }
+    .pf-kind-t { font-size:15.5px; font-weight:800; color:var(--text); }
+    .pf-kind-d { font-size:13px; color:var(--muted); }
+    .pf-kind:has(input:checked) { border-color:var(--accent); background:var(--accent-soft); }
+    .pf-kind:has(input:checked) .pf-kind-t { color:var(--accent-strong); }
+    .pf-kind:has(input:focus-visible) { outline:2px solid var(--accent); outline-offset:2px; }
+    .pf-form input[type=text] { font:inherit; padding:11px 13px; border:1px solid var(--border); border-radius:12px; background:var(--surface); color:var(--text); width:100%; }
+    .pf-form input[type=text]:focus-visible { outline:2px solid var(--accent); outline-offset:1px; }
+    .pf-seg { display:inline-flex; padding:4px; gap:4px; border-radius:12px; background:var(--accent-soft); }
+    .pf-seg label { position:relative; cursor:pointer; }
+    .pf-seg input { position:absolute; opacity:0; pointer-events:none; }
+    .pf-seg span { display:block; min-width:84px; text-align:center; padding:9px 18px; border-radius:9px; font-weight:800; font-size:15px; color:var(--accent-strong); }
+    .pf-seg input:checked + span { background:var(--surface); box-shadow:0 1px 4px rgba(13,40,48,.12); }
+    .pf-seg input:focus-visible + span { outline:2px solid var(--accent); }
+    .pf-form-hint { font-size:13.5px; color:var(--muted); line-height:1.75; margin:4px 0 0; }
+    .pf-form-err { font-size:14px; color:#b42318; margin:4px 0 0; }
+    .pf-submit { font:inherit; font-weight:700; margin-top:12px; padding:12px 18px; border:0; border-radius:12px; background:var(--accent); color:var(--accent-contrast); cursor:pointer; align-self:flex-start; }
+    .pf-submit:hover { background:var(--accent-strong); }
+    .pf-submit[disabled] { opacity:.6; cursor:progress; }
+    .pf-steps { list-style:none; margin:14px 0 0; padding:0; display:flex; flex-direction:column; gap:14px; }
+    .pf-steps li { display:flex; gap:12px; align-items:flex-start; }
+    .pf-step-n { flex:0 0 28px; height:28px; border-radius:50%; display:grid; place-items:center; background:var(--accent-soft); color:var(--accent-strong); font-weight:700; font-size:14px; }
+    .pf-step-t { margin:0 0 3px; font-weight:700; font-size:15px; }
+    .pf-step-d { margin:0; color:var(--muted); font-size:14.5px; line-height:1.85; }
+    .pf-rules { margin:12px 0 0; padding-inline-start:20px; display:flex; flex-direction:column; gap:10px; }
+    .pf-rules li { font-size:14.5px; line-height:1.85; color:var(--muted); }
+    .pf-rules strong { color:var(--text); }
+
+    .pf-duas { list-style:none; margin:14px 0 0; padding:0; display:flex; flex-direction:column; gap:14px; }
+    .pf-dua { border:1px solid var(--border); border-inline-start:4px solid var(--accent); border-radius:16px; background:var(--surface2); padding:15px 17px; }
+    .pf-dua-head { display:flex; align-items:center; gap:10px; padding-bottom:9px; margin-bottom:10px; border-bottom:1px dashed var(--border); }
+    .pf-when { margin:0; flex:1 1 auto; min-width:0; font-size:15px; font-weight:800; color:var(--accent); line-height:1.5; }
+    .pf-times { flex:0 0 auto; font-size:12.5px; font-weight:700; color:var(--gold-deep); background:var(--gold-soft); padding:4px 11px; border-radius:999px; }
+    .pf-text { margin:0; font-family:'Noto Naskh Arabic', 'IBM Plex Sans Arabic', serif; font-size:clamp(19px, 2.6vw, 23px); line-height:2.15; font-weight:500; color:var(--text); text-align:right; text-wrap:pretty; }
+    .pf-meaning { margin:10px 0 0; font-size:14.5px; line-height:1.8; color:var(--muted); }
+    .pf-src { margin:10px 0 0; padding-top:9px; border-top:1px dashed var(--border); font-size:13px; font-weight:600; color:var(--muted); }
+
+    @media (pointer:coarse) { .pf-submit, .pf-seg span { min-height:44px; } }
+    @media (max-width:420px) { .pf-kinds { grid-template-columns:1fr; } }
+  </style>
+
+  <script>
+    const form = document.getElementById('pf-new') as HTMLFormElement | null;
+    const err = document.getElementById('pf-err') as HTMLElement | null;
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!err) return;
+      const btn = form.querySelector('button[type=submit]') as HTMLButtonElement;
+      const fd = new FormData(form);
+      const name = String(fd.get('name') ?? '').trim();
+      const kind = String(fd.get('kind') ?? 'deceased');
+      const gender = String(fd.get('gender') ?? 'm');
+      const lang = document.documentElement.lang;
+      err.hidden = true;
+      if (!name) {
+        err.textContent = err.dataset.empty ?? '';
+        err.hidden = false;
+        (document.getElementById('pf-name') as HTMLInputElement | null)?.focus();
+        return;
+      }
+      btn.disabled = true;
+      btn.textContent = btn.dataset.busy ?? '';
+      try {
+        const r = await fetch('/api/pray-for/create', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ name, kind, gender, lang }),
+        });
+        const j = await r.json();
+        if (j && j.ok) {
+          // The admin key is the creator's only way to delete the page later; it is
+          // never sent anywhere else and lives only in this browser.
+          try { localStorage.setItem('idk.pray.admin.' + j.slug, j.adminKey); } catch (_) {}
+          // Wait for GA to confirm the hit (or 700 ms) before navigating away.
+          const dest = (form.dataset.base ?? '/pray-for/') + j.slug + '/?new=1';
+          let gone = false;
+          const go = () => { if (!gone) { gone = true; location.href = dest; } };
+          const w = window as unknown as { gtag?: (...a: unknown[]) => void };
+          if (typeof w.gtag === 'function') {
+            w.gtag('event', 'prayfor_create', { kind, lang, transport_type: 'beacon', event_callback: go, event_timeout: 700 });
+          }
+          setTimeout(go, 750);
+          return;
+        }
+        err.textContent = (j && j.code === 'rate' && err.dataset.rate) || err.dataset.generic || '';
+        err.hidden = false;
+      } catch (_) {
+        err.textContent = err.dataset.network ?? '';
+        err.hidden = false;
+      }
+      btn.disabled = false;
+      btn.textContent = btn.dataset.idle ?? '';
+    });
+  </script>
+</Layout>
