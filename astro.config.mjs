@@ -3,17 +3,20 @@ import react from '@astrojs/react';
 import cloudflare from '@astrojs/cloudflare';
 import sitemap from '@astrojs/sitemap';
 import { convIsIndexable, parseSlug } from './src/lib/convert.ts';
-import { monthIsIndexable, H_MON_SLUG } from './src/lib/months.ts';
+import { monthIsIndexable, yearIsIndexable, H_MON_SLUG } from './src/lib/months.ts';
 import { occIsIndexable, OCCASIONS } from './src/lib/occasions.ts';
 import { imsakCityIsIndexable } from './src/lib/imsakiyah.ts';
 
 // Pages outside their indexable window ship with <meta robots="noindex">. Listing
 // them in the sitemap too would trip "Submitted URL marked noindex" in Search
 // Console — and, worse, keep asking Google to re-crawl URLs it has already
-// declined — so the same three predicates that drive the meta tag also gate the
+// declined — so the same predicates that drive the meta tag also gate the
 // sitemap. One source of truth per page family, imported from src/lib.
 const CONV_RE  = /\/convert\/([0-9]+-[0-9]+-[0-9]+)\/?$/;
 const MONTH_RE = new RegExp(`/([0-9]{4})/(${H_MON_SLUG.join('|')})/?$`);
+// Hijri year pages: /1448/, /en/1448/, /ur/1448/ — the year directly under the
+// site root or a language prefix, nothing after it.
+const YEAR_RE  = /^https?:\/\/[^/]+\/(?:(?:en|ur)\/)?([0-9]{4})\/?$/;
 const OCC_RE   = new RegExp(`/(${OCCASIONS.map(o => o.slug).join('|')})-([0-9]{4})/?$`);
 
 function pageIsIndexable(url) {
@@ -24,6 +27,9 @@ function pageIsIndexable(url) {
   }
   const m = url.match(MONTH_RE);
   if (m) return monthIsIndexable(Number(m[1]));
+
+  const y = url.match(YEAR_RE);
+  if (y) return yearIsIndexable(Number(y[1]));
 
   const o = url.match(OCC_RE);
   if (o) return occIsIndexable(Number(o[2]));

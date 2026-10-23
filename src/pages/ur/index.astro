@@ -11,7 +11,7 @@ import HomeCityPrayer from '../../components/HomeCityPrayer.astro';
 import { getL } from '../../lib/data';
 import { g2h, h2g, todayUTC } from '../../lib/hijri';
 import { G_MON_UR } from '../../lib/data';
-import { monthBasePath, monthName, monthSlug, H_YEAR_START, H_YEAR_END } from '../../lib/months';
+import { monthBasePath, monthName, monthSlug, yearBasePath, H_YEAR_START, H_YEAR_END } from '../../lib/months';
 import { H_MON_UR } from '../../lib/data';
 import { eventForDay, otdContent, otdIcon, otdAgo, fmtHDayL, otdPathL, whatsappHrefL } from '../../lib/onthisday.i18n';
 
@@ -66,6 +66,13 @@ const _keyMonths = [
   { hm: 10, note: 'عید الفطر' },
   { hm: 12, note: 'حج و عید الاضحیٰ' },
 ];
+// Hijri year pages around the current year ("1448 hijri to gregorian").
+const _yearLinks = Array.from({ length: 5 }, (_, j) => _curHy - 2 + j)
+  .filter(y => y >= H_YEAR_START && y <= H_YEAR_END)
+  .map(y => ({
+    hy: y, href: yearBasePath(y, 'ur'), cur: y === _curHy,
+    g: `${h2g(y, 1, 1).getUTCFullYear()}–${String(new Date(h2g(y + 1, 1, 1).getTime() - 86400000).getUTCFullYear()).slice(2)}`,
+  }));
 const _yStart = Math.max(H_YEAR_START, _curHy - 3);
 const _yEnd = Math.min(H_YEAR_END, _curHy + 3);
 const _keyMonthRows = _keyMonths.map(k => ({
@@ -195,6 +202,16 @@ const jsonLd = JSON.stringify([
             <a href={m.href} class="month-item" style="text-decoration:none;color:inherit">
               <span class="month-num">{i + 1}</span>
               <div><div class="month-name">{m.name}</div><div class="month-note">{_monthNotesShort[i]}</div><div style="font-size:12px;color:var(--accent);font-weight:600;margin-top:3px">{_monthGreg[i]}</div></div>
+            </a>
+          ))}
+        </div>
+
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:16px">
+          <span style="font-weight:700;font-size:14.5px">پورا سال عیسوی تاریخوں میں</span>
+          {_yearLinks.map(y => (
+            <a href={y.href} class="yr-chip" style={y.cur ? 'border-color:var(--accent);background:var(--accent-soft)' : ''}>
+              <span class="yc-h">{y.hy} ھ</span>
+              <span class="yc-g">{y.g}</span>
             </a>
           ))}
         </div>

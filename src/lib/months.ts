@@ -98,6 +98,69 @@ export function monthGrid(hy: number, hm: number, lang: LangLike): MDay[] {
   return out;
 }
 
+// ---- Hijri year pages ---------------------------------------------------------
+// "1447 hijri to gregorian" (1,600/mo in Saudi Arabia alone) and "1448 hijri to
+// gregorian" were answered by whichever converter day page Google happened to
+// pick — /en/convert/1447-1-26/, a noindex page. There was no page for the year
+// itself. These pages give that query one URL per year: the twelve months with
+// their Gregorian start and end dates, and the year's occasions.
+//
+// Same index window as the month pages: a year is a query people make only while
+// it is near, and the template is the same from one year to the next.
+export const yearIsIndexable = monthIsIndexable;
+
+export function yearBasePath(hy: number, lang: LangLike): string {
+  const l = toLang(lang);
+  return l === 'ar' ? `/${hy}/` : l === 'ur' ? `/ur/${hy}/` : `/en/${hy}/`;
+}
+
+export interface YMonth {
+  hm: number;
+  start: Date;   // 1st of the month
+  end: Date;     // last day of the month
+  days: number;  // 29 or 30
+}
+
+// Month spans read day by day from the Intl Umm al-Qura calendar, like monthGrid
+// above — not from daysInHMonth(), for the reason given at the top of this file.
+export function yearMonths(hy: number): YMonth[] {
+  const out: YMonth[] = [];
+  for (let hm = 1; hm <= 12; hm++) {
+    const start = h2g(hy, hm, 1);
+    let end = start;
+    let days = 0;
+    for (let d = start; days < 31; d = new Date(d.getTime() + 86400000)) {
+      const h = g2h(d);
+      if (h.y !== hy || h.m !== hm) break;
+      end = d;
+      days++;
+    }
+    out.push({ hm, start, end, days });
+  }
+  return out;
+}
+
+export interface YOcc {
+  slug: string;
+  hm: number;
+  hd: number;
+  date: Date;
+  /** Occasion page for that Gregorian year, when one was generated. */
+  href: string | null;
+}
+
+/** Every named occasion that falls in Hijri year hy, in calendar order. */
+export function yearOccasions(hy: number, lang: LangLike): YOcc[] {
+  return [...OCCASIONS]
+    .sort((a, b) => a.hm - b.hm || a.hd - b.hd)
+    .map(o => {
+      const date = h2g(hy, o.hm, o.hd);
+      const gy = date.getUTCFullYear();
+      const href = gy >= G_YEAR_START && gy <= G_YEAR_END ? occBasePath(o.slug, gy, lang) : null;
+      return { slug: o.slug, hm: o.hm, hd: o.hd, date, href };
+    });
+}
+
 export function prevMonth(hy: number, hm: number): { hy: number; hm: number } | null {
   let py = hy, pm = hm - 1;
   if (pm < 1) { pm = 12; py--; }

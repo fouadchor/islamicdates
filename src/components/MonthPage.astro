@@ -3,7 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import RamadanImsakiyahCities from './RamadanImsakiyahCities.astro';
 import { fmtG, fmtGShort, fmtH } from '../lib/occasions';
 import {
-  monthGrid, monthBasePath, monthName, prevMonth, nextMonth, monthIsIndexable } from '../lib/months';
+  monthGrid, monthBasePath, monthName, prevMonth, nextMonth, monthIsIndexable, yearBasePath } from '../lib/months';
 import {
   type Lang, pick, hijriEra, wdHeadArr, gShortArr,
   MONTHS_NOTES_AR, MONTHS_NOTES_EN, MONTHS_NOTES_UR,
@@ -46,7 +46,8 @@ const breadcrumb = {
   "@context": "https://schema.org", "@type": "BreadcrumbList",
   "itemListElement": [
     { "@type": "ListItem", "position": 1, "name": pick(lang, "الرئيسية", "Home", "ہوم"), "item": pick(lang, "https://islamicdates.org/", "https://islamicdates.org/en/", "https://islamicdates.org/ur/") },
-    { "@type": "ListItem", "position": 2, "name": `${name} ${hy}`, "item": canonical },
+    { "@type": "ListItem", "position": 2, "name": `${hy} ${era}`, "item": `https://islamicdates.org${yearBasePath(hy, lang)}` },
+    { "@type": "ListItem", "position": 3, "name": `${name} ${hy}`, "item": canonical },
   ],
 };
 const jsonLd = JSON.stringify([breadcrumb]);
@@ -64,6 +65,7 @@ const t = {
   occTitle: pick(lang, 'مناسبات هذا الشهر', 'Occasions this month', 'اس مہینے کی مناسبتیں'),
   none: pick(lang, 'لا توجد مناسبات بارزة في هذا الشهر', 'No major occasions this month', 'اس مہینے کوئی نمایاں مناسبت نہیں'),
   monthsOf: pick(lang, `أشهر سنة ${hy} هـ`, `Months of ${hy} AH`, `${hy} ھ کے مہینے`),
+  yearLink: pick(lang, `سنة ${hy} هـ كاملة بالميلادي ←`, `${hy} Hijri to Gregorian: the whole year →`, `${hy} ھ کا پورا سال عیسوی تاریخوں میں ←`),
   prevLbl: pick(lang, 'الشهر السابق', 'Previous month', 'پچھلا مہینہ'),
   nextLbl: pick(lang, 'الشهر التالي', 'Next month', 'اگلا مہینہ'),
   toolsTitle: pick(lang, 'أدوات ذات صلة', 'Related tools', 'متعلقہ اوزار'),
@@ -173,6 +175,7 @@ const yearMonths = Array.from({ length: 12 }, (_, i) => ({
 
       <section class="card section-card" style="order:4">
         <h2 class="section-h2">{t.monthsOf}</h2>
+        <a href={yearBasePath(hy, lang)} style="display:inline-block;margin-top:6px;color:var(--accent);text-decoration:none;font-weight:700;font-size:14.5px">{t.yearLink}</a>
         <div class="months-grid" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))">
           {yearMonths.map(m => (
             <a href={m.href} class="month-item" style={`text-decoration:none;color:inherit;${m.current ? 'border-color:var(--accent);background:var(--accent-soft)' : ''}`}>

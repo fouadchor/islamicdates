@@ -1,0 +1,341 @@
+---
+// One Hijri year on one page: the twelve months with their Gregorian start and
+// end dates, and the year's occasions. Answers "1448 hijri to gregorian" with a
+// page about 1448, rather than leaving Google to rank a converter day page.
+import Layout from '../layouts/Layout.astro';
+import { fmtG, fmtGShort, fmtH, occLoc, OCCASIONS } from '../lib/occasions';
+import {
+  yearMonths, yearOccasions, yearBasePath, yearIsIndexable,
+  monthBasePath, monthName, hYears, H_YEAR_START, H_YEAR_END,
+} from '../lib/months';
+import { convBasePath, CONV_HY_START, CONV_HY_END } from '../lib/convert';
+import { historicalPath } from '../lib/historical';
+import { g2h, h2g } from '../lib/hijri';
+import { type Lang, pick, hijriEra, wdArr } from '../lib/data';
+
+interface Props { lang: Lang; hy: number; }
+const { lang, hy } = Astro.props;
+
+const era = hijriEra(lang);
+const months = yearMonths(hy);
+const start = months[0].start;
+const end = months[11].end;
+const len = months.reduce((s, m) => s + m.days, 0);
+const n30 = months.filter(m => m.days === 30).length;
+const n29 = 12 - n30;
+const gy1 = start.getUTCFullYear();
+const gy2 = end.getUTCFullYear();
+const gSpan = gy1 === gy2 ? String(gy1) : `${gy1}–${gy2}`;
+
+const ram = months[8];
+const fitr = months[9].start;
+const adha = h2g(hy, 12, 10);
+
+// How the year lies across the two Gregorian years.
+const beganIn = (y: number) => months.filter(m => m.start.getUTCFullYear() === y).map(m => monthName(m.hm, lang));
+const monthsInGy1 = beganIn(gy1);
+const monthsInGy2 = gy1 === gy2 ? [] : beganIn(gy2);
+const jan1 = new Date(Date.UTC(gy2, 0, 1));
+const jan1H = g2h(jan1);
+const jan1InYear = gy1 !== gy2 && jan1H.y === hy;
+
+const occs = yearOccasions(hy, lang).map(o => {
+  const def = OCCASIONS.find(d => d.slug === o.slug)!;
+  return { ...o, name: occLoc(def, lang).name };
+});
+
+const hasConv = hy >= CONV_HY_START && hy <= CONV_HY_END;
+const wd = wdArr(lang);
+const canonical = `https://islamicdates.org${yearBasePath(hy, lang)}`;
+const sep = lang === 'en' ? ', ' : '، ';
+
+const title = pick(lang,
+  `التقويم الهجري ${hy} بالميلادي — أشهر ومناسبات ${hy} هـ`,
+  `${hy} Hijri to Gregorian — Islamic Calendar ${gSpan}`,
+  `ہجری سال ${hy} عیسوی میں — ${hy} ھ کا اسلامی کیلنڈر`);
+const description = pick(lang,
+  `السنة الهجرية ${hy} تبدأ ${fmtGShort(start, lang)} وتنتهي ${fmtGShort(end, lang)} (${len} يوماً). الأشهر الاثنا عشر ببداية كل شهر ونهايته بالميلادي، ومواعيد رمضان والعيدين وسائر المناسبات وفق تقويم أم القرى.`,
+  `${hy} AH runs from ${fmtGShort(start, lang)} to ${fmtGShort(end, lang)} (${len} days). All 12 months of ${hy} with their Gregorian start and end dates, plus Ramadan, both Eids and the other occasions — per the Umm al-Qura calendar.`,
+  `${hy} ھ کا آغاز ${fmtGShort(start, lang)} اور اختتام ${fmtGShort(end, lang)} کو ہوتا ہے (${len} دن)۔ بارہ مہینوں کی عیسوی تاریخِ آغاز و اختتام، اور رمضان، عیدین و دیگر مناسبتوں کی تاریخیں، اُمّ القریٰ تقویم کے مطابق۔`);
+
+const intro = pick(lang,
+  `تبدأ السنة الهجرية ${hy} بغرّة محرم الموافق ${fmtG(start, lang)}، وتنتهي بآخر يوم من ذي الحجة الموافق ${fmtG(end, lang)}${gy1 === gy2 ? '' : `، فتمتد على عامَي ${gy1} و${gy2} ميلادياً`}. عدد أيامها ${len} يوماً: ${n30} أشهر من ثلاثين يوماً و${n29} من تسعة وعشرين. يبدأ فيها رمضان ${fmtG(ram.start, lang)}، ويوافق عيد الفطر ${fmtG(fitr, lang)}، وعيد الأضحى ${fmtG(adha, lang)}.`,
+  `${hy} AH begins on 1 Muharram, ${fmtG(start, lang)}, and ends with the last day of Dhuʾl-Hijjah on ${fmtG(end, lang)}${gy1 === gy2 ? '' : ` — so it spans both ${gy1} and ${gy2}`}. It has ${len} days: ${n30} months of 30 days and ${n29} of 29. Ramadan ${hy} begins on ${fmtG(ram.start, lang)}, Eid al-Fitr falls on ${fmtG(fitr, lang)} and Eid al-Adha on ${fmtG(adha, lang)}.`,
+  `${hy} ھ کا آغاز یکم محرم یعنی ${fmtG(start, lang)} کو ہوتا ہے اور اختتام ذوالحجہ کے آخری دن ${fmtG(end, lang)} کو${gy1 === gy2 ? '' : `، یوں یہ سال ${gy1} اور ${gy2} دونوں پر محیط ہے`}۔ اس کے ${len} دن ہیں: ${n30} مہینے تیس دن کے اور ${n29} انتیس دن کے۔ رمضان ${hy} کا آغاز ${fmtG(ram.start, lang)} کو، عید الفطر ${fmtG(fitr, lang)} کو اور عید الاضحیٰ ${fmtG(adha, lang)} کو ہے۔`);
+
+const t = {
+  h1: pick(lang, `التقويم الهجري ${hy} هـ بالميلادي`, `${hy} Hijri to Gregorian: the ${hy} AH calendar`, `${hy} ھ ہجری سے عیسوی: ${hy} ھ کا کیلنڈر`),
+  startLbl: pick(lang, 'بداية السنة', 'Year begins', 'سال کا آغاز'),
+  endLbl: pick(lang, 'نهاية السنة', 'Year ends', 'سال کا اختتام'),
+  daysLbl: pick(lang, 'عدد الأيام', 'Days in year', 'سال کے دن'),
+  gLbl: pick(lang, 'السنة الميلادية', 'Gregorian years', 'عیسوی سال'),
+  tableTitle: pick(lang, `أشهر سنة ${hy} هـ بالميلادي`, `The months of ${hy} AH in Gregorian`, `${hy} ھ کے مہینے عیسوی تاریخوں میں`),
+  thMonth: pick(lang, 'الشهر', 'Month', 'مہینہ'),
+  thStart: pick(lang, 'يبدأ', 'Begins', 'آغاز'),
+  thEnd: pick(lang, 'ينتهي', 'Ends', 'اختتام'),
+  thDays: pick(lang, 'الأيام', 'Days', 'دن'),
+  tableNote: pick(lang,
+    'اسم الشهر يفتح تقويمه يوماً بيوم، وتاريخ البداية يفتح صفحة غرّة الشهر.',
+    'Each month name opens its day-by-day calendar; each start date opens the page for the 1st of that month.',
+    'مہینے کا نام اس کا دن بہ دن کیلنڈر کھولتا ہے، اور تاریخِ آغاز اُس مہینے کی پہلی تاریخ کا صفحہ۔'),
+  tableNoteNoConv: pick(lang,
+    'اسم الشهر يفتح تقويمه يوماً بيوم.',
+    'Each month name opens its day-by-day calendar.',
+    'مہینے کا نام اس کا دن بہ دن کیلنڈر کھولتا ہے۔'),
+  occTitle: pick(lang, `مناسبات سنة ${hy} هـ`, `Islamic occasions in ${hy} AH`, `${hy} ھ کی اسلامی مناسبتیں`),
+  gregTitle: pick(lang, `سنة ${hy} على التقويم الميلادي`, `${hy} AH on the Gregorian calendar`, `${hy} ھ عیسوی تقویم پر`),
+  beganIn: (y: number) => pick(lang, `أشهر تبدأ في ${y}`, `Months beginning in ${y}`, `${y} میں شروع ہونے والے مہینے`),
+  jan1: pick(lang,
+    `يوافق 1 يناير ${gy2} يوم ${fmtH(jan1H.y, jan1H.m, jan1H.d, lang)}.`,
+    `1 January ${gy2} falls on ${fmtH(jan1H.y, jan1H.m, jan1H.d, lang)}.`,
+    `یکم جنوری ${gy2} کو ${fmtH(jan1H.y, jan1H.m, jan1H.d, lang)} ہے۔`),
+  faqTitle: pick(lang, 'أسئلة شائعة', 'Frequently asked questions', 'عام سوالات'),
+  howTitle: pick(lang, 'كيف تُحسب هذه التواريخ؟', 'How are these dates calculated?', 'یہ تاریخیں کیسے نکالی جاتی ہیں؟'),
+  howBody: pick(lang,
+    'تُحسب التواريخ هنا فلكياً وفق معايير تقويم أم القرى المعتمد في السعودية، وطول السنة فيه 354 أو 355 يوماً. وقد تعتمد بعض الدول على رؤية الهلال المباشرة، فيختلف بدء الشهر بيوم واحد تقريباً بين دولة وأخرى.',
+    'Dates here are calculated astronomically per the Umm al-Qura standard used in Saudi Arabia, in which a year has 354 or 355 days. Some countries rely on direct moon sighting, so a month\'s start can differ by about one day between regions.',
+    'یہاں تاریخوں کا حساب سعودی عرب میں رائج اُمّ القریٰ معیار کے مطابق فلکی طور پر کیا جاتا ہے، جس میں سال 354 یا 355 دن کا ہوتا ہے۔ بعض ممالک براہِ راست رؤیتِ ہلال پر انحصار کرتے ہیں، اس لیے مہینے کا آغاز مختلف ممالک کے درمیان تقریباً ایک دن آگے پیچھے ہو سکتا ہے۔'),
+  yearsTitle: pick(lang, 'سنوات هجرية أخرى', 'Other Hijri years', 'دیگر ہجری سال'),
+  prevLbl: pick(lang, 'السنة السابقة', 'Previous year', 'پچھلا سال'),
+  nextLbl: pick(lang, 'السنة التالية', 'Next year', 'اگلا سال'),
+  toolsTitle: pick(lang, 'أدوات ذات صلة', 'Related tools', 'متعلقہ اوزار'),
+  fullCal: pick(lang, 'التقويم الهجري الكامل وتاريخ اليوم', "Full Hijri calendar & today's date", 'مکمل ہجری کیلنڈر اور آج کی تاریخ'),
+  converter: pick(lang, 'محوّل التاريخ الهجري والميلادي', 'Hijri–Gregorian date converter', 'ہجری–عیسوی تاریخ کنورٹر'),
+  historical: pick(lang, 'محوّل التواريخ التاريخية (من 1 هـ)', 'Historical date converter (from 1 AH)', 'تاریخی تاریخوں کا کنورٹر (1 ھ سے)'),
+  prayer: pick(lang, 'مواقيت الصلاة', 'Prayer times', 'مواقیتِ نماز'),
+  brand: pick(lang, 'التقويم الهجري', 'Hijri Calendar', 'ہجری کیلنڈر'),
+  home: pick(lang, 'الرئيسية', 'Home', 'ہوم'),
+  homeAria: pick(lang, 'الانتقال إلى الصفحة الرئيسية', 'Go to homepage', 'ہوم پیج پر جائیں'),
+  footer: pick(lang, 'الحساب وفق تقويم أم القرى', 'Dates based on the Umm al-Qura calendar · for reference', 'حساب اُمّ القریٰ تقویم کے مطابق'),
+  privacy: pick(lang, 'سياسة الخصوصية', 'Privacy Policy', 'رازداری پالیسی'),
+};
+
+const faq = [
+  {
+    q: pick(lang, `متى تبدأ السنة الهجرية ${hy}؟`, `When does ${hy} AH start?`, `${hy} ھ کب شروع ہوتا ہے؟`),
+    a: pick(lang,
+      `تبدأ بغرّة محرم ${hy} هـ الموافق ${fmtG(start, lang)} وفق تقويم أم القرى، وتنتهي ${fmtG(end, lang)}.`,
+      `1 Muharram ${hy} AH falls on ${fmtG(start, lang)} per the Umm al-Qura calendar, and the year ends on ${fmtG(end, lang)}.`,
+      `یکم محرم ${hy} ھ اُمّ القریٰ تقویم کے مطابق ${fmtG(start, lang)} کو ہے، اور سال ${fmtG(end, lang)} کو ختم ہوتا ہے۔`),
+  },
+  {
+    q: pick(lang, `كم عدد أيام سنة ${hy} هـ؟`, `How many days are in ${hy} AH?`, `${hy} ھ میں کتنے دن ہیں؟`),
+    a: pick(lang,
+      `${len} يوماً: ${n30} أشهر من ثلاثين يوماً و${n29} من تسعة وعشرين. السنة الهجرية أقصر من الميلادية بنحو 11 يوماً، ولذلك تتقدّم مواعيدها في التقويم الميلادي كل عام.`,
+      `${len} days — ${n30} months of 30 days and ${n29} of 29. A Hijri year is about 11 days shorter than a Gregorian one, which is why its dates move earlier in the Gregorian calendar every year.`,
+      `${len} دن — ${n30} مہینے تیس دن کے اور ${n29} انتیس دن کے۔ ہجری سال عیسوی سال سے تقریباً 11 دن چھوٹا ہوتا ہے، اسی لیے اس کی تاریخیں ہر سال عیسوی تقویم میں پہلے آ جاتی ہیں۔`),
+  },
+  {
+    q: pick(lang, `متى رمضان ${hy}؟`, `When is Ramadan ${hy}?`, `رمضان ${hy} کب ہے؟`),
+    a: pick(lang,
+      `يبدأ رمضان ${hy} هـ ${fmtG(ram.start, lang)} ويستمر ${ram.days} يوماً حتى ${fmtG(ram.end, lang)}، ويوافق عيد الفطر ${fmtG(fitr, lang)}.`,
+      `Ramadan ${hy} AH begins on ${fmtG(ram.start, lang)} and lasts ${ram.days} days, to ${fmtG(ram.end, lang)}. Eid al-Fitr falls on ${fmtG(fitr, lang)}.`,
+      `رمضان ${hy} ھ کا آغاز ${fmtG(ram.start, lang)} کو ہوتا ہے اور یہ ${ram.days} دن یعنی ${fmtG(ram.end, lang)} تک رہتا ہے۔ عید الفطر ${fmtG(fitr, lang)} کو ہے۔`),
+  },
+];
+
+const homeUrl = pick(lang, 'https://islamicdates.org/', 'https://islamicdates.org/en/', 'https://islamicdates.org/ur/');
+const breadcrumb = {
+  "@context": "https://schema.org", "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": t.home, "item": homeUrl },
+    { "@type": "ListItem", "position": 2, "name": `${hy} ${era}`, "item": canonical },
+  ],
+};
+const faqSchema = {
+  "@context": "https://schema.org", "@type": "FAQPage",
+  "mainEntity": faq.map(f => ({ "@type": "Question", "name": f.q, "acceptedAnswer": { "@type": "Answer", "text": f.a } })),
+};
+const jsonLd = JSON.stringify([breadcrumb, faqSchema]);
+
+const homeHref = pick(lang, '/', '/en/', '/ur/');
+const prayerHref = pick(lang, '/prayer-times/', '/en/prayer-times/', '/ur/prayer-times/');
+const privacyHref = pick(lang, '/privacy/', '/en/privacy/', '/ur/privacy/');
+const prev = hy > H_YEAR_START ? hy - 1 : null;
+const next = hy < H_YEAR_END ? hy + 1 : null;
+
+const dotFor = (hm: number, hd: number) =>
+  (hm === 10 && hd === 1) || (hm === 12 && hd === 10) ? 'var(--gold)' : hm === 9 ? 'var(--accent)' : 'var(--holy)';
+---
+<Layout title={title} description={description} canonical={canonical} lang={lang} jsonLd={jsonLd}
+  arPath={yearBasePath(hy, 'ar')} enPath={yearBasePath(hy, 'en')} urPath={yearBasePath(hy, 'ur')}
+  noindex={!yearIsIndexable(hy)}>
+  <header class="site-header">
+    <div class="header-start">
+      <a href={homeHref} class="logo" aria-label={t.homeAria}>
+        <div class="logo-icon">☾</div>
+        <div>
+          <div class="brand">{t.brand}</div>
+          <div class="tagline">{hy} {era}</div>
+        </div>
+      </a>
+      <a href={homeHref} class="home-btn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+        <span>{t.home}</span>
+      </a>
+    </div>
+  </header>
+
+  <div class="layout">
+    <main>
+      <section class="card section-card" style="order:1">
+        <h1 class="section-h2" style="font-size:25px">{t.h1}</h1>
+        <div class="yr-stats">
+          <div><div class="yr-lbl">{t.startLbl}</div><div class="yr-val">{fmtGShort(start, lang)}</div></div>
+          <div><div class="yr-lbl">{t.endLbl}</div><div class="yr-val">{fmtGShort(end, lang)}</div></div>
+          <div><div class="yr-lbl">{t.daysLbl}</div><div class="yr-val">{len}</div></div>
+          <div><div class="yr-lbl">{t.gLbl}</div><div class="yr-val">{gSpan}</div></div>
+        </div>
+        <p class="section-p" style="margin-top:16px">{intro}</p>
+      </section>
+
+      <section class="card section-card" style="order:2">
+        <h2 class="section-h2">{t.tableTitle}</h2>
+        <div class="yr-table-wrap">
+          <table class="yr-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>{t.thMonth}</th>
+                <th>{t.thStart}</th>
+                <th>{t.thEnd}</th>
+                <th>{t.thDays}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {months.map(m => (
+                <tr>
+                  <td class="yr-num">{m.hm}</td>
+                  <td><a href={monthBasePath(hy, m.hm, lang)} class="yr-month">{monthName(m.hm, lang)}</a></td>
+                  <td>
+                    {hasConv
+                      ? <a href={convBasePath(hy, m.hm, 1, lang)} class="yr-date">{fmtGShort(m.start, lang)}</a>
+                      : <span class="yr-date">{fmtGShort(m.start, lang)}</span>}
+                    <div class="yr-wd">{wd[m.start.getUTCDay()]}</div>
+                  </td>
+                  <td>
+                    <span>{fmtGShort(m.end, lang)}</span>
+                    <div class="yr-wd">{wd[m.end.getUTCDay()]}</div>
+                  </td>
+                  <td class="yr-num">{m.days}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p class="section-p" style="margin-top:12px;font-size:14px;color:var(--muted)">{hasConv ? t.tableNote : t.tableNoteNoConv}</p>
+      </section>
+
+      <section class="card section-card" style="order:3">
+        <h2 class="section-h2">{t.occTitle}</h2>
+        <div class="yr-occ">
+          {occs.map(o => (
+            <div class="yr-occ-row">
+              <span class="yr-dot" style={`background:${dotFor(o.hm, o.hd)}`}></span>
+              <div>
+                <div class="yr-occ-name">
+                  {o.href ? <a href={o.href}>{o.name}</a> : <span>{o.name}</span>}
+                </div>
+                <div class="yr-occ-date">{fmtH(hy, o.hm, o.hd, lang)} · {fmtG(o.date, lang)}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section class="card section-card" style="order:4">
+        <h2 class="section-h2">{t.gregTitle}</h2>
+        <div class="yr-split">
+          <div>
+            <div class="yr-lbl">{t.beganIn(gy1)}</div>
+            <p class="section-p" style="margin:4px 0 0">{monthsInGy1.join(sep)}</p>
+          </div>
+          {monthsInGy2.length > 0 && (
+            <div>
+              <div class="yr-lbl">{t.beganIn(gy2)}</div>
+              <p class="section-p" style="margin:4px 0 0">{monthsInGy2.join(sep)}</p>
+            </div>
+          )}
+        </div>
+        {jan1InYear && <p class="section-p" style="margin-top:12px">{t.jan1}</p>}
+
+        <h2 class="section-h2" style="margin-top:24px">{t.faqTitle}</h2>
+        <div class="yr-faq">
+          {faq.map(f => (
+            <div>
+              <h3>{f.q}</h3>
+              <p class="section-p" style="margin:4px 0 0">{f.a}</p>
+            </div>
+          ))}
+        </div>
+
+        <h2 class="section-h2" style="margin-top:24px">{t.howTitle}</h2>
+        <p class="section-p">{t.howBody}</p>
+      </section>
+
+      <section class="card section-card" style="order:5">
+        <h2 class="section-h2">{t.yearsTitle}</h2>
+        <div class="yr-chips">
+          {hYears().map(y => (
+            y === hy
+              ? <span class="yr-chip is-cur" aria-current="page">{y} {era}</span>
+              : <a href={yearBasePath(y, lang)} class="yr-chip">{y} {era}</a>
+          ))}
+        </div>
+        <div style="display:flex;justify-content:space-between;gap:12px;margin-top:18px;flex-wrap:wrap">
+          {prev ? <a href={yearBasePath(prev, lang)} class="yr-nav">‹ {t.prevLbl}: {prev} {era}</a> : <span></span>}
+          {next ? <a href={yearBasePath(next, lang)} class="yr-nav">{t.nextLbl}: {next} {era} ›</a> : <span></span>}
+        </div>
+      </section>
+    </main>
+
+    <aside>
+      <div class="card" style="padding:18px 20px">
+        <h3 style="margin:0 0 12px;font-size:15.5px;font-weight:700">{t.toolsTitle}</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:14.5px">
+          <a href={homeHref} style="color:var(--accent);text-decoration:none">{t.fullCal}</a>
+          <a href={homeHref} style="color:var(--accent);text-decoration:none">{t.converter}</a>
+          <a href={historicalPath(lang)} style="color:var(--accent);text-decoration:none">{t.historical}</a>
+          <a href={prayerHref} style="color:var(--accent);text-decoration:none">{t.prayer}</a>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <style>
+    .yr-stats { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 22px 30px; }
+    .yr-lbl { font-size: 13px; color: var(--muted); font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+    .yr-val { font-size: 19px; font-weight: 800; color: var(--accent); margin-top: 4px; }
+    .yr-table-wrap { margin-top: 12px; overflow-x: auto; }
+    .yr-table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+    .yr-table th { text-align: start; padding: 8px 10px; border-bottom: 2px solid var(--border); color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; }
+    .yr-table td { padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .yr-num { color: var(--muted); font-variant-numeric: tabular-nums; }
+    .yr-month { font-weight: 700; color: var(--accent); text-decoration: none; white-space: nowrap; }
+    .yr-date { color: var(--text); text-decoration: none; white-space: nowrap; }
+    a.yr-date { text-decoration: underline; text-decoration-color: var(--border); text-underline-offset: 3px; }
+    a.yr-date:hover { color: var(--accent); }
+    .yr-wd { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .yr-occ { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
+    .yr-occ-row { display: flex; gap: 11px; align-items: baseline; }
+    .yr-dot { width: 9px; height: 9px; border-radius: 50%; flex: 0 0 auto; margin-top: 5px; }
+    .yr-occ-name { font-weight: 700; font-size: 15.5px; }
+    .yr-occ-name a { color: var(--accent); text-decoration: none; }
+    .yr-occ-date { font-size: 13.5px; color: var(--muted); margin-top: 2px; }
+    .yr-split { display: flex; flex-wrap: wrap; gap: 16px 32px; margin-top: 12px; }
+    .yr-split > div { flex: 1 1 220px; }
+    .yr-faq { display: flex; flex-direction: column; gap: 14px; margin-top: 12px; }
+    .yr-faq h3 { margin: 0; font-size: 15.5px; font-weight: 700; }
+    .yr-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .yr-chip { padding: 7px 14px; border-radius: 11px; background: var(--surface2); border: 1px solid var(--border); text-decoration: none; font-weight: 700; font-size: 13.5px; color: var(--accent); }
+    a.yr-chip:hover { border-color: var(--accent); }
+    .yr-chip.is-cur { background: var(--accent-soft); border-color: var(--accent); }
+    .yr-nav { color: var(--accent); text-decoration: none; font-weight: 700; font-size: 14.5px; }
+  </style>
+
+  <footer class="site-footer">
+    {t.footer}
+    <span style="margin:0 8px;opacity:.4">·</span>
+    <a href={privacyHref} style="color:var(--muted);text-decoration:none;font-size:13px">{t.privacy}</a>
+  </footer>
+</Layout>

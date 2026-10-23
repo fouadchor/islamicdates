@@ -1,0 +1,10 @@
+---
+import YearPage from '../../../components/YearPage.astro';
+import { hYears } from '../../../lib/months';
+
+export function getStaticPaths() {
+  return hYears().map(hy => ({ params: { hy: String(hy) }, props: { hy } }));
+}
+const { hy } = Astro.props;
+---
+<YearPage lang="en" hy={hy} />
