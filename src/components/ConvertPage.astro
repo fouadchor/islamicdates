@@ -4,7 +4,7 @@ import {
   convBasePath, fmtHijri, fmtGregorian, fmtGregorianShort, isoDate, monthName,
   convYears, validDaysInMonth, convIsIndexable,
 } from '../lib/convert';
-import { monthBasePath } from '../lib/months';
+import { monthBasePath, yearBasePath } from '../lib/months';
 import { h2g } from '../lib/hijri';
 import { type Lang, pick, hijriEra, wdArr, gMonArr, MONTHS_NOTES_AR, MONTHS_NOTES_EN, MONTHS_NOTES_UR } from '../lib/data';
 import { OCCASIONS, occBasePath, G_YEAR_START, G_YEAR_END } from '../lib/occasions';
@@ -21,6 +21,7 @@ const gregFmt     = fmtGregorian(gDate, lang);
 const gregShort   = fmtGregorianShort(gDate, lang);
 const monName     = monthName(hm, lang);
 const monthHref   = monthBasePath(hy, hm, lang);
+const yearHref    = yearBasePath(hy, lang);
 const era         = hijriEra(lang);
 
 const canonical = `https://islamicdates.org${convBasePath(hy, hm, hd, lang)}`;
@@ -129,6 +130,9 @@ const breadcrumb = {
       "name": pick(lang, "الرئيسية", "Home", "ہوم"),
       "item": pick(lang, "https://islamicdates.org/", "https://islamicdates.org/en/", "https://islamicdates.org/ur/") },
     { "@type": "ListItem", "position": 2,
+      "name": `${hy} ${era}`,
+      "item": `https://islamicdates.org${yearHref}` },
+    { "@type": "ListItem", "position": 3,
       "name": hijriLabel,
       "item": canonical },
   ],
@@ -159,6 +163,7 @@ const t = {
   answerLabel: pick(lang, 'التاريخ الميلادي الموافق', 'Gregorian equivalent', 'عیسوی مطابقت'),
   hijriLbl:    pick(lang, 'التاريخ الهجري', 'Hijri date', 'ہجری تاریخ'),
   monthLink:   pick(lang, `عرض تقويم ${monName} ${hy} هـ كاملاً`, `View full ${monName} ${hy} AH calendar`, `${monName} ${hy} ھ کا مکمل کیلنڈر دیکھیں`),
+  yearLink:    pick(lang, `سنة ${hy} هـ كاملة بالميلادي`, `${hy} Hijri to Gregorian: the whole year`, `${hy} ھ کا پورا سال عیسوی تاریخوں میں`),
   crossTitle:  pick(lang, `${hd} ${monName} عبر السنوات`, `${hd} ${monName} across years`, `${hd} ${monName} مختلف سالوں میں`),
   th_hy:       pick(lang, 'السنة الهجرية', 'Hijri year', 'ہجری سال'),
   th_greg:     pick(lang, 'التاريخ الميلادي', 'Gregorian date', 'عیسوی تاریخ'),
@@ -229,6 +234,11 @@ const t = {
         <div style="margin-top:18px">
           <a href={monthHref} style="color:var(--accent);text-decoration:none;font-size:14.5px;font-weight:600">
             ↗ {t.monthLink}
+          </a>
+        </div>
+        <div style="margin-top:8px">
+          <a href={yearHref} style="color:var(--accent);text-decoration:none;font-size:14.5px;font-weight:600">
+            ↗ {t.yearLink}
           </a>
         </div>
       </section>
@@ -334,6 +344,7 @@ const t = {
           <a href={homeHref} style="color:var(--accent);text-decoration:none">{t.fullCal}</a>
           <a href={homeHref} style="color:var(--accent);text-decoration:none">{t.converter}</a>
           <a href={monthHref} style="color:var(--accent);text-decoration:none">{monName} {hy} {era}</a>
+          <a href={yearHref} style="color:var(--accent);text-decoration:none">{hy} {era}</a>
         </div>
       </div>
     </aside>
