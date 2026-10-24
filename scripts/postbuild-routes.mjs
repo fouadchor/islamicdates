@@ -19,10 +19,12 @@ const routes = {
     // Khatma: every per-khatma page is shared live state, and the endpoints
     // behind it read and write D1, so both run on each request.
     '/khatma/*', '/en/khatma/*', '/ur/khatma/*', '/api/*',
+    // «ادعوا لـ…» prayer pages: a live counter per page, same reasoning.
+    '/pray-for/*', '/en/pray-for/*', '/ur/pray-for/*',
   ],
-  // The three landing pages are prerendered — serving them from the Worker would
+  // The landing pages are prerendered — serving them from the Worker would
   // spend an invocation on every visit. `exclude` wins over `include`.
-  exclude: ['/khatma/', '/en/khatma/', '/ur/khatma/'],
+  exclude: ['/khatma/', '/en/khatma/', '/ur/khatma/', '/pray-for/', '/en/pray-for/', '/ur/pray-for/'],
 };
 
 const out = fileURLToPath(new URL('../dist/_routes.json', import.meta.url));

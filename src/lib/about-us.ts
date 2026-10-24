@@ -137,6 +137,7 @@ const AR: AboutT = {
   priv: [
     'لا يطلب الموقع حساباً ولا بريداً ولا رقم هاتف لأي أداة؛ ونموذج التواصل وحده يطلب بريدك لنتمكّن من الردّ عليك.',
     'الختمة تتعرّف عليك برمز عشوائي يُحفظ في متصفحك وعلى خادم الموقع، ولا يرتبط بهويتك. الاسم اختياري، ويراه كل من معه رابط الختمة. وعند إنشاء ختمة نستعمل عنوان IP مؤقتاً للحدّ من إساءة الاستخدام، ويُحذف خلال ساعتين تقريباً.',
+    'صفحة الدعاء لمتوفّى أو مريض تحفظ الاسم الذي يكتبه منشئها ونوع الدعاء، ويراها كل من معه رابطها، ولا تظهر في محركات البحث. ومن يضغط «دعوت» يُحفظ له رمز عشوائي فقط حتى لا يُحسب مرتين، بلا اسم. ويستطيع المنشئ حذف الصفحة نهائياً من متصفحه.',
   ],
   privLink: 'سياسة الخصوصية كاملة',
 
@@ -242,6 +243,7 @@ const EN: AboutT = {
   priv: [
     'No tool on the site asks for an account, an email address or a phone number; only the contact form asks for your email, so that we can reply.',
     'The khatma recognises you by a random code stored in your browser and on our server; it is not linked to your identity. Names are optional and visible to anyone who has the khatma link. When a khatma is created, your IP address is used briefly to limit abuse and is deleted within about two hours.',
+    'A prayer page for someone who has died or is ill stores the name its creator types and the kind of prayer; anyone with its link can see it, and it is kept out of search engines. Pressing “I prayed” stores only a random code, so a prayer is not counted twice — no name. The creator can delete the page for good from their browser.',
   ],
   privLink: 'Full privacy policy',
 
@@ -347,6 +349,7 @@ const UR: AboutT = {
   priv: [
     'سائٹ کا کوئی ٹول اکاؤنٹ، ای میل یا فون نمبر نہیں مانگتا؛ صرف رابطہ فارم آپ کی ای میل مانگتا ہے تاکہ ہم جواب دے سکیں۔',
     'اجتماعی ختم آپ کو ایک بے ترتیب کوڈ سے پہچانتا ہے جو آپ کے براؤزر اور ہمارے سرور پر محفوظ ہوتا ہے اور آپ کی شناخت سے منسلک نہیں۔ نام اختیاری ہے اور ختم کا لنک رکھنے والا ہر شخص اسے دیکھ سکتا ہے۔ ختم بناتے وقت غلط استعمال روکنے کے لیے آپ کا IP پتہ عارضی طور پر استعمال ہوتا ہے اور تقریباً دو گھنٹوں میں حذف ہو جاتا ہے۔',
+    'مرحوم یا بیمار کے لیے دعا کا صفحہ وہ نام اور دعا کی قسم محفوظ کرتا ہے جو بنانے والا لکھے؛ لنک رکھنے والا ہر شخص اسے دیکھ سکتا ہے اور یہ سرچ انجنوں میں ظاہر نہیں ہوتا۔ «میں نے دعا کی» دبانے پر صرف ایک بے ترتیب کوڈ محفوظ ہوتا ہے تاکہ دعا دو بار نہ گنی جائے — کوئی نام نہیں۔ بنانے والا اپنے براؤزر سے صفحہ ہمیشہ کے لیے حذف کر سکتا ہے۔',
   ],
   privLink: 'مکمل رازداری پالیسی',
 
