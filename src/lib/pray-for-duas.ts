@@ -11,6 +11,9 @@
 // The Arabic is shown to every reader; English and Urdu readers also get the
 // meaning underneath. Source labels come from lib/duas.ts so they match the
 // supplications library exactly.
+//
+// The first supplication of each list is the page's featured one: short enough
+// to read in a moment, and carrying the person's name.
 // ─────────────────────────────────────────────────────────────────────────────
 import type { Lang } from './data';
 import { srcLabel, type DuaSrc } from './duas';
@@ -34,6 +37,23 @@ export interface PrayDua {
   src: DuaSrc;
 }
 
+const FSI = '\u2068';
+const PDI = '\u2069';
+
+/**
+ * The name, safe to drop into a sentence of the given direction.
+ *
+ * A Latin name inside an Arabic line (or an Arabic name inside an English one)
+ * is otherwise reordered by the bidi algorithm — «لِـAhmad Yusuf،» came out with
+ * the comma and the lam on the wrong sides. Unicode isolates (FSI…PDI) keep it
+ * one unit. A name already in the sentence's own script is left alone, since
+ * format characters could break the cursive join after «لِ».
+ */
+export function iso(name: string, rtl: boolean): string {
+  const foreign = rtl ? /[A-Za-z]/.test(name) : /[\u0590-\u08FF]/.test(name);
+  return foreign ? FSI + name + PDI : name;
+}
+
 /**
  * «لِـ» + name, spelled as Arabic spells it: «للوالد» not «لالوالد», and joined
  * to an Arabic name; a name in Latin script keeps a visible kashida before it.
@@ -41,11 +61,38 @@ export interface PrayDua {
 export function li(name: string, diacritic = true): string {
   const l = diacritic ? 'لِ' : 'ل';
   if (/^ال/.test(name)) return l + name.slice(1);
-  if (/^[؀-ۿ]/.test(name)) return l + name;
-  return l + 'ـ' + name;
+  if (/^[\u0600-\u06FF]/.test(name)) return l + name;
+  return l + 'ـ' + iso(name, true);
 }
 
 const DECEASED: PrayDua[] = [
+  {
+    id: 'wathila',
+    ar: {
+      m: 'اللَّهُمَّ إِنَّ فُلَانَ بْنَ فُلَانٍ فِي ذِمَّتِكَ، وَحَبْلِ جِوَارِكَ، فَقِهِ مِنْ فِتْنَةِ الْقَبْرِ وَعَذَابِ النَّارِ، وَأَنْتَ أَهْلُ الْوَفَاءِ وَالْحَقِّ، فَاغْفِرْ لَهُ وَارْحَمْهُ، إِنَّكَ أَنْتَ الْغَفُورُ الرَّحِيمُ',
+      f: 'اللَّهُمَّ إِنَّ فُلَانَةَ بِنْتَ فُلَانٍ فِي ذِمَّتِكَ، وَحَبْلِ جِوَارِكَ، فَقِهَا مِنْ فِتْنَةِ الْقَبْرِ وَعَذَابِ النَّارِ، وَأَنْتَ أَهْلُ الْوَفَاءِ وَالْحَقِّ، فَاغْفِرْ لَهَا وَارْحَمْهَا، إِنَّكَ أَنْتَ الْغَفُورُ الرَّحِيمُ',
+    },
+    arNamed: {
+      m: 'اللَّهُمَّ إِنَّ {name} فِي ذِمَّتِكَ، وَحَبْلِ جِوَارِكَ، فَقِهِ مِنْ فِتْنَةِ الْقَبْرِ وَعَذَابِ النَّارِ، وَأَنْتَ أَهْلُ الْوَفَاءِ وَالْحَقِّ، فَاغْفِرْ لَهُ وَارْحَمْهُ، إِنَّكَ أَنْتَ الْغَفُورُ الرَّحِيمُ',
+      f: 'اللَّهُمَّ إِنَّ {name} فِي ذِمَّتِكَ، وَحَبْلِ جِوَارِكَ، فَقِهَا مِنْ فِتْنَةِ الْقَبْرِ وَعَذَابِ النَّارِ، وَأَنْتَ أَهْلُ الْوَفَاءِ وَالْحَقِّ، فَاغْفِرْ لَهَا وَارْحَمْهَا، إِنَّكَ أَنْتَ الْغَفُورُ الرَّحِيمُ',
+    },
+    en: {
+      m: 'O Allah, so-and-so son of so-and-so is in Your care and under the protection of Your nearness, so shield him from the trial of the grave and the punishment of the Fire. You are the One who keeps faith and the Truth: forgive him and have mercy on him. You are the Forgiving, the Merciful.',
+      f: 'O Allah, so-and-so daughter of so-and-so is in Your care and under the protection of Your nearness, so shield her from the trial of the grave and the punishment of the Fire. You are the One who keeps faith and the Truth: forgive her and have mercy on her. You are the Forgiving, the Merciful.',
+    },
+    enNamed: {
+      m: 'O Allah, {name} is in Your care and under the protection of Your nearness, so shield him from the trial of the grave and the punishment of the Fire. You are the One who keeps faith and the Truth: forgive him and have mercy on him. You are the Forgiving, the Merciful.',
+      f: 'O Allah, {name} is in Your care and under the protection of Your nearness, so shield her from the trial of the grave and the punishment of the Fire. You are the One who keeps faith and the Truth: forgive her and have mercy on her. You are the Forgiving, the Merciful.',
+    },
+    ur: 'اے اللہ! فلاں بن فلاں تیری ذمہ داری اور تیری پناہ میں ہیں، انہیں قبر کی آزمائش اور جہنم کے عذاب سے بچا، تو وفا اور حق والا ہے، پس ان کی مغفرت فرما اور ان پر رحم فرما، بے شک تو بخشنے والا، نہایت رحم والا ہے۔',
+    urNamed: 'اے اللہ! {name} تیری ذمہ داری اور تیری پناہ میں ہیں، انہیں قبر کی آزمائش اور جہنم کے عذاب سے بچا، تو وفا اور حق والا ہے، پس ان کی مغفرت فرما اور ان پر رحم فرما، بے شک تو بخشنے والا، نہایت رحم والا ہے۔',
+    when: {
+      ar: 'دعا به النبي ﷺ في الصلاة على رجل من المسلمين، وسمّاه باسمه',
+      en: 'The Prophet ﷺ prayed this over a Muslim man at his funeral, naming him',
+      ur: 'نبی ﷺ نے ایک مسلمان کی نمازِ جنازہ میں اس کا نام لے کر یہ دعا فرمائی',
+    },
+    src: { kind: 'hadith', books: ['abudawud', 'ibnmajah'] },
+  },
   {
     id: 'janazah',
     ar: {
@@ -113,6 +160,22 @@ const DECEASED: PrayDua[] = [
 
 const SICK: PrayDua[] = [
   {
+    id: 'sad',
+    ar: { m: 'اللَّهُمَّ اشْفِهِ', f: 'اللَّهُمَّ اشْفِهَا' },
+    arNamed: { m: 'اللَّهُمَّ اشْفِ {name}', f: 'اللَّهُمَّ اشْفِ {name}' },
+    en: { m: 'O Allah, heal him.', f: 'O Allah, heal her.' },
+    enNamed: { m: 'O Allah, heal {name}.', f: 'O Allah, heal {name}.' },
+    ur: 'اے اللہ! انہیں شفا دے۔',
+    urNamed: 'اے اللہ! {name} کو شفا دے۔',
+    when: {
+      ar: 'كما دعا النبي ﷺ لسعد بن أبي وقاص: «اللهم اشفِ سعداً»',
+      en: 'As the Prophet ﷺ prayed for Saʿd ibn Abi Waqqas: “O Allah, heal Saʿd”',
+      ur: 'جیسے نبی ﷺ نے سعد بن ابی وقاصؓ کے لیے دعا فرمائی: «اللهم اشفِ سعداً»',
+    },
+    count: 3,
+    src: { kind: 'hadith', books: ['agreed'] },
+  },
+  {
     id: 'rabb-an-nas',
     ar: {
       m: 'اللَّهُمَّ رَبَّ النَّاسِ، أَذْهِبِ الْبَأْسَ، اشْفِهِ وَأَنْتَ الشَّافِي، لَا شِفَاءَ إِلَّا شِفَاؤُكَ، شِفَاءً لَا يُغَادِرُ سَقَمًا',
@@ -149,22 +212,6 @@ const SICK: PrayDua[] = [
     count: 7,
     src: { kind: 'hadith', books: ['abudawud', 'tirmidhi'] },
   },
-  {
-    id: 'sad',
-    ar: { m: 'اللَّهُمَّ اشْفِهِ', f: 'اللَّهُمَّ اشْفِهَا' },
-    arNamed: { m: 'اللَّهُمَّ اشْفِ {name}', f: 'اللَّهُمَّ اشْفِ {name}' },
-    en: { m: 'O Allah, heal him.', f: 'O Allah, heal her.' },
-    enNamed: { m: 'O Allah, heal {name}.', f: 'O Allah, heal {name}.' },
-    ur: 'اے اللہ! انہیں شفا دے۔',
-    urNamed: 'اے اللہ! {name} کو شفا دے۔',
-    when: {
-      ar: 'كما دعا النبي ﷺ لسعد بن أبي وقاص: «اللهم اشفِ سعداً»',
-      en: 'As the Prophet ﷺ prayed for Saʿd ibn Abi Waqqas: “O Allah, heal Saʿd”',
-      ur: 'جیسے نبی ﷺ نے سعد بن ابی وقاصؓ کے لیے دعا فرمائی: «اللهم اشفِ سعداً»',
-    },
-    count: 3,
-    src: { kind: 'hadith', books: ['agreed'] },
-  },
 ];
 
 export const PRAY_DUAS: Record<PrayKind, PrayDua[]> = { deceased: DECEASED, sick: SICK };
@@ -181,19 +228,15 @@ export interface RenderedDua {
 
 /** Ready to print: right gender, the family's name in place where one is given. */
 export function renderDuas(kind: PrayKind, gender: Gender, lang: Lang, name: string | null): RenderedDua[] {
-  const fillName = (s: string) => (name ? s.replace('{li}', li(name)).replace('{name}', name) : s);
-  // A name in Latin script inside a right-to-left Arabic line is reordered by
-  // the bidi algorithm into something unreadable, so the Arabic keeps its
-  // pronoun form then; the meaning underneath still carries the name.
-  const arName = !!name && !/[A-Za-z]/.test(name);
+  const fill = (s: string, rtl: boolean) => (name ? s.replace('{li}', li(name)).replace('{name}', iso(name, rtl)) : s);
   return PRAY_DUAS[kind].map((d) => {
-    const ar = arName && d.arNamed ? fillName(d.arNamed[gender]) : d.ar[gender];
+    const ar = name && d.arNamed ? fill(d.arNamed[gender], true) : d.ar[gender];
     const meaning =
       lang === 'ar'
         ? null
         : lang === 'ur'
-          ? name && d.urNamed ? fillName(d.urNamed) : d.ur
-          : name && d.enNamed ? fillName(d.enNamed[gender]) : d.en[gender];
+          ? name && d.urNamed ? fill(d.urNamed, true) : d.ur
+          : name && d.enNamed ? fill(d.enNamed[gender], false) : d.en[gender];
     return {
       id: d.id,
       text: ar,
@@ -203,4 +246,14 @@ export function renderDuas(kind: PrayKind, gender: Gender, lang: Lang, name: str
       src: srcLabel(d.src, lang),
     };
   });
+}
+
+/**
+ * One line of supplication that travels inside the shared message itself, so
+ * that whoever reads it in the group has prayed even if they never open the link.
+ * Each is the exact wording of an authentic narration.
+ */
+export function shareDua(kind: PrayKind, gender: Gender, name: string): string {
+  if (kind === 'sick') return `اللَّهُمَّ اشْفِ ${iso(name, true)}`;
+  return gender === 'f' ? 'اللَّهُمَّ اغْفِرْ لَهَا وَارْحَمْهَا' : 'اللَّهُمَّ اغْفِرْ لَهُ وَارْحَمْهُ';
 }

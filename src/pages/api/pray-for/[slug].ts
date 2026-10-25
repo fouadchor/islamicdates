@@ -1,9 +1,13 @@
 import type { APIRoute } from 'astro';
 import {
   allow,
+  asGender,
+  asKind,
+  cleanName,
   deletePage,
+  editPage,
   getPage,
-  hasPrayed,
+  mineFor,
   pray,
   PRAY_LIMIT,
   toView,
@@ -18,7 +22,7 @@ export const prerender = false;
 
 const fail = (code: PrayErr, status = 400) => json({ ok: false, code }, status);
 
-/** حالة الصفحة الآن، مع «هل دعا هذا المتصفح؟». */
+/** حالة الصفحة الآن، مع ما فعله هذا المتصفح. */
 export const GET: APIRoute = async (ctx) => {
   const slug = ctx.params.slug;
   if (!validSlug(slug)) return fail('bad_link', 404);
@@ -29,14 +33,14 @@ export const GET: APIRoute = async (ctx) => {
     const row = await getPage(database, slug);
     if (!row) return fail('not_found', 404);
     const t = ctx.url.searchParams.get('token');
-    const prayed = validToken(t) ? await hasPrayed(database, slug, t) : false;
-    return json({ ok: true, page: toView(row, prayed) });
+    const mine = await mineFor(database, slug, validToken(t) ? t : null);
+    return json({ ok: true, page: toView(row, mine) });
   } catch {
     return fail('unavailable', 503);
   }
 };
 
-/** «دعوت له»، أو حذف الصفحة بمفتاح منشئها. */
+/** «دعوت له»، أو تعديل الصفحة أو حذفها بمفتاح منشئها. */
 export const POST: APIRoute = async (ctx) => {
   if (!sameOrigin(ctx.request)) return fail('forbidden', 403);
   const slug = ctx.params.slug;
@@ -51,13 +55,27 @@ export const POST: APIRoute = async (ctx) => {
 
     if (b.action === 'pray') {
       if (!validToken(b.token)) return fail('no_token', 422);
-      // A repeat press from this browser is answered from the mark alone and
-      // never touches the rate limit — only a new prayer spends one.
-      if (await hasPrayed(database, slug, b.token)) return json({ ok: true, counted: false, page: toView(row, true) });
+      // A press that cannot count (this browser prayed within the last day) is
+      // answered from the mark alone and never spends the network's rate limit.
+      const before = await mineFor(database, slug, b.token);
+      if (before.againAt) return json({ ok: true, result: 'already', page: toView(row, before) });
       if (!(await allow(database, `pp:${clientIp(ctx.request)}`, PRAY_LIMIT))) return fail('rate_pray', 429);
-      const counted = await pray(database, slug, b.token);
+      const result = await pray(database, slug, b.token);
       const fresh = (await getPage(database, slug)) ?? row;
-      return json({ ok: true, counted, page: toView(fresh, true) });
+      return json({ ok: true, result, page: toView(fresh, await mineFor(database, slug, b.token)) });
+    }
+
+    if (b.action === 'edit') {
+      if (!validKey(b.adminKey)) return fail('not_admin', 403);
+      const name = cleanName(b.name);
+      if (!name) return fail('empty_name', 422);
+      const kind = asKind(b.kind);
+      const gender = asGender(b.gender);
+      if (!kind || !gender) return fail('bad_kind', 422);
+      if (!(await editPage(database, slug, b.adminKey, { name, kind, gender }))) return fail('not_admin', 403);
+      const fresh = (await getPage(database, slug)) ?? row;
+      const t = validToken(b.token) ? b.token : null;
+      return json({ ok: true, page: toView(fresh, await mineFor(database, slug, t)) });
     }
 
     if (b.action === 'delete') {

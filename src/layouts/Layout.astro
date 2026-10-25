@@ -20,9 +20,14 @@ interface Props {
   ogImage?: string;
   /** Alt text for ogImage. */
   ogImageAlt?: string;
+  /**
+   * A page about a particular person who has died or is ill (the «ادعوا لـ…»
+   * prayer pages): no ads beside their name and no occasion countdown above it.
+   */
+  quiet?: boolean;
 }
 const { title, description, canonical, lang, jsonLd, arPath = '/', enPath = '/en/', urPath = '/ur/', altLangs = true, noindex = false,
-        ogImage = 'https://islamicdates.org/og-image.png', ogImageAlt } = Astro.props;
+        ogImage = 'https://islamicdates.org/og-image.png', ogImageAlt, quiet = false } = Astro.props;
 const dir = lang === 'en' ? 'ltr' : 'rtl';
 const ogLocale = pick(lang, 'ar_AR', 'en_US', 'ur_PK');
 const base = 'https://islamicdates.org';
@@ -241,7 +246,7 @@ const _bnClose = pick(lang, 'إخفاء', 'Dismiss', 'چھپائیں');
       gtag('event', el.getAttribute('data-ga'), { link_url: el.getAttribute('href') || undefined });
     }, { passive: true, capture: true });
   </script>
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1722763564281190" crossorigin="anonymous"></script>
+  {!quiet && <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1722763564281190" crossorigin="anonymous"></script>}
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href={_fontHref} rel="stylesheet" />
@@ -851,7 +856,7 @@ const _bnClose = pick(lang, 'إخفاء', 'Dismiss', 'چھپائیں');
       </div>
     </div>
   </nav>
-  {_bn && (
+  {_bn && !quiet && (
     <div class="occ-banner" id="occ-banner">
       <a href={_bn.href} id="occ-bn-link">
         <span aria-hidden="true">🌙</span>
@@ -862,7 +867,7 @@ const _bnClose = pick(lang, 'إخفاء', 'Dismiss', 'چھپائیں');
       <button type="button" class="occ-banner-close" id="occ-bn-close" aria-label={_bnClose} title={_bnClose}>✕</button>
     </div>
   )}
-  {_bn && (
+  {_bn && !quiet && (
     <script is:inline define:vars={{ bnItems: _bnList, bnLang: lang }}>
       (function () {
         var el = document.getElementById('occ-banner');
