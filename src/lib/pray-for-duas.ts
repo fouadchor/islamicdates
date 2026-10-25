@@ -29,8 +29,10 @@ export interface PrayDua {
   arNamed?: G;
   en: G;
   enNamed?: G;
-  /** Urdu pronouns («ان», «انہیں») do not mark gender, so one form serves both. */
+  /** Urdu pronouns («ان», «انہیں») do not mark gender, so one form serves both… */
   ur: string;
+  /** …unless the wording itself differs for a woman. */
+  urF?: string;
   urNamed?: string;
   when: Tri;
   count?: number;
@@ -94,16 +96,21 @@ const DECEASED: PrayDua[] = [
     src: { kind: 'hadith', books: ['abudawud', 'ibnmajah'] },
   },
   {
+    // The feminine form leaves out «وَزَوْجًا خَيْرًا مِنْ زَوْجِهَا» (and its
+    // meaning in English and Urdu) — a decision of the site's owners, 25 Oct
+    // 2026. It is a known point: several scholars hold that the phrase is not
+    // said for a woman, since in Paradise she is with her husband from this world.
     id: 'janazah',
     ar: {
       m: 'اللَّهُمَّ اغْفِرْ لَهُ وَارْحَمْهُ، وَعَافِهِ وَاعْفُ عَنْهُ، وَأَكْرِمْ نُزُلَهُ، وَوَسِّعْ مُدْخَلَهُ، وَاغْسِلْهُ بِالْمَاءِ وَالثَّلْجِ وَالْبَرَدِ، وَنَقِّهِ مِنَ الْخَطَايَا كَمَا نَقَّيْتَ الثَّوْبَ الْأَبْيَضَ مِنَ الدَّنَسِ، وَأَبْدِلْهُ دَارًا خَيْرًا مِنْ دَارِهِ، وَأَهْلًا خَيْرًا مِنْ أَهْلِهِ، وَزَوْجًا خَيْرًا مِنْ زَوْجِهِ، وَأَدْخِلْهُ الْجَنَّةَ، وَأَعِذْهُ مِنْ عَذَابِ الْقَبْرِ وَمِنْ عَذَابِ النَّارِ',
-      f: 'اللَّهُمَّ اغْفِرْ لَهَا وَارْحَمْهَا، وَعَافِهَا وَاعْفُ عَنْهَا، وَأَكْرِمْ نُزُلَهَا، وَوَسِّعْ مُدْخَلَهَا، وَاغْسِلْهَا بِالْمَاءِ وَالثَّلْجِ وَالْبَرَدِ، وَنَقِّهَا مِنَ الْخَطَايَا كَمَا نَقَّيْتَ الثَّوْبَ الْأَبْيَضَ مِنَ الدَّنَسِ، وَأَبْدِلْهَا دَارًا خَيْرًا مِنْ دَارِهَا، وَأَهْلًا خَيْرًا مِنْ أَهْلِهَا، وَزَوْجًا خَيْرًا مِنْ زَوْجِهَا، وَأَدْخِلْهَا الْجَنَّةَ، وَأَعِذْهَا مِنْ عَذَابِ الْقَبْرِ وَمِنْ عَذَابِ النَّارِ',
+      f: 'اللَّهُمَّ اغْفِرْ لَهَا وَارْحَمْهَا، وَعَافِهَا وَاعْفُ عَنْهَا، وَأَكْرِمْ نُزُلَهَا، وَوَسِّعْ مُدْخَلَهَا، وَاغْسِلْهَا بِالْمَاءِ وَالثَّلْجِ وَالْبَرَدِ، وَنَقِّهَا مِنَ الْخَطَايَا كَمَا نَقَّيْتَ الثَّوْبَ الْأَبْيَضَ مِنَ الدَّنَسِ، وَأَبْدِلْهَا دَارًا خَيْرًا مِنْ دَارِهَا، وَأَهْلًا خَيْرًا مِنْ أَهْلِهَا، وَأَدْخِلْهَا الْجَنَّةَ، وَأَعِذْهَا مِنْ عَذَابِ الْقَبْرِ وَمِنْ عَذَابِ النَّارِ',
     },
     en: {
       m: 'O Allah, forgive him and have mercy on him, keep him safe and pardon him. Honour his resting place and make his entrance wide. Wash him with water, snow and hail, and cleanse him of sins as a white garment is cleansed of dirt. Give him a home better than his home, a family better than his family and a spouse better than his spouse. Admit him to Paradise, and protect him from the punishment of the grave and the punishment of the Fire.',
-      f: 'O Allah, forgive her and have mercy on her, keep her safe and pardon her. Honour her resting place and make her entrance wide. Wash her with water, snow and hail, and cleanse her of sins as a white garment is cleansed of dirt. Give her a home better than her home, a family better than her family and a spouse better than her spouse. Admit her to Paradise, and protect her from the punishment of the grave and the punishment of the Fire.',
+      f: 'O Allah, forgive her and have mercy on her, keep her safe and pardon her. Honour her resting place and make her entrance wide. Wash her with water, snow and hail, and cleanse her of sins as a white garment is cleansed of dirt. Give her a home better than her home and a family better than her family. Admit her to Paradise, and protect her from the punishment of the grave and the punishment of the Fire.',
     },
     ur: 'اے اللہ! ان کی مغفرت فرما اور ان پر رحم فرما، انہیں عافیت دے اور ان سے درگزر فرما، ان کی باعزت مہمانی فرما اور ان کی قبر کشادہ فرما، انہیں پانی، برف اور اولوں سے دھو دے، اور انہیں گناہوں سے ایسے پاک کر دے جیسے سفید کپڑا میل سے پاک کیا جاتا ہے، انہیں ان کے گھر سے بہتر گھر، ان کے گھر والوں سے بہتر گھر والے اور ان کے جوڑے سے بہتر جوڑا عطا فرما، انہیں جنت میں داخل فرما اور عذابِ قبر اور عذابِ جہنم سے بچا۔',
+    urF: 'اے اللہ! ان کی مغفرت فرما اور ان پر رحم فرما، انہیں عافیت دے اور ان سے درگزر فرما، ان کی باعزت مہمانی فرما اور ان کی قبر کشادہ فرما، انہیں پانی، برف اور اولوں سے دھو دے، اور انہیں گناہوں سے ایسے پاک کر دے جیسے سفید کپڑا میل سے پاک کیا جاتا ہے، انہیں ان کے گھر سے بہتر گھر اور ان کے گھر والوں سے بہتر گھر والے عطا فرما، انہیں جنت میں داخل فرما اور عذابِ قبر اور عذابِ جہنم سے بچا۔',
     when: {
       ar: 'دعاء النبي ﷺ في صلاة الجنازة',
       en: 'The Prophet’s ﷺ supplication in the funeral prayer',
@@ -235,7 +242,7 @@ export function renderDuas(kind: PrayKind, gender: Gender, lang: Lang, name: str
       lang === 'ar'
         ? null
         : lang === 'ur'
-          ? name && d.urNamed ? fill(d.urNamed, true) : d.ur
+          ? name && d.urNamed ? fill(d.urNamed, true) : (gender === 'f' && d.urF) || d.ur
           : name && d.enNamed ? fill(d.enNamed[gender], false) : d.en[gender];
     return {
       id: d.id,
