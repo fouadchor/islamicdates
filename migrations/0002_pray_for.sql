@@ -1,8 +1,9 @@
 -- «ادعوا لـ…» — a shared page of supplication for someone who has died or is ill.
 --
 -- One row per page; one mark per browser that pressed «دعوت له». The mark's
--- primary key is what keeps the counter honest: a second press from the same
--- browser inserts nothing, so `prayers` only ever moves when a new person prays.
+-- primary key is what keeps the people count honest: a second press from the
+-- same browser inserts nothing, so `prayers` only ever moves when a new person
+-- prays. A press on a later day (20 h on) moves `total` only.
 --
 -- The same statements run lazily from src/lib/pray-for.ts (ensureSchema) the
 -- first time an isolate touches the feature, so production needs no manual
@@ -20,7 +21,10 @@ CREATE TABLE IF NOT EXISTS pray_page (
   gender     TEXT    NOT NULL,
   admin_key  TEXT    NOT NULL,
   lang       TEXT    NOT NULL DEFAULT 'ar',
+  -- People (browsers) who have prayed at least once.
   prayers    INTEGER NOT NULL DEFAULT 0,
+  -- Every counted press, including a browser's returns on later days.
+  total      INTEGER NOT NULL DEFAULT 0,
   created_at INTEGER NOT NULL
 );
 
@@ -28,7 +32,9 @@ CREATE TABLE IF NOT EXISTS pray_mark (
   slug  TEXT    NOT NULL REFERENCES pray_page(slug) ON DELETE CASCADE,
   -- Random per-browser token; not linked to anyone's identity.
   token TEXT    NOT NULL,
+  -- Time of this browser's last counted press; another counts after 20 hours.
   at    INTEGER NOT NULL,
+  times INTEGER NOT NULL DEFAULT 1,
   PRIMARY KEY (slug, token)
 );
 

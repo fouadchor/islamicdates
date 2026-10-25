@@ -3,12 +3,13 @@
 //
 // The landing copy is static per language. The page copy depends on three facts
 // about the page — the name, deceased or ill, and له or لها — so it is built on
-// the server by `pageCopy()`; the part handed to the React island (`card`) is
-// plain strings with at most an {n} placeholder, already personalised.
+// the server by `page()`; the part handed to the React island (`card`) is plain
+// strings with at most an {n} placeholder, already personalised. Names are
+// wrapped by iso() wherever they sit inside a sentence of the other direction.
 // ─────────────────────────────────────────────────────────────────────────────
 import type { Lang } from './data';
 import type { Gender, PrayKind } from './pray-for';
-import { li } from './pray-for-duas';
+import { iso, li, shareDua } from './pray-for-duas';
 import { num } from './khatma-juz';
 
 export type PrayErr =
@@ -18,29 +19,57 @@ export type PrayErr =
   | 'network' | 'generic';
 
 type Plural = 'zero' | 'one' | 'two' | 'few' | 'many' | 'other';
+/** Keyed by plural category, plus `zero`. {n} = the number. */
+export type Plurals = Partial<Record<Plural, string>> & { zero: string; other: string };
 
-/** What the island needs — plain strings, already in the right gender and with the name. */
-export interface CardT {
-  /** Keyed by Intl.PluralRules category, plus `zero` for "nobody yet". {n} = the count. */
-  count: Partial<Record<Plural, string>> & { zero: string; other: string };
-  pray: string;
+/** Labels that do not depend on the person — the same on every page of a language. */
+export interface CardUi {
   praying: string;
-  prayHint: string;
-  thanks: string;
-  sharePrompt: string;
-  shareText: string;
   shareWa: string; shareNative: string; shareCopy: string; shareCopied: string;
-  adminLead: string; adminDelete: string; adminConfirm: string; adminDeleted: string; createNew: string;
+  copyDua: string; copiedDua: string;
+  fontSmaller: string; fontLarger: string;
+  doneTitle: string;
+  /** The angel's «ولك بمثل» — the reward of praying for someone in their absence. */
+  doneHadith: string; doneHadithSrc: string;
+  newH: string; newP: string; newPrayFirst: string;
+  adminLead: string; adminEdit: string; adminDelete: string;
+  deleteWarn: string; deleteYes: string; cancel: string; deleted: string; createNew: string;
+  editH: string; editName: string; editKind: string; editGender: string; editSave: string; editSaving: string;
+  /** Under the kind choice: turning a page for the sick into one of mercy. */
+  editKindHint: string;
+  kinds: Record<PrayKind, string>;
+  genders: Record<Gender, string>;
   err: Record<PrayErr, string>;
+}
+
+/** What the island needs — everything already in the right gender and with the name. */
+export interface CardT extends CardUi {
+  count: Plurals;
+  /** Every counted prayer, shown beside the people count once people have come back. */
+  total: Plurals;
+  youToo: string;
+  featuredH: string;
+  moreH: string;
+  pray: string;
+  prayAgain: string;
+  prayedToday: string;
+  prayHint: string;
+  returnHint: string;
+  comeBack: string;
+  sharePrompt: string;
+  shareAfter: string;
+  shareText: string;
 }
 
 export interface PageCopy {
   title: string;
   description: string;
-  h1: string;
+  /** Words said on hearing of a death, or to the sick — above the name. */
+  eyebrow: string;
+  /** Their meaning, on the English and Urdu pages. */
+  eyebrowNote: string | null;
   lead: string;
   intro: string;
-  duasH: string;
   reminderH: string;
   reminder: string;
   ogAlt: string;
@@ -68,7 +97,6 @@ export interface LandingT {
   faqH: string; faq: { q: string; a: string }[];
   relatedH: string; related: { href: string; label: string }[];
   footerNote: string; privacyLabel: string; privacyHref: string;
-  newNoteLead: string; newNote: string;
   notFoundH: string; notFoundBody: string;
   unavailableH: string; unavailableBody: string;
   createNew: string; navNew: string;
@@ -78,6 +106,17 @@ export interface LandingT {
 }
 
 const fill = (s: string, v: Record<string, string>) => s.replace(/\{(\w+)\}/g, (m, k) => v[k] ?? m);
+
+/** Arabic plural category without relying on the runtime's ICU data. */
+export function pluralAr(n: number): Plural {
+  if (n === 0) return 'zero';
+  if (n === 1) return 'one';
+  if (n === 2) return 'two';
+  const m = n % 100;
+  if (m >= 3 && m <= 10) return 'few';
+  if (m >= 11 && m <= 99) return 'many';
+  return 'other';
+}
 
 // ── العربية ──────────────────────────────────────────────────────────────────
 const AR_ERR: Record<PrayErr, string> = {
@@ -94,6 +133,28 @@ const AR_ERR: Record<PrayErr, string> = {
   not_admin: 'لا تُحذف الصفحة إلا من المتصفح الذي أنشأها.',
   network: 'تعذّر الاتصال. تحقّق من الشبكة وأعد المحاولة.',
   generic: 'تعذّر إتمام الطلب.',
+};
+
+const AR_UI: Omit<CardUi, 'err'> = {
+  praying: 'لحظة…',
+  shareWa: 'مشاركة على واتساب', shareNative: 'تطبيقات أخرى…', shareCopy: 'نسخ الرابط', shareCopied: 'تم نسخ الرابط',
+  copyDua: 'نسخ الدعاء', copiedDua: 'نُسخ الدعاء',
+  fontSmaller: 'تصغير خط الدعاء', fontLarger: 'تكبير خط الدعاء',
+  doneTitle: 'تقبّل الله دعاءك',
+  doneHadith: '«ما من عبدٍ مسلمٍ يدعو لأخيه بظهر الغيب، إلا قال الملَك: ولك بمِثْل»',
+  doneHadithSrc: 'رواه مسلم',
+  newH: 'أُنشئت الصفحة',
+  newP: 'أرسلها الآن إلى الأهل والأصحاب؛ كل من يفتحها يجد الدعاء جاهزاً بالاسم.',
+  newPrayFirst: 'وابدأ أنت بالدعاء.',
+  adminLead: 'أنت أنشأت هذه الصفحة.', adminEdit: 'تعديل', adminDelete: 'حذف الصفحة',
+  deleteWarn: 'سيُحذف الاسم والعدّاد نهائياً، ولن يعمل الرابط بعد ذلك.',
+  deleteYes: 'نعم، احذفها', cancel: 'إلغاء', deleted: 'حُذفت الصفحة.',
+  createNew: 'أنشئ صفحة دعاء لعزيز آخر',
+  editH: 'تعديل الصفحة', editName: 'الاسم', editKind: 'الدعاء', editGender: 'الصيغة',
+  editSave: 'حفظ', editSaving: 'جارٍ الحفظ…',
+  editKindHint: 'إن انتقل من كانت الصفحة لشفائه إلى رحمة الله، فاختر «بالرحمة»؛ يبقى الرابط نفسه وعدد من دعا.',
+  kinds: { deceased: 'بالرحمة (لمتوفّى)', sick: 'بالشفاء (لمريض)' },
+  genders: { m: 'له', f: 'لها' },
 };
 
 const AR: LandingT = {
@@ -125,7 +186,7 @@ const AR: LandingT = {
   steps: [
     { t: 'اكتب الاسم', d: 'اختر: لمتوفّى أو لمريض، واكتب الاسم الذي يعرفه به الناس. بلا حساب ولا بريد ولا رقم هاتف.' },
     { t: 'أرسل الرابط', d: 'ينشأ رابط واحد للصفحة. أرسله في مجموعة العائلة أو الأصدقاء، أو مع رسالة العزاء.' },
-    { t: 'كلٌّ يدعو له', d: 'من يفتح الرابط يجد الأدعية جاهزة بالاسم والضمير الصحيح، فيقرؤها ويضغط «دعوت له»، ويرى الجميع كم شخصاً دعا.' },
+    { t: 'كلٌّ يدعو له', d: 'من يفتح الرابط يجد الدعاء جاهزاً بالاسم والضمير الصحيح، فيقرؤه ويضغط «دعوتُ له»، ويرى الجميع كم شخصاً دعا. ومن عاد في يوم آخر ودعا مرة أخرى حُسب دعاؤه من جديد.' },
   ],
   duasDeceasedH: 'أدعية للميت من القرآن والسنة',
   duasSickH: 'أدعية للمريض بالشفاء',
@@ -145,7 +206,8 @@ const AR: LandingT = {
     { q: 'لماذا لا تقدّمون ختمة أو قراءة تُهدى للميت؟', a: 'لأن وصول ثواب قراءة القرآن إلى الميت مسألة خلافية بين المذاهب، أما الدعاء فمتفق على نفعه. ومن أراد قراءة القرآن مع غيره فالختمة الجماعية في الموقع متاحة قراءةً عامة بلا إهداء.' },
     { q: 'هل تصلح الصفحة للدعاء لمريض؟', a: 'نعم. اختر «لمريض» عند الإنشاء، فتظهر أدعية الشفاء الثابتة، ومنها ما كان النبي ﷺ يرقي به المرضى. والدعاء للمسلم بظهر الغيب مستجاب، ففي صحيح مسلم: «دعوة المرء المسلم لأخيه بظهر الغيب مستجابة».' },
     { q: 'هل أحتاج إلى حساب؟ وهل يظهر اسمي؟', a: 'لا هذا ولا ذاك. الرابط وحده يكفي، ولا نطلب اسم من يدعو. نحفظ في متصفحك رمزاً عشوائياً حتى لا يُحسب دعاؤك مرتين، ولا يرتبط بهويتك.' },
-    { q: 'هل يمكن حذف الصفحة؟', a: 'نعم. في المتصفح الذي أنشأها يظهر زرّ «حذف الصفحة» أسفلها، فيُحذف الاسم والعدّاد نهائياً. وإن أنشأتها من جهاز آخر فراسلنا على contact@islamicdates.org مع الرابط.' },
+    { q: 'هل أستطيع أن أدعو له أكثر من مرة؟', a: 'نعم، ادعُ له ما شئت ومتى شئت. والصفحة تحسب كل جهاز شخصاً واحداً، وإن عاد في يوم آخر ودعا حُسب دعاؤه في مجموع الدعوات؛ فيعرف الأهل كم شخصاً دعا، وكم مرة.' },
+    { q: 'كتبتُ الاسم خطأً، أو تُوفّي المريض — هل أنشئ صفحة جديدة؟', a: 'لا. في المتصفح الذي أنشأ الصفحة يظهر أسفلها زرّ «تعديل»: صحّح الاسم أو الصيغة، أو حوّل الصفحة من الدعاء بالشفاء إلى الدعاء بالرحمة، ويبقى الرابط الذي أرسلته وعدد من دعا كما هما. ومن هناك أيضاً تُحذف الصفحة نهائياً. وإن أنشأتها من جهاز آخر فراسلنا على contact@islamicdates.org مع الرابط.' },
   ],
   relatedH: 'أدوات ذات صلة',
   related: [
@@ -158,8 +220,6 @@ const AR: LandingT = {
   footerNote: 'صفحة دعاء بلا تسجيل · لا نطلب اسم من يدعو',
   privacyLabel: 'سياسة الخصوصية',
   privacyHref: '/privacy/',
-  newNoteLead: 'أُنشئت الصفحة.',
-  newNote: 'أرسل رابطها في مجموعة العائلة والأصدقاء، واحتفظ به عندك؛ فمن هذا المتصفح وحده تستطيع حذف الصفحة لاحقاً.',
   notFoundH: 'لم نجد هذه الصفحة',
   notFoundBody: 'الرابط غير صحيح، أو أن منشئها حذفها. تأكّد من نسخ الرابط كاملاً، أو أنشئ صفحة دعاء جديدة.',
   unavailableH: 'الخدمة غير متاحة حالياً',
@@ -169,12 +229,13 @@ const AR: LandingT = {
   err: AR_ERR,
   page: (name, kind, g, prayers) => {
     const L = li(name, false);
-    const lahu = g === 'f' ? 'لها' : 'له';
+    const f = g === 'f';
+    const lahu = f ? 'لها' : 'له';
     const dead = kind === 'deceased';
-    const rahimahu = g === 'f' ? 'رحمها الله' : 'رحمه الله';
-    const shafahu = g === 'f' ? 'شفاها الله' : 'شفاه الله';
-    const ahlu = g === 'f' ? 'أهلها' : 'أهله';
-    const count = {
+    const rahimahu = f ? 'رحمها الله' : 'رحمه الله';
+    const shafahu = f ? 'شفاها الله' : 'شفاه الله';
+    const ahlu = f ? 'أهلها' : 'أهله';
+    const count: Plurals = {
       zero: `كن أول من يدعو ${lahu}`,
       one: `دعا ${lahu} شخص واحد`,
       two: `دعا ${lahu} شخصان`,
@@ -182,56 +243,47 @@ const AR: LandingT = {
       many: `دعا ${lahu} {n} شخصاً`,
       other: `دعا ${lahu} {n} شخص`,
     };
-    const n = num(prayers, 'ar');
-    const tally = prayers === 0 ? '' : ` ${fill(count[pluralAr(prayers)], { n })}.`;
+    const total: Plurals = { zero: '', one: 'دعوة واحدة', two: 'دعوتان', few: '{n} دعوات', many: '{n} دعوة', other: '{n} دعوة' };
+    const tally = prayers === 0 ? '' : ` ${fill(count[pluralAr(prayers)] ?? count.other, { n: num(prayers, 'ar') })}.`;
     return {
       title: dead ? `ادعوا ${L} · ${rahimahu}` : `ادعوا ${L} بالشفاء · ${shafahu}`,
       description: dead
-        ? `صفحة دعاء ${L}، ${rahimahu}. اقرأ ${lahu} الدعاء من القرآن والسنة، ثم اضغط «دعوت ${lahu}».${tally}`
-        : `صفحة دعاء ${L} بالشفاء، ${shafahu}. اقرأ ${lahu} الدعاء من القرآن والسنة، ثم اضغط «دعوت ${lahu}».${tally}`,
-      h1: `ادعوا ${L}`,
-      lead: dead ? (g === 'f' ? 'رحمها الله وغفر لها' : 'رحمه الله وغفر له') : (g === 'f' ? 'شفاها الله وعافاها' : 'شفاه الله وعافاه'),
+        ? `صفحة دعاء ${L}، ${rahimahu}. اقرأ ${lahu} الدعاء من القرآن والسنة، ثم اضغط «دعوتُ ${lahu}».${tally}`
+        : `صفحة دعاء ${L} بالشفاء، ${shafahu}. اقرأ ${lahu} الدعاء من القرآن والسنة، ثم اضغط «دعوتُ ${lahu}».${tally}`,
+      eyebrow: dead ? 'إِنَّا لِلَّهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ' : 'لا بَأْسَ، طَهُورٌ إِنْ شَاءَ اللَّهُ',
+      eyebrowNote: null,
+      lead: dead ? (f ? 'رحمها الله وغفر لها' : 'رحمه الله وغفر له') : (f ? 'شفاها الله وعافاها' : 'شفاه الله وعافاه'),
       intro: dead
-        ? `اقرأ ${lahu} ما تيسّر من هذه الأدعية، أو ادعُ ${lahu} بما شئت وبلغتك، ثم اضغط «دعوت ${lahu}» ليعرف ${ahlu} أنك دعوت.`
-        : `ادعُ ${lahu} بالشفاء بما تيسّر من هذه الأدعية أو بما شئت، ثم اضغط «دعوت ${lahu}» ليعرف ${ahlu} أنك دعوت.`,
-      duasH: 'أدعية من القرآن والسنة',
-      reminderH: 'تذكير',
+        ? `ادعُ ${lahu} بهذا الدعاء أو بما شئت وبأي لغة، ثم اضغط «دعوتُ ${lahu}» ليعرف ${ahlu} أنك دعوت.`
+        : `ادعُ ${lahu} بالشفاء بهذا الدعاء أو بما شئت وبأي لغة، ثم اضغط «دعوتُ ${lahu}» ليعرف ${ahlu} أنك دعوت.`,
+      reminderH: dead ? (f ? 'ممّا ينفعها بعد موتها' : 'ممّا ينفعه بعد موته') : (f ? 'إن استطعت فزُرها' : 'إن استطعت فزُره'),
       reminder: dead
-        ? 'قال النبي ﷺ: «إذا مات الإنسان انقطع عنه عمله إلا من ثلاثة: إلا من صدقة جارية، أو علم يُنتفع به، أو ولد صالح يدعو له» رواه مسلم. فالدعاء من أنفع ما يُقدَّم للميت، ولا يُشترط له لفظ ولا وقت ولا عدد.'
-        : 'قال النبي ﷺ: «دعوة المرء المسلم لأخيه بظهر الغيب مستجابة، عند رأسه ملك موكّل، كلما دعا لأخيه بخير قال الملك الموكّل به: آمين ولك بمثل» رواه مسلم. فادعُ بما شئت، ولك مثل ما دعوت.',
+        ? 'قال النبي ﷺ: «إذا مات الإنسان انقطع عنه عمله إلا من ثلاثة: إلا من صدقة جارية، أو علم يُنتفع به، أو ولد صالح يدعو له» رواه مسلم. فالدعاء من أنفع ما يُقدَّم للميت، ولا يُشترط له لفظ ولا وقت ولا عدد، ' + (f ? 'والصدقة عنها تنفعها' : 'والصدقة عنه تنفعه') + ' كذلك باتفاق أهل العلم.'
+        : `قال النبي ﷺ: «مَن عادَ مريضاً لم يزل في خُرْفة الجنة». قيل: يا رسول الله، وما خُرْفة الجنة؟ قال: «جَناها» رواه مسلم. فإن تيسّرت لك ${f ? 'زيارتها أو مكالمتها' : 'زيارته أو مكالمته'} فافعل، وإلا فدعاؤك ${lahu} في ${f ? 'غيابها' : 'غيابه'} مستجاب بإذن الله.`,
       ogAlt: dead ? `ادعوا ${L} — ${rahimahu}` : `ادعوا ${L} بالشفاء`,
       card: {
-        count,
-        pray: `دعوتُ ${lahu}`,
-        praying: 'لحظة…',
-        prayHint: 'اضغط بعد أن تدعو. يُحسب كل جهاز مرة واحدة.',
-        thanks: `تقبّل الله دعاءك. أرسل الرابط ليدعو ${lahu} غيرك.`,
-        sharePrompt: `أرسل الرابط ليدعو ${lahu} غيرك:`,
-        shareText: dead
-          ? `ادعوا ${L}، ${rahimahu}. اقرأ الدعاء واضغط «دعوت ${lahu}»:`
-          : `ادعوا ${L} بالشفاء، ${shafahu}. اقرأ الدعاء واضغط «دعوت ${lahu}»:`,
-        shareWa: 'مشاركة على واتساب', shareNative: 'تطبيقات أخرى…', shareCopy: 'نسخ الرابط', shareCopied: 'تم نسخ الرابط',
-        adminLead: 'أنت أنشأت هذه الصفحة من هذا المتصفح.',
-        adminDelete: 'حذف الصفحة',
-        adminConfirm: 'حذف الصفحة نهائياً؟ يُحذف الاسم والعدّاد، ولا يعود الرابط يعمل.',
-        adminDeleted: 'حُذفت الصفحة.',
-        createNew: 'إنشاء صفحة دعاء جديدة',
+        ...AR_UI,
         err: AR_ERR,
+        count,
+        total,
+        youToo: 'وأنت منهم',
+        featuredH: dead ? `ادعُ ${lahu}` : `ادعُ ${lahu} بالشفاء`,
+        moreH: `أدعية أخرى ${lahu}`,
+        pray: `دعوتُ ${lahu}`,
+        prayAgain: `دعوتُ ${lahu} اليوم`,
+        prayedToday: `دعوتَ ${lahu} اليوم`,
+        prayHint: `اضغط بعد أن تدعو ${lahu}.`,
+        returnHint: `دعوتَ ${lahu} من قبل، جزاك الله خيراً. ادعُ ${lahu} اليوم أيضاً.`,
+        comeBack: `عُد غداً وادعُ ${lahu} مرة أخرى.`,
+        sharePrompt: `أرسل الرابط ليدعو ${lahu} غيرك:`,
+        shareAfter: `والآن أرسل الرابط إلى من ${f ? 'يعرفها' : 'يعرفه'}، ليدعو ${lahu} هو أيضاً:`,
+        shareText: dead
+          ? `ادعوا ${L}، ${rahimahu}\n«${shareDua(kind, g, name)}»\nاقرأ ${lahu} الدعاء واضغط «دعوتُ ${lahu}»:`
+          : `ادعوا ${L} بالشفاء، ${shafahu}\n«${shareDua(kind, g, name)}»\nاقرأ ${lahu} الدعاء واضغط «دعوتُ ${lahu}»:`,
       },
     };
   },
 };
-
-/** Arabic plural category without relying on the runtime's ICU data. */
-function pluralAr(n: number): Plural {
-  if (n === 0) return 'zero';
-  if (n === 1) return 'one';
-  if (n === 2) return 'two';
-  const m = n % 100;
-  if (m >= 3 && m <= 10) return 'few';
-  if (m >= 11 && m <= 99) return 'many';
-  return 'other';
-}
 
 // ── English ──────────────────────────────────────────────────────────────────
 const EN_ERR: Record<PrayErr, string> = {
@@ -248,6 +300,28 @@ const EN_ERR: Record<PrayErr, string> = {
   not_admin: 'Only the browser that created the page can delete it.',
   network: 'Could not connect. Check your connection and try again.',
   generic: 'Something went wrong.',
+};
+
+const EN_UI: Omit<CardUi, 'err'> = {
+  praying: 'One moment…',
+  shareWa: 'Share on WhatsApp', shareNative: 'Other apps…', shareCopy: 'Copy link', shareCopied: 'Link copied',
+  copyDua: 'Copy', copiedDua: 'Copied',
+  fontSmaller: 'Smaller supplication text', fontLarger: 'Larger supplication text',
+  doneTitle: 'May Allah accept your prayer',
+  doneHadith: '“No Muslim prays for his brother in his absence but the angel says: and the same for you.”',
+  doneHadithSrc: 'Muslim',
+  newH: 'Your page is ready',
+  newP: 'Send it now to family and friends — whoever opens it finds the supplication ready, with the name.',
+  newPrayFirst: 'And be the first to pray.',
+  adminLead: 'You created this page.', adminEdit: 'Edit', adminDelete: 'Delete page',
+  deleteWarn: 'The name and the count will be removed for good, and the link will stop working.',
+  deleteYes: 'Yes, delete it', cancel: 'Cancel', deleted: 'The page has been deleted.',
+  createNew: 'Create a prayer page for someone else',
+  editH: 'Edit the page', editName: 'Name', editKind: 'Prayer for', editGender: 'Him or her',
+  editSave: 'Save', editSaving: 'Saving…',
+  editKindHint: 'If the person this page prayed for has passed away, choose “mercy” — the link and the count stay the same.',
+  kinds: { deceased: 'Mercy (has died)', sick: 'Healing (is ill)' },
+  genders: { m: 'Him', f: 'Her' },
 };
 
 const EN: LandingT = {
@@ -279,7 +353,7 @@ const EN: LandingT = {
   steps: [
     { t: 'Write the name', d: 'Choose someone who has died or someone who is ill, and write the name people know them by. No account, no e-mail, no phone number.' },
     { t: 'Send the link', d: 'One link is created for the page. Send it to the family or friends group, or with a message of condolence.' },
-    { t: 'Everyone prays', d: 'Whoever opens it finds the supplications ready, with the name and the right pronouns. They read, press “I prayed”, and everyone sees how many have prayed.' },
+    { t: 'Everyone prays', d: 'Whoever opens it finds the supplication ready, with the name and the right pronouns. They read, press “I prayed”, and everyone sees how many have prayed. Anyone who comes back on another day and prays again is counted again.' },
   ],
   duasDeceasedH: 'Supplications for the deceased from the Qur’an and Sunnah',
   duasSickH: 'Supplications for the sick',
@@ -299,7 +373,8 @@ const EN: LandingT = {
     { q: 'Why is there no khatma or reading dedicated to the deceased?', a: 'Because whether the reward of reciting the Qur’an reaches the dead is disputed between the schools, while supplication is agreed to benefit them. If you want to read the Qur’an with others, the site’s group khatma is there as a general reading, without dedication.' },
     { q: 'Can I use it for someone who is ill?', a: 'Yes. Choose “Someone who is ill” when creating the page and it shows the established supplications for healing, including those the Prophet ﷺ recited over the sick. And a Muslim’s prayer for his brother in his absence is answered, as Sahih Muslim reports.' },
     { q: 'Do I need an account? Will my name show?', a: 'Neither. The link is all anyone needs, and we never ask who prayed. Your browser keeps a random code so your prayer is not counted twice; it is not linked to who you are.' },
-    { q: 'Can the page be deleted?', a: 'Yes. In the browser that created it, a “Delete page” button appears at the bottom, and the name and count are removed for good. If you created it on another device, write to contact@islamicdates.org with the link.' },
+    { q: 'Can I pray for them more than once?', a: 'Yes — pray as often as you like. The page counts each device as one person, and a prayer on a later day is added to the total, so the family can see both how many people prayed and how often.' },
+    { q: 'I misspelt the name, or the person who was ill has died — do I make a new page?', a: 'No. In the browser that created the page, an “Edit” button appears at the bottom: correct the name or the pronoun, or turn the page from a prayer for healing into a prayer for mercy, and the link you sent and the count stay as they are. The page can also be deleted for good from there. If you created it on another device, write to contact@islamicdates.org with the link.' },
   ],
   relatedH: 'Related tools',
   related: [
@@ -312,8 +387,6 @@ const EN: LandingT = {
   footerNote: 'Prayer page with no sign-up · we never ask who prayed',
   privacyLabel: 'Privacy Policy',
   privacyHref: '/en/privacy/',
-  newNoteLead: 'The page is ready.',
-  newNote: 'Send its link to your family and friends group, and keep it yourself: only this browser can delete the page later.',
   notFoundH: 'We could not find this page',
   notFoundBody: 'The link is incomplete, or its creator deleted the page. Check that you copied the whole link, or create a new prayer page.',
   unavailableH: 'The service is unavailable right now',
@@ -322,48 +395,52 @@ const EN: LandingT = {
   navNew: 'New page',
   err: EN_ERR,
   page: (name, kind, g, prayers) => {
+    const N = iso(name, false);
     const him = g === 'f' ? 'her' : 'him';
     const his = g === 'f' ? 'her' : 'his';
     const dead = kind === 'deceased';
-    const count = {
+    const count: Plurals = {
       zero: `Be the first to pray for ${him}`,
       one: `{n} person has prayed for ${him}`,
       other: `{n} people have prayed for ${him}`,
     };
-    const tally = prayers === 0 ? '' : ` ${fill(prayers === 1 ? count.one : count.other, { n: String(prayers) })}.`;
+    const total: Plurals = { zero: '', one: '{n} prayer in all', other: '{n} prayers in all' };
+    const tally = prayers === 0 ? '' : ` ${fill(prayers === 1 ? count.one! : count.other, { n: String(prayers) })}.`;
     return {
-      title: dead ? `Pray for ${name} · may Allah have mercy on ${him}` : `Pray for ${name}’s recovery`,
+      title: dead ? `Pray for ${N} · may Allah have mercy on ${him}` : `Pray for ${N}’s recovery`,
       description: dead
-        ? `A prayer page for ${name}, may Allah have mercy on ${him}. Read a supplication from the Qur’an and Sunnah for ${him}, then press “I prayed for ${him}”.${tally}`
-        : `A prayer page for ${name}’s recovery. Read a supplication for healing from the Qur’an and Sunnah, then press “I prayed for ${him}”.${tally}`,
-      h1: `Pray for ${name}`,
+        ? `A prayer page for ${N}, may Allah have mercy on ${him}. Read a supplication from the Qur’an and Sunnah for ${him}, then press “I prayed for ${him}”.${tally}`
+        : `A prayer page for ${N}’s recovery. Read a supplication for healing from the Qur’an and Sunnah, then press “I prayed for ${him}”.${tally}`,
+      eyebrow: dead ? 'إِنَّا لِلَّهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ' : 'لا بَأْسَ، طَهُورٌ إِنْ شَاءَ اللَّهُ',
+      eyebrowNote: dead ? 'To Allah we belong, and to Him we return.' : 'No harm — it is a purification, if Allah wills.',
       lead: dead ? `May Allah have mercy on ${him} and forgive ${him}.` : `May Allah heal ${him} and grant ${him} well-being.`,
       intro: dead
-        ? `Read whichever of these supplications you can — or pray for ${him} in your own words and language — then press “I prayed for ${him}” so ${his} family know you prayed.`
-        : `Pray for ${his} healing with these supplications, or in your own words, then press “I prayed for ${him}” so ${his} family know you prayed.`,
-      duasH: 'Supplications from the Qur’an and Sunnah',
-      reminderH: 'A reminder',
+        ? `Pray for ${him} with this supplication, or in your own words and language, then press “I prayed for ${him}” so ${his} family know you prayed.`
+        : `Pray for ${his} healing with this supplication, or in your own words and language, then press “I prayed for ${him}” so ${his} family know you prayed.`,
+      reminderH: dead ? 'What still benefits them' : `Visit ${him} if you can`,
       reminder: dead
-        ? 'The Prophet ﷺ said: “When a person dies, his deeds come to an end except for three: ongoing charity, knowledge that benefits, or a righteous child who prays for him” (Muslim). Supplication is among the most beneficial things that can be offered for the dead, and it needs no set wording, time or number.'
-        : 'The Prophet ﷺ said: “The supplication of a Muslim for his brother in his absence is answered. At his head is an appointed angel; whenever he prays for good for his brother, the angel says: Amin, and the same for you” (Muslim). Pray in whatever words you wish — and the same is yours.',
-      ogAlt: dead ? `Pray for ${name}` : `Pray for ${name}’s recovery`,
+        ? 'The Prophet ﷺ said: “When a person dies, his deeds come to an end except for three: ongoing charity, knowledge that benefits, or a righteous child who prays for him” (Muslim). Supplication is among the most beneficial things that can be offered for the dead, and it needs no set wording, time or number; charity given on their behalf reaches them too, by agreement of the scholars.'
+        : `The Prophet ﷺ said: “Whoever visits a sick person remains in the khurfah of Paradise.” He was asked what the khurfah of Paradise is, and said: “Its harvest” (Muslim). If you can visit or call ${him}, do; if not, your prayer for ${him} in ${his} absence is answered, by Allah’s leave.`,
+      ogAlt: dead ? `Pray for ${N}` : `Pray for ${N}’s recovery`,
       card: {
-        count,
-        pray: `I prayed for ${him}`,
-        praying: 'One moment…',
-        prayHint: 'Press it once you have prayed. Each device counts once.',
-        thanks: `May Allah accept your prayer. Send the link so others can pray for ${him} too.`,
-        sharePrompt: `Send the link so others can pray for ${him} too:`,
-        shareText: dead
-          ? `Pray for ${name}, may Allah have mercy on ${him}. Read the supplication and press “I prayed”:`
-          : `Pray for ${name}’s recovery. Read the supplication and press “I prayed”:`,
-        shareWa: 'Share on WhatsApp', shareNative: 'Other apps…', shareCopy: 'Copy link', shareCopied: 'Link copied',
-        adminLead: 'You created this page in this browser.',
-        adminDelete: 'Delete page',
-        adminConfirm: 'Delete this page for good? The name and the count are removed and the link stops working.',
-        adminDeleted: 'The page has been deleted.',
-        createNew: 'Create a new prayer page',
+        ...EN_UI,
         err: EN_ERR,
+        count,
+        total,
+        youToo: 'including you',
+        featuredH: dead ? `Pray for ${him}` : `Pray for ${his} healing`,
+        moreH: `More supplications for ${him}`,
+        pray: `I prayed for ${him}`,
+        prayAgain: `I prayed for ${him} today`,
+        prayedToday: `You prayed for ${him} today`,
+        prayHint: 'Press it once you have prayed.',
+        returnHint: `You have prayed for ${him} before — may Allah reward you. Pray for ${him} today as well.`,
+        comeBack: `Come back tomorrow and pray for ${him} again.`,
+        sharePrompt: `Send the link so others can pray for ${him} too:`,
+        shareAfter: `Now send the link to people who know ${him}, so they can pray for ${him} too:`,
+        shareText: dead
+          ? `Please pray for ${N}, may Allah have mercy on ${him}.\n«${shareDua(kind, g, name)}»\n(O Allah, forgive ${him} and have mercy on ${him}.)\nRead the supplication and press “I prayed”:`
+          : `Please pray for ${N}’s recovery.\n«${shareDua(kind, g, name)}»\n(O Allah, heal ${N}.)\nRead the supplication and press “I prayed”:`,
       },
     };
   },
@@ -384,6 +461,28 @@ const UR_ERR: Record<PrayErr, string> = {
   not_admin: 'صفحہ صرف اسی براؤزر سے حذف ہو سکتا ہے جس سے بنایا گیا۔',
   network: 'رابطہ نہیں ہو سکا۔ نیٹ ورک دیکھ کر دوبارہ کوشش کریں۔',
   generic: 'درخواست مکمل نہیں ہو سکی۔',
+};
+
+const UR_UI: Omit<CardUi, 'err'> = {
+  praying: 'ایک لمحہ…',
+  shareWa: 'واٹس ایپ پر بھیجیں', shareNative: 'دیگر ایپس…', shareCopy: 'لنک کاپی کریں', shareCopied: 'لنک کاپی ہو گیا',
+  copyDua: 'دعا کاپی کریں', copiedDua: 'کاپی ہو گئی',
+  fontSmaller: 'دعا کا خط چھوٹا کریں', fontLarger: 'دعا کا خط بڑا کریں',
+  doneTitle: 'اللہ آپ کی دعا قبول فرمائے',
+  doneHadith: '«جو مسلمان اپنے بھائی کے لیے اس کی غیر موجودگی میں دعا کرتا ہے، فرشتہ کہتا ہے: اور تمہارے لیے بھی اسی جیسا»',
+  doneHadithSrc: 'مسلم',
+  newH: 'صفحہ بن گیا',
+  newP: 'اب اسے گھر والوں اور دوستوں کو بھیجیں؛ جو بھی کھولے گا اسے نام کے ساتھ دعا تیار ملے گی۔',
+  newPrayFirst: 'اور سب سے پہلے آپ دعا کریں۔',
+  adminLead: 'یہ صفحہ آپ نے بنایا ہے۔', adminEdit: 'ترمیم', adminDelete: 'صفحہ حذف کریں',
+  deleteWarn: 'نام اور گنتی ہمیشہ کے لیے مٹ جائے گی اور لنک کام نہیں کرے گا۔',
+  deleteYes: 'ہاں، حذف کریں', cancel: 'منسوخ', deleted: 'صفحہ حذف ہو گیا۔',
+  createNew: 'کسی اور عزیز کے لیے دعا کا صفحہ بنائیں',
+  editH: 'صفحے میں ترمیم', editName: 'نام', editKind: 'دعا', editGender: 'کس کے لیے',
+  editSave: 'محفوظ کریں', editSaving: 'محفوظ ہو رہا ہے…',
+  editKindHint: 'اگر جن کی شفا کے لیے یہ صفحہ تھا وہ وفات پا گئے ہوں تو «مغفرت» منتخب کریں — لنک اور گنتی وہی رہیں گے۔',
+  kinds: { deceased: 'مغفرت (مرحوم)', sick: 'شفا (بیمار)' },
+  genders: { m: 'مرد', f: 'عورت' },
 };
 
 const UR: LandingT = {
@@ -415,7 +514,7 @@ const UR: LandingT = {
   steps: [
     { t: 'نام لکھیں', d: 'منتخب کریں کہ دعا مرحوم کے لیے ہے یا بیمار کے لیے، اور وہ نام لکھیں جس سے لوگ انہیں جانتے ہیں۔ نہ اکاؤنٹ، نہ ای میل، نہ فون نمبر۔' },
     { t: 'لنک بھیجیں', d: 'صفحے کا ایک لنک بنتا ہے۔ اسے خاندان یا دوستوں کے گروپ میں، یا تعزیت کے پیغام کے ساتھ بھیج دیں۔' },
-    { t: 'سب دعا کریں', d: 'جو بھی لنک کھولے، اسے نام اور درست ضمیروں کے ساتھ دعائیں تیار ملیں گی۔ وہ پڑھ کر «میں نے دعا کی» دبائے، اور سب دیکھیں کہ کتنے لوگوں نے دعا کی۔' },
+    { t: 'سب دعا کریں', d: 'جو بھی لنک کھولے، اسے نام اور درست ضمیروں کے ساتھ دعا تیار ملے گی۔ وہ پڑھ کر «میں نے دعا کی» دبائے، اور سب دیکھیں کہ کتنے لوگوں نے دعا کی۔ جو کسی اور دن آ کر دوبارہ دعا کرے، اس کی دعا پھر گنی جاتی ہے۔' },
   ],
   duasDeceasedH: 'مرحوم کے لیے قرآن و سنت کی دعائیں',
   duasSickH: 'بیمار کی شفا کے لیے دعائیں',
@@ -435,7 +534,8 @@ const UR: LandingT = {
     { q: 'اس میں میت کے لیے ختم یا تلاوت کیوں نہیں؟', a: 'کیونکہ تلاوتِ قرآن کا ثواب میت تک پہنچنے کے بارے میں مسالک میں اختلاف ہے، جبکہ دعا کا فائدہ متفق علیہ ہے۔ اگر آپ دوسروں کے ساتھ مل کر قرآن پڑھنا چاہیں تو سائٹ کا اجتماعی ختم عام تلاوت کے طور پر موجود ہے۔' },
     { q: 'کیا یہ بیمار کے لیے بھی ہے؟', a: 'جی ہاں۔ صفحہ بناتے وقت «بیمار کے لیے» منتخب کریں تو شفا کی ثابت دعائیں ظاہر ہوں گی، جن میں وہ دعائیں بھی ہیں جو نبی ﷺ مریضوں پر پڑھتے تھے۔ اور مسلمان کی اپنے بھائی کے لیے اس کی غیر موجودگی میں دعا قبول ہوتی ہے، جیسا کہ صحیح مسلم میں ہے۔' },
     { q: 'کیا اکاؤنٹ بنانا ہوگا؟ کیا میرا نام ظاہر ہوگا؟', a: 'دونوں نہیں۔ صرف لنک کافی ہے، اور ہم دعا کرنے والے کا نام نہیں پوچھتے۔ آپ کے براؤزر میں ایک بے ترتیب کوڈ محفوظ ہوتا ہے تاکہ آپ کی دعا دو بار نہ گنی جائے؛ اس کا آپ کی شناخت سے کوئی تعلق نہیں۔' },
-    { q: 'کیا صفحہ حذف ہو سکتا ہے؟', a: 'جی ہاں۔ جس براؤزر سے صفحہ بنایا گیا، اس میں صفحے کے نیچے «صفحہ حذف کریں» کا بٹن نظر آتا ہے، اور نام اور گنتی ہمیشہ کے لیے مٹ جاتی ہے۔ اگر آپ نے کسی اور ڈیوائس سے بنایا تھا تو لنک کے ساتھ contact@islamicdates.org پر لکھیں۔' },
+    { q: 'کیا میں ایک سے زیادہ بار دعا کر سکتا ہوں؟', a: 'جی ہاں، جتنی بار چاہیں دعا کریں۔ صفحہ ہر ڈیوائس کو ایک شخص گنتا ہے، اور کسی اور دن کی دعا کل دعاؤں میں شامل ہو جاتی ہے، تاکہ گھر والے جان سکیں کہ کتنے لوگوں نے اور کتنی بار دعا کی۔' },
+    { q: 'نام غلط لکھا گیا، یا مریض وفات پا گئے — کیا نیا صفحہ بنائیں؟', a: 'نہیں۔ جس براؤزر سے صفحہ بنایا گیا، اس میں نیچے «ترمیم» کا بٹن نظر آتا ہے: نام یا ضمیر درست کریں، یا صفحے کو شفا کی دعا سے مغفرت کی دعا میں بدل دیں؛ بھیجا ہوا لنک اور گنتی وہی رہیں گے۔ وہیں سے صفحہ ہمیشہ کے لیے حذف بھی ہو سکتا ہے۔ اگر آپ نے کسی اور ڈیوائس سے بنایا تھا تو لنک کے ساتھ contact@islamicdates.org پر لکھیں۔' },
   ],
   relatedH: 'متعلقہ ٹولز',
   related: [
@@ -448,8 +548,6 @@ const UR: LandingT = {
   footerNote: 'دعا کا صفحہ بغیر رجسٹریشن · ہم دعا کرنے والے کا نام نہیں پوچھتے',
   privacyLabel: 'رازداری پالیسی',
   privacyHref: '/ur/privacy/',
-  newNoteLead: 'صفحہ بن گیا۔',
-  newNote: 'اس کا لنک خاندان اور دوستوں کے گروپ میں بھیجیں اور اپنے پاس محفوظ رکھیں؛ صفحہ بعد میں صرف اسی براؤزر سے حذف ہو سکتا ہے۔',
   notFoundH: 'یہ صفحہ نہیں ملا',
   notFoundBody: 'لنک درست نہیں، یا بنانے والے نے صفحہ حذف کر دیا ہے۔ یقینی بنائیں کہ پورا لنک کاپی ہوا ہے، یا دعا کا نیا صفحہ بنائیں۔',
   unavailableH: 'سروس اس وقت دستیاب نہیں',
@@ -457,48 +555,47 @@ const UR: LandingT = {
   createNew: 'دعا کا نیا صفحہ بنائیں',
   navNew: 'نیا صفحہ',
   err: UR_ERR,
-  page: (name, kind, _g, prayers) => {
+  page: (name, kind, g, prayers) => {
+    const N = iso(name, true);
     const dead = kind === 'deceased';
-    const count = {
-      zero: 'سب سے پہلے آپ دعا کریں',
-      one: 'ایک شخص نے دعا کی',
-      other: '{n} افراد نے دعا کی',
-    };
-    const n = num(prayers, 'ur');
-    const tally = prayers === 0 ? '' : ` ${prayers === 1 ? count.one : fill(count.other, { n })}۔`;
+    const count: Plurals = { zero: 'سب سے پہلے آپ دعا کریں', one: 'ایک شخص نے دعا کی', other: '{n} افراد نے دعا کی' };
+    const total: Plurals = { zero: '', one: 'کل ایک دعا', other: 'کل {n} دعائیں' };
+    const tally = prayers === 0 ? '' : ` ${prayers === 1 ? count.one : fill(count.other, { n: num(prayers, 'ur') })}۔`;
     return {
-      title: dead ? `${name} کے لیے دعا کریں · اللہ ان کی مغفرت فرمائے` : `${name} کی شفا کے لیے دعا کریں`,
+      title: dead ? `${N} کے لیے دعا کریں · اللہ ان کی مغفرت فرمائے` : `${N} کی شفا کے لیے دعا کریں`,
       description: dead
-        ? `${name} کے لیے دعا کا صفحہ، اللہ ان کی مغفرت فرمائے۔ قرآن و سنت کی دعا پڑھیں، پھر «میں نے دعا کی» دبائیں۔${tally}`
-        : `${name} کی شفا کے لیے دعا کا صفحہ۔ قرآن و سنت کی شفا کی دعا پڑھیں، پھر «میں نے دعا کی» دبائیں۔${tally}`,
-      h1: dead ? `${name} کے لیے دعا کریں` : `${name} کی شفا کے لیے دعا کریں`,
+        ? `${N} کے لیے دعا کا صفحہ، اللہ ان کی مغفرت فرمائے۔ قرآن و سنت کی دعا پڑھیں، پھر «میں نے دعا کی» دبائیں۔${tally}`
+        : `${N} کی شفا کے لیے دعا کا صفحہ۔ قرآن و سنت کی شفا کی دعا پڑھیں، پھر «میں نے دعا کی» دبائیں۔${tally}`,
+      eyebrow: dead ? 'إِنَّا لِلَّهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ' : 'لا بَأْسَ، طَهُورٌ إِنْ شَاءَ اللَّهُ',
+      eyebrowNote: dead ? 'ہم اللہ ہی کے ہیں اور اسی کی طرف لوٹ کر جانے والے ہیں۔' : 'کوئی حرج نہیں، ان شاء اللہ یہ (گناہوں سے) پاکی ہے۔',
       lead: dead ? 'اللہ ان پر رحم فرمائے اور ان کی مغفرت فرمائے۔' : 'اللہ انہیں شفا اور عافیت عطا فرمائے۔',
       intro: dead
-        ? 'ان میں سے جو دعا آسانی سے پڑھ سکیں ان کے لیے پڑھیں — یا اپنے الفاظ اور اپنی زبان میں دعا کریں — پھر «میں نے دعا کی» دبائیں تاکہ ان کے گھر والوں کو معلوم ہو کہ آپ نے دعا کی۔'
-        : 'ان دعاؤں سے یا اپنے الفاظ میں ان کی شفا کے لیے دعا کریں، پھر «میں نے دعا کی» دبائیں تاکہ ان کے گھر والوں کو معلوم ہو کہ آپ نے دعا کی۔',
-      duasH: 'قرآن و سنت کی دعائیں',
-      reminderH: 'یاد دہانی',
+        ? 'اس دعا سے یا اپنے الفاظ اور اپنی زبان میں ان کے لیے دعا کریں، پھر «میں نے دعا کی» دبائیں تاکہ ان کے گھر والوں کو معلوم ہو کہ آپ نے دعا کی۔'
+        : 'اس دعا سے یا اپنے الفاظ میں ان کی شفا کے لیے دعا کریں، پھر «میں نے دعا کی» دبائیں تاکہ ان کے گھر والوں کو معلوم ہو کہ آپ نے دعا کی۔',
+      reminderH: dead ? 'جو چیز انہیں اب بھی فائدہ دیتی ہے' : 'ہو سکے تو ان کی عیادت کریں',
       reminder: dead
-        ? 'نبی ﷺ نے فرمایا: «جب انسان فوت ہو جاتا ہے تو اس کا عمل ختم ہو جاتا ہے سوائے تین چیزوں کے: صدقۂ جاریہ، یا وہ علم جس سے فائدہ اٹھایا جائے، یا نیک اولاد جو اس کے لیے دعا کرے» (مسلم)۔ دعا میت کے لیے سب سے مفید تحفوں میں سے ہے، اور اس کے لیے کوئی خاص الفاظ، وقت یا تعداد شرط نہیں۔'
-        : 'نبی ﷺ نے فرمایا: «مسلمان کی اپنے بھائی کے لیے اس کی غیر موجودگی میں کی گئی دعا قبول ہوتی ہے، اس کے سر کے پاس ایک فرشتہ مقرر ہوتا ہے، جب بھی وہ اپنے بھائی کے لیے بھلائی کی دعا کرتا ہے تو فرشتہ کہتا ہے: آمین، اور تمہیں بھی اسی جیسا ملے» (مسلم)۔ اپنے الفاظ میں جیسے چاہیں دعا کریں۔',
-      ogAlt: dead ? `${name} کے لیے دعا کریں` : `${name} کی شفا کے لیے دعا کریں`,
+        ? 'نبی ﷺ نے فرمایا: «جب انسان فوت ہو جاتا ہے تو اس کا عمل ختم ہو جاتا ہے سوائے تین چیزوں کے: صدقۂ جاریہ، یا وہ علم جس سے فائدہ اٹھایا جائے، یا نیک اولاد جو اس کے لیے دعا کرے» (مسلم)۔ دعا میت کے لیے سب سے مفید تحفوں میں سے ہے، اور اس کے لیے کوئی خاص الفاظ، وقت یا تعداد شرط نہیں؛ اور ان کی طرف سے صدقہ بھی علما کے اتفاق سے انہیں پہنچتا ہے۔'
+        : 'نبی ﷺ نے فرمایا: «جو کسی مریض کی عیادت کرتا ہے وہ جنت کے خُرفہ میں رہتا ہے۔» پوچھا گیا: جنت کا خُرفہ کیا ہے؟ فرمایا: «اس کے چنے ہوئے پھل» (مسلم)۔ اگر ممکن ہو تو ان کی عیادت کریں یا فون کریں، ورنہ ان کی غیر موجودگی میں آپ کی دعا اللہ کے حکم سے قبول ہوتی ہے۔',
+      ogAlt: dead ? `${N} کے لیے دعا کریں` : `${N} کی شفا کے لیے دعا کریں`,
       card: {
-        count,
-        pray: 'میں نے دعا کی',
-        praying: 'ایک لمحہ…',
-        prayHint: 'دعا کر لینے کے بعد دبائیں۔ ہر ڈیوائس ایک ہی بار گنی جاتی ہے۔',
-        thanks: 'اللہ آپ کی دعا قبول فرمائے۔ لنک بھیجیں تاکہ دوسرے بھی دعا کریں۔',
-        sharePrompt: 'لنک بھیجیں تاکہ دوسرے بھی ان کے لیے دعا کریں:',
-        shareText: dead
-          ? `${name} کے لیے دعا کریں، اللہ ان کی مغفرت فرمائے۔ دعا پڑھیں اور «میں نے دعا کی» دبائیں:`
-          : `${name} کی شفا کے لیے دعا کریں۔ دعا پڑھیں اور «میں نے دعا کی» دبائیں:`,
-        shareWa: 'واٹس ایپ پر بھیجیں', shareNative: 'دیگر ایپس…', shareCopy: 'لنک کاپی کریں', shareCopied: 'لنک کاپی ہو گیا',
-        adminLead: 'یہ صفحہ آپ نے اسی براؤزر سے بنایا ہے۔',
-        adminDelete: 'صفحہ حذف کریں',
-        adminConfirm: 'کیا یہ صفحہ ہمیشہ کے لیے حذف کر دیں؟ نام اور گنتی مٹ جائے گی اور لنک کام نہیں کرے گا۔',
-        adminDeleted: 'صفحہ حذف ہو گیا۔',
-        createNew: 'دعا کا نیا صفحہ بنائیں',
+        ...UR_UI,
         err: UR_ERR,
+        count,
+        total,
+        youToo: 'آپ بھی ان میں شامل ہیں',
+        featuredH: dead ? 'ان کے لیے دعا کریں' : 'ان کی شفا کے لیے دعا کریں',
+        moreH: 'ان کے لیے مزید دعائیں',
+        pray: 'میں نے دعا کی',
+        prayAgain: 'میں نے آج دعا کی',
+        prayedToday: 'آپ نے آج دعا کر لی',
+        prayHint: 'دعا کر لینے کے بعد دبائیں۔',
+        returnHint: 'آپ پہلے بھی دعا کر چکے ہیں، جزاک اللہ خیراً۔ آج بھی ان کے لیے دعا کریں۔',
+        comeBack: 'کل پھر آئیں اور دوبارہ دعا کریں۔',
+        sharePrompt: 'لنک بھیجیں تاکہ دوسرے بھی ان کے لیے دعا کریں:',
+        shareAfter: 'اب یہ لنک ان کے جاننے والوں کو بھیجیں تاکہ وہ بھی دعا کریں:',
+        shareText: dead
+          ? `${N} کے لیے دعا کریں، اللہ ان کی مغفرت فرمائے۔\n«${shareDua(kind, g, name)}»\nدعا پڑھیں اور «میں نے دعا کی» دبائیں:`
+          : `${N} کی شفا کے لیے دعا کریں۔\n«${shareDua(kind, g, name)}»\nدعا پڑھیں اور «میں نے دعا کی» دبائیں:`,
       },
     };
   },

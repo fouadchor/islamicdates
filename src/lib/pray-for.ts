@@ -63,8 +63,22 @@ export interface PrayRow {
   gender: Gender;
   admin_key: string;
   lang: string;
+  /** People (browsers) who have prayed at least once. */
   prayers: number;
+  /** Every counted press, first ones and returns on later days alike. */
+  total: number;
   created_at: number;
+}
+
+/** A browser may pray again — and be counted again — once this much time has passed. */
+export const AGAIN_MS = 20 * 3600_000;
+
+/** What this browser has done on this page. */
+export interface Mine {
+  /** Has it ever prayed here? */
+  prayed: boolean;
+  /** When it may pray again (ms), or null if it can pray now. */
+  againAt: number | null;
 }
 
 /** الصفحة كما يراها المتصفح — بلا مفتاح الإدارة. */
@@ -74,17 +88,21 @@ export interface PrayView {
   kind: PrayKind;
   gender: Gender;
   prayers: number;
-  /** هل ضغط هذا المتصفح «دعوت» من قبل؟ */
+  total: number;
   prayed: boolean;
+  againAt: number | null;
 }
 
-export const toView = (r: PrayRow, prayed = false): PrayView => ({
+export const toView = (r: PrayRow, mine: Mine = { prayed: false, againAt: null }): PrayView => ({
   slug: r.slug,
   name: r.name,
   kind: r.kind,
   gender: r.gender,
   prayers: r.prayers,
-  prayed,
+  // Pages created before `total` existed: never show fewer prayers than people.
+  total: Math.max(r.total ?? 0, r.prayers),
+  prayed: mine.prayed,
+  againAt: mine.againAt,
 });
 
 // ── المخطّط ──────────────────────────────────────────────────────────────────
@@ -96,24 +114,42 @@ const SCHEMA = [
   `CREATE TABLE IF NOT EXISTS pray_page (
      slug TEXT PRIMARY KEY, name TEXT NOT NULL, kind TEXT NOT NULL, gender TEXT NOT NULL,
      admin_key TEXT NOT NULL, lang TEXT NOT NULL DEFAULT 'ar', prayers INTEGER NOT NULL DEFAULT 0,
-     created_at INTEGER NOT NULL)`,
+     total INTEGER NOT NULL DEFAULT 0, created_at INTEGER NOT NULL)`,
   `CREATE TABLE IF NOT EXISTS pray_mark (
      slug TEXT NOT NULL REFERENCES pray_page(slug) ON DELETE CASCADE, token TEXT NOT NULL,
-     at INTEGER NOT NULL, PRIMARY KEY (slug, token))`,
+     at INTEGER NOT NULL, times INTEGER NOT NULL DEFAULT 1, PRIMARY KEY (slug, token))`,
   `CREATE TABLE IF NOT EXISTS khatma_rate (
      bucket TEXT PRIMARY KEY, count INTEGER NOT NULL, expires INTEGER NOT NULL)`,
+];
+
+/**
+ * Columns added after the first release (24 Oct 2026). Tables created then lack
+ * them, and CREATE TABLE IF NOT EXISTS does not add columns, so each is added on
+ * its own and "duplicate column" — the normal case once done — is ignored. The
+ * follow-up statement runs only when the column was really added, i.e. once.
+ */
+const UPGRADES: { add: string; then?: string }[] = [
+  { add: 'ALTER TABLE pray_page ADD COLUMN total INTEGER NOT NULL DEFAULT 0', then: 'UPDATE pray_page SET total = prayers WHERE total < prayers' },
+  { add: 'ALTER TABLE pray_mark ADD COLUMN times INTEGER NOT NULL DEFAULT 1' },
 ];
 
 let ready: Promise<void> | null = null;
 export function ensureSchema(db: D1): Promise<void> {
   if (!ready) {
-    ready = db
-      .batch(SCHEMA.map((q) => db.prepare(q)))
-      .then(() => undefined)
-      .catch((e) => {
-        ready = null; // try again on the next request rather than failing for the isolate's life
-        throw e;
-      });
+    ready = (async () => {
+      await db.batch(SCHEMA.map((q) => db.prepare(q)));
+      for (const u of UPGRADES) {
+        try {
+          await db.prepare(u.add).run();
+          if (u.then) await db.prepare(u.then).run();
+        } catch (e) {
+          if (!/duplicate column/i.test(String((e as Error)?.message ?? e))) throw e;
+        }
+      }
+    })().catch((e) => {
+      ready = null; // try again on the next request rather than failing for the isolate's life
+      throw e;
+    });
   }
   return ready;
 }
@@ -125,10 +161,13 @@ export async function getPage(db: D1, slug: string): Promise<PrayRow | null> {
   return db.prepare('SELECT * FROM pray_page WHERE slug = ?').bind(slug).first<PrayRow>();
 }
 
-export async function hasPrayed(db: D1, slug: string, token: string | null): Promise<boolean> {
-  if (!token) return false;
-  const r = await db.prepare('SELECT 1 AS x FROM pray_mark WHERE slug = ? AND token = ?').bind(slug, token).first();
-  return !!r;
+/** This browser's record on the page. */
+export async function mineFor(db: D1, slug: string, token: string | null, now = Date.now()): Promise<Mine> {
+  if (!token) return { prayed: false, againAt: null };
+  const r = await db.prepare('SELECT at FROM pray_mark WHERE slug = ? AND token = ?').bind(slug, token).first<{ at: number }>();
+  if (!r) return { prayed: false, againAt: null };
+  const next = r.at + AGAIN_MS;
+  return { prayed: true, againAt: next > now ? next : null };
 }
 
 export async function createPage(
@@ -139,28 +178,62 @@ export async function createPage(
   const slug = newSlug();
   const adminKey = newAdminKey();
   await db
-    .prepare('INSERT INTO pray_page (slug, name, kind, gender, admin_key, lang, prayers, created_at) VALUES (?,?,?,?,?,?,0,?)')
+    .prepare('INSERT INTO pray_page (slug, name, kind, gender, admin_key, lang, prayers, total, created_at) VALUES (?,?,?,?,?,?,0,0,?)')
     .bind(slug, opts.name, opts.kind, opts.gender, adminKey, opts.lang, Date.now())
     .run();
   return { slug, adminKey };
 }
 
+export type PrayResult = 'first' | 'again' | 'already';
+
 /**
- * «دعوت له». Counted once per browser: the mark's primary key makes a repeat
- * press insert nothing, and the counter moves only when the insert did. The
- * increment itself is atomic, so concurrent presses never lose a count.
+ * «دعوت له».
  *
- * Returns true when this press was counted, false when this browser had
- * already prayed — both are a success for the reader.
+ * A browser's first press counts it among the people who prayed. People come
+ * back — a family checks on the sick every day, friends return on a Friday — so a
+ * press on a later day counts again in the total, though never again as a new
+ * person. Within AGAIN_MS of the last counted press nothing moves.
+ *
+ * Every step is a single conditional statement, so two presses arriving together
+ * cannot both count: the mark's primary key settles the first press, and the
+ * `at <= cutoff` condition settles the later ones.
  */
-export async function pray(db: D1, slug: string, token: string): Promise<boolean> {
-  const r = await db
-    .prepare('INSERT OR IGNORE INTO pray_mark (slug, token, at) VALUES (?,?,?)')
-    .bind(slug, token, Date.now())
+export async function pray(db: D1, slug: string, token: string, now = Date.now()): Promise<PrayResult> {
+  const first = await db
+    .prepare('INSERT OR IGNORE INTO pray_mark (slug, token, at, times) VALUES (?,?,?,1)')
+    .bind(slug, token, now)
     .run();
-  if (r.meta.changes !== 1) return false;
-  await db.prepare('UPDATE pray_page SET prayers = prayers + 1 WHERE slug = ?').bind(slug).run();
-  return true;
+  if (first.meta.changes === 1) {
+    await db.prepare('UPDATE pray_page SET prayers = prayers + 1, total = total + 1 WHERE slug = ?').bind(slug).run();
+    return 'first';
+  }
+  const again = await db
+    .prepare('UPDATE pray_mark SET at = ?, times = times + 1 WHERE slug = ? AND token = ? AND at <= ?')
+    .bind(now, slug, token, now - AGAIN_MS)
+    .run();
+  if (again.meta.changes === 1) {
+    await db.prepare('UPDATE pray_page SET total = total + 1 WHERE slug = ?').bind(slug).run();
+    return 'again';
+  }
+  return 'already';
+}
+
+/**
+ * Creator-only correction: a typo in the name, the wrong له/لها — or a page made
+ * for someone ill who has since died, which the family can turn into a page of
+ * mercy without losing the link everyone already has or the people who prayed.
+ */
+export async function editPage(
+  db: D1,
+  slug: string,
+  adminKey: string,
+  fields: { name: string; kind: PrayKind; gender: Gender },
+): Promise<boolean> {
+  const r = await db
+    .prepare('UPDATE pray_page SET name = ?, kind = ?, gender = ? WHERE slug = ? AND admin_key = ?')
+    .bind(fields.name, fields.kind, fields.gender, slug, adminKey)
+    .run();
+  return r.meta.changes === 1;
 }
 
 /** حذف الصفحة نهائياً — الاسم والعدّاد والعلامات — بمفتاح المنشئ وحده. */
