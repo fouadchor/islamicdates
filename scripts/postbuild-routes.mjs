@@ -23,8 +23,15 @@ const routes = {
     '/pray-for/*', '/en/pray-for/*', '/ur/pray-for/*',
   ],
   // The landing pages are prerendered — serving them from the Worker would
-  // spend an invocation on every visit. `exclude` wins over `include`.
-  exclude: ['/khatma/', '/en/khatma/', '/ur/khatma/', '/pray-for/', '/en/pray-for/', '/ur/pray-for/'],
+  // spend an invocation on every visit, and the deceased landing page sits
+  // where the [slug] route would otherwise catch it. `exclude` wins over `include`.
+  exclude: [
+    '/khatma/', '/en/khatma/', '/ur/khatma/',
+    '/pray-for/', '/en/pray-for/', '/ur/pray-for/',
+    // Both forms: without the slash the Worker would read "deceased" as a slug.
+    '/pray-for/deceased', '/en/pray-for/deceased', '/ur/pray-for/deceased',
+    '/pray-for/deceased/', '/en/pray-for/deceased/', '/ur/pray-for/deceased/',
+  ],
 };
 
 const out = fileURLToPath(new URL('../dist/_routes.json', import.meta.url));

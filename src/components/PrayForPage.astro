@@ -2,13 +2,14 @@
 // صفحة «ادعوا لـ…» الواحدة — نسخة واحدة تخدم اللغات الثلاث.
 //
 // Most people arrive here from a WhatsApp message, on a phone, a day after a
-// death or on hearing someone is ill. The page is built for that moment: the
-// name first, one short supplication with the name in it, one button — and only
-// then the rest. No ads, no countdowns, no side rail of unrelated tools.
+// death, on hearing someone is ill, or the night before an exam or a journey.
+// The page is built for that moment: the name first, one short supplication with
+// the name in it, one button — and only then the rest. No ads, no countdowns, no side rail of unrelated tools.
 import Layout from '../layouts/Layout.astro';
 import PrayForCard from './PrayForCard';
 import { pick, type Lang } from '../lib/data';
-import { prayT } from '../lib/pray-for-i18n';
+import { newPageHref, prayT } from '../lib/pray-for-i18n';
+import { isLiving } from '../lib/pray-for';
 import { renderDuas } from '../lib/pray-for-duas';
 import type { PrayLoaded } from '../lib/pray-for-load';
 
@@ -23,6 +24,11 @@ const canonical = `https://islamicdates.org${T.base}${slug}/`;
 const home = pick(lang, '/', '/en/', '/ur/');
 const copy = view ? T.page(view.name, view.kind, view.gender, view.prayers) : null;
 const duas = view ? renderDuas(view.kind, view.gender, lang, view.name) : [];
+// The living share one warm, gold look (hope); the deceased keep the calm teal.
+const hope = view ? isLiving(view.kind) : false;
+// «Create another» stays behind the same door: a page for someone ill never
+// leads to the page for the deceased, and the reverse.
+const newHref = view ? newPageHref(lang, view.kind) : T.base;
 
 // One pre-rendered preview card per language and kind (scripts/gen-pray-for-og.mjs);
 // the person's name travels in og:title beside it.
@@ -48,7 +54,7 @@ const ogImage = view ? `https://islamicdates.org/og/pray-for/${lang}-${view.kind
     <main>
       {view && copy ? (
         <>
-          <section class={`card pf-hero pf-${view.kind}`} data-pf-hero>
+          <section class={`card pf-hero pf-${view.kind}${hope ? ' pf-hope' : ''}`} data-pf-hero>
             <svg class="pf-star" viewBox="0 0 48 48" width="34" height="34" aria-hidden="true">
               <path d="M24 3l5.6 7.9 9.6-1.5-1.5 9.6L45 24l-7.9 5.6 1.5 9.6-9.6-1.5L24 45l-5.6-7.9-9.6 1.5 1.5-9.6L3 24l7.9-5.6-1.5-9.6 9.6 1.5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
               <circle cx="24" cy="24" r="6.5" fill="none" stroke="currentColor" stroke-width="1.6"/>
@@ -62,7 +68,7 @@ const ogImage = view ? `https://islamicdates.org/og/pray-for/${lang}-${view.kind
 
           <section class="card pf-body">
             <PrayForCard initial={view} lang={lang} t={copy.card} duas={duas}
-                         shareUrl={canonical} base={T.base} isNew={isNew} client:load />
+                         shareUrl={canonical} newHref={newHref} isNew={isNew} client:load />
           </section>
 
           <section class="card pf-reminder">
@@ -70,7 +76,7 @@ const ogImage = view ? `https://islamicdates.org/og/pray-for/${lang}-${view.kind
             <p class="section-p">{copy.reminder}</p>
           </section>
 
-          <p class="pf-another"><a href={T.base}>{copy.card.createNew}</a></p>
+          <p class="pf-another"><a href={newHref}>{copy.card.createNew}</a></p>
         </>
       ) : (
         <section class="card section-card">
@@ -115,14 +121,14 @@ const ogImage = view ? `https://islamicdates.org/og/pray-for/${lang}-${view.kind
         radial-gradient(120% 70% at 50% 0%, var(--accent-soft) 0%, transparent 70%),
         var(--surface);
     }
-    .pf-sick.pf-hero { background: radial-gradient(120% 70% at 50% 0%, var(--gold-soft) 0%, transparent 70%), var(--surface); }
+    .pf-hope.pf-hero { background: radial-gradient(120% 70% at 50% 0%, var(--gold-soft) 0%, transparent 70%), var(--surface); }
     .pf-star { color: var(--accent); opacity: .75; display: block; margin: 0 auto 6px; }
-    .pf-sick .pf-star { color: var(--gold); }
+    .pf-hope .pf-star { color: var(--gold); }
     .pf-eyebrow {
       margin: 0; font-family: 'Noto Naskh Arabic', 'IBM Plex Sans Arabic', serif;
       font-size: 19px; font-weight: 600; line-height: 1.9; color: var(--accent-strong);
     }
-    .pf-sick .pf-eyebrow { color: var(--gold-deep); }
+    .pf-hope .pf-eyebrow { color: var(--gold-deep); }
     .pf-eyebrow-note { margin: 0; font-size: 13px; color: var(--muted); font-style: italic; }
     .pf-name {
       margin: 12px 0 2px; font-family: 'Noto Naskh Arabic', 'IBM Plex Sans Arabic', serif;
@@ -131,7 +137,7 @@ const ogImage = view ? `https://islamicdates.org/og/pray-for/${lang}-${view.kind
     }
     html[lang="en"] .pf-name { font-family: 'Plus Jakarta Sans', 'Noto Naskh Arabic', sans-serif; font-weight: 800; }
     .pf-lead { margin: 0; font-size: 16.5px; font-weight: 700; color: var(--accent-strong); }
-    .pf-sick .pf-lead { color: var(--gold-deep); }
+    .pf-hope .pf-lead { color: var(--gold-deep); }
     .pf-intro { margin: 14px auto 0; max-width: 520px; font-size: 14.5px; line-height: 1.85; color: var(--muted); text-wrap: pretty; }
 
     .pf-body { padding: 22px 22px 24px; }
@@ -172,7 +178,7 @@ const ogImage = view ? `https://islamicdates.org/og/pray-for/${lang}-${view.kind
 
     .pf-dua { border: 1px solid var(--border); border-radius: 16px; background: var(--surface2); padding: 16px 18px 12px; }
     .pf-dua.is-featured { background: var(--surface); border: 1.5px solid var(--accent); box-shadow: 0 8px 26px rgba(13,148,136,.10); padding: 24px 20px 12px; text-align: center; }
-    .pf-k-sick .pf-dua.is-featured { border-color: var(--gold); box-shadow: 0 8px 26px rgba(201,138,22,.10); }
+    .pf-hope .pf-dua.is-featured { border-color: var(--gold); box-shadow: 0 8px 26px rgba(201,138,22,.10); }
     .pf-text {
       margin: 0; font-family: 'Noto Naskh Arabic', 'IBM Plex Sans Arabic', serif;
       font-size: calc(var(--pf-fs, 1) * clamp(19px, 2.6vw, 22px)); line-height: 2.15; font-weight: 500;
@@ -181,7 +187,7 @@ const ogImage = view ? `https://islamicdates.org/og/pray-for/${lang}-${view.kind
     .pf-dua.is-featured .pf-text { text-align: center; font-size: calc(var(--pf-fs, 1) * clamp(22px, 3.6vw, 26px)); line-height: 2.1; font-weight: 600; }
     .pf-times-line { margin: 4px 0 0; font-weight: 800; color: var(--gold-deep); }
     .pf-the-name { color: var(--accent-strong); font-weight: 700; }
-    .pf-k-sick .pf-the-name { color: var(--gold-deep); }
+    .pf-hope .pf-the-name { color: var(--gold-deep); }
     .pf-meaning .pf-the-name { font-weight: 700; }
     .pf-meaning { margin: 10px 0 0; font-size: calc(var(--pf-fs, 1) * 14.5px); line-height: 1.8; color: var(--muted); }
     .pf-dua-head { display: flex; align-items: center; gap: 10px; padding-bottom: 9px; margin-bottom: 10px; border-bottom: 1px dashed var(--border); }

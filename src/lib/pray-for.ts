@@ -1,10 +1,16 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// «ادعوا لـ…» — صفحة دعاء لمتوفّى أو مريض
+// «ادعوا لـ…» — صفحة دعاء لمن تحب
 //
 // A family creates one page in someone's name and sends its link around. Whoever
 // opens it reads supplications from the Qur'an and Sunnah — already in the right
 // grammatical form and with the name in place — and presses «دعوت له». The page
 // shows how many people have prayed.
+//
+// Two doors, never side by side (28 Oct 2026): the living — someone ill,
+// travelling, facing an exam or a hard day, in distress, or with a need only
+// Allah knows — share /pray-for/, a page of hope; someone who has died has a page
+// of their own at /pray-for/deceased/. A family asking for prayers for a sick
+// mother should not be met by the funeral prayer.
 //
 // Same shape as the khatma (lib/khatma.ts): no account, a random slug as the
 // invitation, a random per-browser token instead of identity, and an admin key
@@ -14,10 +20,13 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import type { D1, D1Stmt } from './khatma';
 
-export type PrayKind = 'deceased' | 'sick';
+export type PrayKind = 'deceased' | 'sick' | 'ease' | 'travel' | 'distress' | 'need';
 export type Gender = 'm' | 'f';
 
-export const KINDS: readonly PrayKind[] = ['deceased', 'sick'];
+/** Prayers for the living, in the order the form offers them. */
+export const LIVING: readonly PrayKind[] = ['sick', 'ease', 'travel', 'distress', 'need'];
+export const KINDS: readonly PrayKind[] = [...LIVING, 'deceased'];
+export const isLiving = (k: PrayKind) => k !== 'deceased';
 export const NAME_MAX = 60;
 
 // Alphabet without 0/O/1/l/I, as for khatma links.
@@ -219,9 +228,11 @@ export async function pray(db: D1, slug: string, token: string, now = Date.now()
 }
 
 /**
- * Creator-only correction: a typo in the name, the wrong له/لها — or a page made
- * for someone ill who has since died, which the family can turn into a page of
- * mercy without losing the link everyone already has or the people who prayed.
+ * Creator-only correction: a typo in the name, the wrong له/لها, the wrong kind
+ * of prayer — or a page whose situation has changed, which the family can turn
+ * into another kind without losing the link everyone already has or the people
+ * who prayed. (That a page for the ill can become one of mercy is kept inside
+ * the creator's edit panel; no public page mentions it.)
  */
 export async function editPage(
   db: D1,

@@ -4,8 +4,11 @@
 // A prayer-page link travels mostly through WhatsApp, so the preview is what the
 // family's group actually sees. The person's name rides in og:title beside the
 // image, so the card itself says only what kind of prayer it is — one per
-// language and kind: 3 × 2 = 6 small JPEGs, rendered once. Same visual identity
-// as the khatma cards (scripts/gen-khatma-og.mjs).
+// language and kind, plus one for each landing page («living», the page for the
+// living; the deceased landing uses the deceased card): 3 × 7 = 21 small JPEGs,
+// rendered once. Same visual identity as the khatma cards
+// (scripts/gen-khatma-og.mjs). The living share the gold accent; the deceased
+// keep the plain white heart.
 //
 // Rendered with Chromium so Arabic and Urdu are shaped correctly.
 //
@@ -51,30 +54,47 @@ const FACES = `
 const COPY = {
   ar: {
     dir: 'rtl', font: 'Plex', brand: 'التقويم الهجري', word: 'دعاء',
+    living: { head: 'ادعوا لمن تحبّون', sub: 'رابط واحد يجمع الدعاء له من الأهل والأصحاب' },
     deceased: { head: 'ادعوا بالرحمة والمغفرة', sub: 'صفحة دعاء لمن رحل من أهلنا وأحبّتنا' },
     sick: { head: 'ادعوا بالشفاء والعافية', sub: 'صفحة دعاء لمريض من أهلنا وأحبّتنا' },
+    ease: { head: 'ادعوا بالتيسير والتوفيق', sub: 'صفحة دعاء لامتحان أو أمرٍ صعب' },
+    travel: { head: 'ادعوا بالحفظ في السفر', sub: 'صفحة دعاء لمسافر من أهلنا وأحبّتنا' },
+    distress: { head: 'ادعوا بتفريج الكرب', sub: 'صفحة دعاء لمن يمرّ بضيق' },
+    need: { head: 'ادعوا له بالخير', sub: 'في نفسه حاجة يعلمها الله' },
     cta: 'افتح الصفحة وادعُ',
   },
   en: {
     dir: 'ltr', font: 'Jakarta', brand: 'Hijri Calendar', word: 'Dua',
+    living: { head: 'Pray for someone you love', sub: 'One link gathers prayers from family and friends' },
     deceased: { head: 'Pray for mercy and forgiveness', sub: 'A prayer page for someone who has passed away' },
     sick: { head: 'Pray for healing and well-being', sub: 'A prayer page for someone who is unwell' },
+    ease: { head: 'Pray for ease and success', sub: 'A prayer page for an exam or a hard day' },
+    travel: { head: 'Pray for a safe journey', sub: 'A prayer page for someone who is travelling' },
+    distress: { head: 'Pray for relief', sub: 'A prayer page for someone going through hardship' },
+    need: { head: 'Pray for good for them', sub: 'They have a need that Allah knows' },
     cta: 'Open the page and pray',
   },
   ur: {
     dir: 'rtl', font: 'Naskh', brand: 'ہجری کیلنڈر', word: 'دعا',
+    living: { head: 'اپنے پیاروں کے لیے دعا', sub: 'ایک لنک پر گھر والوں اور دوستوں کی دعائیں' },
     deceased: { head: 'مغفرت اور رحمت کی دعا', sub: 'مرحوم کے لیے دعا کا صفحہ' },
     sick: { head: 'شفا اور عافیت کی دعا', sub: 'بیمار کے لیے دعا کا صفحہ' },
+    ease: { head: 'آسانی اور کامیابی کی دعا', sub: 'امتحان یا مشکل کام کے لیے دعا کا صفحہ' },
+    travel: { head: 'سفر میں حفاظت کی دعا', sub: 'مسافر کے لیے دعا کا صفحہ' },
+    distress: { head: 'مشکل آسان ہونے کی دعا', sub: 'پریشانی میں گھرے عزیز کے لیے دعا کا صفحہ' },
+    need: { head: 'بھلائی کی دعا', sub: 'ان کی ایک حاجت ہے جسے اللہ جانتا ہے' },
     cta: 'صفحہ کھولیں اور دعا کریں',
   },
 };
+
+const CARDS = ['living', 'deceased', 'sick', 'ease', 'travel', 'distress', 'need'];
 
 const HEART = 'M12 21s-7.5-4.6-9.4-9.3C1.2 8.2 3.4 4.5 7 4.5c2 0 3.4 1.1 5 3 1.6-1.9 3-3 5-3 3.6 0 5.8 3.7 4.4 7.2C19.5 16.4 12 21 12 21Z';
 
 function html(lang, kind) {
   const c = COPY[lang];
   const k = c[kind];
-  const accent = kind === 'sick' ? '#f2c14e' : '#ffffff';
+  const accent = kind === 'deceased' ? '#ffffff' : '#f2c14e';
   return `<!doctype html><html lang="${lang}" dir="${c.dir}"><head><meta charset="utf-8"><style>
 ${FACES}
 *{margin:0;box-sizing:border-box}
@@ -118,7 +138,7 @@ const browser = await chromium.launch(process.env.CHROMIUM_PATH
 const page = await browser.newPage({ viewport: { width: 1200, height: 630 } });
 let n = 0;
 for (const lang of ['ar', 'en', 'ur']) {
-  for (const kind of ['deceased', 'sick']) {
+  for (const kind of CARDS) {
     await page.setContent(html(lang, kind), { waitUntil: 'load' });
     await page.evaluate(() => document.fonts.ready);
     await page.screenshot({ path: join(out, `${lang}-${kind}.jpg`), type: 'jpeg', quality: 84 });

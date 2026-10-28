@@ -1,36 +1,46 @@
 ---
-// صفحة الهبوط لـ«ادعوا لـ…» — نسخة واحدة تخدم اللغات الثلاث.
+// صفحتا الهبوط لـ«ادعوا لـ…» — نسخة واحدة تخدم اللغات الثلاث والبابين:
+//
+//   door="living"   → /pray-for/          مريض · تيسير · مسافر · كرب · حاجة
+//   door="deceased" → /pray-for/deceased/ متوفّى، في صفحة وحدها
+//
+// Kept apart on purpose (28 Oct 2026): a family asking for prayers for someone
+// ill should not choose between «لمريض» and «لمتوفّى», nor scroll past the
+// funeral prayer to reach the prayers for healing.
 import Layout from '../layouts/Layout.astro';
 import { pick, type Lang } from '../lib/data';
-import { NAME_MAX } from '../lib/pray-for';
-import { prayT } from '../lib/pray-for-i18n';
+import { LIVING, NAME_MAX, type PrayKind } from '../lib/pray-for';
+import { prayT, type Door } from '../lib/pray-for-i18n';
 import { renderDuas } from '../lib/pray-for-duas';
 
-interface Props { lang: Lang }
-const { lang } = Astro.props;
+interface Props { lang: Lang; door: Door }
+const { lang, door } = Astro.props;
 const T = prayT(lang);
-const canonical = `https://islamicdates.org${T.base}`;
+const D = T.doors[door];
+const canonical = `https://islamicdates.org${D.base}`;
 const home = pick(lang, '/', '/en/', '/ur/');
+const living = door === 'living';
+const kinds: readonly PrayKind[] = living ? LIVING : ['deceased'];
 
 // The same supplications every page shows — here in their general form, so the
-// landing page carries the content people search for («دعاء للميت»).
-const deceasedDuas = renderDuas('deceased', 'm', lang, null);
-const sickDuas = renderDuas('sick', 'm', lang, null);
+// landing page carries the content people search for («دعاء للمريض», «دعاء للميت»).
+const sections = kinds.map((k) => ({ kind: k, h: T.duasH[k], list: renderDuas(k, 'm', lang, null) }));
 
+const sub = living ? '' : 'deceased/';
 const jsonLd = JSON.stringify([
   { '@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [
     { '@type': 'ListItem', 'position': 1, 'name': T.home, 'item': `https://islamicdates.org${home}` },
-    { '@type': 'ListItem', 'position': 2, 'name': T.toolLabel, 'item': canonical },
+    { '@type': 'ListItem', 'position': 2, 'name': D.toolLabel, 'item': canonical },
   ] },
-  { '@context': 'https://schema.org', '@type': 'WebApplication', 'name': T.toolLabel, 'url': canonical,
-    'description': T.metaDesc, 'applicationCategory': 'UtilitiesApplication', 'operatingSystem': 'Web', 'inLanguage': [lang],
+  { '@context': 'https://schema.org', '@type': 'WebApplication', 'name': D.toolLabel, 'url': canonical,
+    'description': D.metaDesc, 'applicationCategory': 'UtilitiesApplication', 'operatingSystem': 'Web', 'inLanguage': [lang],
     'offers': { '@type': 'Offer', 'price': '0', 'priceCurrency': 'USD' } },
-  { '@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': T.faq.map(f => ({ '@type': 'Question', 'name': f.q, 'acceptedAnswer': { '@type': 'Answer', 'text': f.a } })) },
+  { '@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': D.faq.map(f => ({ '@type': 'Question', 'name': f.q, 'acceptedAnswer': { '@type': 'Answer', 'text': f.a } })) },
 ]);
 ---
-<Layout title={T.metaTitle} description={T.metaDesc} canonical={canonical} lang={lang} jsonLd={jsonLd}
-        arPath="/pray-for/" enPath="/en/pray-for/" urPath="/ur/pray-for/"
-        ogImage={`https://islamicdates.org/og/pray-for/${lang}-deceased.jpg`} ogImageAlt={T.toolLabel}>
+<Layout title={D.metaTitle} description={D.metaDesc} canonical={canonical} lang={lang} jsonLd={jsonLd}
+        arPath={`/pray-for/${sub}`} enPath={`/en/pray-for/${sub}`} urPath={`/ur/pray-for/${sub}`}
+        ogImage={`https://islamicdates.org/og/pray-for/${lang}-${D.og}.jpg`} ogImageAlt={D.toolLabel}>
   <header class="site-header">
     <div class="header-start">
       <a href={home} class="logo" aria-label={T.home}>
@@ -50,27 +60,31 @@ const jsonLd = JSON.stringify([
   <div class="layout">
     <main>
       <section class="card section-card" style="order:1">
-        <h1 class="section-h2" style="font-size:25px">{T.h1}</h1>
-        <p class="section-p" style="margin-top:8px">{T.intro}</p>
+        <h1 class="section-h2" style="font-size:25px">{D.h1}</h1>
+        <p class="section-p" style="margin-top:8px">{D.intro}</p>
       </section>
 
       <section class="card section-card" id="new" style="order:2">
-        <h2 class="section-h2">{T.formH}</h2>
-        <form id="pf-new" class="pf-form" novalidate data-base={T.base}>
-          <fieldset class="pf-kinds">
-            <legend>{T.kindLabel}</legend>
-            {(['deceased', 'sick'] as const).map((k, i) => (
-              <label class="pf-kind">
-                <input type="radio" name="kind" value={k} checked={i === 0} />
-                <span class="pf-kind-t">{T.kinds[k].t}</span>
-                <span class="pf-kind-d">{T.kinds[k].d}</span>
-              </label>
-            ))}
-          </fieldset>
+        <h2 class="section-h2">{D.formH}</h2>
+        <form id="pf-new" class={`pf-form${living ? ' is-living' : ''}`} novalidate data-base={T.base}>
+          {living ? (
+            <fieldset class="pf-kinds">
+              <legend>{T.kindLabel}</legend>
+              {LIVING.map((k, i) => (
+                <label class={`pf-kind pf-kind-${k}`}>
+                  <input type="radio" name="kind" value={k} checked={i === 0} />
+                  <span class="pf-kind-t">{T.kinds[k].t}</span>
+                  <span class="pf-kind-d">{T.kinds[k].d}</span>
+                </label>
+              ))}
+            </fieldset>
+          ) : (
+            <input type="hidden" name="kind" value="deceased" />
+          )}
 
           <label for="pf-name" class="pf-label">{T.nameLabel}</label>
           <input id="pf-name" name="name" type="text" maxlength={NAME_MAX} required
-                 placeholder={T.namePh} autocomplete="off" aria-describedby="pf-name-hint" />
+                 placeholder={D.namePh} autocomplete="off" aria-describedby="pf-name-hint" />
           <p class="pf-form-hint" id="pf-name-hint">{T.nameHint}</p>
 
           <fieldset class="pf-genders">
@@ -80,7 +94,7 @@ const jsonLd = JSON.stringify([
                 <label><input type="radio" name="gender" value={g} checked={i === 0} /><span>{T.genders[g]}</span></label>
               ))}
             </div>
-            <p class="pf-form-hint">{T.genderHint}</p>
+            <p class="pf-form-hint">{D.genderHint}</p>
           </fieldset>
 
           <button type="submit" class="pf-submit" data-idle={T.submit} data-busy={T.submitting}>{T.submit}</button>
@@ -92,7 +106,7 @@ const jsonLd = JSON.stringify([
       <section class="card section-card" style="order:3">
         <h2 class="section-h2">{T.stepsH}</h2>
         <ol class="pf-steps">
-          {T.steps.map((s, i) => (
+          {D.steps.map((s, i) => (
             <li>
               <span class="pf-step-n">{i + 1}</span>
               <div><p class="pf-step-t">{s.t}</p><p class="pf-step-d">{s.d}</p></div>
@@ -101,37 +115,63 @@ const jsonLd = JSON.stringify([
         </ol>
       </section>
 
-      {[{ h: T.duasDeceasedH, list: deceasedDuas, id: 'duas-deceased' }, { h: T.duasSickH, list: sickDuas, id: 'duas-sick' }].map((sec, si) => (
-        <section class="card section-card" id={sec.id} style={`order:${4 + si}`}>
-          <h2 class="section-h2">{sec.h}</h2>
-          {si === 0 && <p class="section-p">{T.duasNote}</p>}
-          <ol class="pf-duas">
-            {sec.list.map(d => (
-              <li class="pf-dua">
-                <div class="pf-dua-head">
-                  <h3 class="pf-when">{d.when}</h3>
-                  {d.count && <span class="pf-times">×{d.count}</span>}
-                </div>
-                <p class="pf-text" dir="rtl" lang="ar">{d.text}</p>
-                {d.meaning && <p class="pf-meaning">{d.meaning}</p>}
-                <p class="pf-src">{d.src}</p>
-              </li>
-            ))}
-          </ol>
+      {living ? (
+        // Five kinds of prayer: each folds open on its own, the one picked in the
+        // form opens with it. Every supplication is in the HTML either way.
+        <section class="card section-card" id="duas" style="order:4">
+          <p class="section-p" style="margin-top:0">{D.duasNote}</p>
+          {sections.map((sec, si) => (
+            <details class="pf-duas-group" id={`duas-${sec.kind}`} data-kind={sec.kind} open={si === 0}>
+              <summary><h2 class="section-h2">{sec.h}</h2></summary>
+              <ol class="pf-duas">
+                {sec.list.map(d => (
+                  <li class="pf-dua">
+                    <div class="pf-dua-head">
+                      <h3 class="pf-when">{d.when}</h3>
+                      {d.count && <span class="pf-times">×{d.count}</span>}
+                    </div>
+                    <p class="pf-text" dir="rtl" lang="ar">{d.text}</p>
+                    {d.meaning && <p class="pf-meaning">{d.meaning}</p>}
+                    <p class="pf-src">{d.src}</p>
+                  </li>
+                ))}
+              </ol>
+            </details>
+          ))}
         </section>
-      ))}
+      ) : (
+        sections.map(sec => (
+          <section class="card section-card" id={`duas-${sec.kind}`} style="order:4">
+            <h2 class="section-h2">{sec.h}</h2>
+            <p class="section-p">{D.duasNote}</p>
+            <ol class="pf-duas">
+              {sec.list.map(d => (
+                <li class="pf-dua">
+                  <div class="pf-dua-head">
+                    <h3 class="pf-when">{d.when}</h3>
+                    {d.count && <span class="pf-times">×{d.count}</span>}
+                  </div>
+                  <p class="pf-text" dir="rtl" lang="ar">{d.text}</p>
+                  {d.meaning && <p class="pf-meaning">{d.meaning}</p>}
+                  <p class="pf-src">{d.src}</p>
+                </li>
+              ))}
+            </ol>
+          </section>
+        ))
+      )}
 
       <section class="card section-card" style="order:6">
         <h2 class="section-h2">{T.rulesH}</h2>
         <ul class="pf-rules">
-          {T.rules.map(r => (<li><strong>{r.b}</strong> {r.t}</li>))}
+          {D.rules.map(r => (<li><strong>{r.b}</strong> {r.t}</li>))}
         </ul>
       </section>
 
       <section class="card section-card" style="order:7">
         <h2 class="section-h2">{T.faqH}</h2>
-        {T.faq.map((f, i) => (
-          <div class="faq-item" style={i === T.faq.length - 1 ? 'border-bottom:none' : ''}>
+        {D.faq.map((f, i) => (
+          <div class="faq-item" style={i === D.faq.length - 1 ? 'border-bottom:none' : ''}>
             <p class="faq-q">{f.q}</p>
             <p class="faq-a">{f.a}</p>
           </div>
@@ -143,7 +183,7 @@ const jsonLd = JSON.stringify([
       <div class="card" style="padding:18px 20px">
         <h3 style="margin:0 0 12px;font-size:15.5px;font-weight:700">{T.relatedH}</h3>
         <div style="display:flex;flex-direction:column;gap:10px;font-size:14.5px">
-          {T.related.map(r => (<a href={r.href} style="color:var(--accent);text-decoration:none">{r.label}</a>))}
+          {D.related.map(r => (<a href={r.href} style="color:var(--accent);text-decoration:none">{r.label}</a>))}
         </div>
       </div>
     </aside>
@@ -161,12 +201,14 @@ const jsonLd = JSON.stringify([
     .pf-form legend, .pf-label { font-size:14px; font-weight:600; color:var(--text); margin:6px 0 6px; padding:0; }
     .pf-kinds { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
     .pf-kinds legend { grid-column:1 / -1; }
+    /* Five choices on two columns: the last, «a need Allah knows», takes the row. */
+    .pf-kinds .pf-kind:last-of-type:nth-of-type(odd) { grid-column:1 / -1; }
     .pf-kind { position:relative; display:flex; flex-direction:column; gap:3px; padding:13px 14px; border:1.5px solid var(--border); border-radius:14px; background:var(--surface); cursor:pointer; transition:border-color .15s, background .15s; }
     .pf-kind input { position:absolute; opacity:0; pointer-events:none; }
     .pf-kind-t { font-size:15.5px; font-weight:800; color:var(--text); }
     .pf-kind-d { font-size:13px; color:var(--muted); }
-    .pf-kind:has(input:checked) { border-color:var(--accent); background:var(--accent-soft); }
-    .pf-kind:has(input:checked) .pf-kind-t { color:var(--accent-strong); }
+    .pf-kind:has(input:checked) { border-color:var(--gold); background:var(--gold-soft); }
+    .pf-kind:has(input:checked) .pf-kind-t { color:var(--gold-deep); }
     .pf-kind:has(input:focus-visible) { outline:2px solid var(--accent); outline-offset:2px; }
     .pf-form input[type=text] { font:inherit; padding:11px 13px; border:1px solid var(--border); border-radius:12px; background:var(--surface); color:var(--text); width:100%; }
     .pf-form input[type=text]:focus-visible { outline:2px solid var(--accent); outline-offset:1px; }
@@ -190,8 +232,20 @@ const jsonLd = JSON.stringify([
     .pf-rules li { font-size:14.5px; line-height:1.85; color:var(--muted); }
     .pf-rules strong { color:var(--text); }
 
+    .pf-duas-group { border-top:1px solid var(--border); padding:4px 0; }
+    .pf-duas-group:first-of-type { margin-top:14px; }
+    .pf-duas-group > summary { list-style:none; cursor:pointer; display:flex; align-items:center; gap:10px; padding:12px 0; }
+    .pf-duas-group > summary::-webkit-details-marker { display:none; }
+    .pf-duas-group > summary .section-h2 { margin:0; flex:1 1 auto; font-size:17px; }
+    /* Physical borders on purpose: a logical one flips in RTL and the chevron points sideways. */
+    .pf-duas-group > summary::after { content:''; flex:0 0 auto; width:9px; height:9px; border-right:2px solid var(--muted); border-bottom:2px solid var(--muted); transform:translateY(-2px) rotate(45deg); margin-inline-end:6px; transition:transform .15s; }
+    .pf-duas-group[open] > summary::after { transform:translateY(2px) rotate(-135deg); }
+    .pf-duas-group > summary:focus-visible { outline:2px solid var(--accent); outline-offset:2px; border-radius:8px; }
+    .pf-duas-group .pf-duas { margin:2px 0 14px; }
+
     .pf-duas { list-style:none; margin:14px 0 0; padding:0; display:flex; flex-direction:column; gap:14px; }
     .pf-dua { border:1px solid var(--border); border-inline-start:4px solid var(--accent); border-radius:16px; background:var(--surface2); padding:15px 17px; }
+    #duas .pf-dua { border-inline-start-color:var(--gold); }
     .pf-dua-head { display:flex; align-items:center; gap:10px; padding-bottom:9px; margin-bottom:10px; border-bottom:1px dashed var(--border); }
     .pf-when { margin:0; flex:1 1 auto; min-width:0; font-size:15px; font-weight:800; color:var(--accent); line-height:1.5; }
     .pf-times { flex:0 0 auto; font-size:12.5px; font-weight:700; color:var(--gold-deep); background:var(--gold-soft); padding:4px 11px; border-radius:999px; }
@@ -200,19 +254,44 @@ const jsonLd = JSON.stringify([
     .pf-src { margin:10px 0 0; padding-top:9px; border-top:1px dashed var(--border); font-size:13px; font-weight:600; color:var(--muted); }
 
     @media (pointer:coarse) { .pf-submit, .pf-seg span { min-height:44px; } }
-    @media (max-width:420px) { .pf-kinds { grid-template-columns:1fr; } }
+    @media (max-width:360px) {
+      .pf-kinds { grid-template-columns:1fr; }
+      .pf-kinds .pf-kind:last-of-type:nth-of-type(odd) { grid-column:auto; }
+    }
+    @media (max-width:420px) {
+      .pf-kind { padding:11px 12px; }
+      .pf-kind-t { font-size:14.5px; }
+      .pf-kind-d { font-size:12.5px; }
+    }
   </style>
 
   <script>
     const form = document.getElementById('pf-new') as HTMLFormElement | null;
     const err = document.getElementById('pf-err') as HTMLElement | null;
+
+    // On the page for the living: ?kind=travel (from a link elsewhere on the
+    // site) picks that kind, and picking a kind opens its supplications below.
+    const radios = form ? Array.from(form.querySelectorAll<HTMLInputElement>('input[name=kind][type=radio]')) : [];
+    const openDuas = (k: string) => {
+      const d = document.getElementById('duas-' + k) as HTMLDetailsElement | null;
+      if (d) d.open = true;
+    };
+    if (radios.length) {
+      try {
+        const want = new URLSearchParams(location.search).get('kind');
+        const r = radios.find((x) => x.value === want);
+        if (r) { r.checked = true; openDuas(r.value); }
+      } catch (_) { /* no search params — keep the default */ }
+      radios.forEach((r) => r.addEventListener('change', () => { if (r.checked) openDuas(r.value); }));
+    }
+
     form?.addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!err) return;
       const btn = form.querySelector('button[type=submit]') as HTMLButtonElement;
       const fd = new FormData(form);
       const name = String(fd.get('name') ?? '').trim();
-      const kind = String(fd.get('kind') ?? 'deceased');
+      const kind = String(fd.get('kind') ?? 'sick');
       const gender = String(fd.get('gender') ?? 'm');
       const lang = document.documentElement.lang;
       err.hidden = true;
