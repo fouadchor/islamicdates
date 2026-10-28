@@ -21,8 +21,9 @@ interface Props {
   /** Alt text for ogImage. */
   ogImageAlt?: string;
   /**
-   * A page about a particular person who has died or is ill (the «ادعوا لـ…»
-   * prayer pages): no ads beside their name and no occasion countdown above it.
+   * A page about a particular person — someone ill, travelling, in need, or
+   * who has died (the «ادعوا لـ…» prayer pages): no ads beside their name and
+   * no occasion countdown above it.
    */
   quiet?: boolean;
 }
@@ -125,7 +126,10 @@ const _lblImsak = pick(lang, 'إمساكية رمضان', 'Ramadan timetable', '
 const _navKhatma = pick(lang, '/khatma/', '/en/khatma/', '/ur/khatma/');
 const _lblKhatma = pick(lang, 'ختمة قرآن جماعية', 'Group Quran khatma', 'اجتماعی ختمِ قرآن');
 const _navPrayFor = pick(lang, '/pray-for/', '/en/pray-for/', '/ur/pray-for/');
-const _lblPrayFor = pick(lang, 'صفحة دعاء لمتوفّى أو مريض', 'Prayer page for the deceased or ill', 'مرحوم یا بیمار کے لیے دعا');
+const _lblPrayFor = pick(lang, 'صفحة دعاء لمن تحب', 'Prayer page for someone you love', 'پیاروں کے لیے دعا کا صفحہ');
+// The page for the deceased is its own door — listed apart from the page for the living.
+const _navPrayDead = pick(lang, '/pray-for/deceased/', '/en/pray-for/deceased/', '/ur/pray-for/deceased/');
+const _lblPrayDead = pick(lang, 'صفحة دعاء لمتوفّى', 'Prayer page for the deceased', 'مرحوم کے لیے دعا کا صفحہ');
 const _lblAge = pick(lang, 'حاسبة العمر بالهجري', 'Hijri age calculator', 'ہجری عمر کیلکولیٹر');
 const _lblHist = pick(lang, 'محوّل التواريخ التاريخية', 'Historical date converter', 'تاریخی تاریخ کنورٹر');
 const _lblPrint = pick(lang, 'تقويم هجري للطباعة', 'Printable calendar', 'پرنٹ کے قابل کیلنڈر');
@@ -933,6 +937,7 @@ const _bnClose = pick(lang, 'إخفاء', 'Dismiss', 'چھپائیں');
             <li><a href={_navHist}>{_lblHist}</a></li>
             <li><a href={_navFasting}>{_labels.fasting}</a></li>
             <li><a href={_navDua}>{_labels.dua}</a></li>
+            <li><a href={_navPrayDead}>{_lblPrayDead}</a></li>
             <li><a href={_navPrint}>{_lblPrint}</a></li>
             <li><a href={_navWidget}>{_lblWidget}</a></li>
           </ul>

@@ -5,7 +5,9 @@ import type { CardT, Plurals, PrayErr } from '../lib/pray-for-i18n';
 import type { RenderedDua } from '../lib/pray-for-duas';
 import { track } from '../lib/track';
 
-type Kind = 'deceased' | 'sick';
+type Kind = 'deceased' | 'sick' | 'ease' | 'travel' | 'distress' | 'need';
+/** The edit panel's choice: the living first, in the form's order; mercy last. */
+const EDIT_KINDS: readonly Kind[] = ['sick', 'ease', 'travel', 'distress', 'need', 'deceased'];
 type Gender = 'm' | 'f';
 
 interface PrayView {
@@ -113,12 +115,13 @@ export interface PrayForCardProps {
   duas: RenderedDua[];
   /** Canonical address built on the server — never location.href, which can carry ?new=1. */
   shareUrl: string;
-  base: string;
+  /** «Create another page» — the landing page behind the same door as this one. */
+  newHref: string;
   /** The creator's first visit, straight after creating the page. */
   isNew: boolean;
 }
 
-export default function PrayForCard({ initial, lang, t, duas, shareUrl, base, isNew }: PrayForCardProps) {
+export default function PrayForCard({ initial, lang, t, duas, shareUrl, newHref, isNew }: PrayForCardProps) {
   const [p, setP] = useState<PrayView>(initial);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
@@ -376,7 +379,7 @@ export default function PrayForCard({ initial, lang, t, duas, shareUrl, base, is
     return (
       <div className="pf pf-deleted">
         <p className="pf-deleted-msg">{t.deleted}</p>
-        <a className="pf-new-link" href={base}>{t.createNew}</a>
+        <a className="pf-new-link" href={newHref}>{t.createNew}</a>
       </div>
     );
   }
@@ -391,7 +394,7 @@ export default function PrayForCard({ initial, lang, t, duas, shareUrl, base, is
   );
 
   return (
-    <div className={`pf pf-k-${p.kind}`} style={{ ['--pf-fs' as string]: String(font) }}>
+    <div className={`pf pf-k-${p.kind}${p.kind === 'deceased' ? '' : ' pf-hope'}`} style={{ ['--pf-fs' as string]: String(font) }}>
       {showCreator && (
         <div className="pf-creator" role="status">
           <p className="pf-creator-h">
@@ -528,7 +531,7 @@ export default function PrayForCard({ initial, lang, t, duas, shareUrl, base, is
               <fieldset>
                 <legend>{t.editKind}</legend>
                 <div className="pf-seg">
-                  {(['deceased', 'sick'] as const).map((k) => (
+                  {EDIT_KINDS.map((k) => (
                     <label key={k}>
                       <input type="radio" name="pf-edit-kind" value={k} checked={edit.kind === k}
                         onChange={() => setEdit({ ...edit, kind: k })} />
@@ -536,7 +539,7 @@ export default function PrayForCard({ initial, lang, t, duas, shareUrl, base, is
                     </label>
                   ))}
                 </div>
-                {kind === 'sick' && <p className="pf-edit-hint">{t.editKindHint}</p>}
+                {edit.kind !== kind && <p className="pf-edit-hint">{t.editKindHint}</p>}
               </fieldset>
               <fieldset>
                 <legend>{t.editGender}</legend>
