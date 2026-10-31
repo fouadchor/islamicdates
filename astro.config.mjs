@@ -91,4 +91,14 @@ export default defineConfig({
     }),
   ],
   site: 'https://islamicdates.org',
+  vite: {
+    build: {
+      // Never inline font files into CSS. Vite base64-inlines any asset under
+      // 4 KB, and the self-hosted @fontsource subsets include a few that small —
+      // each inlined twice (woff2 and the woff fallback the browser never
+      // fetches). That grew the render-blocking stylesheet from 5 KB to 28 KB
+      // gzipped on every page, cancelling what self-hosting the fonts saved.
+      assetsInlineLimit: (file) => (/\.(woff2?|ttf|otf)$/i.test(file) ? false : undefined),
+    },
+  },
 });

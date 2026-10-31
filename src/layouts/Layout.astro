@@ -2,6 +2,29 @@
 // redeploy marker 2026-06-29 — trilingual (ar / en / ur)
 import { type Lang, pick } from '../lib/data';
 import { OCCASIONS, occLoc, occBasePath, occurrencesInGYear, fmtGShort, isoUTC } from '../lib/occasions';
+// Self-hosted fonts (until 2026-10-31 these came from fonts.googleapis.com).
+// The Google stylesheet was the slowest render-blocking request on the page:
+// a separate host, so a DNS + TLS round trip before any text could paint
+// (~750 ms of the mobile Lighthouse run). Bundled here they ride in the site's
+// own CSS and the files are served from /_astro/ with hashed names.
+//
+// Same families and weights the Google URLs asked for, every subset included,
+// as Google's own CSS did. Declaring a face costs nothing until a glyph uses
+// it — unicode-range plus the html[lang] font-family below mean an English
+// page never downloads IBM Plex and an Arabic page never downloads Jakarta.
+import '@fontsource/ibm-plex-sans-arabic/400.css';
+import '@fontsource/ibm-plex-sans-arabic/500.css';
+import '@fontsource/ibm-plex-sans-arabic/600.css';
+import '@fontsource/ibm-plex-sans-arabic/700.css';
+import '@fontsource/noto-naskh-arabic/400.css';
+import '@fontsource/noto-naskh-arabic/500.css';
+import '@fontsource/noto-naskh-arabic/600.css';
+import '@fontsource/noto-naskh-arabic/700.css';
+import '@fontsource/plus-jakarta-sans/400.css';
+import '@fontsource/plus-jakarta-sans/500.css';
+import '@fontsource/plus-jakarta-sans/600.css';
+import '@fontsource/plus-jakarta-sans/700.css';
+import '@fontsource/plus-jakarta-sans/800.css';
 interface Props {
   title: string;
   description: string;
@@ -37,17 +60,6 @@ const langs: { code: Lang; path: string; label: string }[] = [
   { code: 'en', path: enPath, label: 'EN' },
   { code: 'ur', path: urPath, label: 'اردو' },
 ];
-
-// Only the families this page can actually render with. Arabic duʿāʾ text appears in
-// every language (the sidebar dua, the dua pages), so Noto Naskh ships everywhere; the
-// Latin and Arabic UI families are language-specific. Measured on the live pages: Noto
-// Naskh covers the duʿāʾ text on its own, so IBM Plex is only needed where it is the UI
-// font, i.e. Arabic.
-const _GF = 'https://fonts.googleapis.com/css2?family=';
-const _fontHref = pick(lang,
-  _GF + 'IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap',
-  _GF + 'Noto+Naskh+Arabic:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap',
-  _GF + 'Noto+Naskh+Arabic:wght@400;500;600;700&display=swap');
 
 const _navHome = pick(lang, '/', '/en/', '/ur/');
 const _navPrayer = pick(lang, '/prayer-times/', '/en/prayer-times/', '/ur/prayer-times/');
@@ -251,9 +263,6 @@ const _bnClose = pick(lang, 'إخفاء', 'Dismiss', 'چھپائیں');
     }, { passive: true, capture: true });
   </script>
   {!quiet && <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1722763564281190" crossorigin="anonymous"></script>}
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href={_fontHref} rel="stylesheet" />
   <style is:global>
     *, *::before, *::after { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; }
@@ -269,7 +278,10 @@ const _bnClose = pick(lang, 'إخفاء', 'Dismiss', 'چھپائیں');
       --surface: #ffffff;
       --surface2: #f5f8fa;
       --text: #0f2730;
-      --muted: #5b7682;
+      /* #5b7682 until 2026-10-31: 4.1:1 on --accent-soft and --gold-soft,
+         4.28:1 on --bg — under the 4.5:1 WCAG AA needs for body text. This
+         value clears 4.6:1 on every light background the site uses. */
+      --muted: #556e79;
       --accent: #0d9488;
       --accent-strong: #0b7d73;
       --accent-contrast: #ffffff;

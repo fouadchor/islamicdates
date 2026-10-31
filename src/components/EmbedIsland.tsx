@@ -44,7 +44,7 @@ function palette(dark: boolean) {
   return {
     bg: dark ? '#0f2730' : '#ffffff',
     text: dark ? '#f2f7f9' : '#0f2730',
-    muted: dark ? '#9bb0b8' : '#5b7682',
+    muted: dark ? '#9bb0b8' : '#556e79', // matches --muted in Layout.astro (AA on #e6f4f1)
     border: dark ? 'rgba(255,255,255,.12)' : '#e3eaef',
     soft: dark ? 'rgba(20,184,166,.14)' : '#e6f4f1',
     accent: '#0d9488',
