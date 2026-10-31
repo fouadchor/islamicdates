@@ -8,23 +8,22 @@ import { OCCASIONS, occLoc, occBasePath, occurrencesInGYear, fmtGShort, isoUTC }
 // (~750 ms of the mobile Lighthouse run). Bundled here they ride in the site's
 // own CSS and the files are served from /_astro/ with hashed names.
 //
-// Same families and weights the Google URLs asked for, every subset included,
-// as Google's own CSS did. Declaring a face costs nothing until a glyph uses
-// it — unicode-range plus the html[lang] font-family below mean an English
-// page never downloads IBM Plex and an Arabic page never downloads Jakarta.
+// Same files Google served: IBM Plex as static weights (it has no variable
+// version); Noto Naskh and Plus Jakarta as variable fonts, one file per subset
+// covering every weight — an Urdu page uses three Naskh weights, and three
+// static files would be ~85 KB more than the one variable file. Their CSS
+// family names lose the " Variable" suffix in astro.config.mjs, so every
+// existing font-family stack keeps working unchanged.
+//
+// Declaring a face costs nothing until a glyph uses it — unicode-range plus the
+// html[lang] font-family below mean an English page never downloads IBM Plex
+// and an Arabic page never downloads Jakarta.
 import '@fontsource/ibm-plex-sans-arabic/400.css';
 import '@fontsource/ibm-plex-sans-arabic/500.css';
 import '@fontsource/ibm-plex-sans-arabic/600.css';
 import '@fontsource/ibm-plex-sans-arabic/700.css';
-import '@fontsource/noto-naskh-arabic/400.css';
-import '@fontsource/noto-naskh-arabic/500.css';
-import '@fontsource/noto-naskh-arabic/600.css';
-import '@fontsource/noto-naskh-arabic/700.css';
-import '@fontsource/plus-jakarta-sans/400.css';
-import '@fontsource/plus-jakarta-sans/500.css';
-import '@fontsource/plus-jakarta-sans/600.css';
-import '@fontsource/plus-jakarta-sans/700.css';
-import '@fontsource/plus-jakarta-sans/800.css';
+import '@fontsource-variable/noto-naskh-arabic/wght.css';
+import '@fontsource-variable/plus-jakarta-sans/wght.css';
 interface Props {
   title: string;
   description: string;
