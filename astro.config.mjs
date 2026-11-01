@@ -91,4 +91,26 @@ export default defineConfig({
     }),
   ],
   site: 'https://islamicdates.org',
+  vite: {
+    build: {
+      // Never inline font files into CSS. Vite base64-inlines any asset under
+      // 4 KB, and the self-hosted @fontsource subsets include a few that small —
+      // each inlined twice (woff2 and the woff fallback the browser never
+      // fetches). That grew the render-blocking stylesheet from 5 KB to 28 KB
+      // gzipped on every page, cancelling what self-hosting the fonts saved.
+      assetsInlineLimit: (file) => (/\.(woff2?|ttf|otf)$/i.test(file) ? false : undefined),
+    },
+    plugins: [{
+      // @fontsource-variable names its faces "Noto Naskh Arabic Variable" and
+      // "Plus Jakarta Sans Variable". Drop the suffix so the site's existing
+      // font-family stacks (Layout.astro and a dozen component styles) match
+      // them as they matched Google's faces of the same names.
+      name: 'fontsource-variable-family-names',
+      enforce: 'pre',
+      transform(code, id) {
+        if (!/@fontsource-variable\/[^/]+\/[^/]+\.css(\?|$)/.test(id)) return null;
+        return { code: code.replace(/font-family: '([^']+) Variable'/g, "font-family: '$1'"), map: null };
+      },
+    }],
+  },
 });
