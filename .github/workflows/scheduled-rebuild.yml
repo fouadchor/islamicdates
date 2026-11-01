@@ -1,0 +1,45 @@
+# Rebuilds the live site on a schedule.
+#
+# Much of the site is decided at build time, not at request time:
+#   - which pages are indexable (converter, month grids, occasions, Hijri year
+#     pages, and the imsakiyah window that opens 100 days before Ramadan),
+#   - the monthly prayer-times table that crawlers see on every city page,
+#   - the homepage occasion chips and countdowns.
+# Without a rebuild those stay frozen at the date of the last merged PR.
+#
+# The job calls a Cloudflare Pages deploy hook, which rebuilds `main` exactly
+# as a merge would. It needs one repository secret, CF_PAGES_DEPLOY_HOOK:
+# Cloudflare → Workers & Pages → islamicdates → Settings → Builds →
+# Deploy hooks → Add (branch: main), then GitHub → Settings → Secrets and
+# variables → Actions → New repository secret.
+#
+# Times are UTC. 12:07 UTC is past midnight in every city the site covers, so
+# the run on the 1st already sees the new month everywhere.
+# Note: GitHub pauses scheduled workflows in a public repo after 60 days with
+# no commits; it emails the owner, and one click re-enables it.
+
+name: Scheduled rebuild
+
+on:
+  schedule:
+    - cron: '7 12 1 * *'   # the 1st of every month — new prayer-times month
+    - cron: '7 12 * * 0'   # every Sunday — date windows and countdowns roll
+  workflow_dispatch:       # "Run workflow" button for a manual rebuild
+
+permissions: {}
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Trigger the Cloudflare Pages deploy hook
+        env:
+          HOOK: ${{ secrets.CF_PAGES_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$HOOK" ]; then
+            echo "::error::Repository secret CF_PAGES_DEPLOY_HOOK is not set (see the comment at the top of this file)."
+            exit 1
+          fi
+          curl --fail --silent --show-error --retry 3 --retry-delay 10 -X POST "$HOOK" > /dev/null
+          echo "Deploy hook called; Cloudflare is building main."
