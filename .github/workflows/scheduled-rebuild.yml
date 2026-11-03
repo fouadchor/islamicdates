@@ -7,16 +7,19 @@
 #   - the homepage occasion chips and countdowns.
 # Without a rebuild those stay frozen at the date of the last merged PR.
 #
-# The job calls a Cloudflare Pages deploy hook, which rebuilds `main` exactly
-# as a merge would. It needs one repository secret, CF_PAGES_DEPLOY_HOOK:
-# Cloudflare → Workers & Pages → islamicdates → Settings → Builds →
-# Deploy hooks → Add (branch: main), then GitHub → Settings → Secrets and
-# variables → Actions → New repository secret.
+# How it rebuilds — no setup needed:
+#   The job writes the current time to .github/last-scheduled-rebuild and
+#   pushes that one-line change to main. Cloudflare Pages builds every push to
+#   main (build watch path is "*"), exactly as it does after a merge. Nothing in
+#   the site reads that file. A side effect is useful: the commit keeps the repo
+#   active, so GitHub never pauses this schedule for inactivity.
+#
+# Optional: if a repository secret CF_PAGES_DEPLOY_HOOK is ever added
+# (Cloudflare → Workers & Pages → islamicdates → Settings → Builds → Deploy
+# hooks), the job calls that hook instead and makes no commit.
 #
 # Times are UTC. 12:07 UTC is past midnight in every city the site covers, so
 # the run on the 1st already sees the new month everywhere.
-# Note: GitHub pauses scheduled workflows in a public repo after 60 days with
-# no commits; it emails the owner, and one click re-enables it.
 
 name: Scheduled rebuild
 
@@ -26,20 +29,50 @@ on:
     - cron: '7 12 * * 0'   # every Sunday — date windows and countdowns roll
   workflow_dispatch:       # "Run workflow" button for a manual rebuild
 
-permissions: {}
+permissions:
+  contents: write
+
+concurrency:
+  group: scheduled-rebuild
+  cancel-in-progress: false
 
 jobs:
   rebuild:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Trigger the Cloudflare Pages deploy hook
+      - name: Rebuild through the deploy hook, if one is configured
+        id: hook
         env:
           HOOK: ${{ secrets.CF_PAGES_DEPLOY_HOOK }}
         run: |
-          if [ -z "$HOOK" ]; then
-            echo "::error::Repository secret CF_PAGES_DEPLOY_HOOK is not set (see the comment at the top of this file)."
-            exit 1
+          if [ -n "$HOOK" ]; then
+            curl --fail --silent --show-error --retry 3 --retry-delay 10 -X POST "$HOOK" > /dev/null
+            echo "Deploy hook called; Cloudflare is building main."
+            echo "done=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No deploy hook secret; rebuilding with a stamp commit instead."
           fi
-          curl --fail --silent --show-error --retry 3 --retry-delay 10 -X POST "$HOOK" > /dev/null
-          echo "Deploy hook called; Cloudflare is building main."
+
+      - name: Check out main
+        if: steps.hook.outputs.done != 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Push a stamp commit to main (Cloudflare builds it)
+        if: steps.hook.outputs.done != 'true'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # If a PR lands on main between fetch and push, start again from the new tip.
+          for attempt in 1 2 3; do
+            git fetch --depth=1 origin main
+            git reset --quiet --hard FETCH_HEAD
+            date -u +%Y-%m-%dT%H:%M:%SZ > .github/last-scheduled-rebuild
+            git add .github/last-scheduled-rebuild
+            git commit --quiet -m "Scheduled rebuild $(date -u +%F)"
+            git push origin HEAD:main && exit 0
+            sleep 5
+          done
+          exit 1
