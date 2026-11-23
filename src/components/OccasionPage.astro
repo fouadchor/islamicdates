@@ -2,7 +2,8 @@
 import Layout from '../layouts/Layout.astro';
 import RamadanImsakiyahCities from './RamadanImsakiyahCities.astro';
 import { OCCASIONS, occLoc, occurrencesInGYear, gYears, fmtG, fmtGShort, fmtH, isoUTC, occBasePath, occIsIndexable } from '../lib/occasions';
-import { type Lang, pick, hMonArr } from '../lib/data';
+import { type Lang, pick, hMonArr, wdArr, gMonArr } from '../lib/data';
+import { h2g } from '../lib/hijri';
 
 interface Props { lang: Lang; slug: string; gYear: number; }
 const { lang, slug, gYear } = Astro.props;
@@ -87,19 +88,51 @@ const otherOcc = OCCASIONS.filter(o => o.slug !== slug)
 
 const canonical = `https://islamicdates.org${occBasePath(slug, gYear, lang)}`;
 
+// English titles carry the answer itself — the date — and spell the Hijri month
+// the way people type it ("Dhul Hijjah", not "Dhuʾl-Hijjah").
+//
+// Why (Bing Webmaster Tools, 24 Oct – 21 Nov 2026): the Arabic occasion pages
+// rank 1.5–3.9, their English twins 6.6–8.7 with CTR near zero —
+// /en/eid-al-adha-2027/ 7.2K impressions / 17 clicks, /en/ramadan-2027/ 2.7K / 3.
+// The old English title answered nothing ("… Hijri & Gregorian date") and its
+// month name, with ʾ and ʿ, matched no query. Bing leans on the title's literal
+// wording, so the date and the plain spelling go into it. Arabic and Urdu titles
+// are unchanged: the Arabic ones already rank at the top.
+const H_MON_EN_PLAIN = ['Muharram', 'Safar', 'Rabi al-Awwal', 'Rabi al-Thani', 'Jumada al-Awwal', 'Jumada al-Thani', 'Rajab', 'Shaban', 'Ramadan', 'Shawwal', 'Dhul Qadah', 'Dhul Hijjah'];
+const hijriDayPlain = `${occ.hd} ${H_MON_EN_PLAIN[occ.hm - 1]}`;
+const EN_TITLE_MAX = 65; // Bing cuts English titles at roughly this length
+const enDay = (d: Date, withWeekday: boolean) =>
+  `${withWeekday ? wdArr('en')[d.getUTCDay()] + ', ' : ''}${d.getUTCDate()} ${gMonArr('en')[d.getUTCMonth()]}`;
+function enTitle(): string {
+  const q = loc.alias ? `When is ${loc.name} ${gYear} (${loc.alias})?` : `When is ${loc.name} ${gYear}?`;
+  if (!first) return q;
+  // Ramadan is searched as a span ("ramadan 2027 dates"): first day to the eve
+  // of 1 Shawwal, both by Umm al-Qura.
+  if (slug === 'ramadan') {
+    const last = new Date(h2g(first.hy, 10, 1).getTime() - 86400000);
+    return `${q} Dates: ${enDay(first.date, false)} – ${enDay(last, false)}`;
+  }
+  const candidates = [
+    loc.alias ? '' : `${q} ${enDay(first.date, true)} (${hijriDayPlain})`,
+    `${q} ${enDay(first.date, true)}`,
+    `${q} ${enDay(first.date, false)}`,
+  ].filter(Boolean);
+  return candidates.find(c => c.length <= EN_TITLE_MAX) ?? candidates[candidates.length - 1];
+}
+
 const title = loc.alias
   ? pick(lang,
     `متى ${loc.name} ${gYear}؟ (${hijriDay}) موعده في السعودية ومصر وباكستان`,
-    `When is ${loc.name} ${gYear}? ${loc.alias} Date (${hijriDay})`,
+    enTitle(),
     `${loc.name} ${gYear} کب ہے؟ ${loc.alias} کی تاریخ (${hijriDay})`)
   : pick(lang,
     `متى ${loc.name} ${gYear}؟ (${hijriDay}) التاريخ الهجري والميلادي`,
-    `When is ${loc.name} ${gYear}? (${hijriDay}) Hijri & Gregorian date`,
+    enTitle(),
     `${loc.name} ${gYear} کب ہے؟ (${hijriDay}) ہجری و عیسوی تاریخ`);
 const nameAlias = loc.alias ? `${loc.name} (${loc.alias})` : loc.name;
 const description = pick(lang,
   `${nameAlias} ${gYear} (${hijriDay}): ${first ? fmtG(first.date, lang) + ' الموافق ' + fmtH(first.hy, occ.hm, occ.hd, lang) : ''} وفق تقويم أم القرى. التاريخ في السعودية ومصر وباكستان وبقية الدول مع العدّ التنازلي.`,
-  `${nameAlias} ${gYear} (${hijriDay}): ${first ? fmtG(first.date, lang) + ', corresponding to ' + fmtH(first.hy, occ.hm, occ.hd, lang) : ''} per the Umm al-Qura calendar. Date in Saudi Arabia, Pakistan, Egypt and worldwide, with a countdown.`,
+  `${nameAlias} ${gYear} (${hijriDayPlain}): ${first ? fmtG(first.date, lang) + ', corresponding to ' + fmtH(first.hy, occ.hm, occ.hd, lang) : ''} per the Umm al-Qura calendar. Date in Saudi Arabia, Pakistan, Egypt and worldwide, with a countdown.`,
   `${nameAlias} ${gYear} (${hijriDay}): ${first ? fmtG(first.date, lang) + ' بمطابق ' + fmtH(first.hy, occ.hm, occ.hd, lang) : ''} اُمّ القریٰ تقویم کے مطابق۔ سعودی عرب، پاکستان، مصر اور دنیا بھر میں تاریخ، عددِ معکوس کے ساتھ۔`);
 
 const breadcrumb = {
@@ -196,6 +229,7 @@ const t = {
       <section class="card section-card" style="order:1">
         <h1 class="section-h2" style="font-size:25px">{t.h1}</h1>
         {loc.alias && <div style="margin-top:4px;font-size:14.5px;color:var(--muted);font-weight:600">{t.aliasKnown}</div>}
+        {loc.spellings && <div style="margin-top:4px;font-size:13.5px;color:var(--muted)">{loc.spellings}</div>}
         {first ? (
           <>
             <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:18px;align-items:baseline">

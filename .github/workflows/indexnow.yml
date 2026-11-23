@@ -1,0 +1,78 @@
+# Pings IndexNow (Bing, Yandex, Seznam, Naver, Yep…) with the pages that
+# changed, once the scheduled rebuild has gone live. See
+# scripts/indexnow-submit.mjs for what is sent and why.
+#
+# Automatic: after every "Scheduled rebuild" run. That workflow only starts the
+# Cloudflare build (a stamp commit or the deploy hook), so this waits for the
+# build to go out before reading the live sitemap.
+#
+# Manual: Actions → IndexNow → Run workflow. Leave "match" empty to send what
+# changed since the last run, or give a regex to send every sitemap URL it
+# matches — e.g. after merging a PR that rewrote the English occasion titles:
+#   /en/[a-z-]+-20(26|27|28)/$
+#
+# Nothing here commits to the repo, so it never triggers a Cloudflare build.
+
+name: IndexNow
+
+on:
+  workflow_run:
+    workflows: ['Scheduled rebuild']
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      match:
+        description: 'Regex of sitemap URLs to send (empty = what changed since the last run)'
+        required: false
+        default: ''
+      wait:
+        description: 'Minutes to wait first (for a deploy still building)'
+        required: false
+        default: '0'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: indexnow
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # The list of sitemap URLs seen last time, so the next run can tell which
+      # are new. A fresh key every run; restore-keys picks up the latest.
+      - uses: actions/cache@v4
+        with:
+          path: .indexnow
+          key: indexnow-state-${{ github.run_id }}
+          restore-keys: indexnow-state-
+
+      - name: Wait for the Cloudflare deploy
+        env:
+          WAIT: ${{ github.event_name == 'workflow_run' && '12' || inputs.wait }}
+        run: |
+          case "$WAIT" in ''|*[!0-9]*) WAIT=0 ;; esac
+          echo "Waiting ${WAIT} minute(s)."
+          sleep $(( WAIT * 60 ))
+
+      - name: Send changed URLs to IndexNow
+        env:
+          MATCH: ${{ inputs.match }}
+        run: |
+          if [ -n "$MATCH" ]; then
+            node scripts/indexnow-submit.mjs --match "$MATCH"
+          else
+            node scripts/indexnow-submit.mjs --changed
+          fi
