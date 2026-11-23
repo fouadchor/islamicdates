@@ -6,6 +6,14 @@ export interface OccLoc {
   name: string;
   /** Alternate name people commonly search for (e.g. "Eid Milad un-Nabi") — used in title/meta/H1. */
   alias?: string;
+  /**
+   * Other spellings people type, as one sentence shown under the H1 (e.g.
+   * "Eid ul-Adha", "Ramzan"). Bing matches the query's literal wording more
+   * than Google does, so a spelling that never appears on the page is a query
+   * the page cannot rank for — "eid ul adha 2027" alone had ~1,100 Bing
+   * impressions in Oct–Nov 2026 at position 7.7 with no clicks.
+   */
+  spellings?: string;
   what: string;
   /** The occasion's virtue / significance — rendered as its own section. */
   virtues?: string;
@@ -49,6 +57,7 @@ export const OCCASIONS: OccDef[] = [
     },
     en: {
       name: 'Ramadan',
+      spellings: 'Also spelled Ramadhan, and called Ramzan in Pakistan and India.',
       what: 'Ramadan is the ninth month of the Hijri calendar and the month of obligatory fasting, during which Muslims abstain from food and drink from dawn to sunset. The Quran was first revealed in it, and it contains Laylat al-Qadr — the Night of Decree, better than a thousand months. It lasts 29 or 30 days and ends with Eid al-Fitr.',
       virtues: 'When Ramadan begins, the gates of Paradise are opened, the gates of the Fire are closed and the devils are chained, as authentically reported from the Prophet ﷺ. Whoever fasts it out of faith and hope for reward has his past sins forgiven, and an Umrah performed in it equals a Hajj in reward. It also holds Laylat al-Qadr, which Allah made better than a thousand months.',
       practices: 'Muslims fast its days and stand its nights in Tarawih prayer, and increase their recitation of the Quran — many completing it once or more. Charity multiplies, iftar tables are shared, the pre-dawn suhoor meal is kept following the Sunnah, and some devote themselves to iʿtikaf (retreat) in the mosque during the last ten nights seeking Laylat al-Qadr.',
@@ -70,6 +79,8 @@ export const OCCASIONS: OccDef[] = [
     },
     en: {
       name: 'Eid al-Fitr',
+      alias: 'Eid ul-Fitr',
+      spellings: 'Also written Eid el-Fitr, and called Meethi Eid or Choti Eid in South Asia.',
       what: 'Eid al-Fitr falls on the first day of Shawwal, immediately after the end of fasting in Ramadan. Known as the "Lesser Eid," it begins with the Eid prayer followed by visits and greetings, and Zakat al-Fitr is given before the prayer.',
       virtues: 'It is the day of reward, when those who fasted rejoice at completing their obligation — a day of joy for Muslims. Fasting on it is forbidden: it is a day of eating, drinking and remembering Allah, and Zakat al-Fitr purifies the fasting person while providing for those in need.',
       practices: 'The day begins with a bath, one’s finest clothes, and takbir on the way to the Eid prayer, with Zakat al-Fitr given beforehand. Then follow family visits, maintaining ties of kinship, exchanging greetings, gifts and Eidiyah money for children, and festive sweets — from maamoul to kahk — in many countries.',
@@ -91,6 +102,8 @@ export const OCCASIONS: OccDef[] = [
     },
     en: {
       name: 'Eid al-Adha',
+      alias: 'Eid ul-Adha',
+      spellings: 'Also written Eid el-Adha or Eid Adha, and called Bakra Eid (Bakrid) in South Asia.',
       what: 'Eid al-Adha falls on the 10th of Dhuʾl-Hijjah, the day after Arafah during the Hajj season. Known as the "Greater Eid," it commemorates Prophet Ibrahim’s willingness to sacrifice; animals are sacrificed and the meat shared with family and the poor. It continues through the three days of Tashriq.',
       virtues: 'The Prophet ﷺ said: "The greatest of days with Allah is the Day of Sacrifice." It is the climax of the Hajj season and the day of the greater pilgrimage; the sacrifice follows the example of Prophet Ibrahim, and few deeds on this day are more beloved to Allah than offering it.',
       practices: 'The day opens with the Eid prayer, followed by the sacrifice for those able, its meat traditionally divided in thirds — for the household, relatives and the poor. Takbir continues after every prayer until the end of the Tashriq days, and four full days are spent in visits, feasts and family ties.',
@@ -174,6 +187,7 @@ export const OCCASIONS: OccDef[] = [
     en: {
       name: 'Mawlid al-Nabi',
       alias: 'Eid Milad un-Nabi',
+      spellings: 'Also written Mawlid an-Nabi, Milad un Nabi or Eid-e-Milad, and known as 12 Rabi ul Awwal.',
       what: 'Mawlid al-Nabi falls on the 12th of Rabiʿ al-Awwal, when many Muslims commemorate the birth of Prophet Muhammad ﷺ. Observances vary across countries, from recounting his life and character to lessons and gatherings.',
       virtues: 'It marks the birth of the best of creation ﷺ, sent by Allah as a mercy to the worlds. About fasting Mondays the Prophet ﷺ said: "That is the day I was born" — so the occasion is above all a reminder of Allah’s immense favour to humanity through his mission.',
       practices: 'Many observe it with readings of the Prophet’s biography, gatherings of praise and remembrance, charity and feeding others, and lessons on his character. Practice differs between countries, and some scholars prefer devotion through simply following his Sunnah without a designated celebration — a matter of accepted difference among Muslims.',
@@ -230,6 +244,7 @@ export const OCCASIONS: OccDef[] = [
     },
     en: {
       name: 'Israʾ and Miʿraj',
+      spellings: 'Also written Isra and Miraj or Al-Isra wal-Miraj, and known as Shab-e-Miraj in South Asia.',
       what: 'Israʾ and Miʿraj is observed by many Muslims on the 27th of Rajab, commemorating the Prophet’s ﷺ night journey from the Sacred Mosque to al-Aqsa and his ascension through the heavens, during which the five daily prayers were ordained.',
       virtues: 'It was a tremendous miracle with which Allah honoured His Prophet ﷺ after the Year of Sorrow — carried by night from the Sacred Mosque to al-Aqsa, then raised through the heavens. In it the five daily prayers were ordained from above the seven heavens, a sign of their exalted place in the religion.',
       practices: 'No specific ritual is established in the Sunnah for the night, but many Muslims mark it with lessons and lectures on the journey and its meanings, the status of al-Aqsa Mosque, and a renewed appreciation of the prayer that was ordained in it — the best commemoration being to guard the five prayers themselves.',
@@ -272,6 +287,7 @@ export const OCCASIONS: OccDef[] = [
     },
     en: {
       name: 'Mid-Shaʿban',
+      spellings: 'Also written Mid-Shaban or Nisf Shaban, and known as Shab-e-Barat in South Asia.',
       what: 'Mid-Shaʿban (Laylat al-Baraʾah) is the 15th night of the month of Shaʿban, observed by many Muslims with supplication, remembrance and prayer. Scholars have differed over singling it out for specific acts of worship, but it is widely regarded as a blessed night for increasing in good deeds and seeking forgiveness.',
       virtues: 'A hadith — graded sound by a number of scholars — states: "Allah looks upon His creation on the middle night of Shaʿban and forgives them all, except one who associates partners with Him or one who harbours rancour." The Prophet ﷺ also fasted more in Shaʿban than in any month besides Ramadan.',
       practices: 'Many spend it in supplication and seeking forgiveness, and in clearing the heart of the rancour that bars forgiveness per the hadith. Some fast the 15th as one of the three "white days" (13th–15th), while noting that assigning the night specific rituals remains a point of scholarly difference.',
