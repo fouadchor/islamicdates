@@ -263,7 +263,17 @@ const _bnClose = pick(lang, 'إخفاء', 'Dismiss', 'چھپائیں');
       gtag('event', el.getAttribute('data-ga'), { link_url: el.getAttribute('href') || undefined });
     }, { passive: true, capture: true });
   </script>
-  {!quiet && <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1722763564281190" crossorigin="anonymous"></script>}
+  {/*
+    AdSense is paused (2026-11-23). The application was declined ("low value
+    content"), so adsbygoogle.js served no ads, yet it cost ~147 KB of JS per
+    page and pulled in Google's Funding Choices consent script (~36 KB) behind
+    it. The meta tag below is AdSense's lightweight site-ownership check, so the
+    site stays connected to the account. To reapply, bring back the async
+    script pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=
+    ca-pub-1722763564281190 (crossorigin="anonymous"), skipped on quiet pages
+    as before; git history has the exact line.
+  */}
+  <meta name="google-adsense-account" content="ca-pub-1722763564281190">
   <style is:global>
     *, *::before, *::after { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; }
