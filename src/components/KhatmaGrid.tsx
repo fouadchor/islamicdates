@@ -100,6 +100,13 @@ export default function KhatmaGrid({ initial, lang, t, holdLabel, base, shareUrl
   const [k, setK] = useState<KhatmaView>(initial);
   const [busy, setBusy] = useState<number | null>(null);
   const [err, setErr] = useState<string>('');
+  // Where the error belongs on screen: inside the open sheet, inside the card of
+  // the juz it is about, or at the top. On a phone the grid runs for several
+  // screens, so an error printed above it is an error nobody sees.
+  const [errAt, setErrAt] = useState<'sheet' | number | null>(null);
+  // The visible part of the screen while the sheet is open — it shrinks when the
+  // on-screen keyboard comes up, and the sheet has to stay inside it.
+  const [vv, setVv] = useState<{ top: number; height: number } | null>(null);
   const [picking, setPicking] = useState<number | null>(null);
   const [name, setName] = useState('');
   const [copied, setCopied] = useState(false);
@@ -110,6 +117,8 @@ export default function KhatmaGrid({ initial, lang, t, holdLabel, base, shareUrl
   const [justDone, setJustDone] = useState(false);
   const token = useRef<string>('');
   const nameInput = useRef<HTMLInputElement>(null);
+  const sheetActions = useRef<HTMLDivElement>(null);
+  const shareBox = useRef<HTMLDivElement>(null);
 
   const N = useCallback((v: number) => num(v, lang), [lang]);
   /** «الجزء الأول (١)» */
@@ -155,6 +164,7 @@ export default function KhatmaGrid({ initial, lang, t, holdLabel, base, shareUrl
     async (part: number, action: 'claim' | 'complete' | 'release', readerName = '') => {
       setBusy(part);
       setErr('');
+      setErrAt(null);
       setJustDone(false);
       try {
         const r = await fetch(`/api/khatma/${initial.slug}`, {
@@ -166,15 +176,28 @@ export default function KhatmaGrid({ initial, lang, t, holdLabel, base, shareUrl
         if (j?.ok) {
           setK(j.khatma);
           setPicking(null);
-          if (action === 'complete') setJustDone(true);
+          if (action === 'complete') {
+            setJustDone(true);
+            // The thanks — and the share buttons that finish the khatma — sit above
+            // the grid; a reader who just confirmed juz 20 on a phone is far below.
+            window.setTimeout(() => {
+              const el = shareBox.current;
+              if (!el) return;
+              const b = el.getBoundingClientRect();
+              if (b.top < 0 || b.bottom > window.innerHeight) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 60);
+          }
           track(`khatma_${action}`, { part, lang });
         } else {
           const code = (j?.code ?? 'generic') as ErrCode;
           setErr(t.err[code] ?? t.err.generic);
+          setErrAt(action === 'claim' ? 'sheet' : part);
+          window.setTimeout(() => document.querySelector('.kh-err-cell, .kh-err-sheet')?.scrollIntoView({ block: 'nearest' }), 30);
           void refresh();
         }
       } catch {
         setErr(t.err.network);
+        setErrAt(action === 'claim' ? 'sheet' : part);
       } finally {
         setBusy(null);
       }
@@ -183,7 +206,8 @@ export default function KhatmaGrid({ initial, lang, t, holdLabel, base, shareUrl
   );
 
   const confirmClaim = () => {
-    if (picking === null) return;
+    if (picking === null || busy !== null) return;
+    if (k.parts[picking - 1]?.status !== 'free') return;
     const n = name.trim();
     if (n) remember(NAME_KEY, n);
     void act(picking, 'claim', n);
@@ -194,9 +218,13 @@ export default function KhatmaGrid({ initial, lang, t, holdLabel, base, shareUrl
     if (ms <= 0) return t.tExpired;
     const h = Math.floor(ms / 3600_000);
     const d = Math.floor(h / 24);
-    if (d >= 1) return d === 1 ? t.tDay : fill(t.tDays, { n: N(d) });
-    if (h >= 1) return h === 1 ? t.tHour : fill(t.tHours, { n: N(h) });
-    return fill(t.tMinutes, { n: N(Math.max(1, Math.round(ms / 60_000))) });
+    // Arabic: 1, 2, 3–10 and 11+ each take their own form; the others need one.
+    const form = (n: number, one: string, few: string, two?: string, many?: string) =>
+      n === 1 ? one : n === 2 && two ? two : n > 10 && many ? fill(many, { n: N(n) }) : fill(few, { n: N(n) });
+    if (d >= 1) return form(d, t.tDay, t.tDays, t.tDays2, t.tDaysMany);
+    if (h >= 1) return form(h, t.tHour, t.tHours, t.tHours2, t.tHoursMany);
+    const m = Math.max(1, Math.round(ms / 60_000));
+    return form(m, t.tMinute ?? fill(t.tMinutes, { n: N(1) }), t.tMinutes, t.tMinutes2, t.tMinutesMany);
   };
 
   const total = k.parts.length;
@@ -229,6 +257,46 @@ export default function KhatmaGrid({ initial, lang, t, holdLabel, base, shareUrl
     }
   };
 
+  // While the sheet is open: keep it inside the visible screen (the keyboard
+  // shrinks it), hold the page behind it still, and let Escape close it.
+  useEffect(() => {
+    if (picking === null) return;
+    const html = document.documentElement;
+    const prev = html.style.overflow;
+    html.style.overflow = 'hidden';
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setPicking(null);
+    };
+    document.addEventListener('keydown', onKey);
+    const v = window.visualViewport;
+    const onViewport = () => {
+      if (!v) return;
+      setVv({ top: v.offsetTop, height: v.height });
+      // Keyboard up: bring the "take" button into view under the name field.
+      if (document.activeElement === nameInput.current) {
+        window.setTimeout(() => sheetActions.current?.scrollIntoView({ block: 'nearest' }), 30);
+      }
+    };
+    onViewport();
+    v?.addEventListener('resize', onViewport);
+    v?.addEventListener('scroll', onViewport);
+    return () => {
+      html.style.overflow = prev;
+      document.removeEventListener('keydown', onKey);
+      v?.removeEventListener('resize', onViewport);
+      v?.removeEventListener('scroll', onViewport);
+      setVv(null);
+    };
+  }, [picking]);
+
+  const closeSheet = () => {
+    setPicking(null);
+    if (errAt === 'sheet') {
+      setErr('');
+      setErrAt(null);
+    }
+  };
+
   const mineOpen = k.parts.filter((p) => p.mine && p.status === 'held');
   const complete = k.done === total;
 
@@ -240,10 +308,13 @@ export default function KhatmaGrid({ initial, lang, t, holdLabel, base, shareUrl
         </div>
         <p className="kh-count">
           <strong>{fill(t.countDone, { done: N(k.done), total: N(total) })}</strong>
+          {/* A drawn divider, not «·»: beside Arabic-Indic digits a middle dot
+              reads as a zero — «١ · ٢٨» looked like «١٠ ٢٨٠». */}
           <span className="kh-sub">
-            {' · '}
-            {fill(t.reading, { n: N(k.held) })}
-            {' · '}
+            {' '}
+            <span className="kh-sep" aria-hidden="true" />{' '}
+            {fill(t.reading, { n: N(k.held) })}{' '}
+            <span className="kh-sep" aria-hidden="true" />{' '}
             {fill(t.free, { n: N(k.free) })}
           </span>
         </p>
@@ -261,13 +332,13 @@ export default function KhatmaGrid({ initial, lang, t, holdLabel, base, shareUrl
         </p>
       )}
 
-      {err && (
+      {err && errAt === null && (
         <p className="kh-err" role="alert">
           {err}
         </p>
       )}
 
-      <div className="kh-share">
+      <div className="kh-share" ref={shareBox}>
         {/* No "so others can take the rest" once there is no rest: a completed
             khatma keeps its share buttons (the message itself says it is done). */}
         {justDone && left > 0 ? (
@@ -313,6 +384,8 @@ export default function KhatmaGrid({ initial, lang, t, holdLabel, base, shareUrl
                 disabled={busy === p.n || (p.status !== 'free' && !p.mine)}
                 onClick={() => {
                   if (p.status === 'free') {
+                    setErr('');
+                    setErrAt(null);
                     setPicking(p.n);
                     window.setTimeout(() => nameInput.current?.focus(), 30);
                   }
@@ -333,6 +406,12 @@ export default function KhatmaGrid({ initial, lang, t, holdLabel, base, shareUrl
                 )}
                 {p.status === 'free' && <span className="kh-tag kh-take">{t.tagTake}</span>}
               </button>
+
+              {err && errAt === p.n && (
+                <p className="kh-err kh-err-cell" role="alert">
+                  {err}
+                </p>
+              )}
 
               {p.mine && p.status === 'held' && (
                 <div className="kh-actions">
@@ -366,12 +445,20 @@ export default function KhatmaGrid({ initial, lang, t, holdLabel, base, shareUrl
           role="dialog"
           aria-modal="true"
           aria-label={fill(t.modalTitle, { n: label(picking), name: juzInfo(picking, lang).name })}
+          style={vv ? { top: vv.top, height: vv.height, bottom: 'auto' } : undefined}
+          onClick={(e) => {
+            // A tap on the dimmed backdrop closes the sheet, as on any phone.
+            if (e.target === e.currentTarget) closeSheet();
+          }}
         >
           <div className="kh-sheet">
             <h3>{fill(t.modalTitle, { n: label(picking), name: juzInfo(picking, lang).name })}</h3>
             <p className="kh-hint">
               {fill(t.modalRange, { from: juzInfo(picking, lang).from, to: juzInfo(picking, lang).to })}
             </p>
+            {/* The note comes before the name field, so that with the keyboard up
+                the field and the "take" button sit together on screen. */}
+            <p className="kh-note">{fill(t.modalNote, { hold: holdLabel })}</p>
             <label htmlFor="kh-name">{t.nameLabel}</label>
             <input
               id="kh-name"
@@ -380,19 +467,28 @@ export default function KhatmaGrid({ initial, lang, t, holdLabel, base, shareUrl
               maxLength={32}
               placeholder={t.namePh}
               aria-describedby="kh-name-hint"
+              enterKeyHint="done"
               onChange={(e) => setName(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') confirmClaim();
-                if (e.key === 'Escape') setPicking(null);
+                if (e.key === 'Escape') closeSheet();
               }}
             />
             <p className="kh-name-hint" id="kh-name-hint">{t.nameHint}</p>
-            <p className="kh-note">{fill(t.modalNote, { hold: holdLabel })}</p>
-            <div className="kh-sheet-actions">
-              <button type="button" onClick={confirmClaim} disabled={busy !== null}>
+            {err && errAt === 'sheet' && (
+              <p className="kh-err kh-err-sheet" role="alert">
+                {err}
+              </p>
+            )}
+            <div className="kh-sheet-actions" ref={sheetActions}>
+              <button
+                type="button"
+                onClick={confirmClaim}
+                disabled={busy !== null || k.parts[picking - 1]?.status !== 'free'}
+              >
                 {t.modalTake}
               </button>
-              <button type="button" className="kh-ghost" onClick={() => setPicking(null)}>
+              <button type="button" className="kh-ghost" onClick={closeSheet}>
                 {t.modalCancel}
               </button>
             </div>
