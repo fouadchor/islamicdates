@@ -821,9 +821,22 @@ const _bnClose = pick(lang, 'إخفاء', 'Dismiss', 'چھپائیں');
       .section-card { padding: 20px 16px; }
       aside { position: static; max-width: none; min-width: 0; flex: 1 1 100%; }
       .back-top { bottom: 16px; inset-inline-end: 14px; }
+      /* The floating back-to-top button sat over the footer's last links. */
+      .sm-inner { padding-bottom: 76px; }
+    }
+    /* Small phones: the three primary links and «More» fit on one line
+       (English «Prayer Times» was cut off at 320px). */
+    @media (max-width: 360px) {
+      .site-nav .nav-link.nav-pri { padding: 0 7px; }
+      .nav-more-btn { padding: 0 8px; gap: 3px; }
+    }
+    /* iOS Safari zooms the whole page into any form field under 16px and stays
+       zoomed after it. Many fields here are 13–15px, several set inline. */
+    @media (pointer: coarse) {
+      input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]), select, textarea:not([readonly]) { font-size: 16px !important; }
     }
     @media (max-width: 520px) {
-      .sm-inner { padding: 36px 18px 18px; }
+      .sm-inner { padding: 36px 18px 76px; }
       .sm-grid { grid-template-columns: 1fr; gap: 28px; }
       .sm-bottom { justify-content: flex-start; }
     }

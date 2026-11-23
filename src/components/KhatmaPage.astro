@@ -141,10 +141,14 @@ const ogImageAlt = view ? t.ogAlt(view.title, view.done) : undefined;
     .kh-count { margin:8px 0 0; font-size:15px; }
     .kh-count strong { font-size:17px; color:var(--accent-strong); }
     .kh-sub { color:var(--muted); font-size:14px; }
+    /* A drawn divider: a «·» beside Arabic-Indic digits reads as a zero. */
+    .kh-sep { display:inline-block; width:1px; height:.95em; margin:0 .3em; vertical-align:-.12em; background:currentColor; opacity:.35; }
     .kh-complete { margin:0 0 14px; padding:12px 14px; border-radius:12px; background:var(--accent-soft); font-size:14.5px; line-height:1.8; }
     .kh-complete a { color:var(--accent-strong); font-weight:700; }
     .kh-mine-note { margin:0 0 12px; padding:11px 13px; border-radius:12px; background:var(--gold-soft); color:var(--gold-deep); font-size:14px; line-height:1.8; }
-    .kh-err { margin:0 0 12px; padding:11px 13px; border-radius:12px; background:#fdecea; color:#b42318; font-size:14px; }
+    .kh-err { margin:0 0 12px; padding:11px 13px; border-radius:12px; background:#fdecea; color:#b42318; font-size:14px; line-height:1.7; }
+    .kh-err-cell { margin:0 10px 8px; padding:8px 10px; font-size:13px; }
+    .kh-err-sheet { margin:12px 0 0; }
 
     .kh-grid { list-style:none; margin:0; padding:0; display:grid; gap:10px; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); }
     /* The <li> is the card: its frame holds the face (a button, for taking a
@@ -191,14 +195,17 @@ const ogImageAlt = view ? t.ogAlt(view.title, view.done) : undefined;
     .kh-ghost:hover { color:var(--text) !important; }
     .kh-mine .kh-ghost { color:var(--gold-deep) !important; border-color:var(--gold) !important; }
 
-    .kh-modal { position:fixed; inset:0; z-index:60; background:rgba(9,25,31,.5); display:grid; place-items:center; padding:18px; }
-    .kh-sheet { width:min(420px, 100%); background:var(--surface); border-radius:18px; padding:20px; box-shadow:var(--shadow-lift); }
+    /* Flex + margin:auto rather than grid centring: when the keyboard leaves less
+       room than the sheet needs, the sheet scrolls from its top instead of being
+       cut off at both ends. KhatmaGrid sizes this box to the visible screen. */
+    .kh-modal { position:fixed; inset:0; z-index:60; background:rgba(9,25,31,.5); display:flex; padding:18px; overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }
+    .kh-sheet { width:min(420px, 100%); margin:auto; background:var(--surface); border-radius:18px; padding:20px; box-shadow:var(--shadow-lift); }
     .kh-sheet h3 { margin:0 0 4px; font-size:17px; }
     .kh-hint { margin:0 0 14px; font-size:13px; color:var(--muted); }
     .kh-sheet label { display:block; font-size:14px; font-weight:600; margin-bottom:6px; }
-    .kh-sheet input { font:inherit; width:100%; padding:11px 13px; border:1px solid var(--border); border-radius:12px; background:var(--bg); color:var(--text); }
+    .kh-sheet input { font:inherit; font-size:16px; width:100%; padding:11px 13px; border:1px solid var(--border); border-radius:12px; background:var(--bg); color:var(--text); }
     .kh-name-hint { margin:6px 0 0; font-size:12.5px; color:var(--muted); line-height:1.7; }
-    .kh-note { margin:12px 0 0; font-size:13px; color:var(--muted); line-height:1.8; }
+    .kh-note { margin:0 0 14px; font-size:13px; color:var(--muted); line-height:1.8; }
     .kh-sheet-actions { display:flex; gap:8px; margin-top:16px; }
     .kh-sheet-actions button { font:inherit; font-weight:700; padding:11px 16px; border-radius:12px; border:0; background:var(--accent); color:var(--accent-contrast); cursor:pointer; }
 
@@ -221,6 +228,17 @@ const ogImageAlt = view ? t.ogAlt(view.title, view.done) : undefined;
     }
     @media (max-width:480px) {
       .kh-grid { grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); }
+      .kh-modal { padding:12px; }
+      .kh-sheet { padding:18px 16px; }
+    }
+    /* Small phones (320–360px): keep two columns — one column made the grid of
+       thirty cards about seven screens long. */
+    @media (max-width:380px) {
+      .kh-grid { grid-template-columns:repeat(2, minmax(0, 1fr)); gap:8px; }
+      .kh-face { padding:10px; }
+      .kh-n { font-size:14px; }
+      .kh-actions { padding:0 8px 8px; }
+      .kh-actions button, .kh-read { padding:8px 6px; font-size:12.5px; }
     }
   </style>
 </Layout>

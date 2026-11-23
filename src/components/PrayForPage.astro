@@ -163,7 +163,8 @@ const ogImage = view ? `https://islamicdates.org/og/pray-for/${lang}-${view.kind
     .pf-count .pf-n { font-size: 24px; font-weight: 800; margin: 0 4px; vertical-align: -2px; }
     .pf-count.is-zero { background: var(--gold-soft); color: var(--gold-deep); }
     .pf-count-ic { display: inline-grid; animation: pf-beat .6s ease; }
-    .pf-dot { opacity: .45; }
+    /* A drawn divider: a «·» beside Arabic-Indic digits reads as a zero («٣ · ٥» → «٣ ٠٥»). */
+    .pf-dot { display: inline-block; width: 1px; height: 1em; background: currentColor; opacity: .3; }
     .pf-count-sub { font-size: 14.5px; font-weight: 600; }
     .pf-count-sub .pf-n { font-size: 16px; vertical-align: 0; }
 
@@ -249,7 +250,8 @@ const ogImage = view ? `https://islamicdates.org/og/pray-for/${lang}-${view.kind
     .pf-edit { display: flex; flex-direction: column; gap: 6px; color: var(--text); }
     .pf-edit-h { margin: 0 0 4px; font-weight: 800; font-size: 15px; }
     .pf-edit label[for], .pf-edit legend { font-size: 13.5px; font-weight: 700; padding: 0; margin: 8px 0 4px; color: var(--text); }
-    .pf-edit input[type=text] { font: inherit; padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); color: var(--text); width: 100%; }
+    /* 16px: iOS Safari zooms the whole page into any field set smaller. */
+    .pf-edit input[type=text] { font: inherit; font-size: 16px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); color: var(--text); width: 100%; }
     .pf-edit input[type=text]:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
     .pf-edit fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
     .pf-seg { display: inline-flex; flex-wrap: wrap; padding: 4px; gap: 4px; border-radius: 12px; background: var(--accent-soft); }
@@ -279,6 +281,8 @@ const ogImage = view ? `https://islamicdates.org/og/pray-for/${lang}-${view.kind
     .pf-bar-in { max-width: 440px; margin: 0 auto; }
     .pf-pray.in-bar { min-height: 54px; font-size: 17.5px; box-shadow: var(--shadow-lift); }
     body.pf-sticky-on .back-top { bottom: 96px; }
+    /* …and the site footer's last lines stay reachable above the bar. */
+    body.pf-sticky-on .sm-footer { padding-bottom: 96px; }
 
     @keyframes pf-beat { 0% { transform: scale(1); } 30% { transform: scale(1.28); } 60% { transform: scale(.94); } 100% { transform: scale(1); } }
     @keyframes pf-rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
@@ -291,6 +295,7 @@ const ogImage = view ? `https://islamicdates.org/og/pray-for/${lang}-${view.kind
     @media (pointer: coarse) {
       .pf-wa, .pf-btn-soft, .pf-copy, .pf-admin-btns button, .pf-btn-main, .pf-btn-danger { min-height: 44px; }
       .pf-font button { height: 44px; }
+      .pf-seg span { min-height: 44px; min-width: 52px; display: flex; align-items: center; justify-content: center; }
     }
     @media (max-width: 480px) {
       .pf-share-row.is-big .pf-wa { flex: 1 1 100%; }

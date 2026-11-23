@@ -155,6 +155,12 @@ export default function PrayForCard({ initial, lang, t, duas, shareUrl, newHref,
 
   useEffect(() => {
     setCanShare(typeof navigator !== 'undefined' && typeof navigator.share === 'function');
+    // saveEdit() turned scroll restoration off for its one reload; back to normal.
+    try {
+      if (history.scrollRestoration === 'manual') history.scrollRestoration = 'auto';
+    } catch {
+      /* nothing to restore */
+    }
     token.current = readerToken();
     setAdmin(store.get(adminKeyName(initial.slug)));
     const f = Number(store.get(FONT_KEY));
@@ -261,6 +267,14 @@ export default function PrayForCard({ initial, lang, t, duas, shareUrl, newHref,
     track('prayfor_edit', { kind: edit.kind, changed_kind: edit.kind !== kind, lang });
     // Every sentence on the page depends on the name, له/لها and the kind, and
     // the server words them; a reload is the honest way to show the new page.
+    // The edit form is at the foot of the page, and a reload would put the
+    // creator back down there — open the new page at its top, on the new name.
+    try {
+      history.scrollRestoration = 'manual';
+    } catch {
+      /* old browser — it keeps its place, nothing worse */
+    }
+    window.scrollTo(0, 0);
     window.location.reload();
   };
 
@@ -269,8 +283,14 @@ export default function PrayForCard({ initial, lang, t, duas, shareUrl, newHref,
     if (!j) return;
     store.del(adminKeyName(initial.slug));
     track('prayfor_delete', { kind, lang });
-    document.querySelectorAll('[data-pf-hero], .pf-reminder').forEach((el) => el.remove());
+    document.querySelectorAll('[data-pf-hero], .pf-reminder, .pf-another').forEach((el) => el.remove());
     setDeleted(true);
+    // The delete button was at the foot of a long page that has just shrunk to
+    // one line; without this the creator is left looking at the site footer.
+    window.setTimeout(() => {
+      const el = document.querySelector('.pf-deleted');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 30);
   };
 
   const setFontStep = (dir: 1 | -1) => {
@@ -412,13 +432,15 @@ export default function PrayForCard({ initial, lang, t, duas, shareUrl, newHref,
         <Counted n={p.prayers} forms={t.count} lang={lang} />
         {p.total > p.prayers && (
           <>
-            <span className="pf-dot" aria-hidden="true">·</span>
+            {' '}
+            <span className="pf-dot" aria-hidden="true" />
             <Counted n={p.total} forms={t.total} lang={lang} className="pf-count-sub" />
           </>
         )}
         {p.prayed && p.prayers > 0 && (
           <>
-            <span className="pf-dot" aria-hidden="true">·</span>
+            {' '}
+            <span className="pf-dot" aria-hidden="true" />
             <span className="pf-count-sub">{t.youToo}</span>
           </>
         )}

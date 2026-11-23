@@ -40,6 +40,13 @@ export interface GridT {
   /** Shown after a reader confirms a juz while others remain. */
   thanksDone: string;
   tExpired: string; tDay: string; tDays: string; tHour: string; tHours: string; tMinutes: string;
+  /**
+   * Arabic counts take three forms: «يومان» (2), «٥ أيام» (3–10), «١٥ يوماً» (11+).
+   * tDays / tHours / tMinutes are the 3–10 form; these fill the rest. Languages
+   * that need one plural (en, ur) leave them out.
+   */
+  tDays2?: string; tDaysMany?: string; tHours2?: string; tHoursMany?: string;
+  tMinute?: string; tMinutes2?: string; tMinutesMany?: string;
   err: Record<ErrCode, string>;
 }
 
@@ -166,7 +173,7 @@ const AR: KhatmaT = {
   createNew: 'إنشاء ختمة جديدة',
   navNew: 'ختمة جديدة',
   home: 'الرئيسية',
-  holdText: (h) => (h === 720 ? 'شهر' : h === 168 ? 'أسبوع' : h === 24 ? 'يوم واحد' : h < 24 ? `${h} ساعة` : h === 48 ? 'يومان' : `${h / 24} أيام`),
+  holdText: (h) => (h === 720 ? 'شهر' : h === 168 ? 'أسبوع' : h === 24 ? 'يوم واحد' : h < 24 ? `${num(h, 'ar')} ساعة` : h === 48 ? 'يومان' : `${num(h / 24, 'ar')} أيام`),
   khatmaTitle: (t) => `ختمة «${t}» · اختر جزءاً واقرأه`,
   khatmaDesc: (t, d) => d >= 30
     ? `اكتملت ختمة «${t}» بأجزائها الثلاثين. تقبّل الله من كل قارئ ما قرأ.`
@@ -187,7 +194,7 @@ const AR: KhatmaT = {
     tagDone: 'مقروء',
     tagHeldBy: 'يقرأ هذا الجزء: {name}',
     tagHeld: 'قيد القراءة',
-    tagMine: 'لك · {time}',
+    tagMine: 'لك — {time}',
     tagTake: 'خذ هذا الجزء',
     actRead: 'اقرأ الجزء', actDone: 'أتممت القراءة', actRelease: 'إرجاع الجزء',
     juzLabel: 'الجزء {ord} ({n})',
@@ -206,7 +213,10 @@ const AR: KhatmaT = {
     shareWa: 'مشاركة على واتساب', shareNative: 'تطبيقات أخرى…', shareCopy: 'نسخ الرابط', shareCopied: 'تم نسخ الرابط',
     thanksDone: 'تقبّل الله منك. الأجزاء المتبقية: {left} — شارك الرابط ليكتمل الختم.',
     tExpired: 'انتهت المهلة', tDay: 'يوم تقريباً', tDays: '{n} أيام تقريباً',
-    tHour: 'ساعة تقريباً', tHours: '{n} ساعات تقريباً', tMinutes: '{n} دقيقة',
+    tHour: 'ساعة تقريباً', tHours: '{n} ساعات تقريباً', tMinutes: '{n} دقائق',
+    tDays2: 'يومان تقريباً', tDaysMany: '{n} يوماً تقريباً',
+    tHours2: 'ساعتان تقريباً', tHoursMany: '{n} ساعة تقريباً',
+    tMinute: 'دقيقة', tMinutes2: 'دقيقتان', tMinutesMany: '{n} دقيقة',
     err: {
       taken: 'سبقك إليه غيرك — اختر جزءاً آخر.',
       cannot_confirm: 'لا يمكن تأكيد هذا الجزء — ربما انتهت مهلته أو أُكِّد من قبل.',
@@ -444,7 +454,7 @@ const UR: KhatmaT = {
   createNew: 'نیا ختم شروع کریں',
   navNew: 'نیا ختم',
   home: 'ہوم',
-  holdText: (h) => (h === 720 ? 'ایک مہینہ' : h === 168 ? 'ایک ہفتہ' : h === 24 ? 'ایک دن' : h < 24 ? `${h} گھنٹے` : `${h / 24} دن`),
+  holdText: (h) => (h === 720 ? 'ایک مہینہ' : h === 168 ? 'ایک ہفتہ' : h === 24 ? 'ایک دن' : h < 24 ? `${num(h, 'ur')} گھنٹے` : `${num(h / 24, 'ur')} دن`),
   khatmaTitle: (t) => `ختم «${t}» · ایک پارہ لیں اور پڑھیں`,
   khatmaDesc: (t, d) => d >= 30
     ? `ختم «${t}» مکمل ہو گیا — تیسوں پارے پڑھے جا چکے۔ اللہ ہر قاری سے قبول فرمائے۔`
@@ -465,7 +475,7 @@ const UR: KhatmaT = {
     tagDone: 'مکمل',
     tagHeldBy: 'یہ پارہ {name} پڑھ رہے ہیں',
     tagHeld: 'زیرِ تلاوت',
-    tagMine: 'آپ کا · {time}',
+    tagMine: 'آپ کا — {time}',
     tagTake: 'یہ پارہ لیں',
     actRead: 'پارہ پڑھیں', actDone: 'پڑھ لیا', actRelease: 'پارہ واپس کریں',
     juzLabel: '{ord} پارہ ({n})',
